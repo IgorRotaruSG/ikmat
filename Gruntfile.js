@@ -455,7 +455,8 @@ module.exports = function(grunt) {
 	'useminPrepare',
 	'postcss',
 	'copy:dist', 
-	'processhtml:cordova']);
+	'processhtml:cordova'
+	]);
 
 	grunt.registerTask('build', ['dev', 'minfile']);
 	grunt.registerTask('buildios', ['devios', 'minfile']);

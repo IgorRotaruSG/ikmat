@@ -36,7 +36,8 @@
     "open": "0.0.5",
     "run-sequence": "^1.1.1",
     "time-grunt": "^1.0.0",
-    "grunt-processhtml": "*"
+    "grunt-processhtml": "*",
+    "grunt-phonegapsplash": "*"
   },
   "engines": {
     "node": ">=0.10.0"
