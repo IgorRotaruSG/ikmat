@@ -1,0 +1,197 @@
+{
+    "general": {
+        "cancel_button": "Cancel & go to login",
+        "deviation_accept_message": "The data that you entered will generate a deviation. Are you sure you want to add a deviation?",
+        "save_button": "Save",
+        "start_date": "Start date",
+        "maintenance_need": "Maintenance need",
+        "planned_measures": "Planned measures",
+        "maintenance_date": "Maintenance date",
+        "maintenance_responsible": "Responsible for maintenance",
+        "submit_button": "Submit",
+        "sign_button": "Sign",
+        "flowchart_delete" : "Are you sure you want to delete this flowchart?",
+        "load_more": "Load More",
+        "loading": "Loading"
+    },
+
+    "tasks": {
+        "registration_steps": "Complete registration steps",
+        "complete_profile": "Complete Profile",
+        "complete_haccp": "Complete HACCP",
+        "maintenance_fix": "Maintenance fix",
+        "deviation_fix": "Deviation fix",
+        "poison_fix": "Food poison fix",
+        "deviation_description" : "Deviation Description",
+        "initial_action" : "Initial Action",
+        "responsible" : "Responsible for fixing deviation",
+        "deadline" : "Deadline for deviation fix"
+    },
+    "forms": {
+        "no_forms_connection": "No forms to show. Please connect to internet to sync.",
+        "no_forms_yet": "No forms to show, yet."
+    },
+    "nav": {
+        "title": "Navigation",
+        "registration": "Registration",
+        "haccp": "HACCP",
+        "tasks": "Tasks",
+        "forms": "Forms",
+        "reports": "Reports",
+        "logout": "Logout",
+        "add_employee": "Add Employee",
+        "add_supplier": "Add Supplier",
+        "documents": "Company Documents",
+        "flowcharts": "Flowcharts"
+    },
+
+    "error": {
+        "validation": "This field is required.",
+        "validation_number": "Please insert numeric value.",
+        "validation_email": "Please insert valid email address",
+        "duplicate_email": "This email address already exists",
+        "no_internet_for_sync": "No internet connection detected. Please connect to internet for sync.",
+        "no_email_found": "The email address you entered does not exist.",
+        "no_tasks": "No tasks found!",
+        "no_haccps": "You need to complete the registration before you can perform a HACCP. Please complete the registration",
+        "duplicate_employee": "The email address is already in use",
+        "unexpected": "Unexpected error. Application will reload.",
+        "internet_connection_needed": "You need internet connection to login",
+        "no_data": "No data to display",
+        "signature_name": "This field is required"
+    },
+
+    "success": {
+        "password_recover_email": "An email was sent. Please check the email and follow the steps to change your password.",
+        "register_edit": "Thank you for completing the registration of your company. You can now proceed with the HACCP part of the registration.",
+        "added_employee": "Employee added successfully.",
+        "added_supplier": "Supplier has been successfully added."
+    },
+
+    "page_title": {
+        "register_company": "Register",
+        "register_edit":    "Profile Edit",
+        "haccp":            "HACCP",
+        "tasks":            "Tasks",
+        "forms":            "Forms",
+        "completed_tasks":  "Completed Tasks",
+        "task_view":        "Task View",
+        "form_view":        "Form",
+        "form_view2":        "Form",
+        "add_task":         "Add Task",
+        "reports":          "Reports",
+        "haccp_deviation":  "Deviation",
+        "haccp_deviation_fix": "Deviation Fix",
+        "reports_view":     "View Report",
+        "add_employee":     "Add Employee",
+        "add_supplier":     "Add Supplier",
+        "documents":        "Documents",
+        "tos":              "Terms and Conditions",
+        "maintenance":      "Maintenance",
+        "reports_task":     "View Report",
+        "flowchart": "Flowchart"
+    },
+
+    "haccp": {
+        "no_haccp": "Thank you for completing the HACCP. You can now proceed with using the app for your daily routines.",
+        "no_haccp_yet": "No HACCP to show. Please connect to internet to sync.",
+        "small_answer": "Small: Seldom or never",
+        "medium_answer": "Medium: Once a month",
+        "big_answer": "Big: Several times a week",
+        "small_answer_cons": "Small: None",
+        "medium_answer_cons": "Medium: Food poisoning",
+        "big_answer_cons": "Big: Sickness",
+        "low_matrix": "low",
+        "medium_matrix": "medium",
+        "high_matrix": "high",
+        "possibility": "Possibility",
+        "consequence": "Consequence",
+        "signature": "Signature",
+        "consequence_question": "If this happens, what do you think are the consequences for your customers?",
+        "this_is_required": "This is required"
+    },
+
+    "haccp_deviation_fix": {
+        "deviation": "Deviation",
+        "initial_action": "Initial action",
+        "deviation_date": "Deviation date (from system)",
+        "responsible": "Responsible for fixing deviation"
+    },
+
+    "login": {
+        "input": {
+            "email_placeholder": "Email Address",
+            "password_placeholder": "Password",
+            "button": "Login"
+        },
+        "text": {
+            "forgot": "Forgot your password?",
+            "forgot2": "Forgot password",
+            "register": "Register"
+        }
+    },
+
+    "register": {
+        "duplicate_email_error": "Email address already in use",
+        "submit_button": "Register Company",
+        "success_message": "Thank you for your interest in IK-mat. We will send you more information on how to proceed as soon as Lubeco has activated your account.",
+        "food_poison_success": "Food poison has been successfully submitted.",
+        "edit_success_message": "Audit complete<br /><br />You will be redirected shortly.",
+        "must_accept_terms": "You need to accept the terms before register."
+    },
+
+    "tos": {
+        "label": "Read terms and conditions",
+        "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam sed erat ac neque varius venenatis id eget lectus. Phasellus mi sapien, pretium id purus a, aliquam interdum justo. Pellentesque sit amet turpis vulputate, ultricies dui non, dictum ipsum. Pellentesque dapibus bibendum accumsan. Sed quis diam ac neque venenatis vulputate. Vestibulum ut tristique est, ut congue nulla. Nullam interdum ante nec leo ornare suscipit. Duis sit amet lectus venenatis, sollicitudin ante ac, sagittis felis. Integer consectetur est nec turpis tempor, et malesuada massa commodo. Proin non est et neque semper mollis. Donec quis auctor quam. Aenean vitae condimentum erat, at accumsan velit. Nam scelerisque, nisi eget lobortis ultrices, lorem magna pellentesque turpis, at feugiat ipsum magna a arcu. Aenean interdum urna ante, ac lobortis risus facilisis vel. Vivamus id erat luctus, convallis leo non, eleifend est.Vivamus faucibus, diam nec lacinia viverra, dolor massa auctor dolor, non tincidunt ligula nisi vitae enim. Cras in neque justo. Nam et aliquet metus. Vestibulum faucibus, orci fringilla consequat ullamcorper, metus elit egestas purus, dignissim tincidunt elit augue sit amet sem. Vivamus auctor, lacus nec suscipit laoreet, tellus tortor convallis orci, non lacinia sem mauris id urna. Aliquam sagittis mauris at nisi gravida, id accumsan arcu gravida. Praesent pharetra aliquam elit, ac commodo sem volutpat non. Aenean interdum nunc eget purus hendrerit convallis. Aliquam vitae elit risus. Maecenas varius diam vel libero tincidunt, eu rutrum lorem tristique.Donec ultricies tincidunt eleifend. Donec eget vulputate ante, nec ultricies velit. Mauris auctor mi sit amet mi ullamcorper congue. Duis tincidunt nibh nec libero bibendum adipiscing. Phasellus vitae nibh urna. Nullam eleifend hendrerit tempor. Morbi quam leo, porta id lacus eu, faucibus mollis orci. Aenean sagittis bibendum nulla, in eleifend magna tristique iaculis. Sed scelerisque, ipsum sed sollicitudin sagittis, sapien nibh mattis ante, eu sagittis erat ligula in ante. Proin suscipit non lacus id iaculis. Pellentesque nec quam sed lectus consequat hendrerit in a arcu. Praesent quis massa a diam consectetur ullamcorper. Pellentesque elementum, dolor ac pulvinar semper, dui velit iaculis felis, vel ultrices purus enim a leo.Sed et blandit ante. Cras eget mattis orci, eu rutrum turpis. Donec aliquam at ipsum a pharetra. Nulla facilisi. Suspendisse ut velit convallis, viverra diam sed, iaculis est. Proin fermentum eros at arcu feugiat, in adipiscing neque bibendum. Fusce porta rhoncus massa eu convallis. Cras ornare ante tellus, nec facilisis dolor ultricies quis. Aenean euismod sollicitudin nunc sed vestibulum.Nunc pharetra sapien in eleifend dignissim. Duis vestibulum enim sed magna dignissim, lobortis porttitor dui eleifend. Mauris sit amet sollicitudin arcu. Proin dolor metus, scelerisque vel elit sit amet, volutpat varius nisl. Proin felis odio, commodo sit amet imperdiet posuere, ultricies sed ante. Maecenas porttitor magna placerat est pretium consectetur. Donec ac feugiat lacus. Ut quis convallis sapien. Donec condimentum, tellus ac convallis pulvinar, arcu sapien tincidunt quam, in lacinia magna mauris a diam. Aliquam aliquet ligula id ipsum lobortis pulvinar. Mauris nec porttitor dolor. Duis porttitor risus augue, vestibulum viverra nunc commodo et. Nam ut molestie mauris. ",
+        "back": "Back to registration"
+    },
+
+    "forgot": {
+        "input": {
+            "button": "Recover",
+            "email_placeholder": "Email Address"
+        },
+        "back": "Go back to login"
+    },
+
+    "reports_filter": {
+        "select": {
+            "crt_year": "Current Year",
+            "crt_month": "Current Month",
+            "yearly": "Yearly",
+            "monthly": "Monthly",
+            "custom": "Custom"
+        },
+        "months": {
+            "1": "January",
+            "2": "February",
+            "3": "March",
+            "4": "April",
+            "5": "May",
+            "6": "June",
+            "7": "July",
+            "8": "August",
+            "9": "September",
+            "10": "October",
+            "11": "November",
+            "12": "December"
+        }
+    },
+    "booleans": {
+        "yes": "Yes",
+        "no": "No"
+    },
+    "colors":{
+        "red": "Red",
+        "green": "Green",
+        "blue": "Blue",
+        "white": "White",
+        "pink": "Pink",
+        "brown": "Brown",
+        "yellow": "Yellow"
+    },
+    "pictures":{
+        "select": "Select picture from album",
+        "take": "Take picture"
+    }
+}

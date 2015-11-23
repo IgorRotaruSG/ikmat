@@ -1,0 +1,9 @@
+{
+    "icon": {"filename":"lubeco_logo.png","background":"fff"},
+    "customImages": [
+        {"width": 120, "height": 120, "path": "../Media/custom", "filename":"outputFilename.png", "source":{"filename":"image.png","background":"fff"}}
+    ],
+    "screenshots": [
+        {"url":"http://www.google.com", "name":"homepage"}
+    ]
+}

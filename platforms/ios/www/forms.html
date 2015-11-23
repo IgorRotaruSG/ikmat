@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript">
+        if (window.Page == undefined) {
+            window.location.href = 'index.html';
+        }
+
+        var Page = new Page('forms');
+
+        document.addEventListener('deviceready', deviceReady, false);
+        document.addEventListener("backbutton", onBackKeyDown, false);
+        function onBackKeyDown(e) {
+            e.preventDefault();
+        }
+
+        function deviceReady() {
+            Page.isReady();
+        }
+    </script>
+</head>
+<body>
+<div data-role="page" data-theme="a" id="forms" data-head-title="Forms">
+
+    <!-- header -->
+    <div data-role="header" id="global_header" data-position="fixed">
+        <!-- data will be added here with ajax -->
+    </div>
+    <!-- end header -->
+
+    <!-- content -->
+    <div data-role="content" data-theme="a" style="padding:0 !important;">
+        <div class="overflow-wrapper">
+            <div id="clean-overflow-wrapper" class="overflow-wrapper overflow-wrapper-hide"><img src="assets/main/images/loading_tasks5.gif" width="100%" height="4" style="vertical-align: top;" /></div>
+        </div>
+        <div class="swiper-container-form" id="max-height-form">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <div>
+                        <ul data-role="listview" data-inset="true" data-divider-theme="b" id="forms_list" class="no-icon-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="no_results_forms" class="no_results"></div>
+    </div>
+    <!-- end content -->
+
+    <!-- panel -->
+    <div data-role="panel" id="menu_panel" data-position="left" data-theme="a">
+        <!-- data will be added here with ajax -->
+    </div>
+    <!-- end panel -->
+</div>
+</body>
+</html>
