@@ -92,6 +92,7 @@ function showFlowchart(data) {
                 beforeOpen: function() {
                 }, // called before opening
                 afterOpen: function(){
+                	// new RTP.PinchZoom($('div .current'), {});
                 }, // called after opening
                 afterClose: function() {}, // called after closing
                 loopAtEnd: true // true will return to the first image after the last image is reached

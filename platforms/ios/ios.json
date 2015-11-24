@@ -21,10 +21,6 @@
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"Device\"><param name=\"ios-package\" value=\"CDVDevice\" /></feature>",
-                            "count": 1
-                        },
-                        {
                             "xml": "<feature name=\"File\"><param name=\"ios-package\" value=\"CDVFile\" /></feature>",
                             "count": 1
                         },
@@ -33,11 +29,19 @@
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"InAppBrowser\"><param name=\"ios-package\" value=\"CDVInAppBrowser\" /></feature>",
+                            "xml": "<feature name=\"NetworkStatus\"><param name=\"ios-package\" value=\"CDVConnection\" /></feature>",
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"NetworkStatus\"><param name=\"ios-package\" value=\"CDVConnection\" /></feature>",
+                            "xml": "<feature name=\"PushNotification\"><param name=\"ios-package\" value=\"PushPlugin\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Device\"><param name=\"ios-package\" value=\"CDVDevice\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"InAppBrowser\"><param name=\"ios-package\" value=\"CDVInAppBrowser\" /></feature>",
                             "count": 1
                         },
                         {
@@ -50,10 +54,6 @@
                         },
                         {
                             "xml": "<preference name=\"StatusBarStyle\" value=\"lightcontent\" />",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"PushNotification\"><param name=\"ios-package\" value=\"PushPlugin\" /></feature>",
                             "count": 1
                         }
                     ]
@@ -84,25 +84,25 @@
         "org.apache.cordova.camera": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
-        "org.apache.cordova.device": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
         "org.apache.cordova.file": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "org.apache.cordova.file-transfer": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
-        "org.apache.cordova.inappbrowser": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
         "org.apache.cordova.network-information": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
-        "org.apache.cordova.statusbar": {
+        "phonegap-plugin-push": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
-        "phonegap-plugin-push": {
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-plugin-statusbar": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         }
     },
@@ -155,14 +155,6 @@
             "pluginId": "org.apache.cordova.camera",
             "clobbers": [
                 "CameraPopoverHandle"
-            ]
-        },
-        {
-            "file": "plugins/org.apache.cordova.device/www/device.js",
-            "id": "org.apache.cordova.device.device",
-            "pluginId": "org.apache.cordova.device",
-            "clobbers": [
-                "device"
             ]
         },
         {
@@ -329,14 +321,6 @@
             ]
         },
         {
-            "file": "plugins/org.apache.cordova.inappbrowser/www/inappbrowser.js",
-            "id": "org.apache.cordova.inappbrowser.inappbrowser",
-            "pluginId": "org.apache.cordova.inappbrowser",
-            "clobbers": [
-                "window.open"
-            ]
-        },
-        {
             "file": "plugins/org.apache.cordova.network-information/www/network.js",
             "id": "org.apache.cordova.network-information.network",
             "pluginId": "org.apache.cordova.network-information",
@@ -354,19 +338,36 @@
             ]
         },
         {
-            "file": "plugins/org.apache.cordova.statusbar/www/statusbar.js",
-            "id": "org.apache.cordova.statusbar.statusbar",
-            "pluginId": "org.apache.cordova.statusbar",
-            "clobbers": [
-                "window.StatusBar"
-            ]
-        },
-        {
             "file": "plugins/phonegap-plugin-push/www/push.js",
             "id": "phonegap-plugin-push.PushNotification",
             "pluginId": "phonegap-plugin-push",
             "clobbers": [
                 "PushNotification"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-device/www/device.js",
+            "id": "cordova-plugin-device.device",
+            "pluginId": "cordova-plugin-device",
+            "clobbers": [
+                "device"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
+            "id": "cordova-plugin-inappbrowser.inappbrowser",
+            "pluginId": "cordova-plugin-inappbrowser",
+            "clobbers": [
+                "cordova.InAppBrowser.open",
+                "window.open"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
+            "id": "cordova-plugin-statusbar.statusbar",
+            "pluginId": "cordova-plugin-statusbar",
+            "clobbers": [
+                "window.StatusBar"
             ]
         }
     ]

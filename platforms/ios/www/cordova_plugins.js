@@ -50,14 +50,6 @@ module.exports = [
         ]
     },
     {
-        "file": "plugins/org.apache.cordova.device/www/device.js",
-        "id": "org.apache.cordova.device.device",
-        "pluginId": "org.apache.cordova.device",
-        "clobbers": [
-            "device"
-        ]
-    },
-    {
         "file": "plugins/org.apache.cordova.file/www/DirectoryEntry.js",
         "id": "org.apache.cordova.file.DirectoryEntry",
         "pluginId": "org.apache.cordova.file",
@@ -221,14 +213,6 @@ module.exports = [
         ]
     },
     {
-        "file": "plugins/org.apache.cordova.inappbrowser/www/inappbrowser.js",
-        "id": "org.apache.cordova.inappbrowser.inappbrowser",
-        "pluginId": "org.apache.cordova.inappbrowser",
-        "clobbers": [
-            "window.open"
-        ]
-    },
-    {
         "file": "plugins/org.apache.cordova.network-information/www/network.js",
         "id": "org.apache.cordova.network-information.network",
         "pluginId": "org.apache.cordova.network-information",
@@ -246,19 +230,36 @@ module.exports = [
         ]
     },
     {
-        "file": "plugins/org.apache.cordova.statusbar/www/statusbar.js",
-        "id": "org.apache.cordova.statusbar.statusbar",
-        "pluginId": "org.apache.cordova.statusbar",
-        "clobbers": [
-            "window.StatusBar"
-        ]
-    },
-    {
         "file": "plugins/phonegap-plugin-push/www/push.js",
         "id": "phonegap-plugin-push.PushNotification",
         "pluginId": "phonegap-plugin-push",
         "clobbers": [
             "PushNotification"
+        ]
+    },
+    {
+        "file": "plugins/cordova-plugin-device/www/device.js",
+        "id": "cordova-plugin-device.device",
+        "pluginId": "cordova-plugin-device",
+        "clobbers": [
+            "device"
+        ]
+    },
+    {
+        "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
+        "id": "cordova-plugin-inappbrowser.inappbrowser",
+        "pluginId": "cordova-plugin-inappbrowser",
+        "clobbers": [
+            "cordova.InAppBrowser.open",
+            "window.open"
+        ]
+    },
+    {
+        "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
+        "id": "cordova-plugin-statusbar.statusbar",
+        "pluginId": "cordova-plugin-statusbar",
+        "clobbers": [
+            "window.StatusBar"
         ]
     }
 ];

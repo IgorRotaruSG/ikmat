@@ -70,16 +70,10 @@
         "org.apache.cordova.camera": {
             "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
         },
-        "org.apache.cordova.device": {
-            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
-        },
         "org.apache.cordova.file": {
             "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
         },
         "org.apache.cordova.file-transfer": {
-            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
-        },
-        "org.apache.cordova.inappbrowser": {
             "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
         },
         "org.apache.cordova.network-information": {
@@ -88,10 +82,16 @@
         "de.appplant.cordova.plugin.printer": {
             "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
         },
-        "org.apache.cordova.statusbar": {
+        "phonegap-plugin-push": {
             "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
         },
-        "phonegap-plugin-push": {
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
+        },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
+        },
+        "cordova-plugin-statusbar": {
             "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
         }
     },

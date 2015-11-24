@@ -1,12 +1,4 @@
 {
-    "org.apache.cordova.statusbar": {
-        "source": {
-            "type": "registry",
-            "id": "org.apache.cordova.statusbar"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
     "cordova-plugin-whitelist": {
         "source": {
             "type": "git",
@@ -44,12 +36,6 @@
         "is_top_level": true,
         "variables": {}
     },
-    "org.apache.cordova.device": {
-        "source": {
-            "type": "local",
-            "path": "/tmp/org.apache.cordova.device/package"
-        }
-    },
     "cordova-plugin-device": {
         "source": {
             "type": "registry",
@@ -85,12 +71,6 @@
         },
         "is_top_level": true,
         "variables": {}
-    },
-    "org.apache.cordova.inappbrowser": {
-        "source": {
-            "type": "local",
-            "path": "/var/folders/dp/zshzdbjj3jqb95b0ybqgrfth0000gn/T/org.apache.cordova.inappbrowser/package"
-        }
     },
     "cordova-plugin-inappbrowser": {
         "source": {

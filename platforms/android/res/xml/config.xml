@@ -7,6 +7,16 @@
     <feature name="PushNotification">
         <param name="android-package" value="com.adobe.phonegap.push.PushPlugin" />
     </feature>
+    <feature name="Device">
+        <param name="android-package" value="org.apache.cordova.device.Device" />
+    </feature>
+    <feature name="InAppBrowser">
+        <param name="android-package" value="org.apache.cordova.inappbrowser.InAppBrowser" />
+    </feature>
+    <feature name="StatusBar">
+        <param name="android-package" value="org.apache.cordova.statusbar.StatusBar" />
+        <param name="onload" value="true" />
+    </feature>
     <allow-intent href="market:*" />
     <name>IK-Mat</name>
     <description>
@@ -18,11 +28,9 @@
     <preference name="permissions" value="none" />
     <preference name="orientation" value="default" />
     <preference name="target-device" value="universal" />
-    <preference name="fullscreen" value="true" />
     <preference name="webviewbounce" value="true" />
     <preference name="prerendered-icon" value="true" />
     <preference name="stay-in-webview" value="false" />
-    <preference name="ios-statusbarstyle" value="black-opaque" />
     <preference name="detect-data-types" value="true" />
     <preference name="exit-on-suspend" value="false" />
     <preference name="show-splash-screen-spinner" value="true" />
@@ -32,7 +40,7 @@
     <preference name="DisallowOverscroll" value="true" />
     <preference name="webviewbounce" value="false" />
     <preference name="StatusBarOverlaysWebView" value="false" />
-    <preference name="StatusBarStyle" value="lightcontent" />
+    <preference name="StatusBarStyle" value="lightContent" />
     <gap:plugin name="org.apache.cordova.battery-status" />
     <gap:plugin name="org.apache.cordova.camera" />
     <gap:plugin name="org.apache.cordova.media-capture" />
@@ -59,10 +67,21 @@
     <icon gap:platform="android" gap:qualifier="xhdpi" src="res/icon/android/icon-96-xhdpi.png" />
     <icon gap:platform="blackberry" src="res/icon/blackberry/icon-80.png" />
     <icon gap:platform="blackberry" gap:state="hover" src="res/icon/blackberry/icon-80.png" />
-    <icon gap:platform="ios" height="57" src="res/icon/ios/icon-57.png" width="57" />
-    <icon gap:platform="ios" height="72" src="res/icon/ios/icon-72.png" width="72" />
-    <icon gap:platform="ios" height="114" src="res/icon/ios/icon-57-2x.png" width="114" />
-    <icon gap:platform="ios" height="144" src="res/icon/ios/icon-72-2x.png" width="144" />
+    <icon height="180" platform="ios" src="res/icon/ios/icon-60@3x.png" width="180" />
+    <icon height="60" platform="ios" src="res/icon/ios/icon-60.png" width="60" />
+    <icon height="120" platform="ios" src="res/icon/ios/icon-60@2x.png" width="120" />
+    <icon height="76" platform="ios" src="res/icon/ios/icon-76.png" width="76" />
+    <icon height="152" platform="ios" src="res/icon/ios/icon-76@2x.png" width="152" />
+    <icon height="40" platform="ios" src="res/icon/ios/icon-40.png" width="40" />
+    <icon height="80" platform="ios" src="res/icon/ios/icon-40@2x.png" width="80" />
+    <icon height="57" platform="ios" src="res/icon/ios/icon.png" width="57" />
+    <icon height="114" platform="ios" src="res/icon/ios/icon@2x.png" width="114" />
+    <icon height="72" platform="ios" src="res/icon/ios/icon-72.png" width="72" />
+    <icon height="144" platform="ios" src="res/icon/ios/icon-72@2x.png" width="144" />
+    <icon height="29" platform="ios" src="res/icon/ios/icon-small.png" width="29" />
+    <icon height="58" platform="ios" src="res/icon/ios/icon-small@2x.png" width="58" />
+    <icon height="50" platform="ios" src="res/icon/ios/icon-50.png" width="50" />
+    <icon height="100" platform="ios" src="res/icon/ios/icon-50@2x.png" width="100" />
     <icon gap:platform="webos" src="res/icon/webos/icon-64.png" />
     <icon gap:platform="winphone" src="res/icon/windows-phone/icon-48.png" />
     <icon gap:platform="winphone" gap:role="background" src="res/icon/windows-phone/icon-173.png" />
@@ -71,11 +90,16 @@
     <gap:splash gap:platform="android" gap:qualifier="port-hdpi" src="res/screen/android/screen-hdpi-portrait.png" />
     <gap:splash gap:platform="android" gap:qualifier="port-xhdpi" src="res/screen/android/screen-xhdpi-portrait.png" />
     <gap:splash gap:platform="blackberry" src="res/screen/blackberry/screen-225.png" />
-    <gap:splash gap:platform="ios" height="480" src="res/screen/ios/screen-iphone-portrait.png" width="320" />
-    <gap:splash gap:platform="ios" height="960" src="res/screen/ios/screen-iphone-portrait-2x.png" width="640" />
-    <gap:splash gap:platform="ios" height="1136" src="res/screen/ios/screen-iphone-portrait-568h-2x.png" width="640" />
-    <gap:splash gap:platform="ios" height="1024" src="res/screen/ios/screen-ipad-portrait.png" width="768" />
-    <gap:splash gap:platform="ios" height="768" src="res/screen/ios/screen-ipad-landscape.png" width="1024" />
+    <splash height="480" platform="ios" src="Default.png" width="320" />
+    <splash height="960" platform="ios" src="Default@2x.png" width="640" />
+    <splash height="1136" platform="ios" src="Default-568h@2x.png" width="640" />
+    <splash height="1334" platform="ios" src="Default-667h@2x.png" width="750" />
+    <splash height="2208" platform="ios" src="Default-Portrait-736h@3x.png" width="1242" />
+    <splash height="1242" platform="ios" src="Default-Landscape-736h@3x.png" width="2208" />
+    <splash height="1024" platform="ios" src="Default-Portrait.png" width="768" />
+    <splash height="768" platform="ios" src="Default-Landscape.png" width="1024" />
+    <splash height="2048" platform="ios" src="Default-Portrait@2x.png" width="1536" />
+    <splash height="1536" platform="ios" src="Default-Landscape@2x.png" width="2048" />
     <gap:splash gap:platform="winphone" src="res/screen/windows-phone/screen-portrait.jpg" />
     <gap:config-file parent="CFBundleShortVersionString" platform="ios">
         <string>100</string>

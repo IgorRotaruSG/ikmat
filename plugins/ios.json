@@ -19,25 +19,25 @@
         "org.apache.cordova.camera": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
-        "org.apache.cordova.device": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
         "org.apache.cordova.file": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "org.apache.cordova.file-transfer": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
-        "org.apache.cordova.inappbrowser": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
         "org.apache.cordova.network-information": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
-        "org.apache.cordova.statusbar": {
+        "phonegap-plugin-push": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
-        "phonegap-plugin-push": {
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-plugin-statusbar": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         }
     },

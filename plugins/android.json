@@ -65,26 +65,26 @@
         "org.apache.cordova.camera": {
             "PACKAGE_NAME": "com.haccp.app"
         },
-        "org.apache.cordova.device": {
-            "PACKAGE_NAME": "com.haccp.app"
-        },
         "org.apache.cordova.network-information": {
             "PACKAGE_NAME": "com.haccp.app"
         },
         "org.apache.cordova.file-transfer": {
             "PACKAGE_NAME": "com.haccp.app"
         },
-        "org.apache.cordova.inappbrowser": {
-            "PACKAGE_NAME": "com.haccp.app"
-        },
         "de.appplant.cordova.plugin.printer": {
-            "PACKAGE_NAME": "com.haccp.app"
-        },
-        "org.apache.cordova.statusbar": {
             "PACKAGE_NAME": "com.haccp.app"
         },
         "phonegap-plugin-push": {
             "PACKAGE_NAME": "com.haccp.app"
+        },
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-plugin-statusbar": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
         }
     },
     "dependent_plugins": {

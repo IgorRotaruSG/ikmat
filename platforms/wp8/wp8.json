@@ -4,10 +4,52 @@
         "uninstalled": []
     },
     "config_munge": {
-        "files": {}
+        "files": {
+            "config.xml": {
+                "parents": {
+                    "/*": [
+                        {
+                            "xml": "<feature name=\"Device\"><param name=\"wp-package\" value=\"Device\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"InAppBrowser\"><param name=\"wp-package\" value=\"InAppBrowser\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"StatusBar\"><param name=\"wp-package\" value=\"StatusBar\" /></feature>",
+                            "count": 1
+                        }
+                    ]
+                }
+            },
+            "Properties/WMAppManifest.xml": {
+                "parents": {
+                    "/Deployment/App/Capabilities": [
+                        {
+                            "xml": "<Capability Name=\"ID_CAP_IDENTITY_DEVICE\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<Capability Name=\"ID_CAP_NETWORKING\" />",
+                            "count": 2
+                        }
+                    ]
+                }
+            }
+        }
     },
     "installed_plugins": {
         "phonegap-plugin-push": {
+            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
+        },
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
+        },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
+        },
+        "cordova-plugin-statusbar": {
             "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
         }
     },
@@ -19,6 +61,31 @@
             "pluginId": "phonegap-plugin-push",
             "clobbers": [
                 "PushNotification"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-device/www/device.js",
+            "id": "cordova-plugin-device.device",
+            "pluginId": "cordova-plugin-device",
+            "clobbers": [
+                "device"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
+            "id": "cordova-plugin-inappbrowser.inappbrowser",
+            "pluginId": "cordova-plugin-inappbrowser",
+            "clobbers": [
+                "cordova.InAppBrowser.open",
+                "window.open"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
+            "id": "cordova-plugin-statusbar.statusbar",
+            "pluginId": "cordova-plugin-statusbar",
+            "clobbers": [
+                "window.StatusBar"
             ]
         }
     ]

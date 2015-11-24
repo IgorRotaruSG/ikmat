@@ -373,16 +373,10 @@
         <Compile Include="Plugins\org.apache.cordova.camera\Camera.cs" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Plugins\org.apache.cordova.device\Device.cs" />
-    </ItemGroup>
-    <ItemGroup>
         <Compile Include="Plugins\org.apache.cordova.file\File.cs" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Plugins\org.apache.cordova.file-transfer\FileTransfer.cs" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Include="Plugins\org.apache.cordova.inappbrowser\InAppBrowser.cs" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Plugins\org.apache.cordova.network-information\NetworkStatus.cs" />
@@ -478,6 +472,12 @@
         <Content Include="www\cordova_plugins.js" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Plugins\org.apache.cordova.statusbar\StatusBar.cs" />
+        <Compile Include="Plugins\cordova-plugin-device\Device.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Plugins\cordova-plugin-inappbrowser\InAppBrowser.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Plugins\cordova-plugin-statusbar\StatusBar.cs" />
     </ItemGroup>
 </Project>
