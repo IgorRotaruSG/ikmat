@@ -876,11 +876,11 @@ HTML.prototype.checkboxFlowchartList = function(name, label, list) {
     if ( label == '' ) {
         var html = '<hr class="no-lateral-border" />';
     } else {
-        var html = '<legend>' + label + '</legend>';
+        var html = '<div class="ui-grid-solo"><label>' + label + '</label></div>';
     }
     for (var i in list) {
         if (list.hasOwnProperty(i)) {
-            html += '<input class="flowchart-checkbox" name="' + name + '[' + i + ']" id="' + md5(name+i) + '" type="checkbox" value="' + i + '"';
+            html += '<div class="ui-checkbox-off ui-btn ui-btn-corner-all ui-fullsize ui-btn-icon-left ui-btn-up-a"><input class="flowchart-checkbox" name="' + name + '[' + i + ']" id="' + md5(name+i) + '" type="checkbox" value="' + i + '"';
             if (list[i].checked || list[i].checked == 'true') {
                 html += ' checked="checked"';
             }
@@ -895,8 +895,8 @@ HTML.prototype.checkboxFlowchartList = function(name, label, list) {
 
             html += ' />';
             html += '<label class="flowchart-label" for="' + md5(name+i) + '"></label>';
-            html += '<span class="ui-btn-inner flowchart-viewimg" onclick="javascript:HTML.showFlowchartImg(\'' +md5(name+i)+ '\',\''+list[i].imgPath+'\')"><span class="ui-btn-text">' + list[i].label + '</span><span class="ui-icon ui-icon-checkbox-on ui-icon-shadow">&nbsp;</span></span>';
-            html += '<div class="clearboth"></div>';
+            html += '<span class="ui-btn-inner flowchart-viewimg" onclick="javascript:HTML.showFlowchartImg(\'' +list[i].imgPath+'\')"><span class="ui-btn-text">' + list[i].label + '</span><span class="ui-icon ui-icon-checkbox-on ui-icon-shadow">&nbsp;</span></span>';
+            html += '</div><div class="clearboth"></div>';
             // custom checkbox - predefined list in list
             if (list[i].condition != undefined && list[i].extra != undefined) {
                 html += '<div id="' + id + '" style="margin:10px 20px;"';
@@ -912,15 +912,13 @@ HTML.prototype.checkboxFlowchartList = function(name, label, list) {
     return html;
 };
 
-HTML.prototype.showFlowchartImg = function(id, imgPath) {
-    if (!$('#'+id).prop('checked')) {
+HTML.prototype.showFlowchartImg = function(imgPath) {
         html = '<a id="backToFlowchartList" onclick="HTML.backToFlowchartList();" ><span class="ui-btn-inner"><span class="ui-btn-text"><i class="fa fa-close"></i></span></span></a>';
-        html += "<img class='flowchart-img' src='" + settings.apiPath + imgPath + "' />";
+        html += "<img class='flowchart-img' style='max-height: " + mySwiper.height +"px; max-width: " + mySwiper.width +"px' src='" + settings.apiPath + imgPath + "' />";
         mySwiper.insertSlideAfter(mySwiper.activeIndex, html, 'swiper-slide');
         mySwiper.swipeTo( mySwiper.activeIndex + 1 , 0, false );
         mySwiper.reInit();
         $('#footer').hide();
-    }
 };
 
 HTML.prototype.backToFlowchartList = function(imgPath) {
@@ -1290,14 +1288,15 @@ jQuery.fn.extend({
                         if (parseInt($(this).val()) != $(this).val()) {
                             stepValid = false;
                             errorNumber = true;
-                        }
-                        if ($(this).attr('name') == 'phone') {
-                            if ($(this).val().length < 5) {
-                                stepValid = false;
-                                errorNumber = true;
-                            } else {
-                                stepValid = true;
-                                errorNumber = false;
+                        } else {
+                            if ($(this).attr('name') == 'phone') {
+                                if ($(this).val().length < 5) {
+                                    stepValid = false;
+                                    errorNumber = true;
+                                } else {
+                                    stepValid = true;
+                                    errorNumber = false;
+                                }
                             }
                         }
                         break;
@@ -1306,7 +1305,7 @@ jQuery.fn.extend({
                             stepValid = false;
                         }
                         if ($(this).attr('name') == 'city') {
-                        var nameReg = /^[A-Za-z]*$/;
+                        var nameReg = /^[A-Z a-z]*$/;
                         var value=  $(this).val();
                         console.log(value);
                         if (!nameReg.test(value)) {
