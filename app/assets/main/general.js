@@ -387,8 +387,11 @@ function logout() {
         User.database = false;
         User.client = false;
         User.lastToken = false;
-        // window.location.reload();
-        window.location.href = settings.apiPath;
+        if(window.device){
+        	window.location.reload();
+        }else{
+        	window.location.href = settings.apiPath;
+        }
     });
 }
 
