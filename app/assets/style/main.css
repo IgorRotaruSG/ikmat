@@ -998,8 +998,10 @@ a.ui-slider-handle {
 }
 
 .flowchart-img {
-    width: 100%;
-    height: 100%;
+    display:block;
+    width:auto;
+    height:auto;
+    margin:0 auto;
 }
 
 .flowchart-label {

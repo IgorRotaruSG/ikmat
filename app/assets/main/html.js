@@ -895,7 +895,7 @@ HTML.prototype.checkboxFlowchartList = function(name, label, list) {
 
             html += ' />';
             html += '<label class="flowchart-label" for="' + md5(name+i) + '"></label>';
-            html += '<span class="ui-btn-inner flowchart-viewimg" onclick="javascript:HTML.showFlowchartImg(\''+list[i].imgPath+'\')"><span class="ui-btn-text">' + list[i].label + '</span><span class="ui-icon ui-icon-checkbox-on ui-icon-shadow">&nbsp;</span></span>';
+            html += '<span class="ui-btn-inner flowchart-viewimg" onclick="javascript:HTML.showFlowchartImg(\'' +list[i].imgPath+'\')"><span class="ui-btn-text">' + list[i].label + '</span><span class="ui-icon ui-icon-checkbox-on ui-icon-shadow">&nbsp;</span></span>';
             html += '</div><div class="clearboth"></div>';
             // custom checkbox - predefined list in list
             if (list[i].condition != undefined && list[i].extra != undefined) {
@@ -914,7 +914,7 @@ HTML.prototype.checkboxFlowchartList = function(name, label, list) {
 
 HTML.prototype.showFlowchartImg = function(imgPath) {
         html = '<a id="backToFlowchartList" onclick="HTML.backToFlowchartList();" ><span class="ui-btn-inner"><span class="ui-btn-text"><i class="fa fa-close"></i></span></span></a>';
-        html += "<img class='flowchart-img' src='" + settings.apiPath + imgPath + "' />";
+        html += "<img class='flowchart-img' style='max-height: " + mySwiper.height +"px; max-width: " + mySwiper.width +"px' src='" + settings.apiPath + imgPath + "' />";
         mySwiper.insertSlideAfter(mySwiper.activeIndex, html, 'swiper-slide');
         mySwiper.swipeTo( mySwiper.activeIndex + 1 , 0, false );
         mySwiper.reInit();
