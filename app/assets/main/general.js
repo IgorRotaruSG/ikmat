@@ -366,15 +366,6 @@ User.prototype.isLogged = function() {
     }
 };
 
-/*User.prototype.logout = function() {
-    logout_flag = true;
-    if ( db.dropDb() ) {
-        this.database = false;
-        this.client = false;
-        this.lastToken = false;
-        window.location.reload();
-    }
-};*/
 User.prototype.logout = function () {
     Page.apiCall('logout', { 'client': this.client, 'token': this.lastToken }, 'get', 'logout');
 };
@@ -387,7 +378,7 @@ function logout() {
         User.database = false;
         User.client = false;
         User.lastToken = false;
-        if(window.device){
+        if(isNative()){
         	window.location.reload();
         }else{
         	window.location.href = settings.apiPath;
@@ -1795,6 +1786,7 @@ $(document).on("pagechange", function( event, data ) {
         }
         $('#' + $.mobile.activePage.attr('id')).find('#menu_panel').load('_panel_employee.html', function(){
             bind_menuClick(this,n);
+            $('#menu_panel').find('a[href^="' + data.toPage[0].id + '"]').addClass('active');
         });
 
     } else {
@@ -1805,8 +1797,8 @@ $(document).on("pagechange", function( event, data ) {
             n = '';
         }
         $('#' + $.mobile.activePage.attr('id')).find('#menu_panel').load('_panel.html', function(){
-
             bind_menuClick(this,n);
+            $('#menu_panel').find('a[href^="' + data.toPage[0].id + '"]').addClass('active');
         });
     }
     // end add external files
@@ -1974,6 +1966,11 @@ function isOffline () { //check if application has internet connection
     }
     return true;
 }
+
+function isNative(){
+	return document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+}
+
 
 function noInternetError(message,login){
     if ( login === undefined ) {
