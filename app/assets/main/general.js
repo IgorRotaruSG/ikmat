@@ -1,8 +1,8 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    'apiDomain':        'http://ikmatapp.no/api/',
+    'apiDomain':        'http://mobistar.no/api/',
     //'apiPath':        'http://haccpy11.bywmds.us',
-    'apiPath':        'http://ikmatapp.no',
+    'apiPath':        'http://mobistar.no',
     'apiUploadPath':    'uploadPhotos',
     'testImage':    'apple-touch-icon.png',
     'syncIntervals': {       // sync interval in ms (1000 ms = 1 second)

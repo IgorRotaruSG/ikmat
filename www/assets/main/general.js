@@ -1,8 +1,8 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    'apiDomain':        'http://ikmatapp.no/api/',
+    'apiDomain':        'http://mobistar.no/api/',
     //'apiPath':        'http://haccpy11.bywmds.us',
-    'apiPath':        'http://ikmatapp.no',
+    'apiPath':        'http://mobistar.no',
     'apiUploadPath':    'uploadPhotos',
     'testImage':    'apple-touch-icon.png',
     'syncIntervals': {       // sync interval in ms (1000 ms = 1 second)
@@ -387,8 +387,11 @@ function logout() {
         User.database = false;
         User.client = false;
         User.lastToken = false;
-        // window.location.reload();
-        window.location.href = settings.apiPath;
+        if(window.device){
+        	window.location.reload();
+        }else{
+        	window.location.href = settings.apiPath;
+        }
     });
 }
 

@@ -498,7 +498,9 @@
 
                 this.container.css({
                     'overflow': 'hidden',
-                    'position': 'relative'
+                    'position': 'relative',
+                    'height': '100%',
+                    'width': '100%'
                 });
 
                 // Zepto doesn't recognize `webkitTransform..` style

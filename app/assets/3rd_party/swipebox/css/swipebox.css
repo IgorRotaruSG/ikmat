@@ -11,7 +11,7 @@ html.swipebox-html.swipebox-touch {
   width: 100%;
   height: 100%;
   position: fixed;
-  top: 70px;
+  top: 50px;
   left: 0;
   z-index: 999 !important;
   overflow: hidden;
@@ -355,4 +355,17 @@ html.swipebox-html.swipebox-touch {
 #flowchart-print > span,
 #flowchart-email > span {
     padding: 0.3em;
+}
+
+/*Add Pinchzoom*/
+#swipebox-slider .slide .pinch-zoom-container {
+  display: inline-block;
+  max-height: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  height: auto;
+  vertical-align: middle;
+  text-align: left;
 }

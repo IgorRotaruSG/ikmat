@@ -32,6 +32,8 @@
 			winWidth = window.innerWidth ? window.innerWidth : $( window ).width(),
 			winHeight = window.innerHeight ? window.innerHeight : $( window ).height(),
 			currentX = 0,
+			currentIndex,
+			currentElement,
 			/* jshint multistr: true */
 			html = '<div id="swipebox-overlay">\
 					<div id="swipebox-container">\
@@ -235,7 +237,7 @@
                     var windowHeight = window.innerHeight ? window.innerHeight : $(window).height(); /* fix for mobile ios */
                     height = windowHeight;
                 }
-                height = parseInt(height) - 70;
+                height = parseInt(height) - 50;
                 //alert(width);
 				sliderCss = {
 					width : width,
@@ -717,6 +719,8 @@
 					$this.loadMedia( src, function() {
 						slide.removeClass( 'slide-loading' );
 						slide.html( this );
+						new RTP.PinchZoom($(this), {});
+						
 					} );
 				} else {
 					slide.html( $this.getVideo( src ) );
