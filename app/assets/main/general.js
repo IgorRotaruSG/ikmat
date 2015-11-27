@@ -367,7 +367,11 @@ User.prototype.isLogged = function() {
 };
 
 User.prototype.logout = function () {
-    Page.apiCall('logout', { 'client': this.client, 'token': this.lastToken }, 'get', 'logout');
+	var request = { 'client': this.client, 'token': this.lastToken };
+	if(isNative() && window.deviceToken){
+		request.devicetoken = window.deviceToken;
+	}
+    Page.apiCall('logout', request, 'get', 'logout');
 };
 
 function logout() {
