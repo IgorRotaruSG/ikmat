@@ -1252,8 +1252,12 @@ Form.prototype.selectBox = function(name, label, options, placeholder, validatio
 Form.prototype.fileBox = function(name, label) {
     haccp_image_id = 'image_' + md5(name+label);
     var html = '<div data-role="controlgroup">';
-
-    html += '<a href="#" onclick="takeHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-camera pull-left"></i>' + $.t('pictures.take') + '</a>';
+	 if(!isNative()){
+    	html += '<div class="hidden"><input type="file" id="take_picture" accept="image/*"></div>';
+    }
+    if(isNative()){
+    	html += '<a href="#" onclick="takeHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-camera pull-left"></i>' + $.t('pictures.take') + '</a>';
+    }
     html += '<a href="#" onclick="selectHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-files-o pull-left"></i>' + $.t('pictures.select') + '</a>';
     html += '</div>';
 

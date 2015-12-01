@@ -153,9 +153,17 @@ HTML.prototype.formGenerate = function(form_data, s, d) {
 HTML.prototype.fileBox = function(name, label) {
     haccp_image_id = 'image_' + md5(name+label);
     var html = '<div data-role="controlgroup">';
-
-    html += '<a href="#" onclick="takeHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-camera pull-left"></i>' + $.t('pictures.take') + '</a>';
-    html += '<a href="#" onclick="selectHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-file pull-left"></i>' + $.t('pictures.select') + '</a>';
+    if(!isNative()){
+    	
+    }
+    if(isNative()){
+    	html += '<a href="#" onclick="takeHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-camera pull-left"></i>' + $.t('pictures.take') + '</a>';
+    	html += '<a href="#" onclick="selectHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-file pull-left"></i>' + $.t('pictures.select') + '</a>';
+    }else{
+    	html += '<a href="#" onclick="selectHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" class="border" data-theme="e"><i class="fa fa-file pull-left"></i>' + $.t('pictures.select') + '</a>';
+   html += '<div class="hidden"><input type="file" id="take_picture" accept="image/*"></div>';
+    }
+    
     html += '</div>';
 
     html += '<img width="100%" height="auto" style="visibility:hidden;display:none;margin:0 auto;" id="image_' + md5(name+label) + '" src="" />';

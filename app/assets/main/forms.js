@@ -1657,16 +1657,16 @@ function form2_save_dev_start_save() {
 }
 
 function takeHACCPPicture(id) {
+	navigator.camera.getPicture(
+    function(uri) {
 
-    navigator.camera.getPicture(
-        function(uri) {
-
-            $('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
-        },
-        function(e) {
-            console.log("Error getting picture: " + e);
-        },
-        { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI});
+        $('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
+    },
+    function(e) {
+        console.log("Error getting picture: " + e);
+    },
+    { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI});
+    
 };
 
 /*function selectHACCPPicture(id) {
@@ -1695,7 +1695,8 @@ function takeHACCPPicture(id) {
         realignSlideHeight('max-height-task');
 };*/
 function selectHACCPPicture(id) {
-    navigator.camera.getPicture(
+	if(isNative()){
+		navigator.camera.getPicture(
         function(uri) {
             if ( uri.substring(0,21) == "content://com.android") {
                 photo_split = uri.split("%3A");
@@ -1708,6 +1709,31 @@ function selectHACCPPicture(id) {
             console.log("Error getting picture: " + e);
         },
         { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
+	}else{
+		
+		var showPicture = $('#'+id);
+		$("#take_picture").change(function(event){
+			console.log("change");
+			
+			
+			var files = event.target.files,
+                file;
+                
+               console.log("web",showPicture); 
+            if (files && files.length > 0) {
+                file = files[0];
+                var fileReader = new FileReader();
+                        fileReader.onload = function (event) {
+                        	console.log("show picture");
+                            // showPicture.src = event.target.result;
+                            showPicture.css({'visibility': 'visible', 'display': 'block'}).attr('src', event.target.result);
+                        };
+                        fileReader.readAsDataURL(file);
+            }
+		});
+		$("#take_picture").trigger( "click", id );
+	}
+    
         realignSlideHeight('max-height-form');
 };
 
