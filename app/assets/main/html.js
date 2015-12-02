@@ -1314,7 +1314,7 @@ jQuery.fn.extend({
                             stepValid = false;
                         }
                         if ($(this).attr('name') == 'city') {
-                        var nameReg = /^[A-Z a-z]*$/;
+                        var nameReg = /^[A-Z a-z 0-9 ÆØÅ æøå &*)(+._-]*$/;
                         var value=  $(this).val();
                         console.log(value);
                         if (!nameReg.test(value)) {
