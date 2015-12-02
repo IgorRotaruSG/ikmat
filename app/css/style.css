@@ -98,3 +98,6 @@ body{
     color: #999;
     border-radius: .1875em;
 }*/
+.border{
+	border: 1px solid #ccc;
+}

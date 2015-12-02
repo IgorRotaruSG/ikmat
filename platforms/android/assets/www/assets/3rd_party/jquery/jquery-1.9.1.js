@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  * jQuery JavaScript Library v1.9.1
  * http://jquery.com/
  *
@@ -1770,7 +1770,7 @@ jQuery.extend({
 	// A method for determining if a DOM node can handle the data expando
 	acceptData: function( elem ) {
 		// Do not set data on non-element because it will not be cleared (#8335).
-		if ( elem == undefined || (elem.nodeType && elem.nodeType !== 1 && elem.nodeType !== 9)) {
+		if ( elem.nodeType && elem.nodeType !== 1 && elem.nodeType !== 9 ) {
 			return false;
 		}
 

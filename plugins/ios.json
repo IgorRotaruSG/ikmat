@@ -39,6 +39,9 @@
         },
         "cordova-plugin-statusbar": {
             "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "de.appplant.cordova.plugin.email-composer": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
         }
     },
     "dependent_plugins": {}

@@ -12,6 +12,7 @@
     limitations under the License.
 */
 
+using System.Globalization;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using System;
@@ -23,6 +24,7 @@ using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using WPCordovaClassLib.Cordova;
 using WPCordovaClassLib.Cordova.JSON;
 using WPCordovaClassLib.CordovaLib;
@@ -134,22 +136,6 @@ namespace WPCordovaClassLib
                 return;
             }
 
-
-            StartupMode mode = PhoneApplicationService.Current.StartupMode;
-
-            if (mode == StartupMode.Launch)
-            {
-                PhoneApplicationService service = PhoneApplicationService.Current;
-                service.Activated += new EventHandler<Microsoft.Phone.Shell.ActivatedEventArgs>(AppActivated);
-                service.Launching += new EventHandler<LaunchingEventArgs>(AppLaunching);
-                service.Deactivated += new EventHandler<DeactivatedEventArgs>(AppDeactivated);
-                service.Closing += new EventHandler<ClosingEventArgs>(AppClosing);
-            }
-            else
-            {
-
-            }
-
             // initializes native execution logic
             configHandler = new ConfigHandler();
             configHandler.LoadAppPackageConfig();
@@ -171,8 +157,42 @@ namespace WPCordovaClassLib
             nativeExecution = new NativeExecution(ref this.CordovaBrowser);
             bmHelper = new BrowserMouseHelper(ref this.CordovaBrowser);
 
+            ApplyConfigurationPreferences();
 
             CreateDecorators();
+        }
+
+        /// <summary>
+        /// Applies configuration preferences. Only BackgroundColor+fullscreen is currently supported.
+        /// </summary>
+        private void ApplyConfigurationPreferences()
+        {
+            string bgColor = configHandler.GetPreference("backgroundcolor");
+
+            if (!String.IsNullOrEmpty(bgColor))
+            {
+                try
+                {
+                    Browser.Background = new SolidColorBrush(ColorFromHex(bgColor));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Unable to parse BackgroundColor value '{0}'. Error: {1}", bgColor, ex.Message);
+                }
+            }
+
+            string disallowOverscroll = configHandler.GetPreference("disallowoverscroll");
+            if (!String.IsNullOrEmpty(disallowOverscroll))
+            {
+                try
+                {
+                    this.DisableBouncyScrolling = bool.Parse(disallowOverscroll);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Unable to parse DisallowOverscroll value '{0}'. Error: {1}", disallowOverscroll, ex.Message);
+                }
+            }
         }
 
         /*
@@ -234,6 +254,18 @@ namespace WPCordovaClassLib
 
         void CordovaBrowser_Loaded(object sender, RoutedEventArgs e)
         {
+          
+            PhoneApplicationService service = PhoneApplicationService.Current;
+            service.Activated += new EventHandler<Microsoft.Phone.Shell.ActivatedEventArgs>(AppActivated);
+            service.Launching += new EventHandler<LaunchingEventArgs>(AppLaunching);
+            service.Deactivated += new EventHandler<DeactivatedEventArgs>(AppDeactivated);
+            service.Closing += new EventHandler<ClosingEventArgs>(AppClosing);
+
+            foreach (IBrowserDecorator iBD in browserDecorators.Values)
+            {
+                iBD.AttachNativeHandlers();
+            }
+
 
             this.bmHelper.ScrollDisabled = this.DisableBouncyScrolling;
 
@@ -283,6 +315,20 @@ namespace WPCordovaClassLib
             catch (Exception ex)
             {
                 Debug.WriteLine("ERROR: Exception in CordovaBrowser_Loaded :: {0}", ex.Message);
+            }
+        }
+
+        private void CordovaBrowser_Unloaded(object sender, RoutedEventArgs e)
+        {
+            PhoneApplicationService service = PhoneApplicationService.Current;
+            service.Activated -= new EventHandler<Microsoft.Phone.Shell.ActivatedEventArgs>(AppActivated);
+            service.Launching -= new EventHandler<LaunchingEventArgs>(AppLaunching);
+            service.Deactivated -= new EventHandler<DeactivatedEventArgs>(AppDeactivated);
+            service.Closing -= new EventHandler<ClosingEventArgs>(AppClosing);
+
+            foreach (IBrowserDecorator iBD in browserDecorators.Values)
+            {
+                iBD.DetachNativeHandlers();
             }
         }
 
@@ -354,17 +400,29 @@ namespace WPCordovaClassLib
             }
 
             Debug.WriteLine("CordovaBrowser_LoadCompleted");
+
+            string version = "?";
+            System.Windows.Resources.StreamResourceInfo streamInfo = Application.GetResourceStream(new Uri("VERSION", UriKind.Relative));
+            if (streamInfo != null)
+            {
+                using(StreamReader sr = new StreamReader(streamInfo.Stream))
+                {
+                    version = sr.ReadLine();
+                }
+            }
+            Debug.WriteLine("Apache Cordova native platform version " + version + " is starting");
+
             string[] autoloadPlugs = this.configHandler.AutoloadPlugins;
             foreach (string plugName in autoloadPlugs)
             {
-                //nativeExecution.ProcessCommand(commandCallParams);
+                nativeExecution.AutoLoadCommand(plugName);
             }
 
             // send js code to fire ready event
             string nativeReady = "(function(){ cordova.require('cordova/channel').onNativeReady.fire()})();";
             try
             {
-                CordovaBrowser.InvokeScript("execScript", new string[] { nativeReady });
+                CordovaBrowser.InvokeScript("eval", new string[] { nativeReady });
             }
             catch (Exception /*ex*/)
             {
@@ -374,7 +432,7 @@ namespace WPCordovaClassLib
             string appExitHandler = "(function(){navigator.app = navigator.app || {}; navigator.app.exitApp= function(){cordova.exec(null,null,'CoreEvents','__exitApp',[]); }})();";
             try
             {
-                CordovaBrowser.InvokeScript("execScript", new string[] { appExitHandler });
+                CordovaBrowser.InvokeScript("eval", new string[] { appExitHandler });
             }
             catch (Exception /*ex*/)
             {
@@ -476,11 +534,6 @@ namespace WPCordovaClassLib
             }
         }
 
-        private void CordovaBrowser_Unloaded(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void CordovaBrowser_NavigationFailed(object sender, System.Windows.Navigation.NavigationFailedEventArgs e)
         {
             Debug.WriteLine("CordovaBrowser_NavigationFailed :: " + e.Uri.ToString());
@@ -488,12 +541,40 @@ namespace WPCordovaClassLib
 
         private void CordovaBrowser_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
         {
-           foreach(IBrowserDecorator iBD in browserDecorators.Values)
-           {
-               iBD.InjectScript();
-           }
+            foreach (IBrowserDecorator iBD in browserDecorators.Values)
+            {
+                iBD.InjectScript();
+            }
         }
 
+        /// <summary>
+        /// Converts hex color string to a new System.Windows.Media.Color structure.
+        /// If the hex is only rgb, it will be full opacity.
+        /// </summary>
+        protected Color ColorFromHex(string hexString)
+        {
+            string cleanHex = hexString.Replace("#", "").Replace("0x", "");
+            // turn #FFF into #FFFFFF
+            if (cleanHex.Length == 3)
+            {
+                cleanHex = "" + cleanHex[0] + cleanHex[0] + cleanHex[1] + cleanHex[1] + cleanHex[2] + cleanHex[2];
+            }
+            // add an alpha 100% if it is missing
+            if (cleanHex.Length == 6)
+            {
+                cleanHex = "FF" + cleanHex;
+            }
+            int argb = Int32.Parse(cleanHex, NumberStyles.HexNumber);
+            Color clr = Color.FromArgb((byte)((argb & 0xff000000) >> 0x18),
+                              (byte)((argb & 0xff0000) >> 0x10),
+                              (byte)((argb & 0xff00) >> 8),
+                              (byte)(argb & 0xff));
+            return clr;
+        }
 
+        ~CordovaView()
+        {
+            //Debug.WriteLine("CordovaView is destroyed");
+        }
     }
 }

@@ -1,7 +1,6 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
     'apiDomain':        'http://ikmatapp.no/api/',
-    //'apiPath':        'http://haccpy11.bywmds.us',
     'apiPath':        'http://ikmatapp.no',
     'apiUploadPath':    'uploadPhotos',
     'testImage':    'apple-touch-icon.png',
@@ -366,17 +365,12 @@ User.prototype.isLogged = function() {
     }
 };
 
-/*User.prototype.logout = function() {
-    logout_flag = true;
-    if ( db.dropDb() ) {
-        this.database = false;
-        this.client = false;
-        this.lastToken = false;
-        window.location.reload();
-    }
-};*/
 User.prototype.logout = function () {
-    Page.apiCall('logout', { 'client': this.client, 'token': this.lastToken }, 'get', 'logout');
+	var request = { 'client': this.client, 'token': this.lastToken };
+	if(isNative() && window.deviceToken){
+		request.devicetoken = window.deviceToken;
+	}
+    Page.apiCall('logout', request, 'get', 'logout');
 };
 
 function logout() {
@@ -387,8 +381,11 @@ function logout() {
         User.database = false;
         User.client = false;
         User.lastToken = false;
-        // window.location.reload();
-        window.location.href = settings.apiPath;
+        if(isNative()){
+        	window.location.reload();
+        }else{
+        	window.location.href = settings.apiPath;
+        }
     });
 }
 
@@ -1255,8 +1252,12 @@ Form.prototype.selectBox = function(name, label, options, placeholder, validatio
 Form.prototype.fileBox = function(name, label) {
     haccp_image_id = 'image_' + md5(name+label);
     var html = '<div data-role="controlgroup">';
-
-    html += '<a href="#" onclick="takeHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-camera pull-left"></i>' + $.t('pictures.take') + '</a>';
+	 if(!isNative()){
+    	html += '<div class="hidden"><input type="file" id="take_picture" accept="image/*"></div>';
+    }
+    if(isNative()){
+    	html += '<a href="#" onclick="takeHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-camera pull-left"></i>' + $.t('pictures.take') + '</a>';
+    }
     html += '<a href="#" onclick="selectHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-files-o pull-left"></i>' + $.t('pictures.select') + '</a>';
     html += '</div>';
 
@@ -1792,6 +1793,7 @@ $(document).on("pagechange", function( event, data ) {
         }
         $('#' + $.mobile.activePage.attr('id')).find('#menu_panel').load('_panel_employee.html', function(){
             bind_menuClick(this,n);
+            $('#menu_panel').find('a[href^="' + data.toPage[0].id + '"]').addClass('active');
         });
 
     } else {
@@ -1802,8 +1804,8 @@ $(document).on("pagechange", function( event, data ) {
             n = '';
         }
         $('#' + $.mobile.activePage.attr('id')).find('#menu_panel').load('_panel.html', function(){
-
             bind_menuClick(this,n);
+            $('#menu_panel').find('a[href^="' + data.toPage[0].id + '"]').addClass('active');
         });
     }
     // end add external files
@@ -1971,6 +1973,11 @@ function isOffline () { //check if application has internet connection
     }
     return true;
 }
+
+function isNative(){
+	return document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+}
+
 
 function noInternetError(message,login){
     if ( login === undefined ) {

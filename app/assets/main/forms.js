@@ -1789,19 +1789,12 @@ function uploadHACCPPictureForms() {
 					fd.append('client', User.client);
 					fd.append('token', User.lastToken);
 					fd.append('task_id', $('.swiper-slide-active input[name="task_id"]').val());
-					// Page.apiCall(Page.settings.apiUploadPath, fd, 'POST', 'imageUploaded');
 					$.ajax({
 					    type: 'POST',
 					    url: server,
 					    data: fd,
 					    processData: false,
-					    contentType: false,
-					    success: function(data) {
-				          // alert("boa!");
-				        },    
-				        error: function() {
-				          // alert("not so boa!");
-				        }
+					    contentType: false
 					});
 				};
 				oReq.send();

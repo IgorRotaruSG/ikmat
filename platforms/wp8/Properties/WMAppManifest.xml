@@ -4,25 +4,25 @@
     <Languages xmlns="">
         <Language code="en-US" />
     </Languages>
-    <App Author="FSOFT Team" BitsPerPixel="32" Description="Hello World sample application that responds to the deviceready event." Genre="apps.normal" ProductID="{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}" Publisher="FSOFT Team" PublisherID="{db093ed5-53b1-45f7-af72-751e8f36ab80}" RuntimeType="Silverlight" Title="IK-Mat" Version="2.0.47" xmlns="">
+    <App Author="FSOFT Team" BitsPerPixel="32" Description="Hello World sample application that responds to the deviceready event." Genre="apps.normal" ProductID="{c2ff8490-970e-11e5-bfdc-851f573aefb3}" Publisher="FSOFT Team" PublisherID="{db093ed5-53b1-45f7-af72-751e8f36ab80}" RuntimeType="Silverlight" Title="IK-Mat" Version="2.0.47" xmlns="">
         <IconPath IsRelative="true" IsResource="false">ApplicationIcon.png</IconPath>
         <Capabilities>
             <Capability Name="ID_CAP_WEBBROWSERCOMPONENT" />
+            <Capability Name="ID_CAP_NETWORKING" />
+            <Capability Name="ID_CAP_IDENTITY_DEVICE" />
             <Capability Name="ID_CAP_ISV_CAMERA" />
             <Capability Name="ID_CAP_MEDIALIB_PHOTO" />
-            <Capability Name="ID_CAP_IDENTITY_DEVICE" />
-            <Capability Name="ID_CAP_NETWORKING" />
         </Capabilities>
         <Tasks>
             <DefaultTask Name="_default" NavigationPage="MainPage.xaml" />
         </Tasks>
         <Tokens>
-            <PrimaryToken TaskName="_default" TokenID="IK-Mat">
+            <PrimaryToken TaskName="_default" TokenID="IK-MatToken">
                 <TemplateFlip>
                     <SmallImageURI IsRelative="true" IsResource="false">Background.png</SmallImageURI>
                     <Count>0</Count>
                     <BackgroundImageURI IsRelative="true" IsResource="false">Background.png</BackgroundImageURI>
-                    <Title>HaccpApplication</Title>
+                    <Title>IK-Mat</Title>
                     <BackContent />
                     <BackBackgroundImageURI />
                     <BackTitle />

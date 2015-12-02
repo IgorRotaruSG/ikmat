@@ -55,6 +55,10 @@
                         {
                             "xml": "<preference name=\"StatusBarStyle\" value=\"lightcontent\" />",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"EmailComposer\"><param name=\"ios-package\" value=\"APPEmailComposer\" /></feature>",
+                            "count": 1
                         }
                     ]
                 }
@@ -103,6 +107,9 @@
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "cordova-plugin-statusbar": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "de.appplant.cordova.plugin.email-composer": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         }
     },
@@ -368,6 +375,15 @@
             "pluginId": "cordova-plugin-statusbar",
             "clobbers": [
                 "window.StatusBar"
+            ]
+        },
+        {
+            "file": "plugins/de.appplant.cordova.plugin.email-composer/www/email_composer.js",
+            "id": "de.appplant.cordova.plugin.email-composer.EmailComposer",
+            "pluginId": "de.appplant.cordova.plugin.email-composer",
+            "clobbers": [
+                "cordova.plugins.email",
+                "plugin.email"
             ]
         }
     ]

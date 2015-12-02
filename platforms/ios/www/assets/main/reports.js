@@ -6,7 +6,7 @@ var mySwiper;
 var $sigdiv;
 var current_month;
 var current_month_nr;
-
+var report_name;
 //navigator.connection.type = Connection.NONE;
 
 if (localStorage.getItem('company_join_date')) {
@@ -341,6 +341,7 @@ function reportTables(data) {
 
 function bind_form_click_handler_r() {
     $('.report_generator_link').off('click').on('click', function(e){
+    	report_name = $(this).text();
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
         document.form_cat = $(this).data('type');
         document.date_from = $(this).data('from');
@@ -440,20 +441,32 @@ function reportsView(data) {
     });
 
     $('#send_email').off('click').on('click', function(e){
-        $('#popup-send-email').unbind("popupafterclose");
-        /*step 1: display the date chooser*/
-        $("#popup-send-email").popup("open");
-        $("#popup-send-email").parent().css({
-            'top': 0,
-            'left': 0,
-            'max-width': '100%',
-            'width': '100%',
-            'height': parseInt($('body').height()) + 'px',
-            'overflow': 'hidden',
-            'position': 'fixed'
-        });
-        $('#popup-send-email').css('height', '100%');
-        //$('#popup-send-email').css('height', $(window).height()+'px');
+        if(isNative() && cordova.plugins && cordova.plugins.email){
+        	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+        	var email_data = {
+                'client': User.client,
+                'token': User.lastToken,
+                'report_id': data.report_number,
+                'filter_date_from': reports_date_start,
+                'filter_date_to': reports_date_end
+            };
+            Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail');
+        }else{
+        	$('#popup-send-email').unbind("popupafterclose");
+	        /*step 1: display the date chooser*/
+	        $("#popup-send-email").popup("open");
+	        $("#popup-send-email").parent().css({
+	            'top': 0,
+	            'left': 0,
+	            'max-width': '100%',
+	            'width': '100%',
+	            'height': parseInt($('body').height()) + 'px',
+	            'overflow': 'hidden',
+	            'position': 'fixed'
+	        });
+	        $('#popup-send-email').css('height', '100%');
+        }
+        
 
 
     });
@@ -539,6 +552,21 @@ function reportsView(data) {
     }
     realignSlideHeight('max-height-reports');
 
+}
+
+function openNativeEmail(pdf){
+	var subject = report_name ? report_name: "Rapporter";
+	subject += localStorage.getItem('company_name') ? " fra " + localStorage.getItem('company_name'): "";
+	var mailObject = {
+	    subject: subject,
+	    cc: localStorage.getItem("user_email") ? localStorage.getItem("user_email"): "",
+	    body:    ''
+	};
+	if(pdf){
+		mailObject.attachments = "base64:" + report_name + "_" + reports_date_start + "_" + reports_date_end + ".pdf//" + pdf.data;
+	}
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	cordova.plugins.email.open(mailObject);
 }
 
 function getReportsViewCall(tx, results, id) {
@@ -631,10 +659,6 @@ function documentsCall(data) {
             return false;
         });
         $('.anchor-item').off('click').on('click', function () {
-           // var target = $($(this).attr("href")).position().top;
-           // $.mobile.silentScroll(target);
-            // $("#max-height-reports").scrollTop(target);
-            console.log(parseInt($(this).attr("href")));
             $('#document-list').panel("close");
             $('#max-height-reports').animate({
                   scrollTop: $('#max-height-reports h2.heading').eq(parseInt($(this).attr("href"))).position().top

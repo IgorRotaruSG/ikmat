@@ -586,7 +586,7 @@ div.ui-select div.ui-btn{
     border: 0px transparent !important;
     text-align: left !important;
 }
-.report_divider {    
+.report_divider {
     border: none !important;
     padding-top: 0px !important;
     padding-bottom: 0px !important;
@@ -938,7 +938,7 @@ a.ui-slider-handle {
 .requiredicon {
     color : red;
 }
- 
+
 #registerEmployeeForm .requiredicon,
 #registerSupplierForm .requiredicon {
     display :none;
@@ -967,7 +967,7 @@ a.ui-slider-handle {
 }
 
 .tos_page {
-    overflow-y: auto; 
+    overflow-y: auto;
     height: 480px;
 }
 
@@ -987,4 +987,40 @@ a.ui-slider-handle {
 
 .font-bold{
 	font-weight: bold;
+}
+
+#backToFlowchartList {
+    cursor: pointer;
+}
+
+.flowchart-checkbox {
+    display: none;
+}
+
+.flowchart-img {
+    display:block;
+    width:auto;
+    height:auto;
+    margin:0 auto;
+}
+
+.flowchart-label {
+    float: left;
+    background: none !important;
+    margin: 12px -1px !important;
+}
+
+.flowchart-label .ui-btn-inner {
+    padding-right: 0;
+}
+
+.flowchart-viewimg {
+    cursor: pointer;
+    padding-top:15px !important;
+    padding-left: 0px !important;
+    text-align: left !important;
+}
+
+.clearboth {
+    clear: both;
 }

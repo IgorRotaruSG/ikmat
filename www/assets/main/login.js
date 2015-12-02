@@ -1,4 +1,5 @@
 var loginFormId = null;
+var email = "";
 function loginInit() {
     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
     if (isOffline()) {
@@ -19,8 +20,9 @@ function loginAction(){
     }
     console.info('s');
     $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+    email = $('#input_email').val();
     var data = {
-        'email': $('#input_email').val(),
+        'email': email,
         'password': $('#input_password').val(),
         'deviceid': window.device ? window.device.uuid : "web-id",
         'devicetoken': window.deviceToken ? window.deviceToken : ""
@@ -37,6 +39,7 @@ function getAccess(data) {
     if (data.success) {
         // make all sync here
         var sm = new SyncMaster(data);
+        localStorage.setItem("user_email", email);
         sm.getAll();
         return false;
     } else {

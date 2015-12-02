@@ -18,6 +18,7 @@ using System.Threading;
 using Microsoft.Devices;
 using Microsoft.Phone.Controls;
 using WPCordovaClassLib.Cordova.Commands;
+using System.Collections.Generic;
 using System.Windows;
 
 namespace WPCordovaClassLib.Cordova
@@ -34,6 +35,11 @@ namespace WPCordovaClassLib.Cordova
         private readonly WebBrowser webBrowser;
 
         /// <summary>
+        /// List of commands with attached handlers
+        /// </summary>
+        private List<BaseCommand> commands;
+
+        /// <summary>
         /// Creates new instance of a NativeExecution class.
         /// </summary>
         /// <param name="browser">Reference to web part where application is hosted</param>
@@ -45,6 +51,7 @@ namespace WPCordovaClassLib.Cordova
             }
 
             this.webBrowser = browser;
+            this.commands = new List<BaseCommand>();
         }
 
         /// <summary>
@@ -93,6 +100,12 @@ namespace WPCordovaClassLib.Cordova
                     return;
                 }
 
+                // TODO: consider removing custom script functionality at all since we already marked it as absolute (see BaseCommand)
+                EventHandler<ScriptCallback> OnCustomScriptHandler = delegate(object o, ScriptCallback script)
+                {
+                    this.InvokeScriptCallback(script);
+                };
+
                 EventHandler<PluginResult> OnCommandResultHandler = delegate(object o, PluginResult res)
                 {
                     if (res.CallbackId == null || res.CallbackId == commandCallParams.CallbackId)
@@ -101,6 +114,7 @@ namespace WPCordovaClassLib.Cordova
                         if (!res.KeepCallback)
                         {
                             bc.RemoveResultHandler(commandCallParams.CallbackId);
+                            bc.OnCustomScript -= OnCustomScriptHandler;
                         }
                     }
                 };
@@ -108,18 +122,14 @@ namespace WPCordovaClassLib.Cordova
                 //bc.OnCommandResult += OnCommandResultHandler;
                 bc.AddResultHandler(commandCallParams.CallbackId, OnCommandResultHandler);
 
-                EventHandler<ScriptCallback> OnCustomScriptHandler = delegate(object o, ScriptCallback script)
-                {
-                    this.InvokeScriptCallback(script);
-                };
-
                 bc.OnCustomScript += OnCustomScriptHandler;
 
-                ThreadStart methodInvokation = () =>
+                Windows.System.Threading.ThreadPool.RunAsync((workItem) =>
                 {
                     try
                     {
                         bc.InvokeMethodNamed(commandCallParams.CallbackId, commandCallParams.Action, commandCallParams.Args);
+                        commands.Add(bc);
                     }
                     catch (Exception ex)
                     {
@@ -131,9 +141,7 @@ namespace WPCordovaClassLib.Cordova
                         this.OnCommandResult(commandCallParams.CallbackId, new PluginResult(PluginResult.Status.INVALID_ACTION));
                         return;
                     }
-                };
-
-                new Thread(methodInvokation).Start();
+                });
 
             }
             catch (Exception ex)

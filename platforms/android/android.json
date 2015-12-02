@@ -5,30 +5,40 @@
     },
     "config_munge": {
         "files": {
-            "res/xml/config.xml": {
-                "parents": {
-                    "/*": [
-                        {
-                            "xml": "<feature name=\"PushNotification\"><param name=\"android-package\" value=\"com.adobe.phonegap.push.PushPlugin\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"InAppBrowser\"><param name=\"android-package\" value=\"org.apache.cordova.inappbrowser.InAppBrowser\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"StatusBar\"><param name=\"android-package\" value=\"org.apache.cordova.statusbar.StatusBar\" /><param name=\"onload\" value=\"true\" /></feature>",
-                            "count": 1
-                        }
-                    ]
-                }
-            },
             "AndroidManifest.xml": {
                 "parents": {
+                    "/manifest/application": [
+                        {
+                            "xml": "<activity android:label=\"@string/app_name\" android:name=\"org.pgsqlite.SQLitePlugin\"><intent-filter></intent-filter></activity>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<activity android:exported=\"true\" android:name=\"com.adobe.phonegap.push.PushHandlerActivity\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<receiver android:exported=\"true\" android:name=\"com.google.android.gms.gcm.GcmReceiver\" android:permission=\"com.google.android.c2dm.permission.SEND\"><intent-filter><action android:name=\"com.google.android.c2dm.intent.RECEIVE\" /><category android:name=\"hygiene.app.automagi\" /></intent-filter></receiver>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<service android:exported=\"false\" android:name=\"com.adobe.phonegap.push.GCMIntentService\"><intent-filter><action android:name=\"com.google.android.c2dm.intent.RECEIVE\" /></intent-filter></service>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<service android:exported=\"false\" android:name=\"com.adobe.phonegap.push.PushInstanceIDListenerService\"><intent-filter><action android:name=\"com.google.android.gms.iid.InstanceID\" /></intent-filter></service>",
+                            "count": 1
+                        }
+                    ],
+                    "/*": [
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
+                            "count": 3
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />",
+                            "count": 1
+                        }
+                    ],
                     "/manifest": [
                         {
                             "xml": "<uses-permission android:name=\"android.permission.INTERNET\" />",
@@ -51,29 +61,71 @@
                             "count": 1
                         },
                         {
-                            "xml": "<permission android:name=\"com.haccp.app.permission.C2D_MESSAGE\" android:protectionLevel=\"signature\" />",
+                            "xml": "<permission android:name=\"hygiene.app.automagi.permission.C2D_MESSAGE\" android:protectionLevel=\"signature\" />",
                             "count": 1
                         },
                         {
-                            "xml": "<uses-permission android:name=\"com.haccp.app.permission.C2D_MESSAGE\" />",
+                            "xml": "<uses-permission android:name=\"hygiene.app.automagi.permission.C2D_MESSAGE\" />",
                             "count": 1
                         }
-                    ],
-                    "/manifest/application": [
+                    ]
+                }
+            },
+            "config.xml": {
+                "parents": {
+                    "/*": [
                         {
-                            "xml": "<activity android:exported=\"true\" android:name=\"com.adobe.phonegap.push.PushHandlerActivity\" />",
+                            "xml": "<feature name=\"SQLitePlugin\"><param name=\"android-package\" value=\"org.pgsqlite.SQLitePlugin\" /></feature>",
+                            "count": 1
+                        }
+                    ]
+                }
+            },
+            "res/xml/config.xml": {
+                "parents": {
+                    "/*": [
+                        {
+                            "xml": "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>",
                             "count": 1
                         },
                         {
-                            "xml": "<receiver android:exported=\"true\" android:name=\"com.google.android.gms.gcm.GcmReceiver\" android:permission=\"com.google.android.c2dm.permission.SEND\"><intent-filter><action android:name=\"com.google.android.c2dm.intent.RECEIVE\" /><category android:name=\"com.haccp.app\" /></intent-filter></receiver>",
+                            "xml": "<feature name=\"InAppBrowser\"><param name=\"android-package\" value=\"org.apache.cordova.inappbrowser.InAppBrowser\" /></feature>",
                             "count": 1
                         },
                         {
-                            "xml": "<service android:exported=\"false\" android:name=\"com.adobe.phonegap.push.GCMIntentService\"><intent-filter><action android:name=\"com.google.android.c2dm.intent.RECEIVE\" /></intent-filter></service>",
+                            "xml": "<feature name=\"StatusBar\"><param name=\"android-package\" value=\"org.apache.cordova.statusbar.StatusBar\" /><param name=\"onload\" value=\"true\" /></feature>",
                             "count": 1
                         },
                         {
-                            "xml": "<service android:exported=\"false\" android:name=\"com.adobe.phonegap.push.PushInstanceIDListenerService\"><intent-filter><action android:name=\"com.google.android.gms.iid.InstanceID\" /></intent-filter></service>",
+                            "xml": "<feature name=\"Whitelist\"><param name=\"android-package\" value=\"org.apache.cordova.whitelist.WhitelistPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"EmailComposer\"><param name=\"android-package\" value=\"de.appplant.cordova.emailcomposer.EmailComposer\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Printer\"><param name=\"android-package\" value=\"de.appplant.cordova.plugin.printer.Printer\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Camera\"><param name=\"android-package\" value=\"org.apache.cordova.camera.CameraLauncher\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"File\"><param name=\"android-package\" value=\"org.apache.cordova.file.FileUtils\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"FileTransfer\"><param name=\"android-package\" value=\"org.apache.cordova.filetransfer.FileTransfer\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"NetworkStatus\"><param name=\"android-package\" value=\"org.apache.cordova.networkinformation.NetworkManager\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"PushNotification\"><param name=\"android-package\" value=\"com.adobe.phonegap.push.PushPlugin\" /></feature>",
                             "count": 1
                         }
                     ]
@@ -82,8 +134,8 @@
         }
     },
     "installed_plugins": {
-        "phonegap-plugin-push": {
-            "PACKAGE_NAME": "com.haccp.app"
+        "com.phonegap.plugins.sqlite": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "cordova-plugin-device": {
             "PACKAGE_NAME": "hygiene.app.automagi"
@@ -93,16 +145,40 @@
         },
         "cordova-plugin-statusbar": {
             "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "de.appplant.cordova.plugin.email-composer": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "de.appplant.cordova.plugin.printer": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "org.apache.cordova.camera": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "org.apache.cordova.file": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "org.apache.cordova.file-transfer": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "org.apache.cordova.network-information": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "phonegap-plugin-push": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
         }
     },
     "dependent_plugins": {},
     "modules": [
         {
-            "file": "plugins/phonegap-plugin-push/www/push.js",
-            "id": "phonegap-plugin-push.PushNotification",
-            "pluginId": "phonegap-plugin-push",
+            "file": "plugins/com.phonegap.plugins.sqlite/www/SQLitePlugin.js",
+            "id": "com.phonegap.plugins.sqlite.SQLitePlugin",
+            "pluginId": "com.phonegap.plugins.sqlite",
             "clobbers": [
-                "PushNotification"
+                "SQLitePlugin"
             ]
         },
         {
@@ -128,6 +204,242 @@
             "pluginId": "cordova-plugin-statusbar",
             "clobbers": [
                 "window.StatusBar"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-whitelist/whitelist.js",
+            "id": "cordova-plugin-whitelist.whitelist",
+            "pluginId": "cordova-plugin-whitelist",
+            "runs": true
+        },
+        {
+            "file": "plugins/de.appplant.cordova.plugin.email-composer/www/email_composer.js",
+            "id": "de.appplant.cordova.plugin.email-composer.EmailComposer",
+            "pluginId": "de.appplant.cordova.plugin.email-composer",
+            "clobbers": [
+                "cordova.plugins.email",
+                "plugin.email"
+            ]
+        },
+        {
+            "file": "plugins/de.appplant.cordova.plugin.printer/www/printer.js",
+            "id": "de.appplant.cordova.plugin.printer.Printer",
+            "pluginId": "de.appplant.cordova.plugin.printer",
+            "clobbers": [
+                "plugin.printer",
+                "cordova.plugins.printer"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.camera/www/CameraConstants.js",
+            "id": "org.apache.cordova.camera.Camera",
+            "pluginId": "org.apache.cordova.camera",
+            "clobbers": [
+                "Camera"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.camera/www/CameraPopoverOptions.js",
+            "id": "org.apache.cordova.camera.CameraPopoverOptions",
+            "pluginId": "org.apache.cordova.camera",
+            "clobbers": [
+                "CameraPopoverOptions"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.camera/www/Camera.js",
+            "id": "org.apache.cordova.camera.camera",
+            "pluginId": "org.apache.cordova.camera",
+            "clobbers": [
+                "navigator.camera"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.camera/www/CameraPopoverHandle.js",
+            "id": "org.apache.cordova.camera.CameraPopoverHandle",
+            "pluginId": "org.apache.cordova.camera",
+            "clobbers": [
+                "CameraPopoverHandle"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/DirectoryEntry.js",
+            "id": "org.apache.cordova.file.DirectoryEntry",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.DirectoryEntry"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/DirectoryReader.js",
+            "id": "org.apache.cordova.file.DirectoryReader",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.DirectoryReader"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/Entry.js",
+            "id": "org.apache.cordova.file.Entry",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.Entry"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/File.js",
+            "id": "org.apache.cordova.file.File",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.File"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/FileEntry.js",
+            "id": "org.apache.cordova.file.FileEntry",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.FileEntry"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/FileError.js",
+            "id": "org.apache.cordova.file.FileError",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.FileError"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/FileReader.js",
+            "id": "org.apache.cordova.file.FileReader",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.FileReader"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/FileSystem.js",
+            "id": "org.apache.cordova.file.FileSystem",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.FileSystem"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/FileUploadOptions.js",
+            "id": "org.apache.cordova.file.FileUploadOptions",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.FileUploadOptions"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/FileUploadResult.js",
+            "id": "org.apache.cordova.file.FileUploadResult",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.FileUploadResult"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/FileWriter.js",
+            "id": "org.apache.cordova.file.FileWriter",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.FileWriter"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/Flags.js",
+            "id": "org.apache.cordova.file.Flags",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.Flags"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/LocalFileSystem.js",
+            "id": "org.apache.cordova.file.LocalFileSystem",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.LocalFileSystem"
+            ],
+            "merges": [
+                "window"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/Metadata.js",
+            "id": "org.apache.cordova.file.Metadata",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.Metadata"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/ProgressEvent.js",
+            "id": "org.apache.cordova.file.ProgressEvent",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.ProgressEvent"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/requestFileSystem.js",
+            "id": "org.apache.cordova.file.requestFileSystem",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.requestFileSystem"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file/www/resolveLocalFileSystemURI.js",
+            "id": "org.apache.cordova.file.resolveLocalFileSystemURI",
+            "pluginId": "org.apache.cordova.file",
+            "clobbers": [
+                "window.resolveLocalFileSystemURI"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file-transfer/www/FileTransferError.js",
+            "id": "org.apache.cordova.file-transfer.FileTransferError",
+            "pluginId": "org.apache.cordova.file-transfer",
+            "clobbers": [
+                "window.FileTransferError"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.file-transfer/www/FileTransfer.js",
+            "id": "org.apache.cordova.file-transfer.FileTransfer",
+            "pluginId": "org.apache.cordova.file-transfer",
+            "clobbers": [
+                "window.FileTransfer"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.network-information/www/network.js",
+            "id": "org.apache.cordova.network-information.network",
+            "pluginId": "org.apache.cordova.network-information",
+            "clobbers": [
+                "navigator.connection",
+                "navigator.network.connection"
+            ]
+        },
+        {
+            "file": "plugins/org.apache.cordova.network-information/www/Connection.js",
+            "id": "org.apache.cordova.network-information.Connection",
+            "pluginId": "org.apache.cordova.network-information",
+            "clobbers": [
+                "Connection"
+            ]
+        },
+        {
+            "file": "plugins/phonegap-plugin-push/www/push.js",
+            "id": "phonegap-plugin-push.PushNotification",
+            "pluginId": "phonegap-plugin-push",
+            "clobbers": [
+                "PushNotification"
             ]
         }
     ]

@@ -4,95 +4,44 @@
         "uninstalled": []
     },
     "config_munge": {
-        "files": {
-            "config.xml": {
-                "parents": {
-                    "/*": [
-                        {
-                            "xml": "<feature name=\"Camera\"><param name=\"wp-package\" value=\"Camera\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"Device\"><param name=\"wp-package\" value=\"Device\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"File\"><param name=\"wp-package\" value=\"File\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"FileTransfer\"><param name=\"wp-package\" value=\"FileTransfer\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"InAppBrowser\"><param name=\"wp-package\" value=\"InAppBrowser\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"NetworkStatus\"><param name=\"wp-package\" value=\"NetworkStatus\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"StatusBar\"><param name=\"wp-package\" value=\"StatusBar\" /></feature>",
-                            "count": 1
-                        }
-                    ]
-                }
-            },
-            "Properties/WMAppManifest.xml": {
-                "parents": {
-                    "/Deployment/App/Capabilities": [
-                        {
-                            "xml": "<Capability Name=\"ID_CAP_ISV_CAMERA\" />",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<Capability Name=\"ID_CAP_MEDIALIB_PHOTO\" />",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<Capability Name=\"ID_CAP_IDENTITY_DEVICE\" />",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<Capability Name=\"ID_CAP_NETWORKING\" />",
-                            "count": 2
-                        }
-                    ]
-                }
-            }
-        }
+        "files": {}
     },
     "installed_plugins": {
         "com.phonegap.plugins.sqlite": {
-            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
-        },
-        "org.apache.cordova.camera": {
-            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
-        },
-        "org.apache.cordova.file": {
-            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
-        },
-        "org.apache.cordova.file-transfer": {
-            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
-        },
-        "org.apache.cordova.network-information": {
-            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
-        },
-        "de.appplant.cordova.plugin.printer": {
-            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
-        },
-        "phonegap-plugin-push": {
-            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
         "cordova-plugin-device": {
-            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
         "cordova-plugin-inappbrowser": {
-            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
         "cordova-plugin-statusbar": {
-            "PACKAGE_NAME": "{C45B030C-39D2-4FF4-8026-E77B03CDFCA7}"
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "de.appplant.cordova.plugin.email-composer": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "de.appplant.cordova.plugin.printer": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "org.apache.cordova.camera": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "org.apache.cordova.file": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "org.apache.cordova.file-transfer": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "org.apache.cordova.network-information": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "phonegap-plugin-push": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         }
     },
     "dependent_plugins": {}

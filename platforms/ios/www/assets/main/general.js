@@ -1,8 +1,7 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    'apiDomain':        'http://mobistar.no/api/',
-    //'apiPath':        'http://haccpy11.bywmds.us',
-    'apiPath':        'http://mobistar.no',
+    'apiDomain':        'http://ikmatapp.no/api/',
+    'apiPath':        'http://ikmatapp.no',
     'apiUploadPath':    'uploadPhotos',
     'testImage':    'apple-touch-icon.png',
     'syncIntervals': {       // sync interval in ms (1000 ms = 1 second)
@@ -1253,8 +1252,12 @@ Form.prototype.selectBox = function(name, label, options, placeholder, validatio
 Form.prototype.fileBox = function(name, label) {
     haccp_image_id = 'image_' + md5(name+label);
     var html = '<div data-role="controlgroup">';
-
-    html += '<a href="#" onclick="takeHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-camera pull-left"></i>' + $.t('pictures.take') + '</a>';
+	 if(!isNative()){
+    	html += '<div class="hidden"><input type="file" id="take_picture" accept="image/*"></div>';
+    }
+    if(isNative()){
+    	html += '<a href="#" onclick="takeHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-camera pull-left"></i>' + $.t('pictures.take') + '</a>';
+    }
     html += '<a href="#" onclick="selectHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-files-o pull-left"></i>' + $.t('pictures.select') + '</a>';
     html += '</div>';
 

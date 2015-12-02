@@ -153,9 +153,17 @@ HTML.prototype.formGenerate = function(form_data, s, d) {
 HTML.prototype.fileBox = function(name, label) {
     haccp_image_id = 'image_' + md5(name+label);
     var html = '<div data-role="controlgroup">';
-
-    html += '<a href="#" onclick="takeHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-camera pull-left"></i>' + $.t('pictures.take') + '</a>';
-    html += '<a href="#" onclick="selectHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-file pull-left"></i>' + $.t('pictures.select') + '</a>';
+    if(!isNative()){
+    	
+    }
+    if(isNative()){
+    	html += '<a href="#" onclick="takeHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-camera pull-left"></i>' + $.t('pictures.take') + '</a>';
+    	html += '<a href="#" onclick="selectHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-file pull-left"></i>' + $.t('pictures.select') + '</a>';
+    }else{
+    	html += '<a href="#" onclick="selectHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" class="border" data-theme="e"><i class="fa fa-file pull-left"></i>' + $.t('pictures.select') + '</a>';
+   html += '<div class="hidden"><input type="file" id="take_picture" accept="image/*"></div>';
+    }
+    
     html += '</div>';
 
     html += '<img width="100%" height="auto" style="visibility:hidden;display:none;margin:0 auto;" id="image_' + md5(name+label) + '" src="" />';
@@ -249,20 +257,17 @@ HTML.prototype.formGenerateWill = function(form) {
     var id = md5(new Date().getTime() + '_form');
     var as = false;
     var form_data = $.extend({},form);
-
+    
     for (var i in form_data) {
         if (form_data[i].type == 'radio_list') {
             if (form_data.frequency_id.value == null || form_data.frequency_id.value == 'null') {
                 as = true
             }
-            if (form_data[i].label == '') {
-                form_data[i].label = form_data[i].label_tmp;
-            }
-            html += HTML.formSwitch(form_data[i].label, id, as);
-            form_data[i].label_tmp = form_data[i].label;
-            if (form_data[i].label_tmp != '')
-                form_data[i].label = 'Hvor ofte ' + form_data[i].label_tmp.toLowerCase();
-            // form_data[i].label = '';
+            console.log(form_data[i]);
+            if(form_data[i].label_tmp == '' || form_data[i].label_tmp == null)
+                form_data[i].label_tmp = form_data[i].label;
+            html += HTML.formSwitch(form_data[i].label_tmp, id, as);
+            form_data[i].label = 'Hvor ofte ' + form_data[i].label_tmp.toLowerCase();
             if (as) {
                 html += '<div class="hide" id="' + id + '">';
             } else {
@@ -768,7 +773,7 @@ HTML.prototype.radioList = function(name, label, list, value, validation) {
         label = '';
     } else {
     }
-    var html = '<legend>' + label + '</legend>';
+    var html = '<label>' + label + '</label>';
     for (var i in list) {
 
         if (list.hasOwnProperty(i)) {
@@ -801,7 +806,7 @@ HTML.prototype.multipleColor = function(name, label, list) {
 
     for (var i in list) {
         if (list.hasOwnProperty(i)) {
-            html += '<legend style="margin-top:10px;">' + list[i].label + '</legend>';
+            html += '<label style="margin-top:10px;">' + list[i].label + '</label>';
             for (var j in color) {
                 if (color.hasOwnProperty(j)) {
                     html += '<input name="' + name + '[' + i + ']" id="' + md5(i+j) + '" type="radio" value="' + color[j] + '"';
@@ -837,7 +842,7 @@ HTML.prototype.checkboxList = function(name, label, list) {
     if ( label == '' ) {
         var html = '<hr class="no-lateral-border" />';
     } else {
-        var html = '<legend>' + label + '</legend>';
+        var html = '<label>' + label + '</label>';
     }
     for (var i in list) {
         if (list.hasOwnProperty(i)) {
@@ -876,11 +881,11 @@ HTML.prototype.checkboxFlowchartList = function(name, label, list) {
     if ( label == '' ) {
         var html = '<hr class="no-lateral-border" />';
     } else {
-        var html = '<legend>' + label + '</legend>';
+        var html = '<div class="ui-grid-solo"><label>' + label + '</label></div>';
     }
     for (var i in list) {
         if (list.hasOwnProperty(i)) {
-            html += '<input class="flowchart-checkbox" name="' + name + '[' + i + ']" id="' + md5(name+i) + '" type="checkbox" value="' + i + '"';
+            html += '<div class="ui-checkbox-off ui-btn ui-btn-corner-all ui-fullsize ui-btn-icon-left ui-btn-up-a"><input class="flowchart-checkbox" name="' + name + '[' + i + ']" id="' + md5(name+i) + '" type="checkbox" value="' + i + '"';
             if (list[i].checked || list[i].checked == 'true') {
                 html += ' checked="checked"';
             }
@@ -895,8 +900,8 @@ HTML.prototype.checkboxFlowchartList = function(name, label, list) {
 
             html += ' />';
             html += '<label class="flowchart-label" for="' + md5(name+i) + '"></label>';
-            html += '<span class="ui-btn-inner flowchart-viewimg" onclick="javascript:HTML.showFlowchartImg(\'' +md5(name+i)+ '\',\''+list[i].imgPath+'\')"><span class="ui-btn-text">' + list[i].label + '</span><span class="ui-icon ui-icon-checkbox-on ui-icon-shadow">&nbsp;</span></span>';
-            html += '<div class="clearboth"></div>';
+            html += '<span class="ui-btn-inner flowchart-viewimg" onclick="javascript:HTML.showFlowchartImg(\'' +list[i].imgPath+'\')"><span class="ui-btn-text">' + list[i].label + '</span><span class="ui-icon ui-icon-checkbox-on ui-icon-shadow">&nbsp;</span></span>';
+            html += '</div><div class="clearboth"></div>';
             // custom checkbox - predefined list in list
             if (list[i].condition != undefined && list[i].extra != undefined) {
                 html += '<div id="' + id + '" style="margin:10px 20px;"';
@@ -912,15 +917,13 @@ HTML.prototype.checkboxFlowchartList = function(name, label, list) {
     return html;
 };
 
-HTML.prototype.showFlowchartImg = function(id, imgPath) {
-    if (!$('#'+id).prop('checked')) {
+HTML.prototype.showFlowchartImg = function(imgPath) {
         html = '<a id="backToFlowchartList" onclick="HTML.backToFlowchartList();" ><span class="ui-btn-inner"><span class="ui-btn-text"><i class="fa fa-close"></i></span></span></a>';
-        html += "<img class='flowchart-img' src='" + settings.apiPath + imgPath + "' />";
+        html += "<img class='flowchart-img' style='max-height: " + mySwiper.height +"px; max-width: " + mySwiper.width +"px' src='" + settings.apiPath + imgPath + "' />";
         mySwiper.insertSlideAfter(mySwiper.activeIndex, html, 'swiper-slide');
         mySwiper.swipeTo( mySwiper.activeIndex + 1 , 0, false );
         mySwiper.reInit();
         $('#footer').hide();
-    }
 };
 
 HTML.prototype.backToFlowchartList = function(imgPath) {
@@ -934,10 +937,10 @@ HTML.prototype.checkboxListLabelFree = function(name, label, list) {
     if ( label == '' ) {
         var html = '<hr class="no-lateral-border" />';
     } else {
-        var html = '<legend>' + label + '</legend>';
+        var html = '<label>' + label + '</label>';
     }
     //var html = '<legend><a href="#" id="tos">Ved å registrere deg  bekrefter du å ha lest og akseptert brukervilkårene.</a></legend>';
-    var html = '<legend><a href="#tos" id="tos">Ved å registrere deg  bekrefter du å ha lest og akseptert brukervilkårene.</a></legend>';
+    var html = '<label><a href="#tos" id="tos">Ved å registrere deg  bekrefter du å ha lest og akseptert brukervilkårene.</a></label>';
     return html;
 };
 
@@ -1032,7 +1035,7 @@ HTML.prototype.textClicker = function(name, label, default_val, value) {
    console.log("textClicker");console.log(name, label, default_val, value);
     var html = '';
 
-    html += '<legend>' + label + '</legend>';
+    html += '<label>' + label + '</label>';
 
     html += '<fieldset class="ui-grid-b">';
     html += '<div class="ui-block-a"><input tabindex="-1" name="' + name + '" type="tel" value="' + (value != undefined ? value : default_val) + '"  id="' + md5(name+label) + '" data-min="0"></div>';
@@ -1290,14 +1293,15 @@ jQuery.fn.extend({
                         if (parseInt($(this).val()) != $(this).val()) {
                             stepValid = false;
                             errorNumber = true;
-                        }
-                        if ($(this).attr('name') == 'phone') {
-                            if ($(this).val().length < 5) {
-                                stepValid = false;
-                                errorNumber = true;
-                            } else {
-                                stepValid = true;
-                                errorNumber = false;
+                        } else {
+                            if ($(this).attr('name') == 'phone') {
+                                if ($(this).val().length < 5) {
+                                    stepValid = false;
+                                    errorNumber = true;
+                                } else {
+                                    stepValid = true;
+                                    errorNumber = false;
+                                }
                             }
                         }
                         break;
@@ -1306,7 +1310,7 @@ jQuery.fn.extend({
                             stepValid = false;
                         }
                         if ($(this).attr('name') == 'city') {
-                        var nameReg = /^[A-Za-z]*$/;
+                        var nameReg = /^[A-Z a-z]*$/;
                         var value=  $(this).val();
                         console.log(value);
                         if (!nameReg.test(value)) {
