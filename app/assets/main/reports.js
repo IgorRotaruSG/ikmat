@@ -305,7 +305,8 @@ function reportTables(data) {
             return a < b ? -1 : (a > b ? 1 : 0);
         });
 
-        if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
+        //Fix [Bug] Employee users should have access to reports
+        //if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
             for (var i = 0; i < tuples.length; i++) {
                 var key   = tuples[i][0];
                 var value = tuples[i][1];
@@ -317,7 +318,7 @@ function reportTables(data) {
                 }
 
             }
-        }
+        //}
 
         if (db_data.length > 0) {
             var q = 'INSERT OR REPLACE INTO "reports"("id","name") VALUES(?,?)';
