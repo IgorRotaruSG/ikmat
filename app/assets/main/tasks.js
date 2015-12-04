@@ -682,11 +682,15 @@ function getTasksUncompleted(data) {
 
             if ( tasksNr < per_page ) {
                 $('#load_more_tasks').attr('disabled',true);
-                //$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
                 $('#load_more_tasks').parent().hide();
             } else {
-                $('#load_more_tasks').removeAttr('disabled');
-                $('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
+               if(data.tasks_total_nr <= per_page) {
+                   $('#load_more_tasks').attr('disabled',true);
+                   $('#load_more_tasks').parent().hide();
+               } else {               
+                   $('#load_more_tasks').removeAttr('disabled');
+                   $('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
+               }
             }
         } else {
             var d = db.getDbInstance();
@@ -823,7 +827,7 @@ function getTasksFromLocal(results){
         $('#load_more_tasks').parent().hide();
         checkTasksList();
         return;
-    } else if ( results.rows.length < 20 && isOffline()) {
+    } else if ( results.rows.length < per_page && isOffline()) {
         $('#load_more_tasks').attr('disabled',true);
         //$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
         $('#load_more_tasks').parent().hide();
