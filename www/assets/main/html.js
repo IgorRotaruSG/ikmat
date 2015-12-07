@@ -202,12 +202,16 @@ HTML.prototype.signature = function(name, label) {
     return html;
 };
 
+function onChangeSelectBox(id) {
+    $('#' + id).parent().find('.ui-btn-text').first().html($('#' + id + ' option:selected').text());
+}
+
 HTML.prototype.selectBox = function(name, label, options, placeholder, validation,value) {
     if (value == undefined) {
         value = '';
     }
     var html = '<label for="' + md5(name+label) + '" class="select">' + label+ '</label>';
-    html += '<select name="' + name + '" id="' + md5(name+label) + '" ' + this.generateValidation(validation) + '>';
+    html += '<select name="' + name + '" id="' + md5(name+label) + '" ' + this.generateValidation(validation) + ' onchange="onChangeSelectBox(\'' + md5(name+label) + '\')">';
     if (placeholder != undefined && placeholder != '') {
         html += '<option value="-1">' + placeholder + '</option>';
     }
@@ -1275,7 +1279,7 @@ jQuery.fn.extend({
                     case 'required':
                         if ($(this).is("select")) {
                             if ($(this).val() == -1) {
-                                stepValid = false;
+                                stepValid = false;                                
                                 $(this).off('change').on('change',function(){
                                     $(this).matchValidateRules();
                                 });
@@ -1310,7 +1314,7 @@ jQuery.fn.extend({
                             stepValid = false;
                         }
                         if ($(this).attr('name') == 'city') {
-                        var nameReg = /^[A-Z a-z]*$/;
+                        var nameReg = /^[A-Z a-z 0-9 ÆØÅ æøå &*)(+.,_-]*$/;
                         var value=  $(this).val();
                         console.log(value);
                         if (!nameReg.test(value)) {

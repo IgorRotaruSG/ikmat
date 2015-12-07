@@ -126,7 +126,7 @@ function register_editInit() {
                         ]]
                     },0);
                     if (!isOffline()) {
-                        Page.apiCall('companyEdit', data, 'post', 'newCompanyRegistration');
+                        Page.apiCall('companyEdit', data, 'post', 'newCompanyRegistration', {"test": "TEST"});
                         //truncate table haccp_items so if there are any changes, it will take them again online
                         db.execute('DELETE FROM "haccp_items"');
                     } else {
@@ -329,7 +329,8 @@ function newCompanyRegistrationOff(special) {
     }
 }
 
-function newCompanyRegistration(data) {
+function newCompanyRegistration(data, params) {
+	console.log("params", params);
     db.lazyQuery({
         'sql': 'INSERT INTO "registration"("step","data") VALUES(?,?)',
         'data': [[

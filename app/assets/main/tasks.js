@@ -776,9 +776,9 @@ function takeHACCPPicture(id) {
 var emptytask = 0;
 function findTaskData(){
     if ( emptytaskdata[emptytask] != undefined ){
-        if ( $('#syncing_tasks').hasClass('hide') ) {
-            $('#syncing_tasks').removeClass('hide');
-        }
+        // if ( $('#syncing_tasks').hasClass('hide') ) {
+            // $('#syncing_tasks').removeClass('hide');
+        // }
         var data = {
             'client': User.client,
             'token': User.lastToken,
@@ -789,7 +789,7 @@ function findTaskData(){
     } else {
         emptytask = 0;
         emptytaskdata = [];
-        $('#syncing_tasks').addClass('hide');
+        // $('#syncing_tasks').addClass('hide');
         $('#load_more_tasks').removeAttr('disabled');
         $('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
     }
