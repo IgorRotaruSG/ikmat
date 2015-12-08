@@ -11,7 +11,9 @@ var settings = {
 		//'connectionTestInterval': 0.2 * 60 * 1000, //30 de secunde pt test
 		'completed_tasks' : 60 * 60 * 2 * 1000
 	},
-	'requestTimeout' : 25000
+	'requestTimeout' : 25000,
+	'version': "2.0.8",
+	'rebuild': "2.0.7"
 };
 
 var performance = window.performance;
