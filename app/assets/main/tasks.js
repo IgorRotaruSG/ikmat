@@ -445,7 +445,7 @@ function getDeviationForm(data, devStep) {
         return false;
     });
 
-    $('#form_back_btn i').removeClass('hided');
+    closeButtonDisplay();
     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
     if ( devStep === false  ) {
         mySwiper.swipeTo(2, 300, true);
@@ -1076,14 +1076,17 @@ function haccpDeviationFixSave(data) {
 }
 /********* END HACCP DEVIATION **********/
 
-function bindOpenTask() {
-    $('#form_back_btn').on('click', function(e) {
-    	console.log("bbbbbb");
+function closeButtonDisplay(){
+	$('#form_back_btn i').removeClass('hided');
+	 $('#form_back_btn').on('click', function(e) {
          $("[href='tasks.html']").click();
     });
-    $('.generate_task_form').off('click').on('click', function(e){
-    	        $('#form_back_btn i').removeClass('hided');
+}
 
+function bindOpenTask() {
+   	
+    $('.generate_task_form').off('click').on('click', function(e){
+		closeButtonDisplay();
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
         e.preventDefault();
         $('h1.ui-title').html($(this).html());
@@ -1117,7 +1120,7 @@ function bindOpenTask() {
 
 
     $('.generate_deviation_fix').off('click').on('click', function(e){
-    	$('#form_back_btn i').removeClass('hided');
+    	closeButtonDisplay();
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
         e.preventDefault();
         $('h1.ui-title').html($(this).html());

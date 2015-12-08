@@ -54,7 +54,7 @@
     <allow-intent href="itms-apps:*" />
     <name>IK-Mat</name>
     <description>
-        Hello World sample application that responds to the deviceready event.
+        IK-mat - internkontroll for restauranter.
     </description>
     <author email="tiennm6@fsoft.com.vn" href="http://fpt.com.vn">
         FSOFT Team

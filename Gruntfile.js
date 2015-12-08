@@ -16,7 +16,8 @@ module.exports = function(grunt) {
 	require('jit-grunt')(grunt, {
 		useminPrepare : 'grunt-usemin',
 		cdnify : 'grunt-google-cdn',
-		processhtml: 'grunt-processhtml'
+		processhtml: 'grunt-processhtml',
+		exec: 'grunt-exec'
 	});
 
 	// Configurable paths for the application
@@ -380,6 +381,14 @@ module.exports = function(grunt) {
 				src : '{,*/}*.css'
 			}
 		},
+		exec: {
+		  buildios: {
+		    command: 'phonegap run ios'
+		  },
+		  buildandroid: {
+		    command: 'phonegap run android'
+		  }
+		},
 
 		// Run some tasks in parallel to speed up the build process
 		concurrent : {
@@ -459,7 +468,7 @@ module.exports = function(grunt) {
 	]);
 
 	grunt.registerTask('build', ['dev', 'minfile']);
-	grunt.registerTask('buildios', ['devios', 'minfile']);
+	grunt.registerTask('buildphone', ['devios', 'minfile', 'exec:buildios']);
 	grunt.registerTask('cordova', ['devcordova', 'minfile']);
 	
 	grunt.registerTask('default', [ 'build']);

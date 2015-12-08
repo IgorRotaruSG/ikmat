@@ -1024,3 +1024,6 @@ a.ui-slider-handle {
 .clearboth {
     clear: both;
 }
+.online:before{
+	color: #8cc63f;
+}

@@ -7,13 +7,13 @@ var settings = {
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
 		'tasks' : 3 * 60 * 1000,
 		'loadTime' : 3 * 1000, //if the image loads in more than 3 seconds...set offline
-		'connectionTestInterval' : 2 * 60 * 1000,
+		'connectionTestInterval' : 1 * 60 * 1000,
 		//'connectionTestInterval': 0.2 * 60 * 1000, //30 de secunde pt test
 		'completed_tasks' : 60 * 60 * 2 * 1000
 	},
 	'requestTimeout' : 25000,
-	'version': "2.0.6",
-	'rebuild': "2.0.6"
+	'version': "2.0.51",
+	'rebuild': "2.0.51"
 };
 
 var performance = window.performance;
@@ -1925,7 +1925,7 @@ function bind_menuClick(t, n) {
 		contactName.html(localStorage.getItem('contact_name'));
 	}
 	$(t).find('#app-version').html("IK-mat " + this.settings.version);
-	
+	displayOnline(isOffline());
 }
 
 function updateContactName(data) {
@@ -1983,6 +1983,7 @@ function testConnection(callback) {
 				}
 
 			}
+			displayOnline(offline);
 		};
 		img = null;
 
@@ -2003,6 +2004,15 @@ function checkSync() {
 		return false;
 	}
 
+}
+
+function displayOnline(isOffline){
+	if(isOffline){
+		$("#app-online").removeClass("online");	
+	}else{
+		console.log("add");
+		$("#app-online").addClass("online");
+	}
 }
 
 function isOffline() {//check if application has internet connection

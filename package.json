@@ -37,7 +37,7 @@
     "run-sequence": "^1.1.1",
     "time-grunt": "^1.0.0",
     "grunt-processhtml": "*",
-    "grunt-phonegapsplash": "*"
+    "grunt-exec": "*"
   },
   "engines": {
     "node": ">=0.10.0"
