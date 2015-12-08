@@ -12,8 +12,8 @@ var settings = {
 		'completed_tasks' : 60 * 60 * 2 * 1000
 	},
 	'requestTimeout' : 25000,
-	'version': "2.0.51",
-	'rebuild': "2.0.51"
+	'version': "2.0.52",
+	'rebuild': "2.0.52"
 };
 
 var performance = window.performance;

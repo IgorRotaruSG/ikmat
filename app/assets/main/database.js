@@ -180,7 +180,7 @@ db.prototype.InitDB = function() {
     } else {
     	isCreateDB = true;
     }
-    if(!this.appVersion || (this.appVersion && Page.settings.rebuild && this.appVersion.replace(/\./g, "") < Page.settings.rebuild.replace(/\./g, ""))){
+    if(!this.appVersion || (this.appVersion && settings.rebuild && this.appVersion.replace(/\./g, "") < settings.rebuild.replace(/\./g, ""))){
     	isCreateDB = true;
     }
     
@@ -194,8 +194,8 @@ db.prototype.dbCreateTables = function (tx) {
 	this.dbDropTables(tx);
     localStorage.setItem('database', true);
     this.database = true;
-    localStorage.setItem("app-version", Page.settings.version);
-    this.appVersion = Page.settings.version;
+    localStorage.setItem("app-version", settings.version);
+    this.appVersion = settings.version;
     
     //console.warn('sunt pe database create');
     tx.executeSql('CREATE TABLE IF NOT EXISTS "settings" ("type"  NOT NULL  UNIQUE , "value" )',[],function(tx){
