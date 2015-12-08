@@ -182,7 +182,6 @@ Page.prototype.get = function() {
 };
 
 Page.prototype.apiCall = function(api_method, data, method, callback, parameters) {
-	console.log("parameters", parameters);
 	var cacheData = null;
 	if (data.hasOwnProperty("token") && data.hasOwnProperty("report_number")) {
 		cacheData = JSON.parse(localStorage.getItem(encodeURIComponent(data["token"] + data["report_number"])));
@@ -2039,7 +2038,7 @@ function noInternetError(message, login) {
 
 /*main sync query*/
 function executeSyncQuery() {
-	if (!isOffline() && checkSync()) {
+	if (!isOffline()) {
 		lastSynced = performance.now();
 
 		d = db.getDbInstance();
