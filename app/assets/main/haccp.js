@@ -219,93 +219,93 @@ function haccpInit() {
         _h_content = 800;
         last_id = 0;
         zh_h = parseInt($('body').height()) - 90;
-
+        
         get = Page.get();
         if ( get.continue ) {
             last_id = get.continue;
             f_i = parseInt(get.continue) + 1;
-//            f_i = parseInt(get.continue);
+            //            f_i = parseInt(get.continue);
         }
         //console.log('lastid = ',last_id);
-
+        
         var d = db.getDbInstance();
         d.transaction(getHaccp, db.dbErrorHandle);
-
+        
         mySwiper = new Swiper('.swiper-container-haccp',{
-            calculateHeight:        true,
-            releaseFormElements:    false,
-            preventLinks:           false,
-            simulateTouch:          true,
-            noSwiping: true,
-            //pagination: '.pagination',
-            onInit: function() {
-                setSwiperMinHeight();
-            },
-            onSlideChangeStart: function(swiper) {
-                if ( parseInt(swiper.activeIndex) == parseInt(swiper.previousIndex) ) {
-                    swiper.previousIndex--;
-                }
-                // Verify deviation before save
-                var deviation = 0;
-                var $f = $(swiper.getSlide(swiper.previousIndex));
-                $f.find('input').each(function(){
-                    if ($(this).attr('type') == 'radio') {
-                        if ($(this).is(':checked')) {
-                            deviation += parseInt($(this).val());
-                        }
-                    }
-                });
-                if (deviation >= 3 && _t == 'save') {
-                    decisionTree(swiper);
-                } else {
-                    //continueHaccp(swiper);
-                }
-                check_haccp();
-            },
-
-            onSlideNext: function(swiper) {
-                _t = 'save';
-
-            },
-
-            onSlidePrev: function(swiper) {
-                _t = 'edit';
-            },
-
-            onSlideChangeEnd: function(swiper) {
-                if ( parseInt(swiper.activeIndex) == parseInt(swiper.previousIndex) ) {
-                    swiper.previousIndex--;
-                }// Verify deviation before save
-                var deviation = 0;
-                var $f = $(swiper.getSlide(swiper.previousIndex));
-                $f.find('input').each(function(){
-                    if ($(this).attr('type') == 'radio') {
-                        if ($(this).is(':checked')) {
-                            deviation += parseInt($(this).val());
-                        }
-                    }
-                });
-                if (deviation >= 3 && _t == 'save') {
-                    //decisionTree(swiper);
-                } else {
-                    continueHaccp(swiper);
-                }
-                swiper.resizeFix();
-                var $n = $(swiper.getSlide(swiper.activeIndex));
-
-                if ($n.find('div.no_results').length > 0) {
-                    $('#footer').hide();
-                    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-                    return;
-                } else {
-                    $('#footer').show();
-                }
-            }
-        });
-
+                              calculateHeight:        true,
+                              releaseFormElements:    false,
+                              preventLinks:           false,
+                              simulateTouch:          true,
+                              noSwiping: true,
+                              //pagination: '.pagination',
+                              onInit: function() {
+                              setSwiperMinHeight();
+                              },
+                              onSlideChangeStart: function(swiper) {
+                              if ( parseInt(swiper.activeIndex) == parseInt(swiper.previousIndex) ) {
+                              swiper.previousIndex--;
+                              }
+                              // Verify deviation before save
+                              var deviation = 0;
+                              var $f = $(swiper.getSlide(swiper.previousIndex));
+                              $f.find('input').each(function(){
+                                                    if ($(this).attr('type') == 'radio') {
+                                                    if ($(this).is(':checked')) {
+                                                    deviation += parseInt($(this).val());
+                                                    }
+                                                    }
+                                                    });
+                              if (deviation >= 3 && _t == 'save') {
+                              decisionTree(swiper);
+                              } else {
+                              //continueHaccp(swiper);
+                              }
+                              check_haccp();
+                              },
+                              
+                              onSlideNext: function(swiper) {
+                              _t = 'save';
+                              
+                              },
+                              
+                              onSlidePrev: function(swiper) {
+                              _t = 'edit';
+                              },
+                              
+                              onSlideChangeEnd: function(swiper) {
+                              if ( parseInt(swiper.activeIndex) == parseInt(swiper.previousIndex) ) {
+                              swiper.previousIndex--;
+                              }// Verify deviation before save
+                              var deviation = 0;
+                              var $f = $(swiper.getSlide(swiper.previousIndex));
+                              $f.find('input').each(function(){
+                                                    if ($(this).attr('type') == 'radio') {
+                                                    if ($(this).is(':checked')) {
+                                                    deviation += parseInt($(this).val());
+                                                    }
+                                                    }
+                                                    });
+                              if (deviation >= 3 && _t == 'save') {
+                              //decisionTree(swiper);
+                              } else {
+                              continueHaccp(swiper);
+                              }
+                              swiper.resizeFix();
+                              var $n = $(swiper.getSlide(swiper.activeIndex));
+                              
+                              if ($n.find('div.no_results').length > 0) {
+                              $('#footer').hide();
+                              $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+                              return;
+                              } else {
+                              $('#footer').show();
+                              }
+                              }
+                              });
+        
         mySwiper.reInit();
         mySwiper.resizeFix();
-
+        
     } else {
         Page.redirect('login.html');
     }
@@ -1092,14 +1092,14 @@ function openConfirmDialog(message, confirm, cancel, step) {
     );
     $('#confirmDevPopup').popup( "open", {positionTo: 'window'});
     $('#confirmDevPopup').css({
-        'height': (parseInt($('body').height())+3 - 70) + 'px'
+        'height': (parseInt($('body').height())+3 - 50) + 'px'
     });
     $('#confirmDevPopup').parent().css({
-        'top': 70,
+        'top': 50,
         'left': 0,
         'max-width': '100%',
         'width': '100%',
-        'height': (parseInt($('body').height())+3 - 70) + 'px',
+        'height': (parseInt($('body').height())+3 - 50) + 'px',
         'overflow': 'hidden',
         'position': 'fixed'
     });
@@ -1134,7 +1134,7 @@ function goNextWithCriticalControl(swiper,message) {
 }
 
 function deviationTreeBackStep() {
-    console.log('deviationTreeBackStep');
+    console.log("deviationTreeBackStep");
     console.log(deviationAnswers);
     $("input[name='critical_point']").val('');
     if ( !isEmpty(deviationAnswers) ) {
