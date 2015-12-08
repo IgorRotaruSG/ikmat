@@ -1078,6 +1078,7 @@ function haccpDeviationFixSave(data) {
 
 function bindOpenTask() {
     $('#form_back_btn').on('click', function(e) {
+    	console.log("bbbbbb");
          $("[href='tasks.html']").click();
     });
     $('.generate_task_form').off('click').on('click', function(e){
