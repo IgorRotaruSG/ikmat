@@ -12,8 +12,8 @@ var settings = {
 		'completed_tasks' : 60 * 60 * 2 * 1000
 	},
 	'requestTimeout' : 25000,
-	'version': "2.0.8",
-	'rebuild': "2.0.7"
+	'version': "2.0.6",
+	'rebuild': "2.0.6"
 };
 
 var performance = window.performance;
@@ -1924,6 +1924,8 @@ function bind_menuClick(t, n) {
 	} else {
 		contactName.html(localStorage.getItem('contact_name'));
 	}
+	$(t).find('#app-version').html("IK-mat " + this.settings.version);
+	
 }
 
 function updateContactName(data) {
