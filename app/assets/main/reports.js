@@ -699,42 +699,57 @@ function documentsCall(data) {
         });
 
 
-        $('#send_email').off('click').on('click', function(e){
-            /*step 1: display the date chooser*/
-            $("#popup-send-email").popup("open");
-            $('#popup-send-email').parent().css({
-                'top': 0,
-                'left': 0,
-                'max-width': '100%',
-                'width': '100%',
-                'height': parseInt($('body').height()) + 'px',
-                'overflow': 'hidden',
-                'position': 'fixed'
-            });
-            $('#popup-send-email').css('height', '100%');
-            $("#confirm-send").off('click').on( "click", function( event, ui ) {
-                var ok = HTML.validate($('#popup-send-email'));
+        
+		$('#send_email').off('click').on('click', function(e) {
 
-                if ( ok ) {
-                    $("#confirm-send").attr('disabled', true);
-                    $("#confirm-send").parent().find('.ui-btn-text').html($.t('general.loading'));
-                    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-                    var email_data = {
-                        'client': User.client,
-                        'token': User.lastToken,
-                        'report_id': 0,
-                        'email' : $('#email').val(),
-                        'filter_date_from': reports_date_start,
-                        'filter_date_to': reports_date_end
-                    };
-                    Page.apiCall('send-report-by-email', email_data, 'get', 'sendEmail');
-                } else {
+			if (isNative() && cordova.plugins && cordova.plugins.email) {
+				$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+				var email_data = {
+					'client' : User.client,
+					'token' : User.lastToken,
+					'report_id' : data.report_number,
+					'filter_date_from' : reports_date_start,
+					'filter_date_to' : reports_date_end
+				};
+				Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail');
+			} else {
 
-                }
-            });
+				/*step 1: display the date chooser*/
+				$("#popup-send-email").popup("open");
+				$('#popup-send-email').parent().css({
+					'top' : 0,
+					'left' : 0,
+					'max-width' : '100%',
+					'width' : '100%',
+					'height' : parseInt($('body').height()) + 'px',
+					'overflow' : 'hidden',
+					'position' : 'fixed'
+				});
+				$('#popup-send-email').css('height', '100%');
+				$("#confirm-send").off('click').on("click", function(event, ui) {
+					var ok = HTML.validate($('#popup-send-email'));
 
-        });
+					if (ok) {
+						$("#confirm-send").attr('disabled', true);
+						$("#confirm-send").parent().find('.ui-btn-text').html($.t('general.loading'));
+						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+						var email_data = {
+							'client' : User.client,
+							'token' : User.lastToken,
+							'report_id' : 0,
+							'email' : $('#email').val(),
+							'filter_date_from' : reports_date_start,
+							'filter_date_to' : reports_date_end
+						};
+						Page.apiCall('send-report-by-email', email_data, 'get', 'sendEmail');
+					} else {
+
+					}
+				});
+			}
+		}); 
     }
+   
 }
 
 

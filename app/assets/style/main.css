@@ -799,9 +799,9 @@ legend>p {
     clear:both;
 }
 .row{
-width: 100%;
-padding: 20px 0;
-margin: 0;
+	width: 100%;
+	padding: 20px 0;
+	margin: 0!important;
 }
 #popupDeviation {
     overflow-y: scroll;

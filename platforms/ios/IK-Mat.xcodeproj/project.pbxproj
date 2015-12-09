@@ -373,7 +373,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 510;
+				LastUpgradeCheck = 710;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
 						DevelopmentTeam = 2ZDPCXEHU3;
@@ -537,6 +537,7 @@
 					"-weak-lSystem",
 					"-ObjC",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = hygiene.app.automagi;
 				PRODUCT_NAME = "IK-Mat";
 				PROVISIONING_PROFILE = "c2def9ee-cd85-468d-82e1-82df3266bbb3";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -569,6 +570,7 @@
 					"-weak-lSystem",
 					"-ObjC",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = hygiene.app.automagi;
 				PRODUCT_NAME = "IK-Mat";
 				PROVISIONING_PROFILE = "25165728-dfcb-4d24-b825-ffad23b7c83d";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -586,6 +588,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
