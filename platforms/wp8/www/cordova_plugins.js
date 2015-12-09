@@ -17,23 +17,6 @@ module.exports = [
         ]
     },
     {
-        "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
-        "id": "cordova-plugin-inappbrowser.inappbrowser",
-        "pluginId": "cordova-plugin-inappbrowser",
-        "clobbers": [
-            "cordova.InAppBrowser.open",
-            "window.open"
-        ]
-    },
-    {
-        "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
-        "id": "cordova-plugin-statusbar.statusbar",
-        "pluginId": "cordova-plugin-statusbar",
-        "clobbers": [
-            "window.StatusBar"
-        ]
-    },
-    {
         "file": "plugins/de.appplant.cordova.plugin.email-composer/www/email_composer.js",
         "id": "de.appplant.cordova.plugin.email-composer.EmailComposer",
         "pluginId": "de.appplant.cordova.plugin.email-composer",
@@ -269,6 +252,23 @@ module.exports = [
         "pluginId": "phonegap-plugin-push",
         "clobbers": [
             "PushNotification"
+        ]
+    },
+    {
+        "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
+        "id": "cordova-plugin-inappbrowser.inappbrowser",
+        "pluginId": "cordova-plugin-inappbrowser",
+        "clobbers": [
+            "cordova.InAppBrowser.open",
+            "window.open"
+        ]
+    },
+    {
+        "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
+        "id": "cordova-plugin-statusbar.statusbar",
+        "pluginId": "cordova-plugin-statusbar",
+        "clobbers": [
+            "window.StatusBar"
         ]
     }
 ];

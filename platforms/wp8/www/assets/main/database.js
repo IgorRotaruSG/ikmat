@@ -7,6 +7,7 @@ function db() {
     this.db_version = '1.0';
     this.db_size = 5*1024*1024;
     this.database = localStorage.getItem('database');
+    this.appVersion = localStorage.getItem('app-version');
     this.data = [];
     this.query = false;
 //    console.log('function db()');
@@ -173,15 +174,29 @@ db.prototype.dbDropTables = function(tx) {
 
 db.prototype.InitDB = function() {
     this.db = window.openDatabase(this.db_name, this.db_version, "", this.db_size);
+    var isCreateDB = false;
     if (this.database && this.database !== undefined && this.database !== null ) {
+    	isCreateDB = false;
     } else {
-        this.createTables();
+    	isCreateDB = true;
+    }
+    if(!this.appVersion || (this.appVersion && settings.rebuild && this.appVersion.replace(/\./g, "") < settings.rebuild.replace(/\./g, ""))){
+    	isCreateDB = true;
+    }
+    
+    console.log("isCreateDB", isCreateDB);
+    if(isCreateDB){
+    	this.createTables();
     }
 };
 
 db.prototype.dbCreateTables = function (tx) {
+	this.dbDropTables(tx);
     localStorage.setItem('database', true);
     this.database = true;
+    localStorage.setItem("app-version", settings.version);
+    this.appVersion = settings.version;
+    
     //console.warn('sunt pe database create');
     tx.executeSql('CREATE TABLE IF NOT EXISTS "settings" ("type"  NOT NULL  UNIQUE , "value" )',[],function(tx){
         /*tx.executeSql('INSERT INTO "settings"("type","value") VALUES(?,?)',[

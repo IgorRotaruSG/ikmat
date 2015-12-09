@@ -13,12 +13,6 @@
         "cordova-plugin-device": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
-        "cordova-plugin-inappbrowser": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
-        "cordova-plugin-statusbar": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
@@ -41,6 +35,12 @@
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "phonegap-plugin-push": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-plugin-statusbar": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         }
     },

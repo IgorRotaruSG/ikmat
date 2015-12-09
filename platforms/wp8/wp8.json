@@ -13,14 +13,6 @@
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"InAppBrowser\"><param name=\"wp-package\" value=\"InAppBrowser\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"StatusBar\"><param name=\"wp-package\" value=\"StatusBar\" /></feature>",
-                            "count": 1
-                        },
-                        {
                             "xml": "<feature name=\"EmailComposer\"><param name=\"wp-package\" value=\"EmailComposer\" /></feature>",
                             "count": 1
                         },
@@ -38,6 +30,14 @@
                         },
                         {
                             "xml": "<feature name=\"NetworkStatus\"><param name=\"wp-package\" value=\"NetworkStatus\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"InAppBrowser\"><param name=\"wp-package\" value=\"InAppBrowser\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"StatusBar\"><param name=\"wp-package\" value=\"StatusBar\" /></feature>",
                             "count": 1
                         }
                     ]
@@ -74,12 +74,6 @@
         "cordova-plugin-device": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
-        "cordova-plugin-inappbrowser": {
-            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
-        },
-        "cordova-plugin-statusbar": {
-            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
-        },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
@@ -103,6 +97,12 @@
         },
         "phonegap-plugin-push": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "cordova-plugin-statusbar": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         }
     },
     "dependent_plugins": {},
@@ -121,23 +121,6 @@
             "pluginId": "cordova-plugin-device",
             "clobbers": [
                 "device"
-            ]
-        },
-        {
-            "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
-            "id": "cordova-plugin-inappbrowser.inappbrowser",
-            "pluginId": "cordova-plugin-inappbrowser",
-            "clobbers": [
-                "cordova.InAppBrowser.open",
-                "window.open"
-            ]
-        },
-        {
-            "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
-            "id": "cordova-plugin-statusbar.statusbar",
-            "pluginId": "cordova-plugin-statusbar",
-            "clobbers": [
-                "window.StatusBar"
             ]
         },
         {
@@ -376,6 +359,23 @@
             "pluginId": "phonegap-plugin-push",
             "clobbers": [
                 "PushNotification"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
+            "id": "cordova-plugin-inappbrowser.inappbrowser",
+            "pluginId": "cordova-plugin-inappbrowser",
+            "clobbers": [
+                "cordova.InAppBrowser.open",
+                "window.open"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
+            "id": "cordova-plugin-statusbar.statusbar",
+            "pluginId": "cordova-plugin-statusbar",
+            "clobbers": [
+                "window.StatusBar"
             ]
         }
     ]

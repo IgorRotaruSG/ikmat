@@ -10,7 +10,19 @@
         "com.phonegap.plugins.sqlite": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-plugin-statusbar": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
         "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "de.appplant.cordova.plugin.email-composer": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "de.appplant.cordova.plugin.printer": {
@@ -29,18 +41,6 @@
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "phonegap-plugin-push": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
-        "cordova-plugin-device": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
-        "cordova-plugin-inappbrowser": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
-        "cordova-plugin-statusbar": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
-        "de.appplant.cordova.plugin.email-composer": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         }
     },

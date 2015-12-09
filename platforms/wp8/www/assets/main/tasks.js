@@ -445,7 +445,7 @@ function getDeviationForm(data, devStep) {
         return false;
     });
 
-    $('#form_back_btn i').removeClass('hided');
+    closeButtonDisplay();
     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
     if ( devStep === false  ) {
         mySwiper.swipeTo(2, 300, true);
@@ -682,11 +682,15 @@ function getTasksUncompleted(data) {
 
             if ( tasksNr < per_page ) {
                 $('#load_more_tasks').attr('disabled',true);
-                //$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
                 $('#load_more_tasks').parent().hide();
             } else {
-                $('#load_more_tasks').removeAttr('disabled');
-                $('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
+               if(data.tasks_total_nr <= per_page) {
+                   $('#load_more_tasks').attr('disabled',true);
+                   $('#load_more_tasks').parent().hide();
+               } else {               
+                   $('#load_more_tasks').removeAttr('disabled');
+                   $('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
+               }
             }
         } else {
             var d = db.getDbInstance();
@@ -772,9 +776,9 @@ function takeHACCPPicture(id) {
 var emptytask = 0;
 function findTaskData(){
     if ( emptytaskdata[emptytask] != undefined ){
-        if ( $('#syncing_tasks').hasClass('hide') ) {
-            $('#syncing_tasks').removeClass('hide');
-        }
+        // if ( $('#syncing_tasks').hasClass('hide') ) {
+            // $('#syncing_tasks').removeClass('hide');
+        // }
         var data = {
             'client': User.client,
             'token': User.lastToken,
@@ -785,7 +789,7 @@ function findTaskData(){
     } else {
         emptytask = 0;
         emptytaskdata = [];
-        $('#syncing_tasks').addClass('hide');
+        // $('#syncing_tasks').addClass('hide');
         $('#load_more_tasks').removeAttr('disabled');
         $('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
     }
@@ -823,7 +827,7 @@ function getTasksFromLocal(results){
         $('#load_more_tasks').parent().hide();
         checkTasksList();
         return;
-    } else if ( results.rows.length < 20 && isOffline()) {
+    } else if ( results.rows.length < per_page && isOffline()) {
         $('#load_more_tasks').attr('disabled',true);
         //$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
         $('#load_more_tasks').parent().hide();
@@ -1072,13 +1076,17 @@ function haccpDeviationFixSave(data) {
 }
 /********* END HACCP DEVIATION **********/
 
-function bindOpenTask() {
-    $('#form_back_btn').on('click', function(e) {
+function closeButtonDisplay(){
+	$('#form_back_btn i').removeClass('hided');
+	 $('#form_back_btn').on('click', function(e) {
          $("[href='tasks.html']").click();
     });
-    $('.generate_task_form').off('click').on('click', function(e){
-    	        $('#form_back_btn i').removeClass('hided');
+}
 
+function bindOpenTask() {
+   	
+    $('.generate_task_form').off('click').on('click', function(e){
+		closeButtonDisplay();
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
         e.preventDefault();
         $('h1.ui-title').html($(this).html());
@@ -1112,7 +1120,7 @@ function bindOpenTask() {
 
 
     $('.generate_deviation_fix').off('click').on('click', function(e){
-    	$('#form_back_btn i').removeClass('hided');
+    	closeButtonDisplay();
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
         e.preventDefault();
         $('h1.ui-title').html($(this).html());

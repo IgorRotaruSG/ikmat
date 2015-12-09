@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,26 +15,31 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
-.inAppBrowserWrap {
-    margin: 0;
-    padding: 0;
-    outline: 0;
-    font-size: 100%;
-    vertical-align: baseline;
-    background: 0 0;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999999;
-    box-sizing: border-box;
-    border: 40px solid #bfbfbf;
-    border: 40px solid rgba(0, 0, 0, 0.25);
+var cordova = require('cordova');
+
+function notSupported() {
+    console.log('StatusBar is not supported');
+    return false;
 }
 
-.inAppBrowserWrapFullscreen {
-    border: 0;
-}
+module.exports = {
+    isVisible: false,
+    styleBlackTranslucent:notSupported,
+    styleDefault:notSupported,
+    styleLightContent:notSupported,
+    styleBlackOpaque:notSupported,
+    overlaysWebView:notSupported,
+    overlaysWebView: notSupported,
+    styleDefault: notSupported,
+    styleLightContect: notSupported,
+    styleBlackTranslucent: notSupported,
+    styleBlackOpaque: notSupported,
+    backgroundColorByName: notSupported,
+    backgroundColorByHexString: notSupported,
+    hide: notSupported,
+    show: notSupported
+};
+

@@ -221,12 +221,6 @@
         <Compile Include="Plugins\cordova-plugin-device\Device.cs" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Plugins\cordova-plugin-inappbrowser\InAppBrowser.cs" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Include="Plugins\cordova-plugin-statusbar\StatusBar.cs" />
-    </ItemGroup>
-    <ItemGroup>
         <Compile Include="Plugins\de.appplant.cordova.plugin.email-composer\EmailComposer.cs" />
     </ItemGroup>
     <ItemGroup>
@@ -243,5 +237,11 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Plugins\org.apache.cordova.network-information\NetworkStatus.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Plugins\cordova-plugin-inappbrowser\InAppBrowser.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Plugins\cordova-plugin-statusbar\StatusBar.cs" />
     </ItemGroup>
 </Project>

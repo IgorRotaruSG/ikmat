@@ -4,6 +4,7 @@ var _t;
 var last_data_received;
 var offline_signature;
 var lazydatasend = [];
+var canRedirectAfterPoisonParam = false;
 
 //navigator.connection.type = Connection.NONE;
 
@@ -11,64 +12,62 @@ function getFormsCall(tx, results) {
     if (results.rows.length == 0 && isOffline()) {
         $('#no_results_forms').text($.t('forms.no_forms_connection'));
     }
-//    else if (results.rows.length == 0  && navigator.connection.type != Connection.NONE) {
-
+    //    else if (results.rows.length == 0  && navigator.connection.type != Connection.NONE) {
+    
     else if (results.rows.length > 0 && isOffline() ) {
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
         var data = [];
-        var label, tmp, link, alias;
-
+        var label, tmp, link, alias, datatype;
+        
         for (var i=0;i<results.rows.length;i++) {
+            datatype = ((results.rows.item(i).type==999)?'add_employee':(results.rows.item(i).type==1000?'add_supplier':results.rows.item(i).type));
             try {
                 tmp = JSON.parse(results.rows.item(i).label);
                 alias = tmp.alias;
-                link = '<a href="#" data-type="' + results.rows.item(i).type + '" class="form_generator_link">' + tmp.alias + '</a>';
+                link = '<a href="#" data-type="' + datatype + '" class="form_generator_link">' + tmp.alias + '</a>';
             } catch (err) {
-                link = '<a href="#" data-type="' + results.rows.item(i).type + '" class="form_generator_link">' + results.rows.item(i).label + '</a>';
+                link = '<a href="#" data-type="' + datatype + '" class="form_generator_link">' + results.rows.item(i).label + '</a>';
                 alias = results.rows.item(i).label;
             }
             data.push({
-                'alias':    alias,
-                'id':       i,
-                'data':     link
-            });
+                      'alias':    alias,
+                      'id':       i,
+                      'data':     link
+                      });
         }
-        if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
-            data.push({
-                'alias':    $.t('nav.add_employee'),
-                'id':       999,
-		'data':     '<a href="#" data-type="add_employee" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.add_employee') + '</a>'
-            });
-
-            data.push({
-                'alias':    $.t('nav.add_supplier'),
-                'id':       1000,
-                'data':     '<a href="#" data-type="add_supplier" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.add_supplier') + '</a>'
-            });
-        }
-
-
+        /*if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
+         data.push({
+         'alias':    $.t('nav.add_employee'),
+         'id':       999,
+         'data':     '<a href="#" data-type="add_employee" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.add_employee') + '</a>'
+         });
+         
+         data.push({
+         'alias':    $.t('nav.add_supplier'),
+         'id':       1000,
+         'data':     '<a href="#" data-type="add_supplier" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.add_supplier') + '</a>'
+         });
+         }*/
+        
         $('#forms_list').html('');
-        _append('#forms_list', data);
+        _appendAndSortByAlias('#forms_list', data);
         bind_form_click_handler();
         bind_form2_click_handler();
-
+        
         $('#no_results_forms').hide();
     }
     else {
         console.log('if connection is live');
         //$('#no_results_forms').text($.t('forms.no_forms_yet'));
-
+        
         var data = {
             'client': User.client,
             'token': User.lastToken
         };
         Page.apiCall('formDeviationStart', data, 'get', 'formDeviationStart');
     }
-
-    console.log("FormList");
     console.log(data);
-
+    
     mySwiper.reInit();
     mySwiper.resizeFix();
 }
@@ -93,7 +92,7 @@ function formsInit() {
             noSwipingClass: 'ui-slider',
             //pagination: '.pagination',
             onInit: function() {
-                if ( mySwiper.slides.length == 1 ) {
+            	if ( mySwiper.slides.length == 1 ) {
                     $('#footer').remove();
                     $('#form_back_btn i').addClass('hided');
                 }
@@ -106,55 +105,14 @@ function formsInit() {
             onSlidePrev:            function(swiper) {
                 _t = 'prev';
             },
+            onSlideChangeStart : function (swiper) {
+
+            },
             onSlideChangeEnd:       function(swiper) {
-              $('html, body').animate({scrollTop: 0}, 500);
-                mySwiper.resizeFix();
-                if ( parseInt(swiper.activeIndex) == parseInt(swiper.previousIndex) ) {
-                    swiper.previousIndex--;
-                }
-                
-                HTML.validate($('body'),'ex');
-                var redirectAfterPoison = $('.swiper-slide-active').find('.no_results');
-                if(redirectAfterPoison.length > 0){
-                    console.log('redirectAfterPoison');
-                    if ( lazydatasend != [] &&  isOffline() ) {
-                        var data_send2 = Form.getValues(swiper.getSlide(swiper.previousIndex));
-                        lazydatasend.push(data_send2);
-                        var newlazy = {};
-                        newlazy['results'] = {};
-                        for ( i = 0; i< lazydatasend.length; i++ ) {
-                            for (var prop in lazydatasend[i] ) {
-                                // important check that this is objects own property
-                                // not from prototype prop inherited
-                                if(lazydatasend[i].hasOwnProperty(prop)){
-                                    if ( prop == 'task_id' ){
-                                        newlazy[prop] = lazydatasend[i][prop];
-                                        newlazy['results'][prop] = lazydatasend[i][prop];
-                                    } else {
-                                        newlazy['results'][prop] = lazydatasend[i][prop];
-                                    }
-                                }
-                            }
-                        }
-                        newlazy['results'] = JSON.stringify(newlazy.results);
-                        console.log(newlazy);
-//                        return;
-                        db.lazyQuery({
-                            'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-                            'data': [[
-                                'foodPoison',
-                                JSON.stringify(newlazy),
-                                0,
-                                'foodPoison'
-                            ]]
-                        },0);
-                    }
-                    setTimeout(function(){
-                        window.location.href = 'index.html';
-                    }, 3500);
-                }
 
                 var poison = $(document).find('.form2_save');
+                              HTML.validate($('body'),'ex');
+              
                 if(poison.length > 0){
                     if(_t == 'next'){
                         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
@@ -167,6 +125,7 @@ function formsInit() {
                                 'token': User.lastToken,
                                 'results': JSON.stringify(data_send)
                             };
+                            canRedirectAfterPoisonParam = true;
                             if (!isOffline() ) {
                                 Page.apiCall('foodPoison', data, 'get', 'foodPoisonDone');
                             } else {
@@ -174,6 +133,8 @@ function formsInit() {
                                 $('.overflow-wrapper').addClass('overflow-wrapper-hide');
                             }
                         }else{
+                            //console.log('aiciiii222i');
+                            canRedirectAfterPoisonParam = false;
                             swiper.swipePrev();
                             $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
@@ -197,13 +158,59 @@ function formsInit() {
                         swiper.removeSlide(parseInt(swiper.activeIndex) + 1);
                     }
                 }
+                console.log("mySwiper.slides", mySwiper.slides);
                 if ( mySwiper.slides.length == 1 ) {
-                     $('#footer').remove();
-                     $('#form_back_btn i').addClass('hided');
+                    $('#footer').remove();
+                    $('#form_back_btn i').addClass('hided');
+                }
+
+                $('html, body').animate({scrollTop: 0}, 500);
+                mySwiper.resizeFix();
+
+                if ( parseInt(swiper.activeIndex) == parseInt(swiper.previousIndex) ) {
+                    swiper.previousIndex--;
+                }
+
+                var redirectAfterPoison = $('.swiper-slide-active').find('.no_results');
+                if(redirectAfterPoison.length > 0 && canRedirectAfterPoisonParam ){
+                    canRedirectAfterPoisonParam = false;
+                    console.log('Is this real life?');
+                    if ( lazydatasend != [] &&  isOffline() ) {
+                        var data_send2 = Form.getValues(swiper.getSlide(swiper.previousIndex));
+                        lazydatasend.push(data_send2);
+                        var newlazy = {};
+                        newlazy['results'] = {};
+                        for ( i = 0; i< lazydatasend.length; i++ ) {
+                            for (var prop in lazydatasend[i] ) {
+                                // important check that this is objects own property
+                                // not from prototype prop inherited
+                                if(lazydatasend[i].hasOwnProperty(prop)){
+                                    if ( prop == 'task_id' ){
+                                        newlazy[prop] = lazydatasend[i][prop];
+                                        newlazy['results'][prop] = lazydatasend[i][prop];
+                                    } else {
+                                        newlazy['results'][prop] = lazydatasend[i][prop];
+                                    }
+                                }
+                            }
+                        }
+                        newlazy['results'] = JSON.stringify(newlazy.results);
+                        db.lazyQuery({
+                            'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+                            'data': [[
+                                'foodPoison',
+                                JSON.stringify(newlazy),
+                                0,
+                                'foodPoison'
+                            ]]
+                        },0);
+                    }
+                    setTimeout(function(){
+                        window.location.href = 'index.html';
+                    }, 3500);
                 }
             }
         });
-
 
     } else {
         Page.redirect('login.html');
@@ -250,17 +257,18 @@ function getKeyByValue(obj,value) {
 }
 
 function formDeviationStart(data) {
-    if (data.success) {
+    console.log("Deviation");
+    if (data.success) {        
         var f = data.form_list_question;
         /* SORT SECTION */
         var tuples = [];
         if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
             tuples = [
-                [999, $.t('nav.add_employee')],
-                [1000, $.t('nav.add_supplier')]
-            ];
+                      [999, $.t('nav.add_employee')],
+                      [1000, $.t('nav.add_supplier')]
+                      ];
         }
-
+        
         for (var key in f) {
             if (typeof f[key] == 'object') {
                 tuples.push([key, f[key].alias]);
@@ -269,49 +277,49 @@ function formDeviationStart(data) {
             }
         }
         tuples.sort(function(a, b) {
-            a = a[1];
-            b = b[1];
-            return a < b ? -1 : (a > b ? 1 : 0);
-        });
+                    a = a[1];
+                    b = b[1];
+                    return a < b ? -1 : (a > b ? 1 : 0);
+                    });
         var data = []; // For show
         var db_data = []; // For insert to local db
-
+        
         for (var i = 0; i < tuples.length; i++) {
             var key = tuples[i][0];
             var value= tuples[i][1];
             if (key != 999 && key != 1000) {
                 data.push({
-                    'alias':    value,
-                    'id':       100 - i,
-                    'data':     '<a href="#" data-type="' + key + '" class="form_generator_link"> ' + value + '</a>'
-                });
+                          'alias':    value,
+                          'id':       100 - i,
+                          'data':     '<a href="#" data-type="' + key + '" class="form_generator_link"> ' + value + '</a>'
+                          });
             }
             if (key == 999) {
                 data.push({
-                    'alias':    $.t('nav.add_employee'),
-                    'id':       999,
-                    'data':     '<a href="#" data-type="add_employee" class="form_generator_link"><i ></i> ' + $.t('nav.add_employee') + '</a>'
-                });
+                          'alias':    $.t('nav.add_employee'),
+                          'id':       999,
+                          'data':     '<a href="#" data-type="add_employee" class="form_generator_link"><i ></i> ' + $.t('nav.add_employee') + '</a>'
+                          });
             }
             if (key == 1000) {
                 data.push({
-                    'alias':    $.t('nav.add_supplier'),
-                    'id':       1000,
-                    'data':     '<a href="#" data-type="add_supplier" class="form_generator_link"><i ></i> ' + $.t('nav.add_supplier') + '</a>'
-                });
+                          'alias':    $.t('nav.add_supplier'),
+                          'id':       1000,
+                          'data':     '<a href="#" data-type="add_supplier" class="form_generator_link"><i ></i> ' + $.t('nav.add_supplier') + '</a>'
+                          });
             }
-
+            
             if(key != 'maintenance' || key != 'food_poision' || (key != 999 && key != 1000)){
                 db_data.push([key, value]);
             }
         }
-
+        
         /* INSERT SECTION */
         var q = 'INSERT INTO "forms" ("type", "label") VALUES(?,?)';
         db.lazyQuery({
-            'sql': 'INSERT OR REPLACE INTO "forms" ("type","label") VALUES(?,?)',
-            'data': db_data
-        },0);
+                     'sql': 'INSERT OR REPLACE INTO "forms" ("type","label") VALUES(?,?)',
+                     'data': db_data
+                     },0);
         /* SHOW SECTION */
         $('#forms_list').html('');
         _appendAndSortByAlias('#forms_list', data);
@@ -321,6 +329,9 @@ function formDeviationStart(data) {
     }
     realignSlideHeight('max-height-form');
 }
+
+
+
 
 function formItemData(data) {
     console.log('forms.js  formItemData 200');
@@ -345,7 +356,7 @@ function formItemData(data) {
                     html += HTML.formGenerate(last_data_received.form_deviation,  $.t("general.save_button"));
 
                     html += '</form>' +
-                        '<div data-role="popup" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+                        '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
                         '<div id="signature-holder">'+
                         '<div id="signature" data-role="none"></div>'+
                         '</div>' +
@@ -354,7 +365,7 @@ function formItemData(data) {
                         '</div>';
                     $(document).on('click', '#signature-reset' , function(e){
                         e.preventDefault();
-
+                                   console.log("deviation-signature-close1");
                         $('input[name="signature"]').val('user name');
 
                         return false;
@@ -456,12 +467,12 @@ function formItemData(data) {
                         'employee_id': last_data_received.employee_id,
                         'deviation_deadline': last_data_received.deviation_deadline,
 //                        'signature': last_data_received.signature,
-                       'correctionalMeasures': last_data_received.correctionalMeasures
+//                        'correctionalMeasures': last_data_received.correctionalMeasures
                     };
                     form = HTML.formGenerate(step, '');
                     html += form;
                     html += '</form></div>'+
-                        '<div data-role="popup" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+                        '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
                         '<div id="signature-holder">'+
                         '<div id="signature" data-role="none"></div>'+
                         '</div>' +
@@ -486,7 +497,7 @@ function formItemData(data) {
                     console.log('deviation 401');
                     html += HTML.formGenerate(last_data_received.form_deviation,  $.t("general.save_button"), 'dev');
                     html += '</form>' +
-                        '<div data-role="popup" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+                        '<div data-role="popup" id="signature_pop"   data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
                         '<div id="signature-holder">'+
                         '<div id="signature" data-role="none"></div>'+
                         '</div>' +
@@ -495,6 +506,7 @@ function formItemData(data) {
                         '</div>';
                     $(document).on('click', '#signature-reset' , function(e){
                         e.preventDefault();
+                                     console.log("deviation-signature-close2");
 
                         $('input[name="signature"]').val('user name');
 
@@ -655,7 +667,7 @@ function maintenance(data) {
         var html = '<form id="form_maintenance">';
         html += HTML.formGenerate(data.form_deviation,  $.t("general.save_button"));
         html += '</form>'+
-            '<div data-role="popup" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+            '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
             '<div id="signature-holder">'+
             '<div id="signature" data-role="none"></div>'+
             '</div>' +
@@ -674,6 +686,7 @@ function maintenance(data) {
 
             //$('#deviation-signature-close').off('click').on('click',function(){
             $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
+                                                                       console.log("deviation-signature-close3");
                 $('#signature_pop').popup('close');
                 var data = {
                     'client': User.client,
@@ -778,7 +791,7 @@ function maintenanceDoneForm(data) {
         $('input[name="task_id"]').val(data);
     }
     uploadHACCPPictureForms();
-    Page.redirect('tasks.html');
+ console.log(" Page.redirect");   Page.redirect('tasks.html');
 }
 
 function foodPoisonDone(data){
@@ -790,7 +803,7 @@ function foodPoisonDone(data){
 }
 
 function maintenanceSignDone(data) {
-   console.log("maintenanceSignDone");
+//    console.log('748');
     if($.isNumeric(data)){
         $('input[name="task_id"]').val(data);
     }
@@ -807,13 +820,17 @@ function maintenanceSignDone(data) {
     Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
 }
 
-function bind_form_click_handler() {
-
-	$('#form_back_btn').on('click', function(e) {
+function showCloseButton(){
+	$('#form_back_btn i').removeClass('hided');
+    $('#form_back_btn').on('click', function(e) {
         $("[href='forms.html']").click();
     });
+}
+
+function bind_form_click_handler() {
     $('.form_generator_link').off('click').on('click', function(e){
-    	 $('#form_back_btn i').removeClass('hided');
+
+        showCloseButton();
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
         document.form_cat = $(this).data('type');
         console.log('686 '+ document.form_cat);
@@ -899,7 +916,7 @@ function bind_form_click_handler() {
                                 html += '<legend class="legend_task">' + results.rows.item(0).label + '</legend>';
                                 html += HTML.formGenerate(last_data_received,  $.t("general.save_button"));
                                 html += '</form>' +
-                                    '<div data-role="popup" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+                                    '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
                                     '<div id="signature-holder">'+
                                     '<div id="signature" data-role="none"></div>'+
                                     '</div>' +
@@ -908,7 +925,7 @@ function bind_form_click_handler() {
                                     '</div>';
                                 $(document).on('click', '#signature-reset' , function(e){
                                     e.preventDefault();
-
+                                                console.log("deviation-signature-close4");
                                     $('input[name="signature"]').val('user name');
 
                                     return false;
@@ -920,6 +937,7 @@ function bind_form_click_handler() {
 
                                     $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
                                         $('#signature_pop').popup('close');
+                                                                                               console.log("deviation-signature-close5");
                                         /* Save maintenance for now */
                                         var dd1 = HTML.getFormValues($(document).find('#form2_save').parent());
                                         //console.log(dd1);
@@ -1025,12 +1043,12 @@ function bind_form_click_handler() {
                                     'employee_id': last_data_received.employee_id,
                                     'deviation_deadline': last_data_received.deviation_deadline,
 //                                    'signature': last_data_received.signature,
-                                   'correctionalMeasures': last_data_received.correctionalMeasures
+//                                    'correctionalMeasures': last_data_received.correctionalMeasures
                                 };
                                 form = HTML.formGenerate(step, '');
                                 html += form;
                                 html += '</form></div>'+
-                                    '<div data-role="popup" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+                                    '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
                                     '<div id="signature-holder">'+
                                     '<div id="signature" data-role="none"></div>'+
                                     '</div>' +
@@ -1054,7 +1072,7 @@ function bind_form_click_handler() {
                                 html += '<legend class="legend_task">' + results.rows.item(0).label + '</legend>';
                                 html += HTML.formGenerate(last_data_received,  $.t("general.save_button"));
                                 html += '</form>' +
-                                    '<div data-role="popup" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+                                    '<div data-role="popup" id="signature_pop"   data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
                                     '<div id="signature-holder">'+
                                     '<div id="signature" data-role="none"></div>'+
                                     '</div>' +
@@ -1063,7 +1081,7 @@ function bind_form_click_handler() {
                                     '</div>';
                                 $(document).on('click', '#signature-reset' , function(e){
                                     e.preventDefault();
-
+  console.log("deviation-signature-close7");
                                     $('input[name="signature"]').val('user name');
 
                                     return false;
@@ -1075,6 +1093,7 @@ function bind_form_click_handler() {
                                     openSignaturePopup();
 
                                     $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
+                                                                                               console.log("deviation-signature-close6");
                                         $('#signature_pop').popup('close');
                                         /* Save maintenance for now */
                                         var dd1 = HTML.getFormValues($(document).find('#form2_save').parent());
@@ -1147,6 +1166,7 @@ function bind_form_click_handler() {
                                                 'maintenanceDoneForm'
                                             ]]
                                         },0);
+                                        console.log(" Page.redirect");
                                         Page.redirect('tasks.html');
 //                                        return;
                                     }
@@ -1199,7 +1219,7 @@ function bind_form_click_handler() {
                                                                 'formDeviationStart'
                                                             ]]
                                                         },0);
-                                                        console.log('Skjema Lagres');
+                                                        //console.log('Skjema Lagres');
                                                         redirect_to_forms();
                                                         /*$('#alertPopup .alert-text').html('Skjema Lagres');
                                                         $('#alertPopup').on("popupafterclose",function(){
@@ -1294,7 +1314,7 @@ function bind_form2_click_handler() {
                     last_data_received = JSON.parse(d.form);
 
                     var html = '<div style="padding:10px;"><form id="form2_save">';
-                    html += '<legend class="legend_task">' + results.rows.item(0).label + '</legend>';
+                    html += '<legend style="font-weight: bold;margin-bottom:20px;">' + results.rows.item(0).label + '</legend>';
                     html += HTML.formGenerate(last_data_received,  $.t("general.save_button"));
 
                     html += '</form></div>';
@@ -1519,7 +1539,7 @@ function form2_save_dev_start(data) {
     var html = '<div style="padding:10px;"><form id="form_deviation_save">';
     html += HTML.formGenerate(data.form_deviation,  $.t("general.save_button"));
     html += '</form>' +
-        '<div data-role="popup" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+        '<div data-role="popup" id="signature_pop"   data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
         '<div id="signature-holder">'+
         '<div id="signature" data-role="none"></div>'+
         '</div>' +
@@ -1547,6 +1567,7 @@ function form2_save_dev_start(data) {
         //$('#deviation-signature-close').off('click').on('click',function(){
         $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
             $('#signature_pop').popup('close');
+            console.log("deviation-signature-close8");
             var data = {
                 'client': User.client,
                 'token': User.lastToken,
@@ -1573,7 +1594,8 @@ function form2_save_dev_start(data) {
 
         if (go) {
             $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-            $('#form_back_btn i').removeClass('hided');
+            showCloseButton();
+                     
             var dd = HTML.getFormValues($(this).parent());
             var data = {
                 'client': User.client,
@@ -1592,8 +1614,7 @@ function form2_save_dev_start(data) {
 
         return false;
     });
-
-    $('#form_back_btn i').removeClass('hided');
+    showCloseButton();
     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
     mySwiper.swipeTo(2, 300, true);
     mySwiper.swipeTo(3, 300, true);
@@ -1657,16 +1678,16 @@ function form2_save_dev_start_save() {
 }
 
 function takeHACCPPicture(id) {
-	navigator.camera.getPicture(
-    function(uri) {
 
-        $('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
-    },
-    function(e) {
-        console.log("Error getting picture: " + e);
-    },
-    { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI});
-    
+    navigator.camera.getPicture(
+        function(uri) {
+
+            $('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
+        },
+        function(e) {
+            console.log("Error getting picture: " + e);
+        },
+        { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI});
 };
 
 /*function selectHACCPPicture(id) {
@@ -1695,55 +1716,55 @@ function takeHACCPPicture(id) {
         realignSlideHeight('max-height-task');
 };*/
 function selectHACCPPicture(id) {
-	if(isNative()){
-		navigator.camera.getPicture(
-        function(uri) {
-            if ( uri.substring(0,21) == "content://com.android") {
-                photo_split = uri.split("%3A");
-                uri ="content://media/external/images/media/"+photo_split[1];
-            }
-            $('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
-
-        },
-        function(e) {
-            console.log("Error getting picture: " + e);
-        },
-        { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
-	}else{
-		
-		var showPicture = $('#'+id);
-		$("#take_picture").change(function(event){
-			var files = event.target.files,
-                file;
-            if (files && files.length > 0) {
-                file = files[0];
-                
-                var imgURL = window.URL.createObjectURL(file);
-                // URL.revokeObjectURL(imgURL);
-                showPicture.css({'visibility': 'visible', 'display': 'block'}).attr('src', imgURL);
-                showPicture.onload = function() {
-			        // window.URL.revokeObjectURL(this.src);
-			    };
-                
-                // var fileReader = new FileReader();
-                // fileReader.onload = function (event) {
-                	// console.log("show picture", event);
-                    // // showPicture.src = event.target.result;
-                    // showPicture.css({'visibility': 'visible', 'display': 'block'}).attr('src', event.target.result);
-                // };
-                // fileReader.readAsDataURL(file);
-            }
-		});
-		$("#take_picture").trigger( "click", id );
-	}
+    if(isNative()){
+        navigator.camera.getPicture(
+                                    function(uri) {
+                                    if ( uri.substring(0,21) == "content://com.android") {
+                                    photo_split = uri.split("%3A");
+                                    uri ="content://media/external/images/media/"+photo_split[1];
+                                    }
+                                    $('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
+                                    
+                                    },
+                                    function(e) {
+                                    console.log("Error getting picture: " + e);
+                                    },
+                                    { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
+    }else{
+        
+        var showPicture = $('#'+id);
+        $("#take_picture").change(function(event){
+                                  var files = event.target.files,
+                                  file;
+                                  if (files && files.length > 0) {
+                                  file = files[0];
+                                  
+                                  var imgURL = window.URL.createObjectURL(file);
+                                  // URL.revokeObjectURL(imgURL);
+                                  showPicture.css({'visibility': 'visible', 'display': 'block'}).attr('src', imgURL);
+                                  showPicture.onload = function() {
+                                  // window.URL.revokeObjectURL(this.src);
+                                  };
+                                  
+                                  // var fileReader = new FileReader();
+                                  // fileReader.onload = function (event) {
+                                  // console.log("show picture", event);
+                                  // // showPicture.src = event.target.result;
+                                  // showPicture.css({'visibility': 'visible', 'display': 'block'}).attr('src', event.target.result);
+                                  // };
+                                  // fileReader.readAsDataURL(file);
+                                  }
+                                  });
+        $("#take_picture").trigger( "click", id );
+    }
     
-        realignSlideHeight('max-height-form');
+    realignSlideHeight('max-height-form');
 };
 
 function uploadHACCPPictureForms() {
- //   console.log('uploadHACCPPictureForms');
- //   console.log('task_id',$('.swiper-slide-active input[name="task_id"]').val());
-
+    //   console.log('uploadHACCPPictureForms');
+    //   console.log('task_id',$('.swiper-slide-active input[name="task_id"]').val());
+    
     // Get URI of picture to upload
     var $img = $('#'+haccp_image_id);
     var imageURI = $img.attr('src');
@@ -1752,61 +1773,63 @@ function uploadHACCPPictureForms() {
         // Verify server has been entered
         server = Page.settings.apiDomain + Page.settings.apiUploadPath;
         if (server) {
-
+            
             // Specify transfer options
             if(isNative()){
-            	var options = new FileUploadOptions();
-	            options.fileKey="file";
-	            options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1);
-	            options.mimeType="image/jpeg";
-	            options.chunkedMode = false;
-	
-	            var params = {};
-	            params.task_id = $('.swiper-slide-active input[name="task_id"]').val();
-	            params.client = User.client;
-	            params.token = User.lastToken;
-	
-	            options.params = params;
-	
-	            // Transfer picture to server
-	            var ft = new FileTransfer();
-	            ft.upload(imageURI, server, function(r) {
-	                console.log("Upload successful: "+r.bytesSent+" bytes uploaded.");
-	            }, function(error) {
-	                console.log("Upload failed: Code = "+error.code);
-	            }, options);
+                var options = new FileUploadOptions();
+                options.fileKey="file";
+                options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1);
+                options.mimeType="image/jpeg";
+                options.chunkedMode = false;
+                
+                var params = {};
+                params.task_id = $('.swiper-slide-active input[name="task_id"]').val();
+                params.client = User.client;
+                params.token = User.lastToken;
+                
+                options.params = params;
+                
+                // Transfer picture to server
+                var ft = new FileTransfer();
+                ft.upload(imageURI, server, function(r) {
+                          console.log("Upload successful: "+r.bytesSent+" bytes uploaded.");
+                          }, function(error) {
+                          console.log("Upload failed: Code = "+error.code);
+                          }, options);
             }else{
-            	var blob;
-            	var oReq = new XMLHttpRequest();
-				oReq.open("GET", imageURI, true);
-				oReq.responseType = "arraybuffer";
-				oReq.onload = function(oEvent) {
-				   blob = new Blob([oReq.response], {type: "image/jpg"});
-				   console.log("blob", blob);
-				   var fd = new FormData();
-					fd.append('fname', imageURI.substr(imageURI.lastIndexOf('/')+1));
-					fd.append('file', blob);
-					fd.append('client', User.client);
-					fd.append('token', User.lastToken);
-					fd.append('task_id', $('.swiper-slide-active input[name="task_id"]').val());
-					$.ajax({
-					    type: 'POST',
-					    url: server,
-					    data: fd,
-					    processData: false,
-					    contentType: false
-					});
-				};
-				oReq.send();
+                var blob;
+                var oReq = new XMLHttpRequest();
+                oReq.open("GET", imageURI, true);
+                oReq.responseType = "arraybuffer";
+                oReq.onload = function(oEvent) {
+                    blob = new Blob([oReq.response], {type: "image/jpg"});
+                    console.log("blob", blob);
+                    var fd = new FormData();
+                    fd.append('fname', imageURI.substr(imageURI.lastIndexOf('/')+1));
+                    fd.append('file', blob);
+                    fd.append('client', User.client);
+                    fd.append('token', User.lastToken);
+                    fd.append('task_id', $('.swiper-slide-active input[name="task_id"]').val());
+                    $.ajax({
+                           type: 'POST',
+                           url: server,
+                           data: fd,
+                           processData: false,
+                           contentType: false
+                           });
+                };
+                oReq.send();
             }
             
         }
     }
 }
+
 /* Add employee section*/
 function registerEmployee(data) {
     if (data.success) {
         var html = '';
+
         html = '<form id="registerEmployeeForm">';
         html += HTML.formGenerate(data.form_register_employee, $.t('nav.add_employee'));
         html += '<input type="hidden" name="edit" value="false">';
@@ -1817,6 +1840,7 @@ function registerEmployee(data) {
         mySwiper.swipeTo(1, 300, true);
 
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
         $('#registerEmployeeForm').submit(function(e){
             e.preventDefault();
 
@@ -1835,6 +1859,7 @@ function registerEmployee(data) {
 
                 $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
                 $('#form_back_btn i').addClass('hided');
+
                 Page.apiCall('registerEmployee', data, 'get', 'registerEmployeeSucess');
             }
 
@@ -1880,6 +1905,7 @@ function registerSupplier(data) {
         mySwiper.swipeTo(1, 300, true);
 
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
         $('#registerSupplierForm').submit(function(e){
             e.preventDefault();
 

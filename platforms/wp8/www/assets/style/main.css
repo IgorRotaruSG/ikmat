@@ -799,9 +799,9 @@ legend>p {
     clear:both;
 }
 .row{
-width: 100%;
-padding: 20px 0;
-margin: 0;
+	width: 100%;
+	padding: 20px 0;
+	margin: 0!important;
 }
 #popupDeviation {
     overflow-y: scroll;
@@ -850,7 +850,6 @@ margin: 0;
             left:50%;
         }
         #confirmDevPopup .ui-btn-text {
-            font-size : 16px;
             font-weight:500;
         }
 #confirmDevPopup-popup {
@@ -860,7 +859,7 @@ margin: 0;
     max-height: 100% !important;
     overflow: hidden !important;
     position: fixed !important;
-    top: 70px !important;
+    top: 50px !important;
     left: 0 !important;
 }
 div#confirmDevPopup:before {
@@ -1023,4 +1022,7 @@ a.ui-slider-handle {
 
 .clearboth {
     clear: both;
+}
+.online:before{
+	color: #8cc63f;
 }

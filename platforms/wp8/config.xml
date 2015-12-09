@@ -1,13 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="hygiene.app.automagi" version="2.0.47" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="hygiene.app.automagi" version="2.0.52" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
     <feature name="Device">
         <param name="wp-package" value="Device" />
-    </feature>
-    <feature name="InAppBrowser">
-        <param name="wp-package" value="InAppBrowser" />
-    </feature>
-    <feature name="StatusBar">
-        <param name="wp-package" value="StatusBar" />
     </feature>
     <feature name="EmailComposer">
         <param name="wp-package" value="EmailComposer" />
@@ -24,15 +18,21 @@
     <feature name="NetworkStatus">
         <param name="wp-package" value="NetworkStatus" />
     </feature>
+    <feature name="InAppBrowser">
+        <param name="wp-package" value="InAppBrowser" />
+    </feature>
+    <feature name="StatusBar">
+        <param name="wp-package" value="StatusBar" />
+    </feature>
     <name>IK-Mat</name>
     <description>
-        Hello World sample application that responds to the deviceready event.
+        IK-mat - internkontroll for restauranter.
     </description>
     <author email="tiennm6@fsoft.com.vn" href="http://fpt.com.vn">
         FSOFT Team
     </author>
     <preference name="permissions" value="none" />
-    <preference name="orientation" value="default" />
+    <preference name="orientation" value="res/screen/ios/Default" />
     <preference name="target-device" value="universal" />
     <preference name="webviewbounce" value="true" />
     <preference name="prerendered-icon" value="true" />
@@ -46,7 +46,7 @@
     <preference name="DisallowOverscroll" value="true" />
     <preference name="webviewbounce" value="false" />
     <preference name="StatusBarOverlaysWebView" value="false" />
-    <preference name="StatusBarStyle" value="default" />
+    <preference name="StatusBarStyle" value="res/screen/ios/Default" />
     <gap:plugin name="org.apache.cordova.battery-status" />
     <gap:plugin name="org.apache.cordova.camera" />
     <gap:plugin name="org.apache.cordova.media-capture" />
@@ -97,16 +97,16 @@
     <gap:splash gap:platform="android" gap:qualifier="port-hdpi" src="res/screen/android/screen-hdpi-portrait.png" />
     <gap:splash gap:platform="android" gap:qualifier="port-xhdpi" src="res/screen/android/screen-xhdpi-portrait.png" />
     <gap:splash gap:platform="blackberry" src="res/screen/blackberry/screen-225.png" />
-    <splash height="480" platform="ios" src="Default.png" width="320" />
-    <splash height="960" platform="ios" src="Default@2x.png" width="640" />
-    <splash height="1136" platform="ios" src="Default-568h@2x.png" width="640" />
-    <splash height="1334" platform="ios" src="Default-667h@2x.png" width="750" />
-    <splash height="2208" platform="ios" src="Default-Portrait-736h@3x.png" width="1242" />
-    <splash height="1242" platform="ios" src="Default-Landscape-736h@3x.png" width="2208" />
-    <splash height="1024" platform="ios" src="Default-Portrait.png" width="768" />
-    <splash height="768" platform="ios" src="Default-Landscape.png" width="1024" />
-    <splash height="2048" platform="ios" src="Default-Portrait@2x.png" width="1536" />
-    <splash height="1536" platform="ios" src="Default-Landscape@2x.png" width="2048" />
+    <splash height="480" platform="ios" src="res/screen/ios/Default.png" width="320" />
+    <splash height="960" platform="ios" src="res/screen/ios/Default@2x.png" width="640" />
+    <splash height="1136" platform="ios" src="res/screen/ios/Default-568h@2x.png" width="640" />
+    <splash height="1334" platform="ios" src="res/screen/ios/Default-667h@2x.png" width="750" />
+    <splash height="2208" platform="ios" src="res/screen/ios/Default-Portrait-736h@3x.png" width="1242" />
+    <splash height="1242" platform="ios" src="res/screen/ios/Default-Landscape-736h@3x.png" width="2208" />
+    <splash height="1024" platform="ios" src="res/screen/ios/Default-Portrait.png" width="768" />
+    <splash height="768" platform="ios" src="res/screen/ios/Default-Landscape.png" width="1024" />
+    <splash height="2048" platform="ios" src="res/screen/ios/Default-Portrait@2x.png" width="1536" />
+    <splash height="1536" platform="ios" src="res/screen/ios/Default-Landscape@2x.png" width="2048" />
     <gap:splash gap:platform="winphone" src="res/screen/windows-phone/screen-portrait.jpg" />
     <gap:config-file parent="CFBundleShortVersionString" platform="ios">
         <string>100</string>

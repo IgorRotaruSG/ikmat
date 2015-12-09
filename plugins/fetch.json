@@ -72,14 +72,6 @@
         "is_top_level": true,
         "variables": {}
     },
-    "cordova-plugin-inappbrowser": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-inappbrowser"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
     "org.apache.cordova.network-information": {
         "source": {
             "type": "local",
@@ -90,14 +82,6 @@
         "source": {
             "type": "registry",
             "id": "cordova-plugin-network-information"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
-    "cordova-plugin-statusbar": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-statusbar"
         },
         "is_top_level": true,
         "variables": {}
@@ -114,6 +98,22 @@
         "source": {
             "type": "registry",
             "id": "de.appplant.cordova.plugin.email-composer@0.8.2"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-inappbrowser": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-inappbrowser"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-statusbar": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-statusbar"
         },
         "is_top_level": true,
         "variables": {}
