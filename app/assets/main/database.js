@@ -211,7 +211,7 @@ db.prototype.dbCreateTables = function (tx) {
     tx.executeSql('CREATE TABLE IF NOT EXISTS "haccp_category" ("id" INTEGER PRIMARY KEY  NOT NULL  UNIQUE , "name" VARCHAR)');
     tx.executeSql('CREATE TABLE IF NOT EXISTS "haccp_items" ("id" INTEGER NOT NULL, "cat" INTEGER NOT NULL , "content" TEXT, "form" TEXT, "response" VARCHAR)');
     //tx.executeSql('CREATE TABLE IF NOT EXISTS "forms" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , "type" VARCHAR NOT NULL , "label" TEXT)');
-    tx.executeSql('CREATE TABLE IF NOT EXISTS "forms" ("type" VARCHAR PRIMARY KEY NOT NULL , "label" TEXT)');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS "forms" ("type" VARCHAR PRIMARY KEY NOT NULL , "label" TEXT, "alias" VARCHAR)');
     tx.executeSql('CREATE TABLE IF NOT EXISTS "form_item" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , "label" VARCHAR NOT NULL , "form" TEXT NOT NULL, "type" VARCHAR)');
     tx.executeSql('CREATE TABLE IF NOT EXISTS "registration" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , "step" INTEGER NOT NULL  UNIQUE , "data" TEXT NOT NULL )');
     tx.executeSql('CREATE TABLE IF NOT EXISTS "sync_query" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , "time" DATETIME NOT NULL  DEFAULT CURRENT_TIMESTAMP, "api" VARCHAR NOT NULL , "data" TEXT NOT NULL , "extra" INTEGER, "executed" INTEGER NOT NULL  DEFAULT 0,"q_type" VARCHAR)');
