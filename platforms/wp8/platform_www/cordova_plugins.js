@@ -274,6 +274,8 @@ module.exports = [
 ];
 module.exports.metadata = 
 // TOP OF METADATA
-{}
+{
+    "cordova-plugin-statusbar": "2.0.0"
+}
 // BOTTOM OF METADATA
 });

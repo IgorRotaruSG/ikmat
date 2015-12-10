@@ -14,7 +14,7 @@ function getFormsCall(tx, results) {
     }
     //    else if (results.rows.length == 0  && navigator.connection.type != Connection.NONE) {
     
-    else if (results.rows.length > 0 && isOffline() ) {
+    else if (results.rows.length > 0 && isOffline() ) {                
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
         var data = [];
         var label, tmp, link, alias, datatype;
@@ -66,14 +66,13 @@ function getFormsCall(tx, results) {
         };
         Page.apiCall('formDeviationStart', data, 'get', 'formDeviationStart');
     }
-    console.log(data);
     
     mySwiper.reInit();
     mySwiper.resizeFix();
 }
 
 function getForms(tx) {
-    tx.executeSql('SELECT * FROM "forms"', [], getFormsCall);
+    tx.executeSql('SELECT * FROM "forms" WHERE alias<>""', [], getFormsCall);
 }
 
 function formsInit() {
@@ -257,9 +256,8 @@ function getKeyByValue(obj,value) {
 }
 
 function formDeviationStart(data) {
-    console.log("Deviation");
-    if (data.success) {        
-        var f = data.form_list_question;
+    if (data.success) {
+        var f = data.form_list;
         /* SORT SECTION */
         var tuples = [];
         if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
@@ -310,14 +308,13 @@ function formDeviationStart(data) {
             }
             
             if(key != 'maintenance' || key != 'food_poision' || (key != 999 && key != 1000)){
-                db_data.push([key, value]);
+                db_data.push([key, value, value]);
             }
         }
         
-        /* INSERT SECTION */
-        var q = 'INSERT INTO "forms" ("type", "label") VALUES(?,?)';
+        /* INSERT SECTION */                            
         db.lazyQuery({
-                     'sql': 'INSERT OR REPLACE INTO "forms" ("type","label") VALUES(?,?)',
+                     'sql': 'INSERT OR REPLACE INTO "forms" ("type","label","alias") VALUES(?,?,?)',
                      'data': db_data
                      },0);
         /* SHOW SECTION */
@@ -329,9 +326,6 @@ function formDeviationStart(data) {
     }
     realignSlideHeight('max-height-form');
 }
-
-
-
 
 function formItemData(data) {
     console.log('forms.js  formItemData 200');
@@ -365,7 +359,7 @@ function formItemData(data) {
                         '</div>';
                     $(document).on('click', '#signature-reset' , function(e){
                         e.preventDefault();
-                                   console.log("deviation-signature-close1");
+
                         $('input[name="signature"]').val('user name');
 
                         return false;
@@ -472,7 +466,7 @@ function formItemData(data) {
                     form = HTML.formGenerate(step, '');
                     html += form;
                     html += '</form></div>'+
-                        '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+                        '<div data-role="popup" data-history="false" id="signature_pop"  data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
                         '<div id="signature-holder">'+
                         '<div id="signature" data-role="none"></div>'+
                         '</div>' +
@@ -686,7 +680,6 @@ function maintenance(data) {
 
             //$('#deviation-signature-close').off('click').on('click',function(){
             $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
-                                                                       console.log("deviation-signature-close3");
                 $('#signature_pop').popup('close');
                 var data = {
                     'client': User.client,
@@ -791,7 +784,7 @@ function maintenanceDoneForm(data) {
         $('input[name="task_id"]').val(data);
     }
     uploadHACCPPictureForms();
- console.log(" Page.redirect");   Page.redirect('tasks.html');
+    Page.redirect('tasks.html');
 }
 
 function foodPoisonDone(data){
@@ -925,7 +918,7 @@ function bind_form_click_handler() {
                                     '</div>';
                                 $(document).on('click', '#signature-reset' , function(e){
                                     e.preventDefault();
-                                                console.log("deviation-signature-close4");
+
                                     $('input[name="signature"]').val('user name');
 
                                     return false;
@@ -937,7 +930,6 @@ function bind_form_click_handler() {
 
                                     $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
                                         $('#signature_pop').popup('close');
-                                                                                               console.log("deviation-signature-close5");
                                         /* Save maintenance for now */
                                         var dd1 = HTML.getFormValues($(document).find('#form2_save').parent());
                                         //console.log(dd1);
@@ -1715,114 +1707,22 @@ function takeHACCPPicture(id) {
         { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
         realignSlideHeight('max-height-task');
 };*/
+
 function selectHACCPPicture(id) {
-    if(isNative()){
-        navigator.camera.getPicture(
-                                    function(uri) {
-                                    if ( uri.substring(0,21) == "content://com.android") {
-                                    photo_split = uri.split("%3A");
-                                    uri ="content://media/external/images/media/"+photo_split[1];
-                                    }
-                                    $('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
-                                    
-                                    },
-                                    function(e) {
-                                    console.log("Error getting picture: " + e);
-                                    },
-                                    { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
-    }else{
-        
-        var showPicture = $('#'+id);
-        $("#take_picture").change(function(event){
-                                  var files = event.target.files,
-                                  file;
-                                  if (files && files.length > 0) {
-                                  file = files[0];
-                                  
-                                  var imgURL = window.URL.createObjectURL(file);
-                                  // URL.revokeObjectURL(imgURL);
-                                  showPicture.css({'visibility': 'visible', 'display': 'block'}).attr('src', imgURL);
-                                  showPicture.onload = function() {
-                                  // window.URL.revokeObjectURL(this.src);
-                                  };
-                                  
-                                  // var fileReader = new FileReader();
-                                  // fileReader.onload = function (event) {
-                                  // console.log("show picture", event);
-                                  // // showPicture.src = event.target.result;
-                                  // showPicture.css({'visibility': 'visible', 'display': 'block'}).attr('src', event.target.result);
-                                  // };
-                                  // fileReader.readAsDataURL(file);
-                                  }
-                                  });
-        $("#take_picture").trigger( "click", id );
-    }
-    
-    realignSlideHeight('max-height-form');
+	console.log("select picture");
+	Page.selectImage(id, function(uri){
+		console.log("select uri", uri);
+		$('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
+	});
 };
 
+
 function uploadHACCPPictureForms() {
-    //   console.log('uploadHACCPPictureForms');
-    //   console.log('task_id',$('.swiper-slide-active input[name="task_id"]').val());
-    
-    // Get URI of picture to upload
     var $img = $('#'+haccp_image_id);
     var imageURI = $img.attr('src');
-    if (imageURI) {
-        $img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
-        // Verify server has been entered
-        server = Page.settings.apiDomain + Page.settings.apiUploadPath;
-        if (server) {
-            
-            // Specify transfer options
-            if(isNative()){
-                var options = new FileUploadOptions();
-                options.fileKey="file";
-                options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1);
-                options.mimeType="image/jpeg";
-                options.chunkedMode = false;
-                
-                var params = {};
-                params.task_id = $('.swiper-slide-active input[name="task_id"]').val();
-                params.client = User.client;
-                params.token = User.lastToken;
-                
-                options.params = params;
-                
-                // Transfer picture to server
-                var ft = new FileTransfer();
-                ft.upload(imageURI, server, function(r) {
-                          console.log("Upload successful: "+r.bytesSent+" bytes uploaded.");
-                          }, function(error) {
-                          console.log("Upload failed: Code = "+error.code);
-                          }, options);
-            }else{
-                var blob;
-                var oReq = new XMLHttpRequest();
-                oReq.open("GET", imageURI, true);
-                oReq.responseType = "arraybuffer";
-                oReq.onload = function(oEvent) {
-                    blob = new Blob([oReq.response], {type: "image/jpg"});
-                    console.log("blob", blob);
-                    var fd = new FormData();
-                    fd.append('fname', imageURI.substr(imageURI.lastIndexOf('/')+1));
-                    fd.append('file', blob);
-                    fd.append('client', User.client);
-                    fd.append('token', User.lastToken);
-                    fd.append('task_id', $('.swiper-slide-active input[name="task_id"]').val());
-                    $.ajax({
-                           type: 'POST',
-                           url: server,
-                           data: fd,
-                           processData: false,
-                           contentType: false
-                           });
-                };
-                oReq.send();
-            }
-            
-        }
-    }
+    Page.uploadImage(imageURI, function(data){
+    	$img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
+    });
 }
 
 /* Add employee section*/

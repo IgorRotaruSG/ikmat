@@ -342,7 +342,7 @@ function getDeviationForm(data, devStep) {
     html += HTML.formGenerate(data.form_deviation, $.t("general.save_button"), 'dev');
 //    html += '</form></div>';
     html += '</form>' +
-        '<div data-role="popup" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+        '<div data-role="popup" data-history="false" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
         '<div id="signature-holder">'+
         '<div id="signature" data-role="none"></div>'+
         '</div>' +
@@ -477,57 +477,18 @@ function taskDeviationSave(data) {
 }
 
 function selectHACCPPicture(id) {
-    navigator.camera.getPicture(
-        function(uri) {
-            if ( uri.substring(0,21) == "content://com.android") {
-                photo_split = uri.split("%3A");
-                uri ="content://media/external/images/media/"+photo_split[1];
-            }
-            $('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
-
-        },
-        function(e) {
-            console.log("Error getting picture: " + e);
-        },
-        { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
-    realignSlideHeight('max-height-task');
-    //mySwiper.resizeFix();
+	Page.selectImage(id, function(uri){
+		$('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
+	});
 };
 
 function uploadHACCPPicture() {
-
     // Get URI of picture to upload
     var $img = $('#'+haccp_image_id);
     var imageURI = $img.attr('src');
-    if (imageURI) {
-        $img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
-        // Verify server has been entered
-        server = Page.settings.apiDomain + Page.settings.apiUploadPath;
-        if (server) {
-
-            // Specify transfer options
-            var options = new FileUploadOptions();
-            options.fileKey="file";
-            options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1);
-            options.mimeType="image/jpeg";
-            options.chunkedMode = false;
-
-            var params = {};
-            params.task_id = $('.swiper-slide-active input[name="task_id"]').val();
-            params.client = User.client;
-            params.token = User.lastToken;
-
-            options.params = params;
-
-            // Transfer picture to server
-            var ft = new FileTransfer();
-            ft.upload(imageURI, server, function(r) {
-                console.log("Upload successful: "+r.bytesSent+" bytes uploaded.");
-            }, function(error) {
-                console.log("Upload failed: Code = "+error.code);
-            }, options);
-        }
-    }
+    Page.uploadImage(imageURI, function(data){
+    	$img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
+    });
 }
 
 function getTasksUncompleted(data) {
@@ -979,7 +940,7 @@ function haccpDeviationFix(data) {
         };
 
         html += HTML.formGenerate(data.form_fix_deviation.form,  $.t("general.save_button"));
-        html +='<div data-role="popup" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+        html +='<div data-role="popup" data-history="false" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
                     '<div id="signature-holder">'+
                         '<div id="signature" data-role="none"></div>'+
                     '</div>' +

@@ -1,8 +1,10 @@
 var settings = {
-	//'apiDomain':        'http://haccpy11.bywmds.us/api/',
-	'apiDomain' : 'http://mobistar.no/api/',
-	'apiPath' : 'http://mobistar.no',
-	'apiUploadPath' : 'uploadPhotos',
+    //'apiDomain':        'http://haccpy11.bywmds.us/api/',
+    //'apiDomain':        'http://ikmatapp.no/api/',
+    //'apiPath':        'http://ikmatapp.no',
+	'apiDomain':        'http://118.70.199.91/api/',
+	'apiPath':        'http://118.70.199.91',
+    'apiUploadPath':    'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
 		'tasks' : 3 * 60 * 1000,
@@ -183,6 +185,7 @@ Page.prototype.get = function() {
 	return {};
 };
 
+
 Page.prototype.apiCall = function(api_method, data, method, callback, parameters) {
 	var cacheData = null;
 	if (data.hasOwnProperty("token") && data.hasOwnProperty("report_number")) {
@@ -196,42 +199,168 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 	} else {
 		if (isOffline()) {
 			noInternetError($.t("error.no_internet_for_sync"));
-		}else{
+		} else {
 			var req = $.ajax({
-			'type' : method.toUpperCase(),
-			'url' : this.settings.apiDomain + api_method,
-			'dataType' : 'jsonp',
-			'success' : function(data) {
-				console.log("data", data);
-				var fn = window[callback];
-				if ( typeof fn === "function"){
-					fn.apply(this, [data, parameters]);
-				}
-				if (api_method === 'reportTables') {
-					console.log(data, parseQuery(this.url));
-					var requestData = parseQuery(this.url);
-					if (requestData.hasOwnProperty("token") && requestData.hasOwnProperty("report_number")) {
-						localStorage.setItem(encodeURIComponent(requestData["token"] + requestData["report_number"]), JSON.stringify(data));
-					}
-				}
-			},
-			'data' : data,
-			'timeout' : this.settings.requestTimeout
-		});
-		req.error(function() {
-			$('#alertPopup .alert-text').html($.t("error.unexpected"));
+				'type' : method.toUpperCase(),
+				'url' : this.settings.apiDomain + api_method,
+				'dataType' : 'jsonp',
+				'success' : function(data) {
+					console.log("data", data);
+					var fn = window[callback];
+					if ( typeof fn === "function") {
+						if (parameters) {
+							fn.apply(this, [data, parameters]);
+						} else {
+							fn.apply(this, [data]);
+						}
 
-			$('#alertPopup').off("popupafterclose").on("popupafterclose", function() {
-				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-				location.reload();
-				//todo uncomment that
+					}
+					if (api_method === 'reportTables') {
+						console.log(data, parseQuery(this.url));
+						var requestData = parseQuery(this.url);
+						if (requestData.hasOwnProperty("token") && requestData.hasOwnProperty("report_number")) {
+							localStorage.setItem(encodeURIComponent(requestData["token"] + requestData["report_number"]), JSON.stringify(data));
+						}
+					}
+				},
+				'data' : data,
+				'timeout' : this.settings.requestTimeout
 			});
-			$('#alertPopup').popup("open", {
-				positionTo : 'window'
+			req.error(function() {
+				$('#alertPopup .alert-text').html($.t("error.unexpected"));
+
+				$('#alertPopup').off("popupafterclose").on("popupafterclose", function() {
+					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+					location.reload();
+					//todo uncomment that
+				});
+				$('#alertPopup').popup("open", {
+					positionTo : 'window'
+				});
 			});
-		});
 		}
 	}
+}; 
+
+Page.prototype.selectImage = function (id, callbackFunction) {
+	if (isNative()) {
+		navigator.camera.getPicture(function(uri) {
+			if (uri.substring(0, 21) == "content://com.android") {
+				photo_split = uri.split("%3A");
+				uri = "content://media/external/images/media/" + photo_split[1];
+			}
+			if(callbackFunction){
+				callbackFunction(uri);
+			}
+
+		}, function(e) {
+			console.log("Error getting picture: " + e);
+		}, {
+			quality : 50,
+			destinationType : navigator.camera.DestinationType.FILE_URI,
+			sourceType : navigator.camera.PictureSourceType.PHOTOLIBRARY
+		});
+	} else {
+		var showPicture = $('#'+id);
+		$("#take_picture").change(function(event) {
+			var files = event.target.files,
+			    file;
+			if (files && files.length > 0) {
+				file = files[0];
+
+				var imgURL = window.URL.createObjectURL(file);
+				if(callbackFunction){
+					callbackFunction(imgURL);	
+				}
+				showPicture.onload = function() {
+					// window.URL.revokeObjectURL(this.src);
+				};
+			}
+		});
+		$("#take_picture").trigger("click", id);
+	}
+
+	realignSlideHeight('max-height-form');
+};
+
+Page.prototype.uploadImage = function(imageURI, callbackFunction, errorFunction) {
+    if (imageURI) {
+        // Verify server has been entered
+        var server = this.settings.apiDomain + this.settings.apiUploadPath;
+        console.log("imageURI", imageURI, server);
+        if (server) {
+            // Specify transfer options
+            if(isNative()){
+                var options = new FileUploadOptions();
+                options.fileKey="file";
+                options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1);
+                options.mimeType="image/jpeg";
+                options.chunkedMode = false;
+                
+                var params = {};
+                params.task_id = $('.swiper-slide-active input[name="task_id"]').val();
+                params.client = User.client;
+                params.token = User.lastToken;
+                
+                options.params = params;
+                
+                // Transfer picture to server
+                
+				var ft = new FileTransfer();
+				ft.upload(imageURI, server, function(r) {
+					console.log("Upload successful: " + r.bytesSent + " bytes uploaded.");
+					if (callbackFunction) {
+						callbackFunction(r);
+					}
+
+				}, function(error) {
+					console.log("Upload failed: Code = " + error.code);
+					if(errorFunction){
+						errorFunction(error);	
+					}
+				}, options); 
+
+            }else{
+                var blob;
+                var oReq = new XMLHttpRequest();
+                oReq.open("GET", imageURI, true);
+                oReq.responseType = "arraybuffer";
+				oReq.onload = function(oEvent) {
+					blob = new Blob([oReq.response], {
+						type : "image/jpg"
+					});
+					console.log("blob", blob);
+					var fd = new FormData();
+					fd.append('fname', imageURI.substr(imageURI.lastIndexOf('/') + 1));
+					fd.append('file', blob);
+					fd.append('client', User.client);
+					fd.append('token', User.lastToken);
+					fd.append('task_id', $('.swiper-slide-active input[name="task_id"]').val());
+					$.ajax({
+						type : 'POST',
+						url : server,
+						data : fd,
+						processData : false,
+						contentType : false,
+						crossDomain: true,
+						success : function(data) {
+							if (callbackFunction) {
+								callbackFunction(data);
+							}
+						},
+						error : function(error) {
+							if (errorFunction) {
+								errorFunction(error);
+							}
+						}
+					});
+				}; 
+
+                oReq.send();
+            }
+            
+        }
+    };
 };
 
 function parseQuery(qstr) {
@@ -1985,6 +2114,10 @@ function testConnection(callback) {
 			}
 			displayOnline(offline);
 		};
+		img.onerror = function(){
+			offline = true;
+			displayOnline(offline);
+		}
 		img = null;
 
 	} else {
@@ -2010,7 +2143,6 @@ function displayOnline(isOffline){
 	if(isOffline){
 		$("#app-online").removeClass("online");	
 	}else{
-		console.log("add");
 		$("#app-online").addClass("online");
 	}
 }

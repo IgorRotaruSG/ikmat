@@ -255,14 +255,6 @@ module.exports = [
         ]
     },
     {
-        "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
-        "id": "cordova-plugin-statusbar.statusbar",
-        "pluginId": "cordova-plugin-statusbar",
-        "clobbers": [
-            "window.StatusBar"
-        ]
-    },
-    {
         "file": "plugins/de.appplant.cordova.plugin.email-composer/www/email_composer.js",
         "id": "de.appplant.cordova.plugin.email-composer.EmailComposer",
         "pluginId": "de.appplant.cordova.plugin.email-composer",
@@ -270,10 +262,20 @@ module.exports = [
             "cordova.plugins.email",
             "plugin.email"
         ]
+    },
+    {
+        "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
+        "id": "cordova-plugin-statusbar.statusbar",
+        "pluginId": "cordova-plugin-statusbar",
+        "clobbers": [
+            "window.StatusBar"
+        ]
     }
 ];
 module.exports.metadata = 
 // TOP OF METADATA
-{}
+{
+    "cordova-plugin-statusbar": "2.0.0"
+}
 // BOTTOM OF METADATA
 });

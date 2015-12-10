@@ -378,5 +378,8 @@
                 "window.StatusBar"
             ]
         }
-    ]
+    ],
+    "plugin_metadata": {
+        "cordova-plugin-statusbar": "2.0.0"
+    }
 }
