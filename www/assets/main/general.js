@@ -2,6 +2,8 @@ var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
     'apiDomain':        'http://ikmatapp.no/api/',
     'apiPath':        'http://ikmatapp.no',
+    // 'apiDomain':        'http://10.16.43.33/api/',
+    // 'apiPath':        'http://10.16.43.33',
     'apiUploadPath':    'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -240,6 +242,126 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 	}
 }; 
 
+Page.prototype.selectImage = function (id, callbackFunction) {
+	if (isNative()) {
+		navigator.camera.getPicture(function(uri) {
+			if (uri.substring(0, 21) == "content://com.android") {
+				photo_split = uri.split("%3A");
+				uri = "content://media/external/images/media/" + photo_split[1];
+			}
+			if(callbackFunction){
+				callbackFunction(uri);
+			}
+
+		}, function(e) {
+			console.log("Error getting picture: " + e);
+		}, {
+			quality : 50,
+			destinationType : navigator.camera.DestinationType.FILE_URI,
+			sourceType : navigator.camera.PictureSourceType.PHOTOLIBRARY
+		});
+	} else {
+		var showPicture = $('#'+id);
+		$("#take_picture").change(function(event) {
+			var files = event.target.files,
+			    file;
+			if (files && files.length > 0) {
+				file = files[0];
+
+				var imgURL = window.URL.createObjectURL(file);
+				if(callbackFunction){
+					callbackFunction(imgURL);	
+				}
+				showPicture.onload = function() {
+					// window.URL.revokeObjectURL(this.src);
+				};
+			}
+		});
+		$("#take_picture").trigger("click", id);
+	}
+
+	realignSlideHeight('max-height-form');
+};
+
+Page.prototype.uploadImage = function(imageURI, callbackFunction, errorFunction) {
+    if (imageURI) {
+        // Verify server has been entered
+        var server = this.settings.apiDomain + this.settings.apiUploadPath;
+        console.log("imageURI", imageURI, server);
+        if (server) {
+            // Specify transfer options
+            if(isNative()){
+                var options = new FileUploadOptions();
+                options.fileKey="file";
+                options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1);
+                options.mimeType="image/jpeg";
+                options.chunkedMode = false;
+                
+                var params = {};
+                params.task_id = $('.swiper-slide-active input[name="task_id"]').val();
+                params.client = User.client;
+                params.token = User.lastToken;
+                
+                options.params = params;
+                
+                // Transfer picture to server
+                
+				var ft = new FileTransfer();
+				ft.upload(imageURI, server, function(r) {
+					console.log("Upload successful: " + r.bytesSent + " bytes uploaded.");
+					if (callbackFunction) {
+						callbackFunction(r);
+					}
+
+				}, function(error) {
+					console.log("Upload failed: Code = " + error.code);
+					if(errorFunction){
+						errorFunction(error);	
+					}
+				}, options); 
+
+            }else{
+                var blob;
+                var oReq = new XMLHttpRequest();
+                oReq.open("GET", imageURI, true);
+                oReq.responseType = "arraybuffer";
+				oReq.onload = function(oEvent) {
+					blob = new Blob([oReq.response], {
+						type : "image/jpg"
+					});
+					console.log("blob", blob);
+					var fd = new FormData();
+					fd.append('fname', imageURI.substr(imageURI.lastIndexOf('/') + 1));
+					fd.append('file', blob);
+					fd.append('client', User.client);
+					fd.append('token', User.lastToken);
+					fd.append('task_id', $('.swiper-slide-active input[name="task_id"]').val());
+					$.ajax({
+						type : 'POST',
+						url : server,
+						data : fd,
+						processData : false,
+						contentType : false,
+						crossDomain: true,
+						success : function(data) {
+							if (callbackFunction) {
+								callbackFunction(data);
+							}
+						},
+						error : function(error) {
+							if (errorFunction) {
+								errorFunction(error);
+							}
+						}
+					});
+				}; 
+
+                oReq.send();
+            }
+            
+        }
+    };
+};
 
 function parseQuery(qstr) {
 	var query = {};

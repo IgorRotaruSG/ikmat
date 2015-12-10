@@ -1707,114 +1707,22 @@ function takeHACCPPicture(id) {
         { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
         realignSlideHeight('max-height-task');
 };*/
+
 function selectHACCPPicture(id) {
-    if(isNative()){
-        navigator.camera.getPicture(
-                                    function(uri) {
-                                    if ( uri.substring(0,21) == "content://com.android") {
-                                    photo_split = uri.split("%3A");
-                                    uri ="content://media/external/images/media/"+photo_split[1];
-                                    }
-                                    $('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
-                                    
-                                    },
-                                    function(e) {
-                                    console.log("Error getting picture: " + e);
-                                    },
-                                    { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
-    }else{
-        
-        var showPicture = $('#'+id);
-        $("#take_picture").change(function(event){
-                                  var files = event.target.files,
-                                  file;
-                                  if (files && files.length > 0) {
-                                  file = files[0];
-                                  
-                                  var imgURL = window.URL.createObjectURL(file);
-                                  // URL.revokeObjectURL(imgURL);
-                                  showPicture.css({'visibility': 'visible', 'display': 'block'}).attr('src', imgURL);
-                                  showPicture.onload = function() {
-                                  // window.URL.revokeObjectURL(this.src);
-                                  };
-                                  
-                                  // var fileReader = new FileReader();
-                                  // fileReader.onload = function (event) {
-                                  // console.log("show picture", event);
-                                  // // showPicture.src = event.target.result;
-                                  // showPicture.css({'visibility': 'visible', 'display': 'block'}).attr('src', event.target.result);
-                                  // };
-                                  // fileReader.readAsDataURL(file);
-                                  }
-                                  });
-        $("#take_picture").trigger( "click", id );
-    }
-    
-    realignSlideHeight('max-height-form');
+	console.log("select picture");
+	Page.selectImage(id, function(uri){
+		console.log("select uri", uri);
+		$('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
+	});
 };
 
+
 function uploadHACCPPictureForms() {
-    //   console.log('uploadHACCPPictureForms');
-    //   console.log('task_id',$('.swiper-slide-active input[name="task_id"]').val());
-    
-    // Get URI of picture to upload
     var $img = $('#'+haccp_image_id);
     var imageURI = $img.attr('src');
-    if (imageURI) {
-        $img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
-        // Verify server has been entered
-        server = Page.settings.apiDomain + Page.settings.apiUploadPath;
-        if (server) {
-            
-            // Specify transfer options
-            if(isNative()){
-                var options = new FileUploadOptions();
-                options.fileKey="file";
-                options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1);
-                options.mimeType="image/jpeg";
-                options.chunkedMode = false;
-                
-                var params = {};
-                params.task_id = $('.swiper-slide-active input[name="task_id"]').val();
-                params.client = User.client;
-                params.token = User.lastToken;
-                
-                options.params = params;
-                
-                // Transfer picture to server
-                var ft = new FileTransfer();
-                ft.upload(imageURI, server, function(r) {
-                          console.log("Upload successful: "+r.bytesSent+" bytes uploaded.");
-                          }, function(error) {
-                          console.log("Upload failed: Code = "+error.code);
-                          }, options);
-            }else{
-                var blob;
-                var oReq = new XMLHttpRequest();
-                oReq.open("GET", imageURI, true);
-                oReq.responseType = "arraybuffer";
-                oReq.onload = function(oEvent) {
-                    blob = new Blob([oReq.response], {type: "image/jpg"});
-                    console.log("blob", blob);
-                    var fd = new FormData();
-                    fd.append('fname', imageURI.substr(imageURI.lastIndexOf('/')+1));
-                    fd.append('file', blob);
-                    fd.append('client', User.client);
-                    fd.append('token', User.lastToken);
-                    fd.append('task_id', $('.swiper-slide-active input[name="task_id"]').val());
-                    $.ajax({
-                           type: 'POST',
-                           url: server,
-                           data: fd,
-                           processData: false,
-                           contentType: false
-                           });
-                };
-                oReq.send();
-            }
-            
-        }
-    }
+    Page.uploadImage(imageURI, function(data){
+    	$img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
+    });
 }
 
 /* Add employee section*/

@@ -695,64 +695,27 @@ function takeHACCPPicture(id) {
 };
 
 function selectHACCPPicture(id) {
-    navigator.camera.getPicture(
-        function(uri) {
-            if ( uri.substring(0,21) == "content://com.android") {
-                photo_split = uri.split("%3A");
-                uri ="content://media/external/images/media/"+photo_split[1];
-            }
-            $('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
-            $('.ui-popup-container').css({
-                'top': 0,
-                'left': 0,
-                'max-width': '100%',
-                'width': '100%',
-                'height': parseInt($('body').height()) + 'px',
-                'overflow': 'hidden',
-                'position': 'fixed'
-            });
-            $('#popupDeviation').css('height', '100%');
-        },
-        function(e) {
-            console.log("Error getting picture: " + e);
-        },
-        { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
+	Page.selectImage(id, function(uri){
+		$('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
+        $('.ui-popup-container').css({
+            'top': 0,
+            'left': 0,
+            'max-width': '100%',
+            'width': '100%',
+            'height': parseInt($('body').height()) + 'px',
+            'overflow': 'hidden',
+            'position': 'fixed'
+        });
+        $('#popupDeviation').css('height', '100%');
+	});
 };
 
 function uploadHACCPPictureHaccp() {
-
-    // Get URI of picture to upload
     var $img = $('#'+haccp_image_id);
     var imageURI = $img.attr('src');
-    if (imageURI) {
-        $img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
-        // Verify server has been entered
-        server = Page.settings.apiDomain + Page.settings.apiUploadPath;
-        if (server) {
-
-            // Specify transfer options
-            var options = new FileUploadOptions();
-            options.fileKey="file";
-            options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1);
-            options.mimeType="image/jpeg";
-            options.chunkedMode = false;
-
-            var params = {};
-            params.task_id = get.id;
-            params.client = User.client;
-            params.token = User.lastToken;
-
-            options.params = params;
-
-            // Transfer picture to server
-            var ft = new FileTransfer();
-            ft.upload(imageURI, server, function(r) {
-                console.log("Upload successful: "+r.bytesSent+" bytes uploaded.");
-            }, function(error) {
-                console.log("Upload failed: Code = "+error.code);
-            }, options);
-        }
-    }
+    Page.uploadImage(imageURI, function(data){
+    	$img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
+    });
 };
 
 function haccpDeviationSave(data) {
