@@ -466,7 +466,7 @@ function formItemData(data) {
                     form = HTML.formGenerate(step, '');
                     html += form;
                     html += '</form></div>'+
-                        '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+                        '<div data-role="popup" data-history="false" id="signature_pop"  data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
                         '<div id="signature-holder">'+
                         '<div id="signature" data-role="none"></div>'+
                         '</div>' +

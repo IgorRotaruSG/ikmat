@@ -1,9 +1,9 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    'apiDomain':        'http://ikmatapp.no/api/',
-    'apiPath':        'http://ikmatapp.no',
-    // 'apiDomain':        'http://10.16.43.33/api/',
-    // 'apiPath':        'http://10.16.43.33',
+    //'apiDomain':        'http://ikmatapp.no/api/',
+    //'apiPath':        'http://ikmatapp.no',
+	'apiDomain':        'http://118.70.199.91/api/',
+	'apiPath':        'http://118.70.199.91',
     'apiUploadPath':    'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)

@@ -643,7 +643,7 @@ function documentsCall(data) {
         html += HTML.formGenerate(form_data, $.t('general.submit_button') );
         html += '</form>';
 
-        html += '<div data-role="popup" id="signature_pop"   data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t('general.sign_button') + '</button>' + '</div>';
+        html += '<div data-role="popup" data-history="false" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t('general.sign_button') + '</button>' + '</div>';
 
         mySwiper.appendSlide(html, 'swiper-slide');
         $('#' + $.mobile.activePage.attr('id')).trigger('create');

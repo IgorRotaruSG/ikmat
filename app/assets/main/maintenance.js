@@ -18,7 +18,7 @@ function maintenance(data) {
 	if (data.form_deviation) {
 		var html = HTML.formGenerate(data.form_deviation, $.t("general.save_button"));
 		console.log(data);
-		html += '<div data-role="popup" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.sign_button") + '</button>' + '</div>' + '</div>';
+		html += '<div data-role="popup" data-history="false" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.sign_button") + '</button>' + '</div>' + '</div>';
 		$('#form_maintenance').html(html);
 		$('#signature-trigger').off('click').on('click', function(e) {
 			e.preventDefault();
