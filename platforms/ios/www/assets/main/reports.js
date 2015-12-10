@@ -262,14 +262,23 @@ function reportsInit() {
 
 function showOfflineReports(data) {
     var add = '';
-    add += '<li><a href="#" data-type="doc" class="report_generator_link"></i> ' + $.t('nav.documents') + '</a></li>';
-
+    data.push({'id':0,'name':$.t('nav.documents')});
+    
+    data.sort(function(a, b) {
+            a = a.name;
+            b = b.name;
+            return a < b ? -1 : (a > b ? 1 : 0);
+        });          
+   
     for (var i in data) {
         if (data.hasOwnProperty(i)) {
-//            add += '<li><a href="reports_view.html?id=' + data[i].id + '" class="report_link"><i class="fa fa-file-o"></i> ' + data[i].name + '</a></li>';
-            if ( data[i].id == 15 ) {//flowcharts export
+            if ( data[i].id == 0 ) {//company document report
+                add += '<li><a href="#" data-type="doc" class="report_generator_link"></i> ' + data[i].name + '</a></li>';
+            }
+            else if ( data[i].id == 15 ) {//flowcharts export
                 add += '<li><a href="#" data-type="'+  data[i].id  +'" class="email_flowcharts">' + data[i].name + '</a></li>'
-            } else {
+            } 
+            else {
                 add += '<li><a href="#" data-type="'+  data[i].id  +'" class="report_generator_link" data-from="'+reports_date_start+'" data-to="' + reports_date_end + '" >' + data[i].name + '</a></li>'
             }
         }
@@ -717,37 +726,37 @@ function documentsCall(data) {
 				/*step 1: display the date chooser*/
 				$("#popup-send-email").popup("open");
 				$('#popup-send-email').parent().css({
-					'top' : 0,
-					'left' : 0,
-					'max-width' : '100%',
-					'width' : '100%',
-					'height' : parseInt($('body').height()) + 'px',
-					'overflow' : 'hidden',
-					'position' : 'fixed'
-				});
-				$('#popup-send-email').css('height', '100%');
-				$("#confirm-send").off('click').on("click", function(event, ui) {
-					var ok = HTML.validate($('#popup-send-email'));
+                'top': 0,
+                'left': 0,
+                'max-width': '100%',
+                'width': '100%',
+                'height': parseInt($('body').height()) + 'px',
+                'overflow': 'hidden',
+                'position': 'fixed'
+            });
+            $('#popup-send-email').css('height', '100%');
+            $("#confirm-send").off('click').on( "click", function( event, ui ) {
+                var ok = HTML.validate($('#popup-send-email'));
 
-					if (ok) {
-						$("#confirm-send").attr('disabled', true);
-						$("#confirm-send").parent().find('.ui-btn-text').html($.t('general.loading'));
-						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-						var email_data = {
-							'client' : User.client,
-							'token' : User.lastToken,
-							'report_id' : 0,
-							'email' : $('#email').val(),
-							'filter_date_from' : reports_date_start,
-							'filter_date_to' : reports_date_end
-						};
-						Page.apiCall('send-report-by-email', email_data, 'get', 'sendEmail');
-					} else {
+                if ( ok ) {
+                    $("#confirm-send").attr('disabled', true);
+                    $("#confirm-send").parent().find('.ui-btn-text').html($.t('general.loading'));
+                    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+                    var email_data = {
+                        'client': User.client,
+                        'token': User.lastToken,
+                        'report_id': 0,
+                        'email' : $('#email').val(),
+                        'filter_date_from': reports_date_start,
+                        'filter_date_to': reports_date_end
+                    };
+                    Page.apiCall('send-report-by-email', email_data, 'get', 'sendEmail');
+                } else {
 
-					}
-				});
+                }
+            });
 			}
-		}); 
+        });
     }
    
 }

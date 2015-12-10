@@ -74,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "www/assets/main/general.js"
-            timestampString = "471260642.660326"
+            timestampString = "471409446.581565"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "4187"
-            endingLineNumber = "4187"
+            startingLineNumber = "4203"
+            endingLineNumber = "4203"
             landmarkName = "validateEmail"
             landmarkType = "7">
          </BreakpointContent>

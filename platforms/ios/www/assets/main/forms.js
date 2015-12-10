@@ -14,7 +14,7 @@ function getFormsCall(tx, results) {
     }
     //    else if (results.rows.length == 0  && navigator.connection.type != Connection.NONE) {
     
-    else if (results.rows.length > 0 && isOffline() ) {
+    else if (results.rows.length > 0 && isOffline() ) {                
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
         var data = [];
         var label, tmp, link, alias, datatype;
@@ -66,14 +66,13 @@ function getFormsCall(tx, results) {
         };
         Page.apiCall('formDeviationStart', data, 'get', 'formDeviationStart');
     }
-    console.log(data);
     
     mySwiper.reInit();
     mySwiper.resizeFix();
 }
 
 function getForms(tx) {
-    tx.executeSql('SELECT * FROM "forms"', [], getFormsCall);
+    tx.executeSql('SELECT * FROM "forms" WHERE alias<>""', [], getFormsCall);
 }
 
 function formsInit() {
@@ -257,9 +256,8 @@ function getKeyByValue(obj,value) {
 }
 
 function formDeviationStart(data) {
-    console.log("Deviation");
-    if (data.success) {        
-        var f = data.form_list_question;
+    if (data.success) {
+        var f = data.form_list;
         /* SORT SECTION */
         var tuples = [];
         if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
@@ -310,14 +308,13 @@ function formDeviationStart(data) {
             }
             
             if(key != 'maintenance' || key != 'food_poision' || (key != 999 && key != 1000)){
-                db_data.push([key, value]);
+                db_data.push([key, value, value]);
             }
         }
         
-        /* INSERT SECTION */
-        var q = 'INSERT INTO "forms" ("type", "label") VALUES(?,?)';
+        /* INSERT SECTION */                            
         db.lazyQuery({
-                     'sql': 'INSERT OR REPLACE INTO "forms" ("type","label") VALUES(?,?)',
+                     'sql': 'INSERT OR REPLACE INTO "forms" ("type","label","alias") VALUES(?,?,?)',
                      'data': db_data
                      },0);
         /* SHOW SECTION */
@@ -329,9 +326,6 @@ function formDeviationStart(data) {
     }
     realignSlideHeight('max-height-form');
 }
-
-
-
 
 function formItemData(data) {
     console.log('forms.js  formItemData 200');
@@ -365,7 +359,7 @@ function formItemData(data) {
                         '</div>';
                     $(document).on('click', '#signature-reset' , function(e){
                         e.preventDefault();
-                                   console.log("deviation-signature-close1");
+
                         $('input[name="signature"]').val('user name');
 
                         return false;
@@ -686,7 +680,6 @@ function maintenance(data) {
 
             //$('#deviation-signature-close').off('click').on('click',function(){
             $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
-                                                                       console.log("deviation-signature-close3");
                 $('#signature_pop').popup('close');
                 var data = {
                     'client': User.client,
@@ -791,7 +784,7 @@ function maintenanceDoneForm(data) {
         $('input[name="task_id"]').val(data);
     }
     uploadHACCPPictureForms();
- console.log(" Page.redirect");   Page.redirect('tasks.html');
+    Page.redirect('tasks.html');
 }
 
 function foodPoisonDone(data){
@@ -925,7 +918,7 @@ function bind_form_click_handler() {
                                     '</div>';
                                 $(document).on('click', '#signature-reset' , function(e){
                                     e.preventDefault();
-                                                console.log("deviation-signature-close4");
+
                                     $('input[name="signature"]').val('user name');
 
                                     return false;
@@ -937,7 +930,6 @@ function bind_form_click_handler() {
 
                                     $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
                                         $('#signature_pop').popup('close');
-                                                                                               console.log("deviation-signature-close5");
                                         /* Save maintenance for now */
                                         var dd1 = HTML.getFormValues($(document).find('#form2_save').parent());
                                         //console.log(dd1);
