@@ -88,17 +88,15 @@ console.info(data);
         $('#' + $.mobile.activePage.attr('id')).trigger('create');
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 	    $('#form_back_btn i').removeClass('hided');
-	    
-		  $('#form_back_btn').on('click', function(e) {
-		  	            e.preventDefault();
-          				$("[href='tasks.html']").click();
-   		 });
-
-        
     } else {
         alert('incomplete');
     }
 }
+
+$(document).on('click', '#form_back_btn', function(e) {
+	e.preventDefault();
+	$("[href='tasks.html']").click();
+});
 
 $( window ).on( "orientationchange", function( event ) {
     $sigdiv.jSignature("reset");

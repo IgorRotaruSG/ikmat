@@ -1,7 +1,7 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    'apiDomain':        'http://10.16.43.33/api/',
-    'apiPath':        'http://10.16.43.33/',
+    'apiDomain':        'http://ikmatapp.no/api/',
+    'apiPath':        'http://ikmatapp.no',
     'apiUploadPath':    'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -183,61 +183,63 @@ Page.prototype.get = function() {
 	return {};
 };
 
+
 Page.prototype.apiCall = function(api_method, data, method, callback, parameters) {
-    var cacheData = null;
-    if (data.hasOwnProperty("token") && data.hasOwnProperty("report_number")) {
-        cacheData = JSON.parse(localStorage.getItem(encodeURIComponent(data["token"] + data["report_number"])));
-    }
-    if (api_method == 'reportTables' && isOffline()) {
-        var fn = window[callback];
-        if ( typeof fn === "function")
-            fn.apply(window, [cacheData]);
-        
-    } else {
-        if (isOffline()) {
-            noInternetError($.t("error.no_internet_for_sync"));
-        }else{
-            var req = $.ajax({
-                             'type' : method.toUpperCase(),
-                             'url' : this.settings.apiDomain + api_method,
-                             'dataType' : 'jsonp',
-                             'success' : function(data) {
-                             console.log("data", data);
-                             var fn = window[callback];
-                             if ( typeof fn === "function"){
-                             if(parameters){
-                                                             fn.apply(this, [data, parameters]);
-                             }else{
-                             fn.apply(this, [data]);
-                             }
-                             
-                             }
-                             if (api_method === 'reportTables') {
-                             console.log(data, parseQuery(this.url));
-                             var requestData = parseQuery(this.url);
-                             if (requestData.hasOwnProperty("token") && requestData.hasOwnProperty("report_number")) {
-                             localStorage.setItem(encodeURIComponent(requestData["token"] + requestData["report_number"]), JSON.stringify(data));
-                             }
-                             }
-                             },
-                             'data' : data,
-                             'timeout' : this.settings.requestTimeout
-                             });
-            req.error(function() {
-                      $('#alertPopup .alert-text').html($.t("error.unexpected"));
-                      
-                      $('#alertPopup').off("popupafterclose").on("popupafterclose", function() {
-                                                                 $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-                                                                 location.reload();
-                                                                 //todo uncomment that
-                                                                 });
-                      $('#alertPopup').popup("open", {
-                                             positionTo : 'window'
-                                             });
-                      });
-        }
-    }
-};
+	var cacheData = null;
+	if (data.hasOwnProperty("token") && data.hasOwnProperty("report_number")) {
+		cacheData = JSON.parse(localStorage.getItem(encodeURIComponent(data["token"] + data["report_number"])));
+	}
+	if (api_method == 'reportTables' && isOffline()) {
+		var fn = window[callback];
+		if ( typeof fn === "function")
+			fn.apply(window, [cacheData]);
+
+	} else {
+		if (isOffline()) {
+			noInternetError($.t("error.no_internet_for_sync"));
+		} else {
+			var req = $.ajax({
+				'type' : method.toUpperCase(),
+				'url' : this.settings.apiDomain + api_method,
+				'dataType' : 'jsonp',
+				'success' : function(data) {
+					console.log("data", data);
+					var fn = window[callback];
+					if ( typeof fn === "function") {
+						if (parameters) {
+							fn.apply(this, [data, parameters]);
+						} else {
+							fn.apply(this, [data]);
+						}
+
+					}
+					if (api_method === 'reportTables') {
+						console.log(data, parseQuery(this.url));
+						var requestData = parseQuery(this.url);
+						if (requestData.hasOwnProperty("token") && requestData.hasOwnProperty("report_number")) {
+							localStorage.setItem(encodeURIComponent(requestData["token"] + requestData["report_number"]), JSON.stringify(data));
+						}
+					}
+				},
+				'data' : data,
+				'timeout' : this.settings.requestTimeout
+			});
+			req.error(function() {
+				$('#alertPopup .alert-text').html($.t("error.unexpected"));
+
+				$('#alertPopup').off("popupafterclose").on("popupafterclose", function() {
+					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+					location.reload();
+					//todo uncomment that
+				});
+				$('#alertPopup').popup("open", {
+					positionTo : 'window'
+				});
+			});
+		}
+	}
+}; 
+
 
 function parseQuery(qstr) {
 	var query = {};
@@ -1990,6 +1992,10 @@ function testConnection(callback) {
 			}
 			displayOnline(offline);
 		};
+		img.onerror = function(){
+			offline = true;
+			displayOnline(offline);
+		}
 		img = null;
 
 	} else {
@@ -2015,7 +2021,6 @@ function displayOnline(isOffline){
 	if(isOffline){
 		$("#app-online").removeClass("online");	
 	}else{
-		console.log("add");
 		$("#app-online").addClass("online");
 	}
 }

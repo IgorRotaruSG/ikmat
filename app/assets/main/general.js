@@ -1,7 +1,7 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
     'apiDomain':        'http://ikmatapp.no/api/',
-    'apiPath':        'http://ikmatapp.no/',
+    'apiPath':        'http://ikmatapp.no',
     'apiUploadPath':    'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -1992,6 +1992,10 @@ function testConnection(callback) {
 			}
 			displayOnline(offline);
 		};
+		img.onerror = function(){
+			offline = true;
+			displayOnline(offline);
+		}
 		img = null;
 
 	} else {
@@ -2017,7 +2021,6 @@ function displayOnline(isOffline){
 	if(isOffline){
 		$("#app-online").removeClass("online");	
 	}else{
-		console.log("add");
 		$("#app-online").addClass("online");
 	}
 }

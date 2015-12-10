@@ -342,7 +342,7 @@ function getDeviationForm(data, devStep) {
     html += HTML.formGenerate(data.form_deviation, $.t("general.save_button"), 'dev');
 //    html += '</form></div>';
     html += '</form>' +
-        '<div data-role="popup" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+        '<div data-role="popup" id="signature_pop" data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
         '<div id="signature-holder">'+
         '<div id="signature" data-role="none"></div>'+
         '</div>' +
@@ -979,7 +979,7 @@ function haccpDeviationFix(data) {
         };
 
         html += HTML.formGenerate(data.form_fix_deviation.form,  $.t("general.save_button"));
-        html +='<div data-role="popup" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+        html +='<div data-role="popup" id="signature_pop" data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
                     '<div id="signature-holder">'+
                         '<div id="signature" data-role="none"></div>'+
                     '</div>' +
