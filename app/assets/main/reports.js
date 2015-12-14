@@ -273,10 +273,10 @@ function showOfflineReports(data) {
     for (var i in data) {
         if (data.hasOwnProperty(i)) {
             if ( data[i].id == 0 ) {//company document report
-                add += '<li><a href="#" data-type="doc" class="report_generator_link"></i> ' + data[i].name + '</a></li>';
+                add += '<li><a href="#" data-type="doc" class="report_generator_link" data-from="" data-to=""></i> ' + data[i].name + '</a></li>';
             }
             else if ( data[i].id == 15 ) {//flowcharts export
-                add += '<li><a href="#" data-type="'+  data[i].id  +'" class="email_flowcharts">' + data[i].name + '</a></li>'
+                add += '<li><a href="#" data-type="'+  data[i].id  +'" class="report_generator_link" data-from="" data-to="">' + data[i].name + '</a></li>'
             } 
             else {
                 add += '<li><a href="#" data-type="'+  data[i].id  +'" class="report_generator_link" data-from="'+reports_date_start+'" data-to="' + reports_date_end + '" >' + data[i].name + '</a></li>'

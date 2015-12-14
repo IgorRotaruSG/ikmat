@@ -191,7 +191,7 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 	if (data.hasOwnProperty("token") && data.hasOwnProperty("report_number")) {
 		cacheData = JSON.parse(localStorage.getItem(encodeURIComponent(data["token"] + data["report_number"])));
 	}
-	if (api_method == 'reportTables' && isOffline()) {
+	if ((api_method == 'reportTables' || (api_method === 'reports' && callback == 'documentsCall')) && isOffline()) {
 		var fn = window[callback];
 		if ( typeof fn === "function")
 			fn.apply(window, [cacheData]);
@@ -205,7 +205,7 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 				'url' : this.settings.apiDomain + api_method,
 				'dataType' : 'jsonp',
 				'success' : function(data) {
-					console.log("data", data);
+					//console.log("data", data);
 					var fn = window[callback];
 					if ( typeof fn === "function") {
 						if (parameters) {
@@ -216,7 +216,7 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 
 					}
 					if (api_method === 'reportTables' || (api_method === 'reports' && callback == 'documentsCall')) {
-						console.log(data, parseQuery(this.url));
+						//console.log(data, parseQuery(this.url));
 						var requestData = parseQuery(this.url);
 						if (requestData.hasOwnProperty("token") && requestData.hasOwnProperty("report_number")) {
 							localStorage.setItem(encodeURIComponent(requestData["token"] + requestData["report_number"]), JSON.stringify(data));
