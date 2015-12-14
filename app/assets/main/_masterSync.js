@@ -121,6 +121,16 @@ function _syncDone(i) {
                 ['contact_name', _data.contact_name]
             ]
         }, 0, userLoginCallback);
+        
+        db.lazyQuery({
+            'sql': 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
+            'data': [[
+                null,
+                'Aviksskjema',
+                JSON.stringify(_data.deviation_form.form_deviation),
+                'deviation'
+            ]]
+        },0);
 
         var company_join_date = '';
         if (_data.company_date_added != undefined) {

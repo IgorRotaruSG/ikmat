@@ -20,12 +20,12 @@ db.prototype.asyncExecute = function(data, step, callback) {
     }
 }
 
-db.prototype.lazyQuery = function(q, i, callback) {
+db.prototype.lazyQuery = function(q, i, callback, params) {
     if ( logout_flag == true ) {
         return false;
     }
     var thisClass = this;
-    if (q.sql != undefined && q.data != undefined && q.data.length > i) {
+    if (q && q.sql != undefined && q.data != undefined && q.data.length > i) {
         this.db.transaction(function(tx){
             if (q.check != undefined) {
                 tx.executeSql('SELECT COUNT(*) as "count","' + q.check.column + '" FROM "' + q.check.table + '" WHERE "' + q.check.index + '"=?',[q.data[i][q.check.index_id]],function(tx, results){
@@ -50,8 +50,11 @@ db.prototype.lazyQuery = function(q, i, callback) {
                     }
                 });
             } else {
-                tx.executeSql(q.sql, q.data[i], function(){
-                    thisClass.lazyQuery(q, parseInt(i)+1, callback);
+                tx.executeSql(q.sql, q.data[i], function(tx, results){
+                	if(results && results.insertId){
+                		params = results.insertId;
+                	}
+                	thisClass.lazyQuery(q, parseInt(i)+1, callback, params);
                 });
             }
         }, function(el, er){
@@ -62,7 +65,12 @@ db.prototype.lazyQuery = function(q, i, callback) {
         });
     } else {
         if (window[callback] != undefined) {
-            window[callback]();
+        	if(params){
+        		window[callback](params);
+        	}else{
+        		window[callback]();
+        	}
+            
         }
     }
 };
@@ -183,8 +191,6 @@ db.prototype.InitDB = function() {
     if(!this.appVersion || (this.appVersion && settings.rebuild && this.appVersion.replace(/\./g, "") < settings.rebuild.replace(/\./g, ""))){
     	isCreateDB = true;
     }
-    
-    console.log("isCreateDB", isCreateDB);
     if(isCreateDB){
     	this.createTables();
     }
