@@ -215,7 +215,7 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 						}
 
 					}
-					if (api_method === 'reportTables') {
+					if (api_method === 'reportTables' || (api_method === 'reports' && callback == 'documentsCall')) {
 						console.log(data, parseQuery(this.url));
 						var requestData = parseQuery(this.url);
 						if (requestData.hasOwnProperty("token") && requestData.hasOwnProperty("report_number")) {

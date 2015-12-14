@@ -366,7 +366,8 @@ function bind_form_click_handler_r() {
                         case 'doc':
                             var data = {
                                 'client': User.client,
-                                'token': User.lastToken
+                                'token': User.lastToken,
+                                'report_number': 1000
                             };
 
                             Page.apiCall('reports', data, 'get', 'documentsCall');
