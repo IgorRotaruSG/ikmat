@@ -3,9 +3,6 @@
     <feature name="Device">
         <param name="wp-package" value="Device" />
     </feature>
-    <feature name="EmailComposer">
-        <param name="wp-package" value="EmailComposer" />
-    </feature>
     <feature name="Camera">
         <param name="wp-package" value="Camera" />
     </feature>
@@ -18,14 +15,15 @@
     <feature name="StatusBar">
         <param name="wp-package" value="StatusBar" />
     </feature>
-    <preference name="orientation" value="res/screen/ios/Default" />
-    <preference name="StatusBarStyle" value="res/screen/ios/Default" />
     <feature name="FileTransfer">
         <param name="wp-package" value="FileTransfer" />
     </feature>
     <preference name="AndroidPersistentFileLocation" value="Internal" />
     <feature name="File">
         <param name="wp-package" value="File" />
+    </feature>
+    <feature name="EmailComposer">
+        <param name="wp-package" value="EmailComposer" />
     </feature>
     <name>IK-Mat</name>
     <description>
@@ -50,6 +48,7 @@
     <preference name="webviewbounce" value="false" />
     <preference name="StatusBarOverlaysWebView" value="false" />
     <preference name="StatusBarStyle" value="Default" />
+    <preference name="AndroidPersistentFileLocation" value="Compatibility" />
     <gap:plugin name="org.apache.cordova.battery-status" />
     <gap:plugin name="org.apache.cordova.camera" />
     <gap:plugin name="org.apache.cordova.media-capture" />

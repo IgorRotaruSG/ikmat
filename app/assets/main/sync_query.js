@@ -21,8 +21,6 @@ function sync_query(data, params) {
 	 console.log(data);
 	 console.log('----------------------------------------|/data|---------------------------------');
 	 */
-
-	console.log("sync_query", data);
 	d = db.getDbInstance();
 	if (params && params.id) {
 		d.transaction(function(tx) {
@@ -44,18 +42,8 @@ function sync_query(data, params) {
 			});
 		});
 	}
-	if (params && params.skip) {
-		console.log("skip");
-		_sync_lock = false;
-		_sync_data_i = parseInt(_sync_data_i) + 1;
-		if (_sync_data_i >= _sync_data_rows.length || !_sync_data_rows) {
-			$('#syncing_tasks').addClass('hide');
-			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-		}
-	}
 	if (isOffline()) {
 		_sync_data_rows = false;
-		_sync_data_i = 0;
 		_sync_lock = false;
 		$('#syncing_tasks').addClass('hide');
 		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
@@ -101,8 +89,9 @@ function sync_query(data, params) {
 										id : e.id
 									});
 								}, function() {
+									var obj = 
 									sync_query(null, {
-										"skip" : "true"
+										"id" : e.id
 									});
 								});
 							}
@@ -116,6 +105,7 @@ function sync_query(data, params) {
 			}
 		} else if (_sync_data_i > 0) {
 			_sync_lock = false;
+			_sync_data_rows = false;
 			$('#syncing_tasks').addClass('hide');
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 			window.location.reload();

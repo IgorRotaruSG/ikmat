@@ -97,10 +97,6 @@
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"EmailComposer\"><param name=\"android-package\" value=\"de.appplant.cordova.emailcomposer.EmailComposer\" /></feature>",
-                            "count": 1
-                        },
-                        {
                             "xml": "<feature name=\"Printer\"><param name=\"android-package\" value=\"de.appplant.cordova.plugin.printer.Printer\" /></feature>",
                             "count": 1
                         },
@@ -131,6 +127,10 @@
                         {
                             "xml": "<feature name=\"File\"><param name=\"android-package\" value=\"org.apache.cordova.file.FileUtils\" /><param name=\"onload\" value=\"true\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"EmailComposer\"><param name=\"android-package\" value=\"de.martinreinhardt.cordova.plugins.email.EmailComposer\" /></feature>",
+                            "count": 1
                         }
                     ]
                 }
@@ -145,9 +145,6 @@
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "cordova-plugin-whitelist": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
-        "de.appplant.cordova.plugin.email-composer": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "de.appplant.cordova.plugin.printer": {
@@ -172,6 +169,9 @@
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "cordova-plugin-file": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-plugin-email": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         }
     },
@@ -198,15 +198,6 @@
             "id": "cordova-plugin-whitelist.whitelist",
             "pluginId": "cordova-plugin-whitelist",
             "runs": true
-        },
-        {
-            "file": "plugins/de.appplant.cordova.plugin.email-composer/www/email_composer.js",
-            "id": "de.appplant.cordova.plugin.email-composer.EmailComposer",
-            "pluginId": "de.appplant.cordova.plugin.email-composer",
-            "clobbers": [
-                "cordova.plugins.email",
-                "plugin.email"
-            ]
         },
         {
             "file": "plugins/de.appplant.cordova.plugin.printer/www/printer.js",
@@ -473,11 +464,21 @@
                 "cordova"
             ],
             "runs": true
+        },
+        {
+            "file": "plugins/cordova-plugin-email/www/email_composer.js",
+            "id": "cordova-plugin-email.EmailComposer",
+            "pluginId": "cordova-plugin-email",
+            "clobbers": [
+                "cordova.plugins.email",
+                "plugin.email"
+            ]
         }
     ],
     "plugin_metadata": {
         "cordova-plugin-statusbar": "2.0.0",
         "cordova-plugin-file-transfer": "1.4.0",
-        "cordova-plugin-file": "3.0.0"
+        "cordova-plugin-file": "3.0.0",
+        "cordova-plugin-email": "1.0.0"
     }
 }

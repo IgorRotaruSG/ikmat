@@ -1,9 +1,9 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    // 'apiDomain':        'http://ikmatapp.no/api/',
-    // 'apiPath':        'http://ikmatapp.no',
-    'apiDomain':        'http://10.16.43.33/api/',
-    'apiPath':        'http://10.16.43.33',
+    'apiDomain':        'http://ikmatapp.no/api/',
+    'apiPath':        'http://ikmatapp.no',
+    // 'apiDomain':        'http://10.16.43.33/api/',
+    // 'apiPath':        'http://10.16.43.33',
     'apiUploadPath':    'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -14,8 +14,8 @@ var settings = {
 		'completed_tasks' : 60 * 60 * 2 * 1000
 	},
 	'requestTimeout' : 25000,
-	'version': "2.0.54",
-	'rebuild': "2.0.54"
+	'version': "2.0.55",
+	'rebuild': "2.0.55"
 };
 
 var performance = window.performance;
@@ -406,39 +406,12 @@ Page.prototype.uploadImage = function(args, callbackFunction, errorFunction) {
     };
 };
 
-
-function movePic(request){ 
-    window.resolveLocalFileSystemURI(request.imageURI, function(entry) {
-		var d = new Date();
-		var n = d.getTime();
-		//new file name
-		var newFileName = n + ".jpg";
-		var myFolderApp = "CacheImage";
-	
-		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSys) {
-			//The folder is created if doesn't exist
-			fileSys.root.getDirectory(myFolderApp, {
-				create : true,
-				exclusive : false
-			}, function(directory) {
-				entry.moveTo(directory, newFileName, function (entry) {
-					request.imageURI = entry.fullPath;
-					db.lazyQuery({
-						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-						'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
-					}, 0);
-			}, resOnError);
-			}, resOnError);
-		}, resOnError);
-}, resOnError); 
-}
-function resOnError(error) {
-    
-}
-
 function cacheImage(request) {
 	if(isNative()){
-		movePic(request);
+		db.lazyQuery({
+			'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+			'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
+		}, 0);
 	}else{
 		var blob;
 		var oReq = new XMLHttpRequest();
@@ -2269,11 +2242,11 @@ function noInternetError(message, login) {
 	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 	$('#alertPopup .alert-text').html(message);
 	$('#alertPopup').off("popupafterclose").on("popupafterclose", function() {
-		if (login) {
-			//do nothing
-		} else {
-			Page.redirect('tasks.html');
-		}
+		// if (login) {
+			// //do nothing
+		// } else {
+			// Page.redirect('tasks.html');
+		// }
 
 	});
 	$('#alertPopup').popup("open", {

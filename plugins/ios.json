@@ -19,9 +19,6 @@
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
-        "de.appplant.cordova.plugin.email-composer": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
         "de.appplant.cordova.plugin.printer": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
@@ -41,6 +38,9 @@
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "cordova-plugin-file": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-plugin-email": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         }
     },

@@ -82,14 +82,6 @@
         "is_top_level": true,
         "variables": {}
     },
-    "de.appplant.cordova.plugin.email-composer": {
-        "source": {
-            "type": "registry",
-            "id": "de.appplant.cordova.plugin.email-composer@0.8.2"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
     "cordova-plugin-inappbrowser": {
         "source": {
             "type": "registry",
@@ -102,6 +94,14 @@
         "source": {
             "type": "registry",
             "id": "cordova-plugin-statusbar"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-email": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-email"
         },
         "is_top_level": true,
         "variables": {}

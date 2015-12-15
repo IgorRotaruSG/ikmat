@@ -461,7 +461,7 @@ function reportsView(data) {
                 'filter_date_from': reports_date_start,
                 'filter_date_to': reports_date_end
             };
-            Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail');
+            Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail');
         }else{
         	$('#popup-send-email').unbind("popupafterclose");
 	        /*step 1: display the date chooser*/
@@ -571,13 +571,17 @@ function openNativeEmail(pdf){
 	var mailObject = {
 	    subject: subject,
 	    cc: localStorage.getItem("user_email") ? localStorage.getItem("user_email"): "",
-	    body:    ''
 	};
-	if(pdf){
-		mailObject.attachments = "base64:" + report_name + "_" + reports_date_start + "_" + reports_date_end + ".pdf//" + pdf.data;
+	
+	if(pdf.success){
+		mailObject.body = "Trykk på lenken nedenfor for å se rapporter: \n" + pdf.data;
 	}
 	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-	cordova.plugins.email.open(mailObject);
+	cordova.plugins.email.isAvailable(
+	    function (isAvailable) {
+	        cordova.plugins.email.open(mailObject);
+	    }
+	);
 }
 
 function getReportsViewCall(tx, results, id) {
@@ -721,7 +725,7 @@ function documentsCall(data) {
 					'filter_date_from' : reports_date_start,
 					'filter_date_to' : reports_date_end
 				};
-				Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail');
+				Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail');
 			} else {
 
 				/*step 1: display the date chooser*/

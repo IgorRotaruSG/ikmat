@@ -13,10 +13,6 @@
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"EmailComposer\"><param name=\"wp-package\" value=\"EmailComposer\" /></feature>",
-                            "count": 1
-                        },
-                        {
                             "xml": "<feature name=\"Camera\"><param name=\"wp-package\" value=\"Camera\" /></feature>",
                             "count": 1
                         },
@@ -42,6 +38,10 @@
                         },
                         {
                             "xml": "<feature name=\"File\"><param name=\"wp-package\" value=\"File\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"EmailComposer\"><param name=\"wp-package\" value=\"EmailComposer\" /></feature>",
                             "count": 1
                         }
                     ]
@@ -81,9 +81,6 @@
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
-        "de.appplant.cordova.plugin.email-composer": {
-            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
-        },
         "de.appplant.cordova.plugin.printer": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
@@ -107,6 +104,9 @@
         },
         "cordova-plugin-file": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "cordova-plugin-email": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         }
     },
     "dependent_plugins": {},
@@ -125,15 +125,6 @@
             "pluginId": "cordova-plugin-device",
             "clobbers": [
                 "device"
-            ]
-        },
-        {
-            "file": "plugins/de.appplant.cordova.plugin.email-composer/www/email_composer.js",
-            "id": "de.appplant.cordova.plugin.email-composer.EmailComposer",
-            "pluginId": "de.appplant.cordova.plugin.email-composer",
-            "clobbers": [
-                "cordova.plugins.email",
-                "plugin.email"
             ]
         },
         {
@@ -386,11 +377,21 @@
             "merges": [
                 "window.FileUploadOptions"
             ]
+        },
+        {
+            "file": "plugins/cordova-plugin-email/www/email_composer.js",
+            "id": "cordova-plugin-email.EmailComposer",
+            "pluginId": "cordova-plugin-email",
+            "clobbers": [
+                "cordova.plugins.email",
+                "plugin.email"
+            ]
         }
     ],
     "plugin_metadata": {
         "cordova-plugin-statusbar": "2.0.0",
         "cordova-plugin-file-transfer": "1.4.0",
-        "cordova-plugin-file": "3.0.0"
+        "cordova-plugin-file": "3.0.0",
+        "cordova-plugin-email": "1.0.0"
     }
 }

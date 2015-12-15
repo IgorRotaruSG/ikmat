@@ -17,15 +17,6 @@ module.exports = [
         ]
     },
     {
-        "file": "plugins/de.appplant.cordova.plugin.email-composer/www/email_composer.js",
-        "id": "de.appplant.cordova.plugin.email-composer.EmailComposer",
-        "pluginId": "de.appplant.cordova.plugin.email-composer",
-        "clobbers": [
-            "cordova.plugins.email",
-            "plugin.email"
-        ]
-    },
-    {
         "file": "plugins/de.appplant.cordova.plugin.printer/www/printer.js",
         "id": "de.appplant.cordova.plugin.printer.Printer",
         "pluginId": "de.appplant.cordova.plugin.printer",
@@ -275,6 +266,15 @@ module.exports = [
         "merges": [
             "window.FileUploadOptions"
         ]
+    },
+    {
+        "file": "plugins/cordova-plugin-email/www/email_composer.js",
+        "id": "cordova-plugin-email.EmailComposer",
+        "pluginId": "cordova-plugin-email",
+        "clobbers": [
+            "cordova.plugins.email",
+            "plugin.email"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -282,7 +282,8 @@ module.exports.metadata =
 {
     "cordova-plugin-statusbar": "2.0.0",
     "cordova-plugin-file-transfer": "1.4.0",
-    "cordova-plugin-file": "3.0.0"
+    "cordova-plugin-file": "3.0.0",
+    "cordova-plugin-email": "1.0.0"
 }
 // BOTTOM OF METADATA
 });
