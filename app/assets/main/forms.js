@@ -570,44 +570,7 @@ function formItemData(data) {
 
                 return false;
             });
-            console.log('forms.js 457');
-            mySwiper.swipeTo(1, 300, true);
-            console.log('forms.js 480');
-        } else {
-            console.log('forms.js 482');
-//            alert('forms.js 482');
-            var data = [];
-            var db_data = [];
-            var html = '<div style="padding:10px;"><ul data-role="listview" data-inset="true" data-divider-theme="b">';
-            for (var i in f) {
-                if (f.hasOwnProperty(i)) {
-                    html += '<li><a href="#" data-id="' + f[i].info.id + '" data-type="'+ f[i].form.type.value +'" class="form_generator_link2"><i class="fa fa-edit"></i> ' + f[i].info.label + '</a></li>';
 
-                    db_data.push([
-                        f[i].info.id,
-                        f[i].info.label,
-                        JSON.stringify(f[i].form),
-                        document.form_cat
-                    ]);
-                }
-            }
-
-            html += '</ul></div>';
-//            console.log('final to insert');
-//            console.log(db_data);
-            console.log('forms.js 505',db_data);
-            var q = 'INSERT OR REPLACE INTO "form_item" ("id", "label", "form", "type") VALUES(?,?,?,?)';
-            db.lazyQuery({
-                'sql': 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
-                'data': db_data
-            },0);
-
-            mySwiper.appendSlide(html, 'swiper-slide');
-            bind_form2_click_handler();
-
-            $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-
-            $('#' + $.mobile.activePage.attr('id')).trigger('create');
             mySwiper.swipeTo(1, 300, true);
         }
     } else {
