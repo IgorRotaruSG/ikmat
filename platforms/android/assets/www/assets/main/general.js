@@ -1,9 +1,9 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    //'apiDomain':        'http://ikmatapp.no/api/',
-    //'apiPath':        'http://ikmatapp.no',
-	'apiDomain':        'http://118.70.199.91/api/',
-	'apiPath':        'http://118.70.199.91',
+    // 'apiDomain':        'http://ikmatapp.no/api/',
+    // 'apiPath':        'http://ikmatapp.no',
+    'apiDomain':        'http://10.16.43.33/api/',
+    'apiPath':        'http://10.16.43.33',
     'apiUploadPath':    'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -14,8 +14,8 @@ var settings = {
 		'completed_tasks' : 60 * 60 * 2 * 1000
 	},
 	'requestTimeout' : 25000,
-	'version': "2.0.52",
-	'rebuild': "2.0.52"
+	'version': "2.0.54",
+	'rebuild': "2.0.54"
 };
 
 var performance = window.performance;
@@ -191,7 +191,7 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 	if (data.hasOwnProperty("token") && data.hasOwnProperty("report_number")) {
 		cacheData = JSON.parse(localStorage.getItem(encodeURIComponent(data["token"] + data["report_number"])));
 	}
-	if (api_method == 'reportTables' && isOffline()) {
+	if ((api_method == 'reportTables' || (api_method === 'reports' && callback == 'documentsCall')) && isOffline()) {
 		var fn = window[callback];
 		if ( typeof fn === "function")
 			fn.apply(window, [cacheData]);
@@ -205,7 +205,7 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 				'url' : this.settings.apiDomain + api_method,
 				'dataType' : 'jsonp',
 				'success' : function(data) {
-					console.log("data", data);
+					//console.log("data", data);
 					var fn = window[callback];
 					if ( typeof fn === "function") {
 						if (parameters) {
@@ -215,8 +215,8 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 						}
 
 					}
-					if (api_method === 'reportTables') {
-						console.log(data, parseQuery(this.url));
+					if (api_method === 'reportTables' || (api_method === 'reports' && callback == 'documentsCall')) {
+						//console.log(data, parseQuery(this.url));
 						var requestData = parseQuery(this.url);
 						if (requestData.hasOwnProperty("token") && requestData.hasOwnProperty("report_number")) {
 							localStorage.setItem(encodeURIComponent(requestData["token"] + requestData["report_number"]), JSON.stringify(data));
@@ -262,6 +262,10 @@ Page.prototype.selectImage = function (id, callbackFunction) {
 		});
 	} else {
 		var showPicture = $('#'+id);
+		showPicture.onload = function(data) {
+					console.log("showPicture", this);
+					// window.URL.revokeObjectURL(this.src);
+				};
 		$("#take_picture").change(function(event) {
 			var files = event.target.files,
 			    file;
@@ -272,9 +276,7 @@ Page.prototype.selectImage = function (id, callbackFunction) {
 				if(callbackFunction){
 					callbackFunction(imgURL);	
 				}
-				showPicture.onload = function() {
-					// window.URL.revokeObjectURL(this.src);
-				};
+				
 			}
 		});
 		$("#take_picture").trigger("click", id);
@@ -283,22 +285,63 @@ Page.prototype.selectImage = function (id, callbackFunction) {
 	realignSlideHeight('max-height-form');
 };
 
-Page.prototype.uploadImage = function(imageURI, callbackFunction, errorFunction) {
-    if (imageURI) {
+function base64toBlob(base64Data, contentType) {
+    contentType = contentType || '';
+    var sliceSize = 1024;
+    var byteCharacters = atob(base64Data.split(',')[1]);
+    var bytesLength = byteCharacters.length;
+    var slicesCount = Math.ceil(bytesLength / sliceSize);
+    var byteArrays = new Array(slicesCount);
+
+    for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+        var begin = sliceIndex * sliceSize;
+        var end = Math.min(begin + sliceSize, bytesLength);
+
+        var bytes = new Array(end - begin);
+        for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {
+            bytes[i] = byteCharacters[offset].charCodeAt(0);
+        }
+        byteArrays[sliceIndex] = new Uint8Array(bytes);
+    }
+    return new Blob(byteArrays, { type: contentType });
+}
+
+Page.prototype.uploadImage = function(args, callbackFunction, errorFunction) {
+	var request = null;
+	if(typeof args === 'object' && args.imageURI && args.task_id){
+		if(args.data){
+			var blobCached = base64toBlob(args.data, "image/jpg");
+			var blobUrl = URL.createObjectURL(blobCached);
+			args.imageURI = blobUrl;
+		}
+		request = args;
+	}else if(typeof args === 'string' && args.length > 0){
+		request = {
+        	'imageURI': args,
+        	'task_id': $('.swiper-slide-active input[name="task_id"]').val()
+       };
+        
+	}
+	
+	if (isOffline()) {
+		cacheImage(request);
+		return;
+	}
+	
+    if (request) {
         // Verify server has been entered
         var server = this.settings.apiDomain + this.settings.apiUploadPath;
-        console.log("imageURI", imageURI, server);
         if (server) {
             // Specify transfer options
             if(isNative()){
                 var options = new FileUploadOptions();
                 options.fileKey="file";
-                options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1);
+                options.fileName=request.imageURI.substr(request.imageURI.lastIndexOf('/')+1);
                 options.mimeType="image/jpeg";
                 options.chunkedMode = false;
                 
                 var params = {};
-                params.task_id = $('.swiper-slide-active input[name="task_id"]').val();
+                params.task_id = request.task_id;
                 params.client = User.client;
                 params.token = User.lastToken;
                 
@@ -307,7 +350,7 @@ Page.prototype.uploadImage = function(imageURI, callbackFunction, errorFunction)
                 // Transfer picture to server
                 
 				var ft = new FileTransfer();
-				ft.upload(imageURI, server, function(r) {
+				ft.upload(request.imageURI, server, function(r) {
 					console.log("Upload successful: " + r.bytesSent + " bytes uploaded.");
 					if (callbackFunction) {
 						callbackFunction(r);
@@ -323,19 +366,18 @@ Page.prototype.uploadImage = function(imageURI, callbackFunction, errorFunction)
             }else{
                 var blob;
                 var oReq = new XMLHttpRequest();
-                oReq.open("GET", imageURI, true);
+                oReq.open("GET", request.imageURI, true);
                 oReq.responseType = "arraybuffer";
 				oReq.onload = function(oEvent) {
 					blob = new Blob([oReq.response], {
 						type : "image/jpg"
 					});
-					console.log("blob", blob);
 					var fd = new FormData();
-					fd.append('fname', imageURI.substr(imageURI.lastIndexOf('/') + 1));
+					fd.append('fname', request.imageURI.substr(request.imageURI.lastIndexOf('/') + 1));
 					fd.append('file', blob);
 					fd.append('client', User.client);
 					fd.append('token', User.lastToken);
-					fd.append('task_id', $('.swiper-slide-active input[name="task_id"]').val());
+					fd.append('task_id', request.task_id);
 					$.ajax({
 						type : 'POST',
 						url : server,
@@ -345,6 +387,7 @@ Page.prototype.uploadImage = function(imageURI, callbackFunction, errorFunction)
 						crossDomain: true,
 						success : function(data) {
 							if (callbackFunction) {
+								window.URL.revokeObjectURL(request.imageURI);
 								callbackFunction(data);
 							}
 						},
@@ -362,6 +405,65 @@ Page.prototype.uploadImage = function(imageURI, callbackFunction, errorFunction)
         }
     };
 };
+
+
+function movePic(request){ 
+    window.resolveLocalFileSystemURI(request.imageURI, function(entry) {
+		var d = new Date();
+		var n = d.getTime();
+		//new file name
+		var newFileName = n + ".jpg";
+		var myFolderApp = "CacheImage";
+	
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSys) {
+			//The folder is created if doesn't exist
+			fileSys.root.getDirectory(myFolderApp, {
+				create : true,
+				exclusive : false
+			}, function(directory) {
+				entry.moveTo(directory, newFileName, function (entry) {
+					request.imageURI = entry.fullPath;
+					db.lazyQuery({
+						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+						'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
+					}, 0);
+			}, resOnError);
+			}, resOnError);
+		}, resOnError);
+}, resOnError); 
+}
+function resOnError(error) {
+    
+}
+
+function cacheImage(request) {
+	if(isNative()){
+		movePic(request);
+	}else{
+		var blob;
+		var oReq = new XMLHttpRequest();
+		oReq.open("GET", request.imageURI, true);
+		oReq.responseType = "arraybuffer";
+		oReq.onload = function(oEvent) {
+			blob = new Blob([oReq.response], {
+				type : "image/jpg"
+			});
+			if (isOffline()) {
+				var reader = new window.FileReader();
+				reader.readAsDataURL(blob);
+				reader.onloadend = function() {
+					request.data = reader.result;
+					db.lazyQuery({
+						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+						'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
+					}, 0);
+				};
+			}
+		};
+		oReq.send();
+		}
+}
+
 
 function parseQuery(qstr) {
 	var query = {};
@@ -2053,7 +2155,7 @@ function bind_menuClick(t, n) {
 	} else {
 		contactName.html(localStorage.getItem('contact_name'));
 	}
-	$(t).find('#app-version').html("IK-mat " + this.settings.version);
+	$(t).find('#app-version').html("IK-mat 2.0.6");
 	displayOnline(isOffline());
 }
 

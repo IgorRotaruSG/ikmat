@@ -305,23 +305,29 @@ function base64toBlob(base64Data, contentType) {
     }
     return new Blob(byteArrays, { type: contentType });
 }
-// var blob = b64toBlob(b64Data, contentType);
-// var blobUrl = URL.createObjectURL(blob);
 
 Page.prototype.uploadImage = function(args, callbackFunction, errorFunction) {
 	var request = null;
-	if(typeof args === 'object' && args.data && args.task_id){
-		var blobCached = base64toBlob(args.data, "image/jpg");
-		var blobUrl = URL.createObjectURL(blobCached);
-		args.imageURI = blobUrl;
+	if(typeof args === 'object' && args.imageURI && args.task_id){
+		if(args.data){
+			var blobCached = base64toBlob(args.data, "image/jpg");
+			var blobUrl = URL.createObjectURL(blobCached);
+			args.imageURI = blobUrl;
+		}
 		request = args;
 	}else if(typeof args === 'string' && args.length > 0){
 		request = {
         	'imageURI': args,
         	'task_id': $('.swiper-slide-active input[name="task_id"]').val()
-        }
+       };
         
 	}
+	
+	if (isOffline()) {
+		cacheImage(request);
+		return;
+	}
+	
     if (request) {
         // Verify server has been entered
         var server = this.settings.apiDomain + this.settings.apiUploadPath;
@@ -363,7 +369,6 @@ Page.prototype.uploadImage = function(args, callbackFunction, errorFunction) {
                 oReq.open("GET", request.imageURI, true);
                 oReq.responseType = "arraybuffer";
 				oReq.onload = function(oEvent) {
-					// localStorage.setItem(request.imageURI.substr(request.imageURI.lastIndexOf('/') + 1), JSON.stringify(oReq.response));
 					blob = new Blob([oReq.response], {
 						type : "image/jpg"
 					});
@@ -373,25 +378,6 @@ Page.prototype.uploadImage = function(args, callbackFunction, errorFunction) {
 					fd.append('client', User.client);
 					fd.append('token', User.lastToken);
 					fd.append('task_id', request.task_id);
-					if(isOffline()){
-						var reader = new window.FileReader();
-						 reader.readAsDataURL(blob); 
-						 reader.onloadend = function() {
-			                request.data = reader.result;
-			                console.log("request.data", request.data);
-			                db.lazyQuery({
-				                'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-				                'data': [[
-				                    'uploadPhotos',
-				                    JSON.stringify(request),
-				                    request.task_id,
-				                    'uploadDone'
-				                ]]
-				            },0);
-						 }
-						
-			            return;
-					}
 					$.ajax({
 						type : 'POST',
 						url : server,
@@ -419,6 +405,65 @@ Page.prototype.uploadImage = function(args, callbackFunction, errorFunction) {
         }
     };
 };
+
+
+function movePic(request){ 
+    window.resolveLocalFileSystemURI(request.imageURI, function(entry) {
+		var d = new Date();
+		var n = d.getTime();
+		//new file name
+		var newFileName = n + ".jpg";
+		var myFolderApp = "CacheImage";
+	
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSys) {
+			//The folder is created if doesn't exist
+			fileSys.root.getDirectory(myFolderApp, {
+				create : true,
+				exclusive : false
+			}, function(directory) {
+				entry.moveTo(directory, newFileName, function (entry) {
+					request.imageURI = entry.fullPath;
+					db.lazyQuery({
+						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+						'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
+					}, 0);
+			}, resOnError);
+			}, resOnError);
+		}, resOnError);
+}, resOnError); 
+}
+function resOnError(error) {
+    
+}
+
+function cacheImage(request) {
+	if(isNative()){
+		movePic(request);
+	}else{
+		var blob;
+		var oReq = new XMLHttpRequest();
+		oReq.open("GET", request.imageURI, true);
+		oReq.responseType = "arraybuffer";
+		oReq.onload = function(oEvent) {
+			blob = new Blob([oReq.response], {
+				type : "image/jpg"
+			});
+			if (isOffline()) {
+				var reader = new window.FileReader();
+				reader.readAsDataURL(blob);
+				reader.onloadend = function() {
+					request.data = reader.result;
+					db.lazyQuery({
+						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+						'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
+					}, 0);
+				};
+			}
+		};
+		oReq.send();
+		}
+}
+
 
 function parseQuery(qstr) {
 	var query = {};

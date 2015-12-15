@@ -82,6 +82,7 @@ td, th {
     padding: 6px; 
     border: 1px solid black;
     height:20px;
+    word-wrap: break-word !important;
 }
 
 .td-th-styling {

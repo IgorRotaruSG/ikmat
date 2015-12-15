@@ -1,1 +1,152 @@
-function dump(a){console.log("-----------------------------------------[dump]-----------------------------------------"),console.log(a),console.log("-----------------------------------------[/dump]-----------------------------------------")}function repeat(a,b){if(1>b)return"";for(var c="";b>0;)1&b&&(c+=a),b>>=1,a+=a;return c}function SyncMaster(a){void 0!=a&&(_data=a),this.getAll=function(a){if(void 0==a&&(a=0),a>=_modulesToSync.length)return!1;var b={client:_data.client,token:_data.token,module:_modulesToSync[a]},c=$.ajax({type:"POST",url:settings.apiDomain+"sync",dataType:"jsonp",jsonpCallback:"_syncGetAll",data:b,timeout:settings.requestTimeout});c.error(function(a,b,c){console.warn(a),console.warn(b),console.warn(c),$("#alertPopup .alert-text").html($.t("error.no_internet_for_sync")),$("#alertPopup").on("popupafterclose",function(){$("#alertPopup").unbind("popupafterclose")}),$("#alertPopup").popup("open",{positionTo:"window"})})}}function _syncGetAll(a){$("#login_done").removeClass("hide");var b="";for(var c in a)a.hasOwnProperty(c)&&"token"!=c&&"success"!=c&&"currentTime"!=c&&"form"!=c&&(b='INSERT OR REPLACE INTO "'+c+'"('+(a[c].cols+"").replace(/([a-zA-Z_]+)/g,function(a){return'"'+a+'"'})+") VALUES("+new Array(a[c].cols.split(",").length+1).join("?,").slice(0,-1)+")",db.lazyQuerySync({sql:b,data:a[c].rows},0,"_syncDone",c))}function _syncDone(a){if(_modulesToSync.indexOf(a)>-1&&(_syncCount=parseInt(_syncCount)+1,a=_modulesToSync.indexOf(a),(new SyncMaster).getAll(parseInt(a)+1)),_syncCount==_modulesToSync.length){document._login_client=_data.client,document._login_token=_data.token;var b="user_login_now";fromLandingPage&&(b="landingUserLogin"),db.lazyQuery({sql:'INSERT INTO "settings"("type","value") VALUES(?,?)',data:[["register_edit",_data.first_edit],["haccp",_data.first_haccp],["name",_data.company_name],["role",_data.role],["deviation_form",JSON.stringify(_data.deviation_form)],["contact_name",_data.contact_name]]},0,b);var c="";if(void 0!=_data.company_date_added){var d=_data.company_date_added.date;d=d.split(" "),d=d[0].split("-"),c=d.join("-")}localStorage.setItem("user_name",_data.company_name),localStorage.setItem("contact_name",_data.contact_name),localStorage.setItem("company_name",_data.company_name),localStorage.setItem("role",_data.role),localStorage.setItem("company_join_date",c),$(".overflow-wrapper").removeClass("overflow-wrapper-hide")}return!1}var _syncCount=0,_syncGlobalData=null,_data={},_modulesToSync=["registration","tasks","forms","form_item"],_login_client=null,_login_token=null;
+var _syncCount = 0;
+var _syncGlobalData = null;
+var _data = {};
+var _modulesToSync = ['registration','tasks','forms','form_item'];
+var _login_client = null;
+var _login_token = null;
+
+
+function dump(data) {
+    console.log('-----------------------------------------[dump]-----------------------------------------');
+    console.log(data);
+    console.log('-----------------------------------------[/dump]-----------------------------------------');
+}
+
+function repeat(pattern, count) {
+    if (count < 1) return '';
+    var result = '';
+    while (count > 0) {
+        if (count & 1) result += pattern;
+        count >>= 1, pattern += pattern;
+    }
+    return result;
+}
+
+function SyncMaster(data) {
+    //console.log('SyncMaster(data) {');
+    if (data != undefined) {
+        _data = data;
+    }
+
+    this.getAll = function(i) {
+        if (i == undefined) {
+            i = 0;
+        }
+        if (i >= _modulesToSync.length) {
+            return false;
+        }
+        var data = {
+            'client':   _data.client,
+            'token':    _data.token,
+            'module':   _modulesToSync[i]
+        };
+
+        var req = $.ajax({
+            'type': 'POST',
+            'url': settings.apiDomain + 'sync',
+            'dataType': 'jsonp',
+            'jsonpCallback': '_syncGetAll',
+            'data': data,
+            'timeout': settings.requestTimeout
+        });
+
+        req.error(function(a,b,c) {
+            console.warn(a);
+            console.warn(b);
+            console.warn(c);
+            $('#alertPopup .alert-text').html($.t("error.no_internet_for_sync"));
+            $('#alertPopup').on("popupafterclose",function(){
+                $('#alertPopup').unbind("popupafterclose");
+                //window.location.href = 'index.html';
+            });
+            $('#alertPopup').popup( "open", {positionTo: 'window'});
+            //alert('Internet connection error!');
+
+            //window.location.href = 'index.html';
+        });
+    };
+}
+
+function _syncGetAll(data){
+    $('#login_done').removeClass('hide');
+    //$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+    //$('#clean-overflow-wrapper').removeClass('overflow-wrapper-hide');
+    //$('.login-page').hide('');
+    //return;
+    var sql = '';
+    for (var i in data) {
+        if (data.hasOwnProperty(i) && i != 'token' && i != 'success' && i != 'currentTime' && i != 'form') {
+            sql = 'INSERT OR REPLACE INTO "' + i + '"(' +
+                (data[i].cols+'').replace(/([a-zA-Z_]+)/g,function(a){return '"' + a + '"';}) +
+                ') VALUES(' +
+                new Array( data[i].cols.split(',').length + 1 ).join( '?,' ).slice(0,-1)
+                + ')';
+            db.lazyQuerySync({
+                'sql': sql,
+                'data': data[i].rows
+            },0,'_syncDone', i);
+        }
+    }
+
+}
+
+function _syncDone(i) {
+    if (_modulesToSync.indexOf(i) > -1) {
+        _syncCount = parseInt(_syncCount) + 1;
+        //console.log(i + ' is done');
+        i = _modulesToSync.indexOf(i);
+        new SyncMaster().getAll(parseInt(i) + 1);
+    }
+    //console.log('sync count:' + _syncCount);
+    //console.log('module count:' + _modulesToSync.length);
+    if (_syncCount == _modulesToSync.length) {
+        //console.warn('login  here');
+        var data = _syncGlobalData;
+        document._login_client = _data.client;
+        document._login_token = _data.token;
+
+        var userLoginCallback = 'user_login_now';
+        if ( fromLandingPage ) {
+            userLoginCallback = 'landingUserLogin';
+        }
+
+        db.lazyQuery({
+            'sql': 'INSERT INTO "settings"("type","value") VALUES(?,?)',
+            'data': [
+                ['register_edit', _data.first_edit],
+                ['haccp', _data.first_haccp],
+                ['name', _data.company_name],
+                ['role', _data.role],
+                ['deviation_form', JSON.stringify(_data.deviation_form)],
+                ['contact_name', _data.contact_name]
+            ]
+        }, 0, userLoginCallback);
+        
+        db.lazyQuery({
+            'sql': 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
+            'data': [[
+                null,
+                'Aviksskjema',
+                JSON.stringify(_data.deviation_form.form_deviation),
+                'deviation'
+            ]]
+        },0);
+
+        var company_join_date = '';
+        if (_data.company_date_added != undefined) {
+            var tmp = _data.company_date_added.date;
+            tmp = tmp.split(' ');
+            tmp = tmp[0].split('-');
+            company_join_date = tmp.join('-');
+        }
+
+        localStorage.setItem('user_name', _data.company_name);
+        localStorage.setItem('contact_name', _data.contact_name);
+        //set Company name
+        localStorage.setItem('company_name', _data.company_name);
+        localStorage.setItem('role', _data.role);
+        localStorage.setItem('company_join_date', company_join_date);
+        $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+    }
+    return false;
+}

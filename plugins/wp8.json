@@ -25,12 +25,6 @@
         "org.apache.cordova.camera": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
-        "org.apache.cordova.file": {
-            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
-        },
-        "org.apache.cordova.file-transfer": {
-            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
-        },
         "org.apache.cordova.network-information": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
@@ -41,6 +35,12 @@
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
         "cordova-plugin-statusbar": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "cordova-plugin-file-transfer": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "cordova-plugin-file": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         }
     },

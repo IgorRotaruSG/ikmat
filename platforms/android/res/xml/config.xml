@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="hygiene.app.automagi" version="2.0.52" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="hygiene.app.automagi" version="2.0.54" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
     <preference name="loglevel" value="DEBUG" />
     <feature name="SQLitePlugin">
         <param name="android-package" value="org.pgsqlite.SQLitePlugin" />
@@ -20,12 +20,6 @@
     <feature name="Camera">
         <param name="android-package" value="org.apache.cordova.camera.CameraLauncher" />
     </feature>
-    <feature name="File">
-        <param name="android-package" value="org.apache.cordova.file.FileUtils" />
-    </feature>
-    <feature name="FileTransfer">
-        <param name="android-package" value="org.apache.cordova.filetransfer.FileTransfer" />
-    </feature>
     <feature name="NetworkStatus">
         <param name="android-package" value="org.apache.cordova.networkinformation.NetworkManager" />
     </feature>
@@ -39,6 +33,16 @@
         <param name="android-package" value="org.apache.cordova.statusbar.StatusBar" />
         <param name="onload" value="true" />
     </feature>
+    <preference name="orientation" value="res/screen/ios/Default" />
+    <preference name="StatusBarStyle" value="res/screen/ios/Default" />
+    <feature name="FileTransfer">
+        <param name="android-package" value="org.apache.cordova.filetransfer.FileTransfer" />
+    </feature>
+    <preference name="AndroidPersistentFileLocation" value="Internal" />
+    <feature name="File">
+        <param name="android-package" value="org.apache.cordova.file.FileUtils" />
+        <param name="onload" value="true" />
+    </feature>
     <allow-intent href="market:*" />
     <name>IK-Mat</name>
     <description>
@@ -48,7 +52,7 @@
         FSOFT Team
     </author>
     <preference name="permissions" value="none" />
-    <preference name="orientation" value="res/screen/ios/Default" />
+    <preference name="orientation" value="Default" />
     <preference name="target-device" value="universal" />
     <preference name="webviewbounce" value="true" />
     <preference name="prerendered-icon" value="true" />
@@ -62,7 +66,7 @@
     <preference name="DisallowOverscroll" value="true" />
     <preference name="webviewbounce" value="false" />
     <preference name="StatusBarOverlaysWebView" value="false" />
-    <preference name="StatusBarStyle" value="res/screen/ios/Default" />
+    <preference name="StatusBarStyle" value="Default" />
     <gap:plugin name="org.apache.cordova.battery-status" />
     <gap:plugin name="org.apache.cordova.camera" />
     <gap:plugin name="org.apache.cordova.media-capture" />
@@ -82,6 +86,7 @@
     <gap:plugin name="org.apache.cordova.splashscreen" />
     <gap:plugin name="org.apache.cordova.vibration" />
     <gap:plugin name="phonegap-plugin-push" source="npm" />
+    <gap:plugin name="cordova-plugin-whitelist" source="npm" />
     <gap:plugin name="de.appplant.cordova.plugin.email-composer" version="0.8.2" />
     <icon src="icon.png" />
     <icon gap:platform="android" gap:qualifier="ldpi" src="res/icon/android/icon-36-ldpi.png" />

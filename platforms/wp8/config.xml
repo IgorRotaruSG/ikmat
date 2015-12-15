@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="hygiene.app.automagi" version="2.0.52" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="hygiene.app.automagi" version="2.0.54" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
     <feature name="Device">
         <param name="wp-package" value="Device" />
     </feature>
@@ -8,12 +8,6 @@
     </feature>
     <feature name="Camera">
         <param name="wp-package" value="Camera" />
-    </feature>
-    <feature name="File">
-        <param name="wp-package" value="File" />
-    </feature>
-    <feature name="FileTransfer">
-        <param name="wp-package" value="FileTransfer" />
     </feature>
     <feature name="NetworkStatus">
         <param name="wp-package" value="NetworkStatus" />
@@ -24,6 +18,15 @@
     <feature name="StatusBar">
         <param name="wp-package" value="StatusBar" />
     </feature>
+    <preference name="orientation" value="res/screen/ios/Default" />
+    <preference name="StatusBarStyle" value="res/screen/ios/Default" />
+    <feature name="FileTransfer">
+        <param name="wp-package" value="FileTransfer" />
+    </feature>
+    <preference name="AndroidPersistentFileLocation" value="Internal" />
+    <feature name="File">
+        <param name="wp-package" value="File" />
+    </feature>
     <name>IK-Mat</name>
     <description>
         IK-mat - internkontroll for restauranter.
@@ -32,7 +35,7 @@
         FSOFT Team
     </author>
     <preference name="permissions" value="none" />
-    <preference name="orientation" value="res/screen/ios/Default" />
+    <preference name="orientation" value="Default" />
     <preference name="target-device" value="universal" />
     <preference name="webviewbounce" value="true" />
     <preference name="prerendered-icon" value="true" />
@@ -46,7 +49,7 @@
     <preference name="DisallowOverscroll" value="true" />
     <preference name="webviewbounce" value="false" />
     <preference name="StatusBarOverlaysWebView" value="false" />
-    <preference name="StatusBarStyle" value="res/screen/ios/Default" />
+    <preference name="StatusBarStyle" value="Default" />
     <gap:plugin name="org.apache.cordova.battery-status" />
     <gap:plugin name="org.apache.cordova.camera" />
     <gap:plugin name="org.apache.cordova.media-capture" />
@@ -66,6 +69,7 @@
     <gap:plugin name="org.apache.cordova.splashscreen" />
     <gap:plugin name="org.apache.cordova.vibration" />
     <gap:plugin name="phonegap-plugin-push" source="npm" />
+    <gap:plugin name="cordova-plugin-whitelist" source="npm" />
     <gap:plugin name="de.appplant.cordova.plugin.email-composer" version="0.8.2" />
     <icon src="icon.png" />
     <icon gap:platform="android" gap:qualifier="ldpi" src="res/icon/android/icon-36-ldpi.png" />

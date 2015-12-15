@@ -44,25 +44,13 @@
         "is_top_level": true,
         "variables": {}
     },
-    "org.apache.cordova.file": {
-        "source": {
-            "type": "local",
-            "path": "/tmp/org.apache.cordova.file/package"
-        }
-    },
     "cordova-plugin-file": {
         "source": {
             "type": "registry",
             "id": "cordova-plugin-file"
         },
-        "is_top_level": false,
+        "is_top_level": true,
         "variables": {}
-    },
-    "org.apache.cordova.file-transfer": {
-        "source": {
-            "type": "local",
-            "path": "/tmp/org.apache.cordova.file-transfer/package"
-        }
     },
     "cordova-plugin-file-transfer": {
         "source": {

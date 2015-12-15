@@ -346,6 +346,7 @@ function formItemData(data) {
             switch(f.info.type){
                 /* If maintenance, add signature form*/
                 case 'maintenance':
+                case 'deviation':
                     //console.log('maintenance 306');
                     html += HTML.formGenerate(last_data_received.form_deviation,  $.t("general.save_button"));
 
@@ -379,8 +380,11 @@ function formItemData(data) {
                                 'token': User.lastToken,
                                 'results': JSON.stringify(dd1)
                             };
-                            console.log('freeze maintenance');
-                            Page.apiCall('maintenance', data_m, 'get', 'maintenanceSignDone');
+                            if(f.info.type == 'maintenance'){
+                            	Page.apiCall('maintenance', data_m, 'get', 'maintenanceSignDone');
+                            }else{
+                            	Page.apiCall('deviationForm', data_m, 'get', 'maintenanceSignDone');
+                            }
                         });
 
                         return false;
@@ -466,7 +470,7 @@ function formItemData(data) {
                     form = HTML.formGenerate(step, '');
                     html += form;
                     html += '</form></div>'+
-                        '<div data-role="popup" data-history="false" id="signature_pop"  data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+                        '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
                         '<div id="signature-holder">'+
                         '<div id="signature" data-role="none"></div>'+
                         '</div>' +
@@ -486,48 +490,6 @@ function formItemData(data) {
                     mySwiper.appendSlide(html, 'swiper-slide');
                     $('#' + $.mobile.activePage.attr('id')).trigger('create');
 //                    fixFooterPosition();
-                    break;
-                case 'deviation':
-                    console.log('deviation 401');
-                    html += HTML.formGenerate(last_data_received.form_deviation,  $.t("general.save_button"), 'dev');
-                    html += '</form>' +
-                        '<div data-role="popup" id="signature_pop"   data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
-                        '<div id="signature-holder">'+
-                        '<div id="signature" data-role="none"></div>'+
-                        '</div>' +
-                        '<button id="deviation-signature-close">'+ $.t("general.sign_button") +'</button>' +
-                        '</div>'+
-                        '</div>';
-                    $(document).on('click', '#signature-reset' , function(e){
-                        e.preventDefault();
-                                     console.log("deviation-signature-close2");
-
-                        $('input[name="signature"]').val('user name');
-
-                        return false;
-                    });
-
-                    $(document).off('click','#signature-trigger').on('click','#signature-trigger', function(e){
-                        e.preventDefault();
-                        openSignaturePopup();
-
-                        $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
-                            $('#signature_pop').popup('close');
-                            /* Save maintenance for now */
-                            var dd1 = HTML.getFormValues($(document).find('#form2_save').parent());
-                            console.log('444 dd1: ');
-                            console.log(dd1);
-                            var data_m = {
-                                'client': User.client,
-                                'token': User.lastToken,
-                                'results': JSON.stringify(dd1)
-                            };
-                            console.log('freeze dev');
-                            Page.apiCall('deviationForm', data_m, 'get', 'maintenanceSignDone');
-                        });
-
-                        return false;
-                    });
                     break;
                 default:
                     html += HTML.formGenerate(last_data_received,  $.t("general.save_button"));
@@ -831,6 +793,7 @@ function bind_form_click_handler() {
         var d = db.getDbInstance();
         d.transaction(function(tx){
             tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?',[document.form_cat], function(tx, results){
+            	console.log("results", results);
 //                if (results.rows.length == 0 && navigator.connection.type != Connection.NONE) {
                 if (!isOffline()) {
                     console.log('885 connection live');
@@ -906,6 +869,7 @@ function bind_form_click_handler() {
                         switch(d.type){
                             /* If maintenance, add signature form*/
                             case 'maintenance':
+                            case 'deviation':
                                 html += '<legend class="legend_task">' + results.rows.item(0).label + '</legend>';
                                 html += HTML.formGenerate(last_data_received,  $.t("general.save_button"));
                                 html += '</form>' +
@@ -940,7 +904,12 @@ function bind_form_click_handler() {
                                         };
                                         console.log('api call signature');
                                         if ( !isOffline() ) {
-                                            Page.apiCall('maintenance', data_m, 'get', 'maintenanceSignDone');
+                                        	if(d.type == 'maintenance'){
+                                        		Page.apiCall('maintenance', data_m, 'get', 'maintenanceSignDone');
+                                        	}else {
+                                        		Page.apiCall('deviationForm', data_m, 'get', 'maintenanceSignDone');
+                                        	}
+                                            
                                         } else {
                                             offline_signature = {
                                                 'signature': JSON.stringify({
@@ -1060,49 +1029,6 @@ function bind_form_click_handler() {
                                 mySwiper.appendSlide(html, 'swiper-slide');
                                 $('#' + $.mobile.activePage.attr('id')).trigger('create');
                                 break;
-                            case 'deviation':
-                                html += '<legend class="legend_task">' + results.rows.item(0).label + '</legend>';
-                                html += HTML.formGenerate(last_data_received,  $.t("general.save_button"));
-                                html += '</form>' +
-                                    '<div data-role="popup" id="signature_pop"   data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
-                                    '<div id="signature-holder">'+
-                                    '<div id="signature" data-role="none"></div>'+
-                                    '</div>' +
-                                    '<button id="deviation-signature-close">'+$.t("general.sign_button")+'</button>' +
-                                    '</div>'+
-                                    '</div>';
-                                $(document).on('click', '#signature-reset' , function(e){
-                                    e.preventDefault();
-  console.log("deviation-signature-close7");
-                                    $('input[name="signature"]').val('user name');
-
-                                    return false;
-                                });
-
-                                $(document).off('click','#signature-trigger').on('click','#signature-trigger', function(e){
-                                    e.preventDefault();
-
-                                    openSignaturePopup();
-
-                                    $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
-                                                                                               console.log("deviation-signature-close6");
-                                        $('#signature_pop').popup('close');
-                                        /* Save maintenance for now */
-                                        var dd1 = HTML.getFormValues($(document).find('#form2_save').parent());
-                                        //console.log('dd1 = ');
-                                        //console.log(dd1);
-                                        var data_m = {
-                                            'client': User.client,
-                                            'token': User.lastToken,
-                                            'results': JSON.stringify(dd1)
-                                        };
-
-                                        Page.apiCall('deviationForm', data_m, 'get', 'maintenanceSignDone');
-                                    });
-
-                                    return false;
-                                });
-                                break;
                             default:
                                 console.log('930');
                                 html += '<legend class="legend_task">' + results.rows.item(0).label + '</legend>';
@@ -1163,7 +1089,30 @@ function bind_form_click_handler() {
 //                                        return;
                                     }
                                 } else if (d.type == 'deviation') {
-                                    console.log('1082 babam');
+                                    var offline_data = {
+                                            'client': User.client,
+                                            'token': User.lastToken,
+                                            'results': JSON.stringify(dd),
+                                            'signature': offline_signature.signature
+                                        };
+                                        var $img = $('#'+haccp_image_id);
+    									var imageURI = $img.attr('src');
+    									if(imageURI){
+    										offline_data.imageURI = imageURI;
+    									}
+                                        console.log(offline_data);
+                                        console.log(offline_signature);
+                                        db.lazyQuery({
+                                            'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+                                            'data': [[
+                                                'deviationForm',
+                                                JSON.stringify(offline_data),
+                                                document.task_id,
+                                                'maintenanceSignDone'
+                                            ]]
+                                        },0, 'maintenanceDoneForm');
+                                        console.log(" Page.redirect");
+                                        // Page.redirect('tasks.html');
                                 }else{
                                     /*food poison*/
                                     console.log(d);

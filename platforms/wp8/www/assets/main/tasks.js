@@ -49,7 +49,9 @@ function getTasksCall(tx, results) {
         };
         res = results;
         Page.apiCall('getTasksUpdated', data, 'get', 'updateTasks');
-
+        
+        //get formlist of user, preparing for formlist in offline mode
+        Page.apiCall('getFormList', data, 'get', 'getFormsList');
     }
     else if (results.rows.length > 0) {
         //console.log('offline 51');
@@ -57,6 +59,49 @@ function getTasksCall(tx, results) {
     } else {
         $('#load_more_tasks').parent().hide();
         checkTasksList();
+    }
+}
+
+function getFormsList(data) {
+    if (data.success) {
+        var f = data.form_list;
+        /* SORT SECTION */
+        var tuples = [];
+        if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
+            tuples = [
+                      [999, $.t('nav.add_employee')],
+                      [1000, $.t('nav.add_supplier')]
+                      ];
+        }
+        
+        for (var key in f) {
+            if (typeof f[key] == 'object') {
+                tuples.push([key, f[key].alias]);
+            }else {
+                tuples.push([key, f[key]]);
+            }
+        }
+        tuples.sort(function(a, b) {
+                    a = a[1];
+                    b = b[1];
+                    return a < b ? -1 : (a > b ? 1 : 0);
+                    });
+        var db_data = []; // For insert to local db
+        
+        for (var i = 0; i < tuples.length; i++) {
+            var key = tuples[i][0];
+            var value= tuples[i][1];
+            
+            if(key != 'maintenance' || key != 'food_poision' || (key != 999 && key != 1000)){
+                db_data.push([key, value, value]);
+            }
+        }
+        
+        /* INSERT SECTION */                            
+        db.lazyQuery({
+                     'sql': 'INSERT OR REPLACE INTO "forms" ("type","label","alias") VALUES(?,?,?)',
+                     'data': db_data
+                     },0);
     }
 }
 
