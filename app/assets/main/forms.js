@@ -13,12 +13,12 @@ function getFormsCall(tx, results) {
         $('#no_results_forms').text($.t('forms.no_forms_connection'));
     }
     //    else if (results.rows.length == 0  && navigator.connection.type != Connection.NONE) {
-    
-    else if (results.rows.length > 0 && isOffline() ) {                
+
+    else if (results.rows.length > 0 && isOffline() ) {
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
         var data = [];
         var label, tmp, link, alias, datatype;
-        
+
         for (var i=0;i<results.rows.length;i++) {
             datatype = ((results.rows.item(i).type==999)?'add_employee':(results.rows.item(i).type==1000?'add_supplier':results.rows.item(i).type));
             try {
@@ -41,32 +41,32 @@ function getFormsCall(tx, results) {
          'id':       999,
          'data':     '<a href="#" data-type="add_employee" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.add_employee') + '</a>'
          });
-         
+
          data.push({
          'alias':    $.t('nav.add_supplier'),
          'id':       1000,
          'data':     '<a href="#" data-type="add_supplier" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.add_supplier') + '</a>'
          });
          }*/
-        
+
         $('#forms_list').html('');
         _appendAndSortByAlias('#forms_list', data);
         bind_form_click_handler();
         bind_form2_click_handler();
-        
+
         $('#no_results_forms').hide();
     }
     else {
         console.log('if connection is live');
         //$('#no_results_forms').text($.t('forms.no_forms_yet'));
-        
+
         var data = {
             'client': User.client,
             'token': User.lastToken
         };
         Page.apiCall('formDeviationStart', data, 'get', 'formDeviationStart');
     }
-    
+
     mySwiper.reInit();
     mySwiper.resizeFix();
 }
@@ -111,7 +111,7 @@ function formsInit() {
 
                 var poison = $(document).find('.form2_save');
                               HTML.validate($('body'),'ex');
-              
+
                 if(poison.length > 0){
                     if(_t == 'next'){
                         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
@@ -266,7 +266,7 @@ function formDeviationStart(data) {
                       [1000, $.t('nav.add_supplier')]
                       ];
         }
-        
+
         for (var key in f) {
             if (typeof f[key] == 'object') {
                 tuples.push([key, f[key].alias]);
@@ -281,7 +281,7 @@ function formDeviationStart(data) {
                     });
         var data = []; // For show
         var db_data = []; // For insert to local db
-        
+
         for (var i = 0; i < tuples.length; i++) {
             var key = tuples[i][0];
             var value= tuples[i][1];
@@ -306,13 +306,13 @@ function formDeviationStart(data) {
                           'data':     '<a href="#" data-type="add_supplier" class="form_generator_link"><i ></i> ' + $.t('nav.add_supplier') + '</a>'
                           });
             }
-            
+
             if(key != 'maintenance' || key != 'food_poision' || (key != 999 && key != 1000)){
                 db_data.push([key, value, value]);
             }
         }
-        
-        /* INSERT SECTION */                            
+
+        /* INSERT SECTION */
         db.lazyQuery({
                      'sql': 'INSERT OR REPLACE INTO "forms" ("type","label","alias") VALUES(?,?,?)',
                      'data': db_data
@@ -571,6 +571,42 @@ function formItemData(data) {
                 return false;
             });
 
+            mySwiper.swipeTo(1, 300, true);
+        } else {
+            console.log('forms.js 482');
+//            alert('forms.js 482');
+            var data = [];
+            var db_data = [];
+            var html = '<div style="padding:10px;"><ul data-role="listview" data-inset="true" data-divider-theme="b">';
+            for (var i in f) {
+                if (f.hasOwnProperty(i)) {
+                    html += '<li><a href="#" data-id="' + f[i].info.id + '" data-type="'+ f[i].form.type.value +'" class="form_generator_link2"><i class="fa fa-edit"></i> ' + f[i].info.label + '</a></li>';
+
+                    db_data.push([
+                        f[i].info.id,
+                        f[i].info.label,
+                        JSON.stringify(f[i].form),
+                        document.form_cat
+                    ]);
+                }
+            }
+
+            html += '</ul></div>';
+//            console.log('final to insert');
+//            console.log(db_data);
+            console.log('forms.js 505',db_data);
+            var q = 'INSERT OR REPLACE INTO "form_item" ("id", "label", "form", "type") VALUES(?,?,?,?)';
+            db.lazyQuery({
+                'sql': 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
+                'data': db_data
+            },0);
+
+            mySwiper.appendSlide(html, 'swiper-slide');
+            bind_form2_click_handler();
+
+            $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
+            $('#' + $.mobile.activePage.attr('id')).trigger('create');
             mySwiper.swipeTo(1, 300, true);
         }
     } else {
@@ -872,7 +908,7 @@ function bind_form_click_handler() {
                                         	}else {
                                         		Page.apiCall('deviationForm', data_m, 'get', 'maintenanceSignDone');
                                         	}
-                                            
+
                                         } else {
                                             offline_signature = {
                                                 'signature': JSON.stringify({
@@ -1499,7 +1535,7 @@ function form2_save_dev_start(data) {
         if (go) {
             $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
             showCloseButton();
-                     
+
             var dd = HTML.getFormValues($(this).parent());
             var data = {
                 'client': User.client,
