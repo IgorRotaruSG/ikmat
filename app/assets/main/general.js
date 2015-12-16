@@ -1,9 +1,9 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    'apiDomain':        'http://ikmatapp.no/api/',
-    'apiPath':        'http://ikmatapp.no',
-    // 'apiDomain':        'http://10.16.43.33/api/',
-    // 'apiPath':        'http://10.16.43.33',
+    // 'apiDomain':        'http://ikmatapp.no/api/',
+    // 'apiPath':        'http://ikmatapp.no',
+    'apiDomain':        'http://10.16.43.33/api/',
+    'apiPath':        'http://10.16.43.33',
     'apiUploadPath':    'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -14,6 +14,7 @@ var settings = {
 		'completed_tasks' : 60 * 60 * 2 * 1000
 	},
 	'requestTimeout' : 25000,
+	'excludeOffline': ["haccp.html", "flowchart.html"],
 	'version': "2.0.55",
 	'rebuild': "2.0.55"
 };
@@ -2084,7 +2085,17 @@ function isEmpty(obj) {
 }
 
 function bind_menuClick(t, n) {
-	$(t).off("panelbeforeopen").on("panelbeforeopen", function() {
+	// $("dl.jqm-nav a").click(function(e){
+	    // var self = jQuery(this);
+	    // var href = self.attr('href');
+	    // e.preventDefault();
+	    // console.log("bsdafsdafdsa");
+	    // // needed operations
+// 	
+	    // // window.location = href;
+	  // });
+	
+	$(t).off("panelbeforeopen").on("panelbeforeopen", function(e) {
 		if ($.mobile.activePage.attr('id') == 'haccp') {
 			$('#confirmDevPopup').popup("close");
 			mySwiper.swipePrev();
@@ -2094,7 +2105,15 @@ function bind_menuClick(t, n) {
 
 	$(t).find('ul').listview();
 	$(".language").i18n();
-	$(".language").parent().off('click').on('click', function(e) {
+	$("dl.jqm-nav a").off('click').on('click', function(e) {
+		if(isOffline()){
+			if(settings.excludeOffline.indexOf($(this).attr("href")) != -1){
+				e.preventDefault();
+		    	e.stopPropagation();
+		    	noInternetError($.t("error.no_internet_for_sync"), null, $('span.language', this).text());
+			}
+		}
+		
 		if ($.mobile.activePage.attr('id') != 'register_edit' && $.mobile.activePage.attr('id') != 'haccp') {
 			var swiper_slides = mySwiper.slides.length;
 			for (var i = swiper_slides; i > 0; i--) {
@@ -2113,6 +2132,7 @@ function bind_menuClick(t, n) {
 		} else {
 			if ($(this).attr('href') == "haccp.html") {
 				e.preventDefault();
+			    // e.stopPropagation();
 			}
 			$('#menu_panel').panel("close");
 			return;
@@ -2223,7 +2243,7 @@ function displayOnline(isOffline){
 }
 
 function isOffline() {//check if application has internet connection
-	// return true;
+	return true;
 	if ((navigator.onLine || (navigator.connection && navigator.connection.type != Connection.NONE)) && offline == false) {
 		return false;
 	}
@@ -2234,12 +2254,16 @@ function isNative() {
 	return document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
 }
 
-function noInternetError(message, login) {
+function noInternetError(message, login, title) {
 	if (login === undefined) {
 		login = false;
 	}
 
 	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	if(title){
+		$('#alertPopup .page-name').html(title);
+	}
+	
 	$('#alertPopup .alert-text').html(message);
 	$('#alertPopup').off("popupafterclose").on("popupafterclose", function() {
 		// if (login) {
