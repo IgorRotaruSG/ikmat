@@ -252,9 +252,9 @@ function loadBackStep(step) {
 }
 
 function newCompanyRegistrationOff(special) {
-    //console.log('register edit.js newCompanyRegistrationOff ');
+    // console.log('register edit.js newCompanyRegistrationOff ', special);
     var d = db.getDbInstance();
-    if (special != undefined && special) {
+    if (special && typeof special == 'boolean') {
         d.transaction(function(tx){
             tx.executeSql('SELECT "data" FROM "registration" WHERE "step"=? OR "step"=?',[1,2], function(tx, results){
                 if (results.rows.length == 2) {

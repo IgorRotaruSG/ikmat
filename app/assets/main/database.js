@@ -18,7 +18,7 @@ db.prototype.asyncExecute = function(data, step, callback) {
         console.log('async triggered');
         this.asyncExecute(data, parseInt(step) + 1);
     }
-}
+};
 
 db.prototype.lazyQuery = function(q, i, callback, params) {
     if ( logout_flag == true ) {
@@ -51,7 +51,7 @@ db.prototype.lazyQuery = function(q, i, callback, params) {
                 });
             } else {
                 tx.executeSql(q.sql, q.data[i], function(tx, results){
-                	if(results && results.insertId){
+                	if(q.sql.indexOf("INSERT") != -1){
                 		params = results.insertId;
                 	}
                 	thisClass.lazyQuery(q, parseInt(i)+1, callback, params);
@@ -64,13 +64,19 @@ db.prototype.lazyQuery = function(q, i, callback, params) {
             console.warn('-------------------------------------');
         });
     } else {
-        if (window[callback] != undefined) {
+        if (typeof callback != 'function' && window[callback] != undefined) {
         	if(params){
         		window[callback](params);
         	}else{
         		window[callback]();
         	}
-            
+        }else if(callback && typeof callback == 'function'){
+        	if(params){
+        		callback(params);
+        	}else{
+        		callback();
+        	}
+        	
         }
     }
 };
