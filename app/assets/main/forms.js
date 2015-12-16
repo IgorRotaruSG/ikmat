@@ -7,7 +7,7 @@ var lazydatasend = [];
 var canRedirectAfterPoisonParam = false;
 
 //navigator.connection.type = Connection.NONE;
-
+var formcache = new FormCache();
 function getFormsCall(tx, results) {
     if (results.rows.length == 0 && isOffline()) {
         $('#no_results_forms').text($.t('forms.no_forms_connection'));
@@ -1036,8 +1036,6 @@ function bind_form_click_handler() {
                                             'results': JSON.stringify(dd),
                                             'signature': offline_signature.signature
                                         };
-                                        console.log(offline_data);
-                                        console.log(offline_signature);
                                         db.lazyQuery({
                                             'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
                                             'data': [[
@@ -1046,7 +1044,10 @@ function bind_form_click_handler() {
                                                 document.task_id,
                                                 'maintenanceDoneForm'
                                             ]]
-                                        },0);
+                                        },0, function(data){
+                                        	offline_data.id = data;
+                                        	formcache.saveToTaskList(offline_data);
+                                        });
                                         console.log(" Page.redirect");
                                         Page.redirect('tasks.html');
 //                                        return;
@@ -1067,13 +1068,19 @@ function bind_form_click_handler() {
                                         console.log(offline_signature);
                                         db.lazyQuery({
                                             'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-                                            'data': [[
+                                            'data':
+                                             [[
                                                 'deviationForm',
                                                 JSON.stringify(offline_data),
                                                 document.task_id,
                                                 'maintenanceSignDone'
-                                            ]]
-                                        },0, 'maintenanceDoneForm');
+                                        	]]
+                                        	},0, function(data){
+	                                        	offline_data.id = data;
+	                                        	formcache.saveToTaskList('deviation', offline_data, function(){
+                                        		maintenanceDoneForm(data);
+                                        	});
+                                        });
                                         console.log(" Page.redirect");
                                         // Page.redirect('tasks.html');
                                 }else{
