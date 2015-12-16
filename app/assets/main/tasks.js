@@ -52,6 +52,9 @@ function getTasksCall(tx, results) {
         
         //get formlist of user, preparing for formlist in offline mode
         Page.apiCall('getFormList', data, 'get', 'getFormsList');
+
+        //get reportlist of user, preparing for reportlist in offline mode
+        Page.apiCall('getReportList', data, 'get', 'getReportsList');
     }
     else if (results.rows.length > 0) {
         //console.log('offline 51');
@@ -97,12 +100,41 @@ function getFormsList(data) {
             }
         }
         
-        /* INSERT SECTION */                            
-        db.lazyQuery({
-                     'sql': 'INSERT OR REPLACE INTO "forms" ("type","label","alias") VALUES(?,?,?)',
-                     'data': db_data
-                     },0);
+        /* INSERT SECTION */
+        if (db_data.length > 0) {
+            db.lazyQuery({
+                'sql': 'INSERT OR REPLACE INTO "forms" ("type","label","alias") VALUES(?,?,?)',
+                'data': db_data
+            },0);
+        }
     }
+}
+
+function getReportsList(data) {
+    if (data.success) {
+        var f = data.reports_list;
+        var tuples = [];
+        for (var key in f) {
+            if (typeof f[key] == 'object') {
+                tuples.push([key, f[key].alias]);
+            }else {
+                tuples.push([key, f[key]]);
+            }
+        }
+
+        tuples.sort(function(a, b) {
+            a = a[1];
+            b = b[1];
+            return a < b ? -1 : (a > b ? 1 : 0);
+        });
+
+        if (tuples.length > 0) {
+            db.lazyQuery({
+                'sql': 'INSERT OR REPLACE INTO "reports"("id","name") VALUES(?,?)',
+                'data': tuples
+            },0);
+        }
+    }   
 }
 
 function updateTasks(data){
