@@ -15,33 +15,45 @@ function selectTaskById(task_id, callback) {
 	});
 }
 
+function sync_updateDB(data, params){
+	d = db.getDbInstance();
+	try{
+		if (params && params.id) {
+			d.transaction(function(tx) {
+				var request = {};
+				if (data) {
+					request.sql = 'UPDATE "sync_query" SET "executed"=?,"extra"=? WHERE "id"=?';
+					request.args = [1, data, params.id];
+				} else {
+					request.sql = 'UPDATE "sync_query" SET "executed"=? WHERE "id"=?';
+					request.args = [1, params.id];
+				}
+				tx.executeSql(request.sql, request.args, function() {
+					_sync_lock = false;
+					_sync_data_i = parseInt(_sync_data_i) + 1;
+					if (_sync_data_i >= _sync_data_rows.length || !_sync_data_rows) {
+						$('#syncing_tasks').addClass('hide');
+						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+					}
+					sync_query(data, params);
+				});
+			});
+		}
+	}catch (err) {
+		_sync_lock = false;
+		_sync_data_i = parseInt(_sync_data_i) + 1;
+		console.error('wtf');
+		sync_query();
+	}
+}
+
 function sync_query(data, params) {
 	/*
 	 console.log('----------------------------------------|data|---------------------------------');
 	 console.log(data);
 	 console.log('----------------------------------------|/data|---------------------------------');
 	 */
-	d = db.getDbInstance();
-	if (params && params.id) {
-		d.transaction(function(tx) {
-			var request = {};
-			if (data) {
-				request.sql = 'UPDATE "sync_query" SET "executed"=?,"extra"=? WHERE "id"=?';
-				request.args = [1, data, params.id];
-			} else {
-				request.sql = 'UPDATE "sync_query" SET "executed"=? WHERE "id"=?';
-				request.args = [1, params.id];
-			}
-			tx.executeSql(request.sql, request.args, function() {
-				_sync_lock = false;
-				_sync_data_i = parseInt(_sync_data_i) + 1;
-				if (_sync_data_i >= _sync_data_rows.length || !_sync_data_rows) {
-					$('#syncing_tasks').addClass('hide');
-					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-				}
-			});
-		});
-	}
+	
 	if (isOffline()) {
 		_sync_data_rows = false;
 		_sync_lock = false;
@@ -49,7 +61,6 @@ function sync_query(data, params) {
 		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 		return;
 	}
-	console.log("_sync_data_rows", _sync_data_rows);
 	if (!_sync_data_rows) {
 		d.transaction(function(tx) {
 			tx.executeSql('SELECT * FROM "sync_query" WHERE "executed"=?', [0], function(tx, results) {
@@ -72,7 +83,7 @@ function sync_query(data, params) {
 				e.data.token = User.lastToken;
 				_sync_lock = true;
 				if (e.api != "uploadPhotos") {
-					Page.apiCall(e.api, e.data, 'post', 'sync_query', {
+					Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
 						id : e.id
 					});
 				} else {
@@ -85,12 +96,12 @@ function sync_query(data, params) {
 							if (e.data.imageURI && e.data.task_id) {
 								Page.uploadImage(e.data, function() {
 									window.URL.revokeObjectURL(e.data.imageURI);
-									sync_query(null, {
+									sync_updateDB(null, {
 										id : e.id
 									});
 								}, function() {
 									var obj = 
-									sync_query(null, {
+									sync_updateDB(null, {
 										"id" : e.id
 									});
 								});

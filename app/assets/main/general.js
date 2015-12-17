@@ -1,9 +1,9 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    // 'apiDomain':        'http://ikmatapp.no/api/',
-    // 'apiPath':        'http://ikmatapp.no',
-    'apiDomain':        'http://10.16.43.33/api/',
-    'apiPath':        'http://10.16.43.33',
+    'apiDomain':        'http://ikmatapp.no/api/',
+    'apiPath':        'http://ikmatapp.no',
+    // 'apiDomain':        'http://10.16.43.33/api/',
+    // 'apiPath':        'http://10.16.43.33',
     'apiUploadPath':    'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -15,8 +15,8 @@ var settings = {
 	},
 	'requestTimeout' : 25000,
 	'excludeOffline': ["haccp.html", "flowchart.html"],
-	'version': "2.0.55",
-	'rebuild': "2.0.55"
+	'version': "2.0.57",
+	'rebuild': "2.0.57"
 };
 
 var performance = window.performance;
@@ -414,28 +414,31 @@ function cacheImage(request) {
 			'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
 		}, 0);
 	}else{
-		var blob;
-		var oReq = new XMLHttpRequest();
-		oReq.open("GET", request.imageURI, true);
-		oReq.responseType = "arraybuffer";
-		oReq.onload = function(oEvent) {
-			blob = new Blob([oReq.response], {
-				type : "image/jpg"
-			});
-			if (isOffline()) {
-				var reader = new window.FileReader();
-				reader.readAsDataURL(blob);
-				reader.onloadend = function() {
-					request.data = reader.result;
-					db.lazyQuery({
-						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-						'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
-					}, 0);
-				};
-			}
-		};
-		oReq.send();
+		if(request && request.imageURI){
+			var blob;
+			var oReq = new XMLHttpRequest();
+			oReq.open("GET", request.imageURI, true);
+			oReq.responseType = "arraybuffer";
+			oReq.onload = function(oEvent) {
+				blob = new Blob([oReq.response], {
+					type : "image/jpg"
+				});
+				if (isOffline()) {
+					var reader = new window.FileReader();
+					reader.readAsDataURL(blob);
+					reader.onloadend = function() {
+						request.data = reader.result;
+						db.lazyQuery({
+							'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+							'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
+						}, 0);
+					};
+				}
+			};
+			oReq.send();
 		}
+	}
+		
 }
 
 
