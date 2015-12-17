@@ -1172,10 +1172,21 @@ function bindOpenTask() {
         if ( !isOffline() ) {
             Page.apiCall('deviation', data, 'get', 'haccpDeviationFix');
         } else {
-            setTimeout(function(){
-                noInternetError($.t("error.no_internet_for_sync"));
-            },1500);
-            return;
+        	var d = db.getDbInstance();
+            d.transaction(function(tx){
+                tx.executeSql('SELECT "taskData" FROM "tasks" WHERE "id"=?', [devId], function(tx, results){
+                	console.log("results", results);
+                    if (results.rows.length > 0 && results.rows.item(0).taskData != '' && results.rows.item(0).taskData != null && results.rows.item(0).taskData != 'undefined') {
+                        haccpDeviationFix(JSON.parse(results.rows.item(0).taskData));
+                    } else {
+                        setTimeout(function(){
+			                noInternetError($.t("error.no_internet_for_sync"));
+			            },1500);
+			            return;
+                    }
+                });
+            });
+            
         }
 
     });

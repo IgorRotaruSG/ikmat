@@ -9,6 +9,7 @@ var canRedirectAfterPoisonParam = false;
 //navigator.connection.type = Connection.NONE;
 var formcache = new FormCache();
 function getFormsCall(tx, results) {
+	console.log("getFormsCall", results);
     if (results.rows.length == 0 && isOffline()) {
         $('#no_results_forms').text($.t('forms.no_forms_connection'));
     }
