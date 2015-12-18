@@ -82,11 +82,20 @@ function sync_query(data, params) {
 				e.data.client = User.client;
 				e.data.token = User.lastToken;
 				_sync_lock = true;
-				if (e.api != "uploadPhotos") {
-					Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
-						id : e.id
+				if (e.api == "deviation") {
+					console.log("deviation", e.extra);
+					selectTaskById(e.extra, function(success) {
+						console.log("success", success);
+						if (success.extra) {
+							success.data = JSON.parse(success.data);
+							e.data.task_id = success.extra;
+							Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
+								id : e.id
+							});
+						}
 					});
-				} else {
+					
+				} else if(e.api == "uploadPhotos"){
 					console.log("uploadPhotos", e);
 					selectTaskById(e.extra, function(success) {
 						console.log("success", success);
@@ -107,6 +116,10 @@ function sync_query(data, params) {
 								});
 							}
 						}
+					});
+				}else{
+					Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
+						id : e.id
 					});
 				}
 

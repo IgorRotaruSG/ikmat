@@ -559,11 +559,12 @@ function selectHACCPPicture(id) {
 	});
 };
 
-function uploadHACCPPicture() {
+function uploadHACCPPicture(obj) {
     // Get URI of picture to upload
     var $img = $('#'+haccp_image_id);
     var imageURI = $img.attr('src');
-    Page.uploadImage(imageURI, function(data){
+    var params = obj || {};
+    Page.uploadImage(imageURI, params, function(data){
     	$img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
     });
 }
@@ -993,7 +994,12 @@ function haccpDeviationFix(data) {
         html += '<form id="form_haccp_deviation_fix">';
 
         if (data.form_fix_deviation.deviation_photos !== undefined && (data.form_fix_deviation.deviation_photos).length > 0) {
-            var p = $.parseJSON(data.form_fix_deviation.deviation_photos);
+        	var p =[];
+        	if(typeof data.form_fix_deviation.deviation_photos == 'string'){
+        		p = $.parseJSON(data.form_fix_deviation.deviation_photos);
+        	}else{
+        		p = data.form_fix_deviation.deviation_photos;
+        	}
             for (var i in p) {
                 if (p.hasOwnProperty(i)) {
                     html += '<img width="100%" height="auto" style="margin:0 auto;" src="' + p[i] + '" />';
@@ -1064,7 +1070,22 @@ function haccpDeviationFix(data) {
                     })
                 };
 
-                Page.apiCall('documentSignature', data, 'post', 'documentSignature');
+                
+                if ( !isOffline() ) {
+                	Page.apiCall('documentSignature', data, 'post', 'documentSignature');
+                } else {
+                    offline_signature = {
+	                    'signature': JSON.stringify({
+	                        "name": $('#sign_name').val(),
+	                        "svg": $sigdiv.jSignature("getData", "svgbase64")[1],
+	                        "parameter": "task",
+	                        "task_id": sss_temp
+	                    })
+	                };
+	                $('#sign_name').attr('disabled', true);
+	                $('#signature-trigger').attr('disabled', true);
+	                $('#signature-trigger').val('Signed').button('refresh');
+                }
             });
 
             return false;
@@ -1077,24 +1098,54 @@ function haccpDeviationFix(data) {
 
             if (go) {
                 var dd = Form.getValues($(this));
-                var data = {
+                
+                if ( !isOffline()) {
+                	
+                	var data = {
                     'client': User.client,
                     'token':User.lastToken,
                     'task_id': devId,
                     'form': JSON.stringify(dd)
-                };
-
-                Page.apiCall('deviation', data, 'get', 'redirectToTasks');
-
-                uploadHACCPPicture();
-
-                db.lazyQuery({
-                    'sql': 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
-                    'data': [['1',devId]]
-                },0);
+	                };
+	
+	                Page.apiCall('deviation', data, 'get', 'redirectToTasks');
+	
+	                uploadHACCPPicture({"task_id": devId});
+	
+	                db.lazyQuery({
+	                    'sql': 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
+	                    'data': [['1',devId]]
+	                },0);
+	            } else {
+	                var data_off = {
+	                    'client': User.client,
+	                    'token':User.lastToken,
+	                    'task_id': document.task_id,
+	                    'form': JSON.stringify(dd),
+	                    'signature': offline_signature.signature
+	                };
+	                db.lazyQuery({
+	                    'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+	                    'data': [[
+	                        'deviation',
+	                        JSON.stringify(data_off),
+	                        devId,
+	                        'deviation_saved'
+	                    ]]
+	                },0, function(data){
+	                	console.log("data", data);
+	                	if(data){
+	                		uploadHACCPPicture({"task_id": devId});
+	                		db.lazyQuery({
+			                    'sql': 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
+			                    'data': [['1',devId]]
+			                },0);
+	                		redirectToTasks();
+	                	}
+	                });
+	            }
 
             }
-
             return false;
         });
     } else if (data.form_deviation) { //create deviation

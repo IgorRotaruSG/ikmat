@@ -42,9 +42,6 @@
 						</div>\
 						<div id="swipebox-bottom-bar">\
                             <div class="" style="height: 30px; position: relative;">\
-                                <div id="swipebox-title"></div>\
-                                <a id="flowchart-delete" style="float: right;" title="Remove Flowchart"><i class="fa fa-trash-o fa-lg"></i></a>\
-                                <div class="clearfix"></div>\
                             </div>\
 							<div id="swipebox-arrows">\
 								<a id="flowchart-email" style="" title="Email Flowchart"><i class="fa fa-envelope-o"></i></a>\

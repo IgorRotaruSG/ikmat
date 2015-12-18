@@ -154,38 +154,10 @@ function uploadMaintenancePicture() {
 	// Get URI of picture to upload
 	var $img = $('#' + haccp_image_id);
 	var imageURI = $img.attr('src');
+	
 	if (imageURI) {
-		$img.css({
-			'visibility' : 'hidden',
-			'display' : 'none'
-		}).attr('src', '');
-		// Verify server has been entered
-		server = Page.settings.apiDomain + Page.settings.apiUploadPath;
-		if (server) {
-
-			// Specify transfer options
-			var options = new FileUploadOptions();
-			options.fileKey = "file";
-			options.fileName = imageURI.substr(imageURI.lastIndexOf('/') + 1);
-			options.mimeType = "image/jpeg";
-			options.chunkedMode = false;
-
-			var params = {};
-			params.task_id = get.id;
-			params.client = User.client;
-			params.token = User.lastToken;
-
-			params.role = 'fixed';
-
-			options.params = params;
-
-			// Transfer picture to server
-			var ft = new FileTransfer();
-			ft.upload(imageURI, server, function(r) {
-				console.log("Upload successful: " + r.bytesSent + " bytes uploaded.");
-			}, function(error) {
-				console.log("Upload failed: Code = " + error.code);
-			}, options);
-		}
+		Page.uploadImage(imageURI, {"role":"fixed"}, function(data){
+	    	$img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
+	    });
 	}
 }

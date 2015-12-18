@@ -9,7 +9,7 @@ function getFlowchartCall(tx, results) {
         var data = {
             'client': User.client,
             'token': User.lastToken
-        }
+        };
         Page.apiCall('flowchart', data, 'get', 'showFlowchart');
     } else {
         $('#alertPopup .alert-text').html($.t("error.no_internet_for_sync"));

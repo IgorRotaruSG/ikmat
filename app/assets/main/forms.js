@@ -740,13 +740,18 @@ function maintenance(data) {
     }
 }
 
-function maintenanceDoneForm(data) {
+function maintenanceDoneForm(data, callback) {
     //console.info('maintenanceDone',data);
     if($.isNumeric(data)){
         $('input[name="task_id"]').val(data);
     }
-    uploadHACCPPictureForms();
-    Page.redirect('tasks.html');
+    uploadHACCPPictureForms(function(){
+    	Page.redirect('tasks.html');
+    	if(callback){
+    		callback();
+    	}
+    });
+    
 }
 
 function foodPoisonDone(data){
@@ -1114,9 +1119,19 @@ function bind_form_click_handler() {
                                         	]]
                                         	},0, function(data){
 	                                        	offline_data.id = data;
-	                                        	formcache.saveToTaskList('deviation', offline_data, function(){
-                                        		maintenanceDoneForm(data);
-                                        	});
+	                                        	if($.isNumeric(data)){
+	                                        		console.log("data");
+										        	$('input[name="task_id"]').val(data);
+											    }
+											    console.log("insert form");
+											    uploadHACCPPictureForms(function(){
+											    	console.log("insert photo");
+											    	deviationDoneForm(offline_data);
+											    },function(){
+											    	deviationDoneForm(offline_data);
+											    });
+                                        			
+	                                        	
                                         });
                                         console.log(" Page.redirect");
                                         // Page.redirect('tasks.html');
@@ -1240,6 +1255,12 @@ function bind_form_click_handler() {
                 }
             });
         });
+    });
+}
+
+function deviationDoneForm(data){
+	formcache.saveToTaskList('deviation', data, function(){
+          Page.redirect('tasks.html');                   		
     });
 }
 
@@ -1673,12 +1694,18 @@ function selectHACCPPicture(id) {
 };
 
 
-function uploadHACCPPictureForms() {
+function uploadHACCPPictureForms(success, error) {
     var $img = $('#'+haccp_image_id);
     var imageURI = $img.attr('src');
+    console.log("upload image");
     Page.uploadImage(imageURI, function(data){
     	$img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
-    });
+    	console.log("upload image done");
+    	if(success){
+    		console.log("upload image done1111");
+    		success();
+    	}
+    }, error);
 }
 
 /* Add employee section*/

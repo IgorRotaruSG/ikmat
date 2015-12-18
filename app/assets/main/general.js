@@ -15,8 +15,8 @@ var settings = {
 	},
 	'requestTimeout' : 25000,
 	'excludeOffline': ["haccp.html", "flowchart.html"],
-	'version': "2.0.58",
-	'rebuild': "2.0.58"
+	'version': "2.0.59",
+	'rebuild': "2.0.59"
 };
 
 var performance = window.performance;
@@ -286,7 +286,7 @@ Page.prototype.selectImage = function (id, callbackFunction) {
 	realignSlideHeight('max-height-form');
 };
 
-function base64toBlob(base64Data, contentType) {
+Page.prototype.base64toBlob = function(base64Data, contentType) {
     contentType = contentType || '';
     var sliceSize = 1024;
     var byteCharacters = atob(base64Data.split(',')[1]);
@@ -305,116 +305,146 @@ function base64toBlob(base64Data, contentType) {
         byteArrays[sliceIndex] = new Uint8Array(bytes);
     }
     return new Blob(byteArrays, { type: contentType });
-}
-
-Page.prototype.uploadImage = function(args, callbackFunction, errorFunction) {
-	var request = null;
-	if(typeof args === 'object' && args.imageURI && args.task_id){
-		if(args.data){
-			var blobCached = base64toBlob(args.data, "image/jpg");
-			var blobUrl = URL.createObjectURL(blobCached);
-			args.imageURI = blobUrl;
-		}
-		request = args;
-	}else if(typeof args === 'string' && args.length > 0){
-		request = {
-        	'imageURI': args,
-        	'task_id': $('.swiper-slide-active input[name="task_id"]').val()
-       };
-        
-	}
-	
-	if (isOffline()) {
-		cacheImage(request);
-		return;
-	}
-	
-    if (request) {
-        // Verify server has been entered
-        var server = this.settings.apiDomain + this.settings.apiUploadPath;
-        if (server) {
-            // Specify transfer options
-            if(isNative()){
-                var options = new FileUploadOptions();
-                options.fileKey="file";
-                options.fileName=request.imageURI.substr(request.imageURI.lastIndexOf('/')+1);
-                options.mimeType="image/jpeg";
-                options.chunkedMode = false;
-                
-                var params = {};
-                params.task_id = request.task_id;
-                params.client = User.client;
-                params.token = User.lastToken;
-                
-                options.params = params;
-                
-                // Transfer picture to server
-                
-				var ft = new FileTransfer();
-				ft.upload(request.imageURI, server, function(r) {
-					console.log("Upload successful: " + r.bytesSent + " bytes uploaded.");
-					if (callbackFunction) {
-						callbackFunction(r);
-					}
-
-				}, function(error) {
-					console.log("Upload failed: Code = " + error.code);
-					if(errorFunction){
-						errorFunction(error);	
-					}
-				}, options); 
-
-            }else{
-                var blob;
-                var oReq = new XMLHttpRequest();
-                oReq.open("GET", request.imageURI, true);
-                oReq.responseType = "arraybuffer";
-				oReq.onload = function(oEvent) {
-					blob = new Blob([oReq.response], {
-						type : "image/jpg"
-					});
-					var fd = new FormData();
-					fd.append('fname', request.imageURI.substr(request.imageURI.lastIndexOf('/') + 1));
-					fd.append('file', blob);
-					fd.append('client', User.client);
-					fd.append('token', User.lastToken);
-					fd.append('task_id', request.task_id);
-					$.ajax({
-						type : 'POST',
-						url : server,
-						data : fd,
-						processData : false,
-						contentType : false,
-						crossDomain: true,
-						success : function(data) {
-							if (callbackFunction) {
-								window.URL.revokeObjectURL(request.imageURI);
-								callbackFunction(data);
-							}
-						},
-						error : function(error) {
-							if (errorFunction) {
-								errorFunction(error);
-							}
-						}
-					});
-				}; 
-
-                oReq.send();
-            }
-            
-        }
-    };
 };
 
-function cacheImage(request) {
-	if(isNative()){
-		db.lazyQuery({
-			'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-			'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
-		}, 0);
-	}else{
-		if(request && request.imageURI){
+Page.prototype.uploadImage = function() {
+	var args,
+	    _params,
+	    callbackFunction,
+	    errorFunction;
+	if (arguments.length > 0) {
+		args = arguments[0];
+		if (arguments.length > 1 && typeof arguments[1] == 'object') {
+			_params = arguments[1];
+			callbackFunction = arguments[2] || null;
+			errorFunction = arguments[3] || null;
+		} else {
+			_params = null;
+			callbackFunction = arguments[1] || null;
+			errorFunction = arguments[2] || null;
+		}
+		var request = null;
+		if ( typeof args === 'object' && args.imageURI && args.task_id) {
+			if (args.data) {
+				var blobCached = this.base64toBlob(args.data, "image/jpg");
+				var blobUrl = URL.createObjectURL(blobCached);
+				args.imageURI = blobUrl;
+			}
+			request = args;
+		} else if ( typeof args === 'string' && args.length > 0) {
+			request = {
+				'imageURI' : args,
+				'task_id' : $('.swiper-slide-active input[name="task_id"]').val()
+			};
+			if(_params && _params.task_id){
+				request.task_id = _params.task_id;
+			}
+			console.log("request", request);
+		}
+
+		if (isOffline()) {
+			cacheImage(request, callbackFunction);
+			return;
+		}
+
+		if (request) {
+			// Verify server has been entered
+			var server = this.settings.apiDomain + this.settings.apiUploadPath;
+			if (server) {
+				// Specify transfer options
+				if (isNative()) {
+					var options = new FileUploadOptions();
+					options.fileKey = "file";
+					options.fileName = request.imageURI.substr(request.imageURI.lastIndexOf('/') + 1);
+					options.mimeType = "image/jpeg";
+					options.chunkedMode = false;
+
+					var params = {};
+					params.task_id = request.task_id;
+					params.client = User.client;
+					params.token = User.lastToken;
+
+					options.params = params;
+					if(_params){
+						for(key in _params){
+							options[key] = _params[key];
+						}
+					}
+
+					// Transfer picture to server
+
+					var ft = new FileTransfer();
+					ft.upload(request.imageURI, server, function(r) {
+						console.log("Upload successful: " + r.bytesSent + " bytes uploaded.");
+						if (callbackFunction) {
+							callbackFunction(r);
+						}
+
+					}, function(error) {
+						console.log("Upload failed: Code = " + error.code);
+						if (errorFunction) {
+							errorFunction(error);
+						}
+					}, options);
+
+				} else {
+					var blob;
+					var oReq = new XMLHttpRequest();
+					oReq.open("GET", request.imageURI, true);
+					oReq.responseType = "arraybuffer";
+					oReq.onload = function(oEvent) {
+						blob = new Blob([oReq.response], {
+							type : "image/jpg"
+						});
+						var fd = new FormData();
+						fd.append('fname', request.imageURI.substr(request.imageURI.lastIndexOf('/') + 1));
+						fd.append('file', blob);
+						fd.append('client', User.client);
+						fd.append('token', User.lastToken);
+						fd.append('task_id', request.task_id);
+						if(_params){
+							for(key in _params){
+								fd.append(key, _params[key]);
+							}
+						}
+						$.ajax({
+							type : 'POST',
+							url : server,
+							data : fd,
+							processData : false,
+							contentType : false,
+							crossDomain : true,
+							success : function(data) {
+								if (callbackFunction) {
+									window.URL.revokeObjectURL(request.imageURI);
+									callbackFunction(data);
+								}
+							},
+							error : function(error) {
+								if (errorFunction) {
+									errorFunction(error);
+								}
+							}
+						});
+					};
+
+					oReq.send();
+				}
+
+			}
+		};
+	}
+
+}; 
+
+function cacheImage(request, callback) {
+	if (request && request.imageURI && request.task_id) {
+		if (isNative()) {
+			db.lazyQuery({
+				'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+				'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
+			}, 0, callback);
+		} else {
 			var blob;
 			var oReq = new XMLHttpRequest();
 			oReq.open("GET", request.imageURI, true);
@@ -431,15 +461,16 @@ function cacheImage(request) {
 						db.lazyQuery({
 							'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
 							'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
-						}, 0);
+						}, 0, callback);
 					};
 				}
 			};
 			oReq.send();
 		}
 	}
-		
+
 }
+
 
 
 function parseQuery(qstr) {
@@ -2088,16 +2119,6 @@ function isEmpty(obj) {
 }
 
 function bind_menuClick(t, n) {
-	// $("dl.jqm-nav a").click(function(e){
-	    // var self = jQuery(this);
-	    // var href = self.attr('href');
-	    // e.preventDefault();
-	    // console.log("bsdafsdafdsa");
-	    // // needed operations
-// 	
-	    // // window.location = href;
-	  // });
-	
 	$(t).off("panelbeforeopen").on("panelbeforeopen", function(e) {
 		if ($.mobile.activePage.attr('id') == 'haccp') {
 			$('#confirmDevPopup').popup("close");
@@ -2135,7 +2156,6 @@ function bind_menuClick(t, n) {
 		} else {
 			if ($(this).attr('href') == "haccp.html") {
 				e.preventDefault();
-			    // e.stopPropagation();
 			}
 			$('#menu_panel').panel("close");
 			return;
@@ -2151,7 +2171,7 @@ function bind_menuClick(t, n) {
 	} else {
 		contactName.html(localStorage.getItem('contact_name'));
 	}
-	$(t).find('#app-version').html("IK-mat 2.0.6");
+	$(t).find('#app-version').html("IK-mat 2.0.7");
 	displayOnline(isOffline());
 }
 
