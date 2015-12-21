@@ -52,6 +52,7 @@
         "no_haccps": "Du må fullføre registreringen før du utfører fareanalysen. Vennligst fullfør registreringen.",
         "duplicate_employee": "Epostadressen er allerede i bruk.",
         "unexpected": "Uventet feil",
+        "suspended_account": "Denne kontoen er suspendert. Ta kontakt med Lubeco for å gjenåpne den.",
         "internet_connection_needed": "Du trenger Internett-tilkobling for å logge inn"
     },
 

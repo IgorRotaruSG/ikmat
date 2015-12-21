@@ -15,8 +15,8 @@ var settings = {
 	},
 	'requestTimeout' : 25000,
 	'excludeOffline': ["haccp.html", "flowchart.html"],
-	'version': "2.0.59",
-	'rebuild': "2.0.59"
+	'version': "2.0.61",
+	'rebuild': "2.0.61"
 };
 
 var performance = window.performance;
@@ -76,6 +76,8 @@ resizePage = function(el) {
 	$('#' + el).css('min-height', h + 'px');
 };
 
+
+
 function Page(what) {
 	if (what != undefined) {
 		this.currentPage = what;
@@ -86,6 +88,21 @@ function Page(what) {
 		this.defaultPage = 'tasks.html';
 		//this.defaultPage = 'reports.html';
 	}
+	$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+	    var success = options.success;
+	    options.success = function(data, textStatus, jqXHR) {
+	        // override success handling
+	        console.log("data",data);
+	        if(data && data.locked){
+				lockedError($.t("error.suspended_account"));
+			}else if(typeof(success) === "function") return success(data, textStatus, jqXHR);
+	    };
+	    var error = options.error;
+	    options.error = function(jqXHR, textStatus, errorThrown) {
+	        // override error handling
+	        if(typeof(error) === "function") return error(jqXHR, textStatus, errorThrown);
+	    };
+	});
 }
 
 Page.prototype.reverseApiDate = function(date) {
@@ -108,7 +125,6 @@ Page.prototype.isReady = function() {
 			//Page.redirect(from_page + '.html');
 		}
 	});
-
 	var fn = window[this.currentPage + 'Init'];
 	if ( typeof fn === 'function') {
 		db.InitDB();
@@ -206,7 +222,6 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 				'url' : this.settings.apiDomain + api_method,
 				'dataType' : 'jsonp',
 				'success' : function(data) {
-					//console.log("data", data);
 					var fn = window[callback];
 					if ( typeof fn === "function") {
 						if (parameters) {
@@ -227,7 +242,7 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 				'data' : data,
 				'timeout' : this.settings.requestTimeout
 			});
-			req.error(function() {
+			req.error(function(jqXHR, textStatus, errorThrown) {
 				$('#alertPopup .alert-text').html($.t("error.unexpected"));
 
 				$('#alertPopup').off("popupafterclose").on("popupafterclose", function() {
@@ -2302,6 +2317,18 @@ function noInternetError(message, login, title) {
 	//setTimeout(function () {
 	//    $('#alertPopup').popup( "open", {positionTo: 'window'})
 	//}, 500);
+}
+
+function lockedError(message) {
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	$('#alertPopup .page-name').html("Suspender");
+	$('#alertPopup .alert-text').html(message || "locked");
+	$('#alertPopup').off("popupafterclose").on("popupafterclose", function() {
+		logout();
+	});
+	$('#alertPopup').popup("open", {
+		positionTo : 'window'
+	});
 }
 
 /*main sync query*/

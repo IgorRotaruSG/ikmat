@@ -580,7 +580,13 @@ function openNativeEmail(pdf){
     };
 
     if(pdf.success){
-        mailObject.body = "Trykk på lenken nedenfor for å se rapporter: \n" + encodeURI(pdf.data);
+    	if(isNative()){
+    		mailObject.isHtml = true;
+    		mailObject.body = '<div>Trykk på lenken nedenfor for å se rapporter: </div>' + '<div><a href="' + encodeURI(pdf.data) + '">' + subject + '</a></div>';
+    	}else{
+    		mailObject.body = "Trykk på lenken nedenfor for å se rapporter: \n" + encodeURI(pdf.data);
+    	}
+        
     }
     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
     /* Open native mail on mobile */

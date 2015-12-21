@@ -103,10 +103,10 @@ function showFlowchart(data) {
             $('#no_results_flowchart').show();
             $('.overflow-wrapper').addClass('overflow-wrapper-hide');
         }
-        var reset_button = '<div class="row text-center" style="margin-top:20px;">' +
-                                '<button title="Load more" id="reset-flowchart">Reset <i class="fa fa-undo"></i></button>' +
-                            '</div>';
-        $('#flowchart_list').append(reset_button);
+        // var reset_button = '<div class="row text-center" style="margin-top:20px;">' +
+                                // '<button title="Load more" id="reset-flowchart">Reset <i class="fa fa-undo"></i></button>' +
+                            // '</div>';
+        // $('#flowchart_list').append(reset_button);
         $('#' + $.mobile.activePage.attr('id')).trigger('create');
         $('#reset-flowchart').off('click').on('click',function(){
             var data = {
@@ -181,38 +181,44 @@ function printFlowchart(flowchartSrc){
 }
 
 function emailFlowchart(flowchartId){
-    $('#popup-send-email-flowchart').unbind("popupafterclose");
-    /*step 1: display the date chooser*/
-    $("#popup-send-email-flowchart").popup("open");
-    $("#popup-send-email-flowchart").parent().css({
-        'top': 0,
-        'left': 0,
-        'max-width': '100%',
-        'width': '100%',
-        'height': parseInt($('body').height()) + 'px',
-        'overflow': 'hidden',
-        'position': 'fixed'
-    });
-    $('#popup-send-email-flowchart').css('height', '100%');
-
-    $("#confirm-send").off('click').on("click", function( event, ui ) {
-        var ok = HTML.validate($('#popup-send-email-flowchart'));
-
-        if ( ok ) {
-            $("#confirm-send").attr('disabled', true);
-            $("#confirm-send").parent().find('.ui-btn-text').html($.t('general.loading'));
-            $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-            var email_data = {
-                'client': User.client,
-                'token': User.lastToken,
-                'report_id': 15,//flowcharts report
-                'flowchart_id': flowchartId,//flowchart id to send in email
-                'email' : $('#email').val()
-            };
-            Page.apiCall('send-report-by-email', email_data, 'get', 'sendEmailFlowchart');
-        }
-    });
+	console.log("flowchartId", $('#flowchart_list').find('a[data-id='+ flowchartId +']'));
+	var flowEle = $('#flowchart_list').find('a[data-id='+ flowchartId +']');
+	var data = {
+		'image': $(flowEle).attr("href"),
+		'title': $(flowEle).attr("title")
+	};
+	openNativeEmail(data);
     return;
+}
+
+function openNativeEmail(data){
+    var subject = (data.title + " Flytskjema").toUpperCase();
+    var mailObject = {
+        subject: subject,
+        cc: localStorage.getItem("user_email") ? localStorage.getItem("user_email"): "",
+    };
+
+    if(data.image.length > 0){
+    	if(isNative()){
+    		mailObject.isHtml = true;
+    		mailObject.body = '<div>Trykk på lenken nedenfor for å se flytskjema: </div>' + '<div><a href="' + encodeURI(data.image) + '"><img width="100%" alt="' + encodeURI(data.image) + '" src="' + encodeURI(data.image) + '" ></a></div>';
+    	}else{
+    		mailObject.body = 'Trykk på lenken nedenfor for å se flytskjema: \n' + encodeURI(data.image);
+    	}
+            
+    }
+    /* Open native mail on mobile */
+    if(isNative() && cordova.plugins && cordova.plugins.email) {
+        cordova.plugins.email.isAvailable(
+            function (isAvailable) {
+                cordova.plugins.email.open(mailObject);
+            }
+        );
+    } else { /* Open native mail on web */
+        var mailto_link = 'mailto:?subject='+mailObject.subject+'&cc='+mailObject.cc+'&body=' + mailObject.body + '&attachment=' + encodeURI(data.image);
+        location.href = mailto_link;
+
+    }
 }
 
 function removeFlowchart (data){

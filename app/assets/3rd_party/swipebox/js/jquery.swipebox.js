@@ -42,6 +42,7 @@
 						</div>\
 						<div id="swipebox-bottom-bar">\
                             <div class="" style="height: 30px; position: relative;">\
+                            <div id="swipebox-title"></div>\
                             </div>\
 							<div id="swipebox-arrows">\
 								<a id="flowchart-email" style="" title="Email Flowchart"><i class="fa fa-envelope-o"></i></a>\

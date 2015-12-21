@@ -62,6 +62,7 @@
         "unexpected": "Uventet feil. Applikasjonen laster på nytt.",
         "internet_connection_needed": "Du trenger Internett-tilkobling for å logge inn",
         "no_data": "Ingen data å vise",
+        "suspended_account": "Denne kontoen er suspendert. Ta kontakt med Lubeco for å gjenåpne den.",
         "signature_name": "Dette feltet er påkrevet."
     },
 
