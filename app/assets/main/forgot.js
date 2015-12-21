@@ -21,17 +21,26 @@ function recoverAction() {
 }
 
 function forgetPasswordSave(data) {
-    if (data.exists) {
-        $('#alertPopup .alert-text').html($.t("success.password_recover_email"));
-        $('#alertPopup').off("popupafterclose").on("popupafterclose",function(){
-            window.location.href = 'index.html';
-        });
-        $('#alertPopup').popup( "open", {positionTo: 'window'});
-    } else {
-        $('#alertPopup .alert-text').html($.t("error.no_email_found"));
-        $('#alertPopup').off("popupafterclose").on("popupafterclose",function(){
-            $('.overflow-wrapper').addClass('overflow-wrapper-hide')
-        });
-        $('#alertPopup').popup( "open", {positionTo: 'window'});
+    if (data.suspended) {
+        $('#alertPopup .alert-text').html($.t("error.suspended_account"));
+           $('#alertPopup').off("popupafterclose").on("popupafterclose",function(){
+               $('.overflow-wrapper').addClass('overflow-wrapper-hide')
+           });
+           $('#alertPopup').popup( "open", {positionTo: 'window'});
     }
+    else {
+        if (data.exists) {
+            $('#alertPopup .alert-text').html($.t("success.password_recover_email"));
+            $('#alertPopup').off("popupafterclose").on("popupafterclose",function(){
+                window.location.href = 'index.html';
+            });
+            $('#alertPopup').popup( "open", {positionTo: 'window'});
+        } else {
+            $('#alertPopup .alert-text').html($.t("error.no_email_found"));
+            $('#alertPopup').off("popupafterclose").on("popupafterclose",function(){
+                $('.overflow-wrapper').addClass('overflow-wrapper-hide')
+            });
+            $('#alertPopup').popup( "open", {positionTo: 'window'});
+        }
+    }    
 }
