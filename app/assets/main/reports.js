@@ -597,7 +597,9 @@ function openNativeEmail(pdf){
             }
         );
     } else { /* Open native mail on web */
-        var mailto_link = 'mailto:?subject='+mailObject.subject+'&cc='+mailObject.cc+'&body=' + mailObject.body;
+        var mailto_link = 'mailto:?subject='+mailObject.subject;
+        if (mailObject.cc) mailto_link += '&cc='+mailObject.cc;
+        if (mailObject.body) mailto_link += '&body='+mailObject.body;
         location.href = mailto_link;
 
     }
