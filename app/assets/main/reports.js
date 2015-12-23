@@ -581,12 +581,9 @@ function openNativeEmail(pdf){
 
     if(pdf.success){
     	if(isNative()){
-    		mailObject.isHtml = true;
-    		mailObject.body = '<div>Trykk på lenken nedenfor for å se rapporter: </div><div>' + pdf.data + '</div>';
-    	}else{
-    		mailObject.body = "Trykk på lenken nedenfor for å se rapporter: " + encodeURI(pdf.data);
+            mailObject.isHtml = true;
     	}
-        
+        mailObject.body = "Trykk på lenken nedenfor for å se rapporter: " + pdf.data;
     }
     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
     /* Open native mail on mobile */
