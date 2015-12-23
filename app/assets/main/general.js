@@ -1,9 +1,9 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    'apiDomain':        'http://ikmatapp.no/api/',
-    'apiPath':        'http://ikmatapp.no',
-    // 'apiDomain':        'http://10.16.43.33/api/',
-    // 'apiPath':        'http://10.16.43.33',
+    // 'apiDomain':        'http://ikmatapp.no/api/',
+    // 'apiPath':        'http://ikmatapp.no',
+    'apiDomain':        'http://10.16.43.33/api/',
+    'apiPath':        'http://10.16.43.33',
     'apiUploadPath':    'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -92,15 +92,16 @@ function Page(what) {
 	    var success = options.success;
 	    options.success = function(data, textStatus, jqXHR) {
 	        // override success handling
-	        console.log("data",data);
 	        if(data && data.locked){
 				lockedError($.t("error.suspended_account"));
-			}else if(typeof(success) === "function") return success(data, textStatus, jqXHR);
+			}else if(typeof(success) === "function") {
+				return success.apply(this, [data, textStatus, jqXHR]);
+			}
 	    };
 	    var error = options.error;
 	    options.error = function(jqXHR, textStatus, errorThrown) {
 	        // override error handling
-	        if(typeof(error) === "function") return error(jqXHR, textStatus, errorThrown);
+	        if(typeof(error) === "function") return error.apply(this, [jqXHR, textStatus, errorThrown]);
 	    };
 	});
 }
@@ -232,7 +233,6 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 
 					}
 					if (api_method === 'reportTables' || (api_method === 'reports' && callback == 'documentsCall')) {
-						//console.log(data, parseQuery(this.url));
 						var requestData = parseQuery(this.url);
 						if (requestData.hasOwnProperty("token") && requestData.hasOwnProperty("report_number")) {
 							localStorage.setItem(encodeURIComponent(requestData["token"] + requestData["report_number"]), JSON.stringify(data));
@@ -354,7 +354,6 @@ Page.prototype.uploadImage = function() {
 			if(_params && _params.task_id){
 				request.task_id = _params.task_id;
 			}
-			console.log("request", request);
 		}
 
 		if (isOffline()) {
@@ -489,13 +488,16 @@ function cacheImage(request, callback) {
 
 
 function parseQuery(qstr) {
-	var query = {};
-	var a = qstr.substr(1).split('&');
-	for (var i = 0; i < a.length; i++) {
-		var b = a[i].split('=');
-		query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || '');
+	if(qstr){
+		var query = {};
+		var a = qstr.substr(1).split('&');
+		for (var i = 0; i < a.length; i++) {
+			var b = a[i].split('=');
+			query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || '');
+		}
+		return query;
 	}
-	return query;
+	return "";
 }
 
 Page.prototype.formatTaskDate = function(date) {
@@ -544,7 +546,7 @@ Page.prototype.showLoader = function() {
 	cImageTimeout = 0;
 	genImage = new Image();
 	genImage.onload = function() {
-		cImageTimeout = setTimeout(fun, 0)
+		cImageTimeout = setTimeout(fun, 0);
 	};
 	genImage.onerror = new Function('alert(\'Could not load the image\')');
 	genImage.src = s;
@@ -561,7 +563,7 @@ Page.prototype._startAnimation = function() {
 
 	g_run.width = cTotalFrames * cFrameWidth;
 	genImage.onload = function() {
-		cImageTimeout = setTimeout(fun, 0)
+		cImageTimeout = setTimeout(fun, 0);
 	};
 	initCanvas();
 };
