@@ -331,12 +331,7 @@ function formDeviationStart(data) {
 function formItemData(data) {
 	console.log('forms.js  formItemData 200');
 	if (data.success) {
-		var f;
-		if (isOffline()) {
-			f = data;
-		} else {
-			f = data.form_list_question;
-		}
+		var f = data.form_list_question;
 		if (f.info != undefined) {
 			var d = f;
 
@@ -683,7 +678,7 @@ function formItemData(data) {
 			mySwiper.resizeFix();
 			mySwiper.swipeTo(1, 300, true);
 		} else {
-			console.log('forms.js 482');
+			console.log('forms.js 482', f);
 			//            alert('forms.js 482');
 			var data = [];
 			var db_data = [];
@@ -970,30 +965,35 @@ function bind_form_click_handler() {
                     console.log('756 connection whatever and rows > 0');
                     var data;
                     if (results.rows.length == 1 ) {
-                        var d = $.extend({}, results.rows.item(0));
-                        d.form = JSON.parse(d.form);
-                        d.success = true;
+                        var d = {};
                         $.extend(d, {
                         	success: true,
-                        	info: {
-                        		label: d.label,
-                        		type: document.form_cat
+                        	form_list_question: {
+                        		form: {
+                        			form_deviation : JSON.parse(results.rows.item(0).form)
+                        		},
+                        		info: {
+	                        		label: results.rows.item(0).label,
+	                        		type: document.form_cat
+                        		}
                         	}
+                        	
                         });
-                        console.log("d", d);
                         data = d;
                     } else if(results.rows.length > 1){
-                    	var obj = [];
+                    	var obj = {
+                    		success: true,
+                    		form_list_question : []
+                    	};
                         for (var i=0;i<results.rows.length;i++) {
                         	var d = {
                         		form: JSON.parse(results.rows.item(i).form),
-	                        	success: true,
 	                        	info: {
-	                        		label: d.label,
-	                        		id: id
+	                        		label: results.rows.item(i).label,
+	                        		id: results.rows.item(i).id
 	                        	}
                         	};
-                        	obj.push(d);
+                        	obj.form_list_question.push(d);
                         }
                         data = obj;
                     }
