@@ -584,7 +584,7 @@ function openNativeEmail(pdf){
     		mailObject.isHtml = true;
     		mailObject.body = '<div>Trykk på lenken nedenfor for å se rapporter: </div><div>' + pdf.data + '</div>';
     	}else{
-    		mailObject.body = "Trykk på lenken nedenfor for å se rapporter: \n\n" + pdf.data;
+    		mailObject.body = "Trykk på lenken nedenfor for å se rapporter: " + encodeURI(pdf.data);
     	}
         
     }
