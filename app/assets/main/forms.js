@@ -336,8 +336,9 @@ function formItemData(data) {
 			var d = f;
 
 			last_data_received = d.form;
+			var formId = 'form2_save'+ '_' + f.info.type + '_' + mySwiper.activeIndex;
 
-			var html = '<div style="padding:10px;"><form id="form2_save">';
+			var html = '<div style="padding:10px;"><form id="'+ formId +'">';
 
 			if (f.info.label != undefined) {
 				html += '<legend class="legend_task">' + f.info.label + '</legend>';
@@ -367,7 +368,6 @@ function formItemData(data) {
 						$('#signature_pop').popup('close');
 						/* Save maintenance for now */
 						var dd1 = HTML.getFormValues($(document).find('#form2_save').parent());
-						console.log(dd1);
 						var data_m = {
 							'client' : User.client,
 							'token' : User.lastToken,
@@ -499,10 +499,10 @@ function formItemData(data) {
 				mySwiper.appendSlide(html, 'swiper-slide');
 				$('#' + $.mobile.activePage.attr('id')).trigger('create');
 			}
-			mySwiper.swipeTo(2, 300, true);
+			mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
-			$('#form2_save').on('submit', function(e) {
+			$('#'+ formId).on('submit', function(e) {
 				console.log('hei macarena');
 				e.preventDefault();
 
@@ -572,21 +572,24 @@ function formItemData(data) {
 							}
 							console.log(offline_data);
 							console.log(offline_signature);
+							var deviationAPI = document.task_id > 0 ? 'deviation':'deviationForm';
 							db.lazyQuery({
 								'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-								'data' : [['deviationForm', JSON.stringify(offline_data), document.task_id, 'maintenanceSignDone']]
-							}, 0, function(data) {
-								offline_data.id = data;
-								if ($.isNumeric(data)) {
+								'data' : [[deviationAPI, JSON.stringify(offline_data), document.task_id, 'maintenanceSignDone']]
+							}, 0, function(insertId) {
+								if(document.task_id > 0){
+									insertId = document.task_id;
+								}
+								if ($.isNumeric(insertId)) {
 									console.log("data");
-									$('input[name="task_id"]').val(data);
+									$('input[name="task_id"]').val(insertId);
 								}
 								console.log("insert form");
 								uploadHACCPPictureForms(function() {
 									console.log("insert photo");
-									deviationDoneForm(offline_data);
+									deviationDoneForm({form_fix_deviation: dd, id: insertId});
 								}, function() {
-									deviationDoneForm(offline_data);
+									deviationDoneForm({form_fix_deviation: dd, id: insertId});
 								});
 							});
                         }
@@ -675,8 +678,9 @@ function formItemData(data) {
 
 				return false;
 			});
-			mySwiper.resizeFix();
-			mySwiper.swipeTo(1, 300, true);
+			// mySwiper.resizeFix();
+			mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+			console.log("mySwiper.activeIndex", mySwiper.activeIndex);
 		} else {
 			console.log('forms.js 482', f);
 			//            alert('forms.js 482');
@@ -707,7 +711,7 @@ function formItemData(data) {
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
 			$('#' + $.mobile.activePage.attr('id')).trigger('create');
-			mySwiper.swipeTo(1, 300, true);
+			mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
 		}
 	} else {
 		console.log('wrooong');
@@ -732,7 +736,7 @@ function maintenance(data) {
         mySwiper.appendSlide(html, 'swiper-slide');
 
         $('#' + $.mobile.activePage.attr('id')).trigger('create');
-        mySwiper.swipeTo(2, 300, true);
+        mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 //        $('#form_maintenance').html(html);
         $('#signature-trigger').off('click').on('click', function(e){
@@ -879,132 +883,147 @@ function maintenanceSignDone(data) {
     Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
 }
 
-function showCloseButton(){
-	$('#form_back_btn i').removeClass('hided');
+function showCloseButton(callback, params){
+	if($('#form_back_btn i').hasClass('hided')){
+		$('#form_back_btn i').removeClass('hided');
+	}
     $('#form_back_btn').on('click', function(e) {
+    	if(callback){
+    		callback.apply(this,[params]);
+    	}
         $("[href='forms.html']").click();
     });
 }
 
+
+function formGeneration(type, dataBuild, callback) {
+	var d = db.getDbInstance();
+	d.transaction(function(tx) {
+		tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [type], function(tx, results) {
+			console.log("results", results);
+			//                if (results.rows.length == 0 && navigator.connection.type != Connection.NONE) {
+			if (!isOffline()) {
+				console.log('885 connection live');
+				//                if (navigator.connection.type != Connection.NONE) {
+				switch(type) {
+				case 'maintenance':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : ''
+					};
+					console.log('730');
+					Page.apiCall('maintenance', data, 'get', 'formItemData');
+					break;
+				case 'food_poision':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : ''
+					};
+					console.log(data);
+					console.log('am trimis call aici');
+					Page.apiCall('foodPoison', data, 'get', 'formItemData');
+					break;
+				case 'add_employee':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken
+					};
+					console.log('am trimis call employee aici');
+					Page.apiCall('registerEmployee', data, 'get', 'registerEmployee');
+					break;
+				case 'add_supplier':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken
+					};
+
+					Page.apiCall('registerSupplier', data, 'get', 'registerSupplier');
+					console.log('add supplier');
+					break;
+				case 'deviation':
+					console.log('deviation 851');
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : ''
+					};
+					console.log('857');
+					console.log(data);
+					Page.apiCall('deviationForm', data, 'get', 'formItemData');
+					break;
+				default:
+					console.log('744');
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'category' : type
+					};
+					Page.apiCall('formDeviationStart', data, 'get', 'formItemData');
+					break;
+				}
+				showCloseButton(callback);
+			} else if (isOffline() && results.rows.length > 0) {
+				console.log('756 connection whatever and rows > 0');
+				var data;
+				if (results.rows.length == 1) {
+					var d = {};
+					$.extend(d, {
+						success : true,
+						form_list_question : {
+							form : {
+								form_deviation : JSON.parse(results.rows.item(0).form)
+							},
+							info : {
+								label : results.rows.item(0).label,
+								type : type
+							}
+						}
+
+					});
+					
+					if(dataBuild){
+						$.extend(true, d, dataBuild);
+						if(dataBuild.id){
+							document.task_id = dataBuild.id;
+						}
+					}
+					data = d;
+				} else if (results.rows.length > 1) {
+					var obj = {
+						success : true,
+						form_list_question : []
+					};
+					for (var i = 0; i < results.rows.length; i++) {
+						var d = {
+							form : JSON.parse(results.rows.item(i).form),
+							info : {
+								label : results.rows.item(i).label,
+								id : results.rows.item(i).id
+							}
+						};
+						obj.form_list_question.push(d);
+					}
+					data = obj;
+				}
+				if (data) {
+					showCloseButton(callback, data);
+					formItemData(data);
+				}
+			} else {
+				noInternetError($.t("error.no_internet_for_sync"));
+			}
+		});
+	});
+}
+
+
 function bind_form_click_handler() {
     $('.form_generator_link').off('click').on('click', function(e){
-
-        showCloseButton();
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
         document.form_cat = $(this).data('type');
-        console.log('686 '+ document.form_cat);
-
-        var d = db.getDbInstance();
-        d.transaction(function(tx){
-            tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?',[document.form_cat], function(tx, results){
-            	console.log("results", results);
-//                if (results.rows.length == 0 && navigator.connection.type != Connection.NONE) {
-                if (!isOffline()) {
-                    console.log('885 connection live');
-//                if (navigator.connection.type != Connection.NONE) {
-                    switch(document.form_cat){
-                        case 'maintenance':
-                            var data = {
-                                'client': User.client,
-                                'token': User.lastToken,
-                                'results': ''
-                            };
-                            console.log('730');
-                            Page.apiCall('maintenance', data, 'get', 'formItemData');
-                            break;
-                        case 'food_poision':
-                            var data = {
-                                'client': User.client,
-                                'token': User.lastToken,
-                                'results': ''
-                            };
-                            console.log(data);
-                            console.log('am trimis call aici');
-                            Page.apiCall('foodPoison', data, 'get', 'formItemData');
-                            break;
-                        case 'add_employee':
-                            var data = {
-                                'client': User.client,
-                                'token': User.lastToken
-                            };
-                            console.log('am trimis call employee aici');
-                            Page.apiCall('registerEmployee', data, 'get', 'registerEmployee');
-                            break;
-                        case 'add_supplier':
-                            var data = {
-                                'client': User.client,
-                                'token': User.lastToken
-                            };
-
-                            Page.apiCall('registerSupplier', data, 'get', 'registerSupplier');
-                            console.log('add supplier');
-                            break;
-                        case 'deviation':
-                            console.log('deviation 851');
-                            var data = {
-                                'client': User.client,
-                                'token': User.lastToken,
-                                'results': ''
-                            };
-                            console.log('857');
-                            console.log(data);
-                            Page.apiCall('deviationForm', data, 'get', 'formItemData');
-                            break;
-                        default:
-                            console.log('744');
-                            var data = {
-                                'client': User.client,
-                                'token': User.lastToken,
-                                'category': document.form_cat
-                            };
-                            Page.apiCall('formDeviationStart', data, 'get', 'formItemData');
-                            break;
-                    }
-                }
-                else if ( isOffline() && results.rows.length > 0 ) {
-                    console.log('756 connection whatever and rows > 0');
-                    var data;
-                    if (results.rows.length == 1 ) {
-                        var d = {};
-                        $.extend(d, {
-                        	success: true,
-                        	form_list_question: {
-                        		form: {
-                        			form_deviation : JSON.parse(results.rows.item(0).form)
-                        		},
-                        		info: {
-	                        		label: results.rows.item(0).label,
-	                        		type: document.form_cat
-                        		}
-                        	}
-                        	
-                        });
-                        data = d;
-                    } else if(results.rows.length > 1){
-                    	var obj = {
-                    		success: true,
-                    		form_list_question : []
-                    	};
-                        for (var i=0;i<results.rows.length;i++) {
-                        	var d = {
-                        		form: JSON.parse(results.rows.item(i).form),
-	                        	info: {
-	                        		label: results.rows.item(i).label,
-	                        		id: results.rows.item(i).id
-	                        	}
-                        	};
-                        	obj.form_list_question.push(d);
-                        }
-                        data = obj;
-                    }
-                    if(data){
-                    	formItemData(data);	
-                    }
-                } else {
-                    noInternetError($.t("error.no_internet_for_sync"));
-                }
-            });
-        });
+		formGeneration(document.form_cat);
     });
 }
 
@@ -1041,13 +1060,14 @@ function bind_form2_click_handler() {
                     mySwiper.appendSlide(html, 'swiper-slide');
 
                     $('#' + $.mobile.activePage.attr('id')).trigger('create');
-                    mySwiper.swipeTo(2, 300, true);
+                    mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
                     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
                     $('#form2_save').on('submit', function(e) {
                         e.preventDefault();
 
                         var dd = HTML.getFormValues($(this).parent());
+                        console.log("dd", dd);
                         var go = HTML.validate($(this));
                         if (go) {
                             var deviation = false;
@@ -1095,6 +1115,8 @@ function bind_form2_click_handler() {
                                                     'results': JSON.stringify(dd),
                                                     'category': d.type
                                                 };
+                                                
+                                                console.log("offline_data", offline_data);
                                                 db.lazyQuery({
                                                     'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
                                                     'data': [[
@@ -1103,8 +1125,28 @@ function bind_form2_click_handler() {
                                                         0,
                                                         'formDeviationStart'
                                                     ]]
-                                                },0);
-                                                redirect_to_forms();
+                                                },0, function(insertId){
+                                                	formGeneration('deviation',
+                                                		{
+                                                			id: insertId, 
+															form_list_question : {
+																form : {
+																	form_deviation : {
+																		deviation_description : {
+																			value: dd.temperature + " grader rapportert på "+ results.rows.item(0).label
+																		}
+																	}
+																}
+															}
+														},
+														function(response){
+															console.log("back response", response);
+															deviationDoneForm({form_deviation: response.form_list_question.form.form_deviation, id: insertId});
+														}
+													);
+                                                	
+                                                });
+                                                // redirect_to_forms();
                                                 /*$('#alertPopup .alert-text').html("Skjema Lagres");
                                                 $('#alertPopup').on("popupafterclose",function(){
                                                     $('#alertPopup').unbind("popupafterclose");
@@ -1470,7 +1512,7 @@ function registerEmployee(data) {
 
         mySwiper.appendSlide(html, 'swiper-slide');
         $('#' + $.mobile.activePage.attr('id')).trigger('create');
-        mySwiper.swipeTo(1, 300, true);
+        mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
 
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
@@ -1535,7 +1577,7 @@ function registerSupplier(data) {
 //        $('#' + $.mobile.activePage.attr('id')).trigger('create');
         mySwiper.appendSlide(html, 'swiper-slide');
         $('#' + $.mobile.activePage.attr('id')).trigger('create');
-        mySwiper.swipeTo(1, 300, true);
+        mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
 
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 

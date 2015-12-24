@@ -355,6 +355,11 @@ Page.prototype.uploadImage = function() {
 				request.task_id = _params.task_id;
 			}
 		}
+		if(request.imageURI.length <= 0){
+			if (callbackFunction) {
+				callbackFunction();
+			}
+		}
 
 		if (isOffline()) {
 			cacheImage(request, callbackFunction);
