@@ -88,13 +88,18 @@ function sync_query(data, params) {
 				e.data.client = User.client;
 				e.data.token = User.lastToken;
 				_sync_lock = true;
-				if (e.api == "deviation" || e.api == 'deviationForm') {
+				if (e.api == "deviation") {
 					console.log("deviation", e.extra);
 					selectTaskById(e.extra, function(success) {
 						console.log("success", success);
 						if (success.extra) {
 							success.data = JSON.parse(success.data);
 							e.data.task_id = success.extra;
+							if(e.data.form){
+								var form = JSON.parse(e.data.form);
+								form.task_id = success.extra;
+								e.data.form = JSON.stringify(form);
+							}
 							Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
 								id : e.id,
 								api: e.api
@@ -140,7 +145,7 @@ function sync_query(data, params) {
 			_sync_data_rows = false;
 			$('#syncing_tasks').addClass('hide');
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-			window.location.reload();
+			// window.location.reload();
 		}
 	}
 }

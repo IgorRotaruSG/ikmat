@@ -135,6 +135,8 @@ FormCache.prototype.saveToTaskList = function(formname, data, callback) {
 			form = executeForm(data, template);
 		}
 		
+		console.log("formname", form);
+		
 		if (formname == 'deviation') {
 			that.insertTaskToDB(formname, data.id, form, callback);
 		};

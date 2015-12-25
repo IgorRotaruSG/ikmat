@@ -562,9 +562,13 @@ function formItemData(data) {
                         	var offline_data = {
 								'client' : User.client,
 								'token' : User.lastToken,
-								'results' : JSON.stringify(dd),
 								'signature' : offline_signature.signature
 							};
+							if(document.task_id > 0){
+								offline_data.form = JSON.stringify(dd);
+							}else{
+								offline_data.results = JSON.stringify(dd);
+							}
 							var $img = $('#' + haccp_image_id);
 							var imageURI = $img.attr('src');
 							if (imageURI) {
@@ -1108,7 +1112,7 @@ function bind_form2_click_handler() {
                                             if ( !isOffline() ) {
                                                 Page.apiCall('formDeviationStart', data, 'get', 'form2_save_dev');
                                             } else {
-                                                console.log('else if offline');
+                                                console.log('else if offline', dd);
                                                 var offline_data = {
                                                     'client': User.client,
                                                     'token': User.lastToken,
