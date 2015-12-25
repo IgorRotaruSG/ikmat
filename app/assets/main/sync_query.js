@@ -23,9 +23,7 @@ function sync_updateDB(data, params){
 				var request = {};
 				if (data) {
 					var extra = data;
-					console.log("aaaaa", data, params);
 					if(params.api == 'formDeviationStart'){
-						console.log("aaaaa", data);
 						extra = data.form_deviation.last_task_inserted;
 					}
 					request.sql = 'UPDATE "sync_query" SET "executed"=?,"extra"=? WHERE "id"=?';
@@ -145,7 +143,7 @@ function sync_query(data, params) {
 			_sync_data_rows = false;
 			$('#syncing_tasks').addClass('hide');
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-			// window.location.reload();
+			window.location.reload();
 		}
 	}
 }
