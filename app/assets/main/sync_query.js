@@ -86,7 +86,7 @@ function sync_query(data, params) {
 				e.data.client = User.client;
 				e.data.token = User.lastToken;
 				_sync_lock = true;
-				if (e.api == "deviation") {
+				if (e.api == "deviation" || e.api == "documentSignature") {
 					console.log("deviation", e.extra);
 					selectTaskById(e.extra, function(success) {
 						console.log("success", success);
@@ -97,6 +97,11 @@ function sync_query(data, params) {
 								var form = JSON.parse(e.data.form);
 								form.task_id = success.extra;
 								e.data.form = JSON.stringify(form);
+							}
+							if(e.data.signature){
+								var signature = JSON.parse(e.data.signature);
+								signature.task_id = success.extra;
+								e.data.signature = JSON.stringify(signature);
 							}
 							Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
 								id : e.id,
@@ -114,7 +119,7 @@ function sync_query(data, params) {
 							e.data.task_id = success.extra;
 							if (e.data.imageURI && e.data.task_id) {
 								Page.uploadImage(e.data, function() {
-									window.URL.revokeObjectURL(e.data.imageURI);
+									// window.URL.revokeObjectURL(e.data.imageURI);
 									sync_updateDB(null, {
 										id : e.id
 									});
@@ -143,7 +148,7 @@ function sync_query(data, params) {
 			_sync_data_rows = false;
 			$('#syncing_tasks').addClass('hide');
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-			window.location.reload();
+			// window.location.reload();
 		}
 	}
 }

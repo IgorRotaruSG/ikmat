@@ -1,2 +1,1609 @@
-function getFormsCall(a,b){if(console.log("getFormsCall",b),0==b.rows.length&&isOffline())$("#no_results_forms").text($.t("forms.no_forms_connection"));else if(b.rows.length>0&&isOffline()){$(".overflow-wrapper").addClass("overflow-wrapper-hide");for(var c,d,e,f,g=[],h=0;h<b.rows.length;h++){f=999==b.rows.item(h).type?"add_employee":1e3==b.rows.item(h).type?"add_supplier":b.rows.item(h).type;try{c=JSON.parse(b.rows.item(h).label),e=c.alias,d='<a href="#" data-type="'+f+'" class="form_generator_link">'+c.alias+"</a>"}catch(i){d='<a href="#" data-type="'+f+'" class="form_generator_link">'+b.rows.item(h).label+"</a>",e=b.rows.item(h).label}g.push({alias:e,id:h,data:d})}$("#forms_list").html(""),_appendAndSortByAlias("#forms_list",g),bind_form_click_handler(),bind_form2_click_handler(),$("#no_results_forms").hide()}else{console.log("if connection is live");var g={client:User.client,token:User.lastToken};Page.apiCall("formDeviationStart",g,"get","formDeviationStart")}mySwiper.reInit(),mySwiper.resizeFix()}function getForms(a){a.executeSql('SELECT * FROM "forms" WHERE alias<>""',[],getFormsCall)}function formsInit(){if(User.isLogged()){executeSyncQuery();var a=db.getDbInstance();a.transaction(getForms,db.dbErrorHandle),console.log("forms.js 73 swiper init"),mySwiper=new Swiper(".swiper-container-form",{calculateHeight:!0,releaseFormElements:!0,preventLinks:!1,simulateTouch:!1,noSwiping:!0,noSwipingClass:"ui-slider",onInit:function(){1==mySwiper.slides.length&&($("#footer").remove(),$("#form_back_btn i").addClass("hided")),setSwiperMinHeight()},onSlideNext:function(a){_t="next"},onSlidePrev:function(a){_t="prev"},onSlideChangeStart:function(a){},onSlideChangeEnd:function(a){var b=$(document).find(".form2_save");if(HTML.validate($("body"),"ex"),b.length>0){if("next"==_t){$(".overflow-wrapper").removeClass("overflow-wrapper-hide");var c=Form.validate(a.getSlide(a.previousIndex));if(c){var d=Form.getValues(a.getSlide(a.previousIndex)),e={client:User.client,token:User.lastToken,results:JSON.stringify(d)};canRedirectAfterPoisonParam=!0,isOffline()?(lazydatasend.push(d),$(".overflow-wrapper").addClass("overflow-wrapper-hide")):Page.apiCall("foodPoison",e,"get","foodPoisonDone")}else canRedirectAfterPoisonParam=!1,a.swipePrev(),$(".overflow-wrapper").addClass("overflow-wrapper-hide")}else if("prev"==_t&&0==a.activeIndex)for(var f=a.slides.length,g=f;g>0;g--)a.removeSlide(parseInt(g)),$("div[data-role='navbar']").remove()}else"prev"==_t&&a.removeSlide(parseInt(a.activeIndex)+1);console.log("mySwiper.slides",mySwiper.slides),1==mySwiper.slides.length&&($("#footer").remove(),$("#form_back_btn i").addClass("hided")),$("html, body").animate({scrollTop:0},500),mySwiper.resizeFix(),parseInt(a.activeIndex)==parseInt(a.previousIndex)&&a.previousIndex--;var h=$(".swiper-slide-active").find(".no_results");if(h.length>0&&canRedirectAfterPoisonParam){if(canRedirectAfterPoisonParam=!1,console.log("Is this real life?"),lazydatasend!=[]&&isOffline()){var i=Form.getValues(a.getSlide(a.previousIndex));lazydatasend.push(i);var j={};for(j.results={},g=0;g<lazydatasend.length;g++)for(var k in lazydatasend[g])lazydatasend[g].hasOwnProperty(k)&&("task_id"==k?(j[k]=lazydatasend[g][k],j.results[k]=lazydatasend[g][k]):j.results[k]=lazydatasend[g][k]);j.results=JSON.stringify(j.results),db.lazyQuery({sql:'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',data:[["foodPoison",JSON.stringify(j),0,"foodPoison"]]},0)}setTimeout(function(){window.location.href="index.html"},3500)}}})}else Page.redirect("login.html")}function toObject(a){for(var b={},c=0;c<a.length;++c)b[a[c][0]]=a[c][1];return b}function sortObject(a){var b,c={},d=[];for(b in a)a.hasOwnProperty(b)&&d.push(a[b]);for(d.sort(),b=0;b<d.length;b++){var e=getKeyByValue(a,d[b]);console.log(e),console.log(d[b]),c[e]=d[b]}return c}function getKeyByValue(a,b){for(var c in a)if(a.hasOwnProperty(c)&&a[c]==b)return c}function formDeviationStart(a){if(a.success){var b=a.form_list,c=[];"ROLE_EMPLOYEE"!=localStorage.getItem("role")&&(c=[[999,$.t("nav.add_employee")],[1e3,$.t("nav.add_supplier")]]);for(var d in b)"object"==typeof b[d]?c.push([d,b[d].alias]):c.push([d,b[d]]);c.sort(function(a,b){return a=a[1],b=b[1],b>a?-1:a>b?1:0});for(var a=[],e=[],f=0;f<c.length;f++){var d=c[f][0],g=c[f][1];999!=d&&1e3!=d&&a.push({alias:g,id:100-f,data:'<a href="#" data-type="'+d+'" class="form_generator_link"> '+g+"</a>"}),999==d&&a.push({alias:$.t("nav.add_employee"),id:999,data:'<a href="#" data-type="add_employee" class="form_generator_link"><i ></i> '+$.t("nav.add_employee")+"</a>"}),1e3==d&&a.push({alias:$.t("nav.add_supplier"),id:1e3,data:'<a href="#" data-type="add_supplier" class="form_generator_link"><i ></i> '+$.t("nav.add_supplier")+"</a>"}),("maintenance"!=d||"food_poision"!=d||999!=d&&1e3!=d)&&e.push([d,g,g])}db.lazyQuery({sql:'INSERT OR REPLACE INTO "forms" ("type","label","alias") VALUES(?,?,?)',data:e},0),$("#forms_list").html(""),_appendAndSortByAlias("#forms_list",a),bind_form_click_handler(),$("#no_results_forms").hide(),$(".overflow-wrapper").addClass("overflow-wrapper-hide")}realignSlideHeight("max-height-form")}function formItemData(a){if(console.log("forms.js  formItemData 200"),a.success){var b=a.form_list_question;if(void 0!=b.info){var c=b;last_data_received=c.form;var d='<div style="padding:10px;"><form id="form2_save">';switch(void 0!=b.info.label&&(d+='<legend class="legend_task">'+b.info.label+"</legend>"),console.log("216 forms.js"),b.info.type){case"maintenance":case"deviation":d+=HTML.formGenerate(last_data_received.form_deviation,$.t("general.save_button")),d+='</form><div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15"><div id="signature-holder"><div id="signature" data-role="none"></div></div><button id="deviation-signature-close">'+$.t("general.sign_button")+"</button></div></div>",$(document).on("click","#signature-reset",function(a){return a.preventDefault(),$('input[name="signature"]').val("user name"),!1}),$(document).off("click","#signature-trigger").on("click","#signature-trigger",function(a){return a.preventDefault(),openSignaturePopup(),$(document).off("click","#deviation-signature-close").on("click","#deviation-signature-close",function(){$("#signature_pop").popup("close");var a=HTML.getFormValues($(document).find("#form2_save").parent());console.log(a);var c={client:User.client,token:User.lastToken,results:JSON.stringify(a)};"maintenance"==b.info.type?Page.apiCall("maintenance",c,"get","maintenanceSignDone"):Page.apiCall("deviationForm",c,"get","maintenanceSignDone")}),!1});break;case"food_poision":d='<div style="padding:10px;"><form class="form2_save">',d+='<legend class="legend_task">'+b.info.label+"</legend>";var e={task_id:last_data_received.task_id,guestName:last_data_received.guestName,guestAddress:last_data_received.guestAddress,guestPhone:last_data_received.guestPhone},f=HTML.formGenerate(e,"");d+=f,d+="</form></div>",mySwiper.appendSlide(d,"swiper-slide"),d='<div style="padding:10px;"><form class="form2_save">',d+='<legend class="legend_task">'+b.info.label+"</legend>",e={task_id:last_data_received.task_id,symptoms:last_data_received.symptoms,symptomsDateTime:last_data_received.symptomsDateTime,symptom_days:last_data_received.symptom_days,symptom_hours:last_data_received.symptom_hours},f=HTML.formGenerate(e,""),d+=f,d+="</form></div>",mySwiper.appendSlide(d,"swiper-slide"),d='<div style="padding:10px;"><form class="form2_save">',d+='<legend class="legend_task">'+b.info.label+"</legend>",e={task_id:last_data_received.task_id,makingFoodDateTime:last_data_received.makingFoodDateTime,makingFoodTotalGuests:last_data_received.makingFoodTotalGuests,makingFoodSickGuests:last_data_received.makingFoodSickGuests,makingFoodWhatFood:last_data_received.makingFoodWhatFood,makingFoodEarlierEaten:last_data_received.makingFoodEarlierEaten,guestTalkedDoctor:last_data_received.guestTalkedDoctor},f=HTML.formGenerate(e,""),d+=f,d+="</form></div>",mySwiper.appendSlide(d,"swiper-slide"),d='<div style="padding:10px;"><form class="form2_save">',d+='<legend class="legend_task">'+b.info.label+"</legend>",e={task_id:last_data_received.task_id,ingredients:last_data_received.ingredients,cooledDown:last_data_received.cooledDown,reheated:last_data_received.reheated,keptWarm:last_data_received.keptWarm,restLeftAnalysis:last_data_received.restLeftAnalysis},f=HTML.formGenerate(e,""),d+=f,d+="</form></div>",mySwiper.appendSlide(d,"swiper-slide"),d='<div style="padding:10px;"><form class="form2_save">',d+='<legend class="legend_task">'+b.info.label+"</legend>",e={task_id:last_data_received.task_id,immediateMeasures:last_data_received.immediateMeasures,otherComplaints:last_data_received.otherComplaints,guestCompensation:last_data_received.guestCompensation,employee_id:last_data_received.employee_id,deviation_deadline:last_data_received.deviation_deadline},f=HTML.formGenerate(e,""),d+=f,d+='</form></div><div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15"><div id="signature-holder"><div id="signature" data-role="none"></div></div><button id="deviation-signature-close">'+$.t("general.sign_button")+"</button></div></div>";var g='<div id="footer" data-role="footer" data-position="fixed" data-tap-toggle="false" data-theme="none" style="border:0 !important;"><div data-role="navbar"><ul><li><a href="#" onclick="mySwiper.swipePrev();" data-theme="e" class="must-be-big"><i class="fa fa-angle-left fa-2x pull-left" style="color: #4c7600;"></i> Forrige</a></li><li><a href="#" onclick="mySwiper.swipeNext();" data-theme="e" class="must-be-big">Neste <i class="fa fa-angle-right fa-2x pull-right" style="color: #4c7600;"></i></a></li></ul></div></div>';$(g).insertBefore("#forms #menu_panel"),mySwiper.appendSlide(d,"swiper-slide"),d='<div class="no_results" style="color:#00cde7;font-size:34px;">'+$.t("register.food_poison_success")+"</div>",mySwiper.appendSlide(d,"swiper-slide"),$("#"+$.mobile.activePage.attr("id")).trigger("create");break;default:d+=HTML.formGenerate(last_data_received,$.t("general.save_button")),d+="</form></div>"}"food_poison"!=c.type&&(mySwiper.appendSlide(d,"swiper-slide"),$("#"+$.mobile.activePage.attr("id")).trigger("create")),mySwiper.swipeTo(2,300,!0),$(".overflow-wrapper").addClass("overflow-wrapper-hide"),$("#form2_save").on("submit",function(a){console.log("hei macarena"),a.preventDefault();var c=HTML.getFormValues($(this).parent()),d=HTML.validate($(this));if(d){var e=!1,f={client:User.client,token:User.lastToken,results:JSON.stringify(c)};if("maintenance"==b.info.type)console.log("Form saved successfully. 503"),Page.apiCall("maintenance",f,"get","maintenanceDoneForm");else if("deviation"==b.info.type)console.log("Form saved successfully2. 506"),Page.apiCall("deviationForm",f,"get","maintenanceDoneForm");else{for(var g in c)if(c.hasOwnProperty(g)&&void 0!=last_data_received[g].deviation)switch(last_data_received[g].type){case"slider":(c[g]<last_data_received[g].deviation.min||c[g]>last_data_received[g].deviation.max)&&(e=!0);break;case"default":}e?($("#confirmPopup .alert-text").html($.t("general.deviation_accept_message")),$("#confirmPopup").on("popupafteropen",function(a,b){$("#confirmButton").off("click").on("click",function(){console.log("aici avem prima chestie"),Page.apiCall("formDeviationStart",f,"get","form2_save_dev")})}),$("#confirmPopup").on("popupafterclose",function(a,b){$("#confirmButton").unbind("click")}),$("#confirmPopup").popup("open",{positionTo:"window"})):(console.log("Form saved successfully. 536"),Page.apiCall("formDeviationStart",f,"get","redirect_to_forms"))}}return!1}),mySwiper.swipeTo(1,300,!0)}else{console.log("forms.js 482");var a=[],h=[],d='<div style="padding:10px;"><ul data-role="listview" data-inset="true" data-divider-theme="b">';for(var i in b)b.hasOwnProperty(i)&&(d+='<li><a href="#" data-id="'+b[i].info.id+'" data-type="'+b[i].form.type.value+'" class="form_generator_link2"><i class="fa fa-edit"></i> '+b[i].info.label+"</a></li>",h.push([b[i].info.id,b[i].info.label,JSON.stringify(b[i].form),document.form_cat]));d+="</ul></div>",console.log("forms.js 505",h);db.lazyQuery({sql:'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',data:h},0),mySwiper.appendSlide(d,"swiper-slide"),bind_form2_click_handler(),$(".overflow-wrapper").addClass("overflow-wrapper-hide"),$("#"+$.mobile.activePage.attr("id")).trigger("create"),mySwiper.swipeTo(1,300,!0)}}else console.log("wrooong")}function maintenance(a){if(console.log("maintenance"),console.log("data"),console.log(a),a.form_deviation){var b='<form id="form_maintenance">';b+=HTML.formGenerate(a.form_deviation,$.t("general.save_button")),b+='</form><div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15"><div id="signature-holder"><div id="signature" data-role="none"></div></div><button id="deviation-signature-close">'+$.t("general.sign_button")+"</button></div></div>",mySwiper.appendSlide(b,"swiper-slide"),$("#"+$.mobile.activePage.attr("id")).trigger("create"),mySwiper.swipeTo(2,300,!0),$(".overflow-wrapper").addClass("overflow-wrapper-hide"),$("#signature-trigger").off("click").on("click",function(a){return a.preventDefault(),openSignaturePopup(),$(document).off("click","#deviation-signature-close").on("click","#deviation-signature-close",function(){$("#signature_pop").popup("close");var a={client:User.client,token:User.lastToken,signature:JSON.stringify({name:$("#sign_name").val(),svg:$sigdiv.jSignature("getData","svgbase64")[1],parameter:"task",task_id:sss_temp})};console.log("documentSignature forms.js 592"),Page.apiCall("documentSignature",a,"post","documentSignature")}),!1}),$("#form_maintenance").on("submit",function(a){a.preventDefault();var b=HTML.validate($(this));if(b){$(".overflow-wrapper").removeClass("overflow-wrapper-hide");var c=HTML.getFormValues($(this).parent()),d={client:User.client,token:User.lastToken,results:JSON.stringify(c)};Page.apiCall("maintenance",d,"get","maintenanceDoneForm")}return!1}),$("#"+$.mobile.activePage.attr("id")).trigger("create"),$(".overflow-wrapper").addClass("overflow-wrapper-hide")}if(a.form_fix_deviation){var c=new Date(a.form_fix_deviation.deviation_date.date),b="<h3>Deviation form fix</h3>";if(void 0!=a.form_fix_deviation.deviation_photos&&a.form_fix_deviation.deviation_photos.length>0){var d=$.parseJSON(a.form_fix_deviation.deviation_photos);console.log(d);for(var e in d)d.hasOwnProperty(e)&&(b+='<img width="100%" height="auto" style="margin:0 auto;" src="'+d[e]+'" />')}b+='<fieldset data-role="controlgroup">Deviation. '+a.form_fix_deviation.deviation.replace(/\+/g," ")+"</div>",b+='<fieldset data-role="controlgroup">Initial action. '+a.form_fix_deviation.initial_action.replace(/\+/g," ")+"</div>",b+='<fieldset data-role="controlgroup">Deviation date (from system): '+c.getDate()+"."+(parseInt(c.getMonth())+1)+"."+c.getFullYear()+"</div>",b+='<fieldset data-role="controlgroup">Responsible for fixing deviation: '+a.form_fix_deviation.form.responsible_fix_deviation.value+"</div>",b+="<hr />",b+=HTML.formGenerate(a.form_fix_deviation.form,$.t("general.save_button")),$("#form_maintenance").html(b).off("submit").on("submit",function(a){a.preventDefault();var b=Form.validate($(this));if(b){$(".overflow-wrapper").removeClass("overflow-wrapper-hide");var c=Form.getValues($(this)),d={client:User.client,token:User.lastToken,task_id:get.id,results:JSON.stringify(c)};Page.apiCall("maintenance",d,"get","maintenanceDoneForm")}return!1}),$("#"+$.mobile.activePage.attr("id")).trigger("create"),$(".overflow-wrapper").addClass("overflow-wrapper-hide")}}function maintenanceDoneForm(a,b){$.isNumeric(a)&&$('input[name="task_id"]').val(a),uploadHACCPPictureForms(function(){Page.redirect("tasks.html"),b&&b()})}function foodPoisonDone(a){console.log("foodPoisonDone"),$(".overflow-wrapper").addClass("overflow-wrapper-hide"),$.isNumeric(a)&&$('input[name="task_id"]').val(a)}function maintenanceSignDone(a){$.isNumeric(a)&&$('input[name="task_id"]').val(a);var b={client:User.client,token:User.lastToken,signature:JSON.stringify({name:$("#sign_name").val(),svg:$sigdiv.jSignature("getData","svgbase64")[1],parameter:"task",task_id:a})};Page.apiCall("documentSignature",b,"get","documentSignature")}function showCloseButton(){$("#form_back_btn i").removeClass("hided"),$("#form_back_btn").on("click",function(a){$("[href='forms.html']").click()})}function bind_form_click_handler(){$(".form_generator_link").off("click").on("click",function(a){showCloseButton(),$(".overflow-wrapper").removeClass("overflow-wrapper-hide"),document.form_cat=$(this).data("type"),console.log("686 "+document.form_cat);var b=db.getDbInstance();b.transaction(function(a){a.executeSql('SELECT * FROM "form_item" WHERE "type"=?',[document.form_cat],function(a,b){if(console.log("results",b),isOffline())if(isOffline()&&b.rows.length>0)if(console.log("756 connection whatever and rows > 0"),1==b.rows.length){var c=$.extend({},b.rows.item(0));console.log("aici e form-ul de maintenance"),last_data_received=JSON.parse(c.form);var d='<div style="padding:10px;"><form id="form2_save">';switch(console.log(c.type),c.type){case"maintenance":case"deviation":d+='<legend class="legend_task">'+b.rows.item(0).label+"</legend>",d+=HTML.formGenerate(last_data_received,$.t("general.save_button")),d+='</form><div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15"><div id="signature-holder"><div id="signature" data-role="none"></div></div><button id="deviation-signature-close">'+$.t("general.sign_button")+"</button></div></div>",$(document).on("click","#signature-reset",function(a){return a.preventDefault(),$('input[name="signature"]').val("user name"),!1}),$(document).off("click","#signature-trigger").on("click","#signature-trigger",function(a){return a.preventDefault(),openSignaturePopup(),$(document).off("click","#deviation-signature-close").on("click","#deviation-signature-close",function(){$("#signature_pop").popup("close");var a=HTML.getFormValues($(document).find("#form2_save").parent()),b={client:User.client,token:User.lastToken,results:JSON.stringify(a)};console.log("api call signature"),isOffline()?(offline_signature={signature:JSON.stringify({name:$("#sign_name").val(),svg:$sigdiv.jSignature("getData","svgbase64")[1],parameter:"task",task_id:$(document).find('input[name="task_id"]').val()})},console.log("offline_signature = "),console.log(offline_signature),$("#sign_name").attr("disabled",!0),$("#signature-trigger").attr("disabled",!0),$("#signature-trigger").val("Signed").button("refresh")):"maintenance"==c.type?Page.apiCall("maintenance",b,"get","maintenanceSignDone"):Page.apiCall("deviationForm",b,"get","maintenanceSignDone")}),!1});break;case"food_poision":d='<div style="padding:10px;"><form class="form2_save">',d+='<legend class="legend_task">'+b.rows.item(0).label+"</legend>";var e={task_id:last_data_received.task_id,guestName:last_data_received.guestName,guestAddress:last_data_received.guestAddress,guestPhone:last_data_received.guestPhone},f=HTML.formGenerate(e,"");d+=f,d+="</form></div>",mySwiper.appendSlide(d,"swiper-slide"),d='<div style="padding:10px;"><form class="form2_save">',d+='<legend class="legend_task">'+b.rows.item(0).label+"</legend>",e={task_id:last_data_received.task_id,symptoms:last_data_received.symptoms,symptomsDateTime:last_data_received.symptomsDateTime,symptom_days:last_data_received.symptom_days,symptom_hours:last_data_received.symptom_hours},f=HTML.formGenerate(e,""),d+=f,d+="</form></div>",mySwiper.appendSlide(d,"swiper-slide"),d='<div style="padding:10px;"><form class="form2_save">',d+='<legend class="legend_task">'+b.rows.item(0).label+"</legend>",e={task_id:last_data_received.task_id,makingFoodDateTime:last_data_received.makingFoodDateTime,makingFoodTotalGuests:last_data_received.makingFoodTotalGuests,makingFoodSickGuests:last_data_received.makingFoodSickGuests,makingFoodWhatFood:last_data_received.makingFoodWhatFood,makingFoodEarlierEaten:last_data_received.makingFoodEarlierEaten,guestTalkedDoctor:last_data_received.guestTalkedDoctor},f=HTML.formGenerate(e,""),d+=f,d+="</form></div>",mySwiper.appendSlide(d,"swiper-slide"),d='<div style="padding:10px;"><form class="form2_save">',d+='<legend class="legend_task">'+b.rows.item(0).label+"</legend>",e={task_id:last_data_received.task_id,ingredients:last_data_received.ingredients,cooledDown:last_data_received.cooledDown,reheated:last_data_received.reheated,keptWarm:last_data_received.keptWarm,restLeftAnalysis:last_data_received.restLeftAnalysis},f=HTML.formGenerate(e,""),d+=f,d+="</form></div>",mySwiper.appendSlide(d,"swiper-slide"),d='<div style="padding:10px;"><form class="form2_save">',d+='<legend class="legend_task">'+b.rows.item(0).label+"</legend>",e={task_id:last_data_received.task_id,immediateMeasures:last_data_received.immediateMeasures,otherComplaints:last_data_received.otherComplaints,guestCompensation:last_data_received.guestCompensation,employee_id:last_data_received.employee_id,deviation_deadline:last_data_received.deviation_deadline},f=HTML.formGenerate(e,""),d+=f,d+='</form></div><div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15"><div id="signature-holder"><div id="signature" data-role="none"></div></div><button id="deviation-signature-close">'+$.t("general.sign_button")+"</button></div></div>";var g='<div data-role="footer" data-position="fixed" data-tap-toggle="false" data-theme="none" style="border:0 !important;"><div data-role="navbar"><ul><li><a href="#" onclick="mySwiper.swipePrev();" data-theme="e" class="must-be-big"><i class="fa fa-angle-left fa-2x pull-left" style="color: #4c7600;"></i> Forrige</a></li><li><a href="#" onclick="mySwiper.swipeNext();" data-theme="e" class="must-be-big">Neste <i class="fa fa-angle-right fa-2x pull-right" style="color: #4c7600;"></i></a></li></ul></div></div>';$(g).insertBefore("#forms #menu_panel"),mySwiper.appendSlide(d,"swiper-slide"),d='<div class="no_results" style="color:#00cde7;font-size:34px;">'+$.t("register.food_poison_success")+"</div>",mySwiper.appendSlide(d,"swiper-slide"),$("#"+$.mobile.activePage.attr("id")).trigger("create");break;default:console.log("930"),d+='<legend class="legend_task">'+b.rows.item(0).label+"</legend>",d+=HTML.formGenerate(last_data_received,$.t("general.save_button")),d+="</form></div>"}"food_poison"!=c.type&&(mySwiper.appendSlide(d,"swiper-slide"),$("#"+$.mobile.activePage.attr("id")).trigger("create")),mySwiper.swipeTo(2,300,!0),$(".overflow-wrapper").addClass("overflow-wrapper-hide"),$("#form2_save").on("submit",function(a){a.preventDefault();var b=HTML.getFormValues($(this).parent()),d=HTML.validate($(this));if(d){var e=!1,f={client:User.client,token:User.lastToken,results:JSON.stringify(b)};if(console.log(c.type),console.log(b.task_id),"maintenance"==c.type)if(console.log("Form saved successfully. 1155"),isOffline()){console.log("offline form save");var g={client:User.client,token:User.lastToken,results:JSON.stringify(b),signature:offline_signature.signature};db.lazyQuery({sql:'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',data:[["maintenance",JSON.stringify(g),document.task_id,"maintenanceDoneForm"]]},0,function(a){g.id=a,formcache.saveToTaskList(g)}),console.log(" Page.redirect"),Page.redirect("tasks.html")}else console.log("online form save"),Page.apiCall("maintenance",f,"get","maintenanceDoneForm");else if("deviation"==c.type){var g={client:User.client,token:User.lastToken,results:JSON.stringify(b),signature:offline_signature.signature},h=$("#"+haccp_image_id),i=h.attr("src");i&&(g.imageURI=i),console.log(g),console.log(offline_signature),db.lazyQuery({sql:'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',data:[["deviationForm",JSON.stringify(g),document.task_id,"maintenanceSignDone"]]},0,function(a){g.id=a,$.isNumeric(a)&&(console.log("data"),$('input[name="task_id"]').val(a)),console.log("insert form"),uploadHACCPPictureForms(function(){console.log("insert photo"),deviationDoneForm(g)},function(){deviationDoneForm(g)})}),console.log(" Page.redirect")}else{console.log(c);for(var j in b)if(b.hasOwnProperty(j)&&void 0!=last_data_received[j].deviation)switch(last_data_received[j].type){case"slider":(b[j]<last_data_received[j].deviation.min||b[j]>last_data_received[j].deviation.max)&&(e=!0);break;case"default":}if(e)console.log("if deviation"),$("#confirmPopup .alert-text").html($.t("general.deviation_accept_message")),$("#confirmPopup").on("popupafteropen",function(a,d){$("#confirmButton").off("click").on("click",function(){if(isOffline()){console.log("else if offline");var a={client:User.client,token:User.lastToken,results:JSON.stringify(b),category:c.type};db.lazyQuery({sql:'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',data:[["formDeviationStart",JSON.stringify(a),0,"formDeviationStart"]]},0),redirect_to_forms()}else console.log("aici avem prima chestie"),console.log(f),Page.apiCall("formDeviationStart",f,"get","form2_save_dev")})}),$("#confirmPopup").on("popupafterclose",function(a,b){$("#confirmButton").unbind("click")}),$("#confirmPopup").popup("open",{positionTo:"window"});else if(console.log("Form saved successfully. 1199"),isOffline()){var g={client:User.client,token:User.lastToken,results:JSON.stringify(b),category:c.type};db.lazyQuery({sql:'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',data:[["formDeviationStart",JSON.stringify(g),0,"formDeviationStart"]]},0),redirect_to_forms()}else Page.apiCall("formDeviationStart",f,"get","redirect_to_forms")}}return!1}),mySwiper.swipeTo(1,300,!0),mySwiper.resizeFix()}else{console.log("1001 + results : ");for(var d='<div style="padding:10px;"><ul data-role="listview" data-inset="true" data-divider-theme="b">',h=0;h<b.rows.length;h++)console.log(b.rows.item(h)),d+='<li><a href="#" data-id="'+b.rows.item(h).id+'" data-type="'+b.rows.item(h).type+'" class="form_generator_link2"><i class="fa fa-edit"></i> '+b.rows.item(h).label+"</a></li>";d+="</ul></div>",mySwiper.appendSlide(d,"swiper-slide"),bind_form2_click_handler(),$(".overflow-wrapper").addClass("overflow-wrapper-hide"),$("#"+$.mobile.activePage.attr("id")).trigger("create"),mySwiper.swipeTo(1,300,!0),mySwiper.resizeFix()}else noInternetError($.t("error.no_internet_for_sync"));else switch(console.log("885 connection live"),document.form_cat){case"maintenance":var i={client:User.client,token:User.lastToken,results:""};console.log("730"),Page.apiCall("maintenance",i,"get","formItemData");break;case"food_poision":var i={client:User.client,token:User.lastToken,results:""};console.log(i),console.log("am trimis call aici"),Page.apiCall("foodPoison",i,"get","formItemData");break;case"add_employee":var i={client:User.client,token:User.lastToken};console.log("am trimis call employee aici"),Page.apiCall("registerEmployee",i,"get","registerEmployee");break;case"add_supplier":var i={client:User.client,token:User.lastToken};Page.apiCall("registerSupplier",i,"get","registerSupplier"),console.log("add supplier");break;case"deviation":console.log("deviation 851");var i={client:User.client,token:User.lastToken,results:""};console.log("857"),console.log(i),Page.apiCall("deviationForm",i,"get","formItemData");break;default:console.log("744");var i={client:User.client,token:User.lastToken,category:document.form_cat};Page.apiCall("formDeviationStart",i,"get","formItemData")}})})})}function deviationDoneForm(a){formcache.saveToTaskList("deviation",a,function(){Page.redirect("tasks.html")})}function bind_form2_click_handler(){$(".form_generator_link2").off("click").on("click",function(a){$(".overflow-wrapper").removeClass("overflow-wrapper-hide");var b=$(this).data("id"),c=$(this).data("type"),d=db.getDbInstance();console.log(b),d.transaction(function(a){a.executeSql('SELECT * FROM "form_item" WHERE "id"=?',[b],function(a,d){if(d.rows.length>0){console.log("forms.js form_item rows > 0");var e=$.extend({},d.rows.item(0));last_data_received=JSON.parse(e.form);var f='<div style="padding:10px;"><form id="form2_save">';f+='<legend style="font-weight: bold;margin-bottom:20px;">'+d.rows.item(0).label+"</legend>",f+=HTML.formGenerate(last_data_received,$.t("general.save_button")),f+="</form></div>",mySwiper.appendSlide(f,"swiper-slide"),$("#"+$.mobile.activePage.attr("id")).trigger("create"),mySwiper.swipeTo(2,300,!0),$(".overflow-wrapper").addClass("overflow-wrapper-hide"),$("#form2_save").on("submit",function(a){a.preventDefault();var b=HTML.getFormValues($(this).parent()),c=HTML.validate($(this));if(c){var d=!1,f={client:User.client,token:User.lastToken,results:JSON.stringify(b)};for(var g in b)if(b.hasOwnProperty(g)&&void 0!=last_data_received[g].deviation)switch(last_data_received[g].type){case"slider":(b[g]<last_data_received[g].deviation.min||b[g]>last_data_received[g].deviation.max)&&(d=!0);break;case"default":}if(d)console.log("deviation"),$("#confirmPopup .alert-text").html($.t("general.deviation_accept_message")),$("#confirmPopup").on("popupafteropen",function(a,c){$("#confirmButton").off("click").on("click",function(){if(console.log("aici avem prima chestie"),console.log(f),isOffline()){console.log("else if offline");var a={client:User.client,token:User.lastToken,results:JSON.stringify(b),category:e.type};db.lazyQuery({sql:'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',data:[["formDeviationStart",JSON.stringify(a),0,"formDeviationStart"]]},0),redirect_to_forms()}else Page.apiCall("formDeviationStart",f,"get","form2_save_dev")})}),$("#confirmPopup").on("popupafterclose",function(a,b){$("#confirmButton").unbind("click")}),$("#confirmPopup").popup("open",{positionTo:"window"});else if(console.log("Form saved successfully. 1302"),isOffline()){var h={client:User.client,token:User.lastToken,results:JSON.stringify(b),category:e.type};db.lazyQuery({sql:'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',data:[["formDeviationStart",JSON.stringify(h),0,"formDeviationStart"]]},0),redirect_to_forms()}else Page.apiCall("formDeviationStart",f,"get","redirect_to_forms")}return console.log("forms.js 1101"),!1})}else console.log("forms.js form_item rows == 0"),console.log("forms.js 1105"),console.log("heeeeey id = ",b),a.executeSql('SELECT * FROM "forms" WHERE "type"=?',[c],function(a,b){if(b.rows.length>0){var c={client:User.client,token:User.lastToken,category:b.rows.item(0).type};document.form_cat=b.rows.item(0).type,console.log("data:",c),console.log(b.rows.item(0)),Page.apiCall("formDeviationStart",c,"get","formCond3")}else $("#alertPopup .alert-text").html("Operation unavailable"),$("#alertPopup").on("popupafterclose",function(){$("#alertPopup").unbind("popupafterclose"),$(".overflow-wrapper").addClass("overflow-wrapper-hide")}),$("#alertPopup").popup("open",{positionTo:"window"})})})}),realignSlideHeight("max-height-form")})}function formCond3(a){if(console.log(a),console.log("forms.js 1128"),a.form_list_question instanceof Array)for(var b in a.form_list_question)a.form_list_question.hasOwnProperty(b)&&(console.log("d itera = ",b),console.log(a.form_list_question[b]),db.lazyQuery({sql:'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',data:[[a.form_list_question[b].info.id,a.form_list_question[b].info.label,JSON.stringify(a.form_list_question[b].form),document.form_cat]]},0));else db.lazyQuery({sql:'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',data:[[a.form_list_question.info.id,a.form_list_question.info.label,JSON.stringify(a.form_list_question.form),document.form_cat]]
-},0)}function redirect_to_forms(){mySwiper.swipeTo(0,300,!0),mySwiper.removeSlide(1),mySwiper.removeSlide(1),mySwiper.reInit(),mySwiper.resizeFix(),realignSlideHeight("max-height-form");var a=db.getDbInstance();a.transaction(getForms,db.dbErrorHandle)}function form2_save_dev(a){console.log("aici avem a treia chestia"),console.log(a),$(".overflow-wrapper").removeClass("overflow-wrapper-hide");var b={client:User.client,token:User.lastToken,task_id:a.form_deviation.last_task_inserted};console.log("aici avem a doua chestie"),console.log(b),Page.apiCall("deviation",b,"get","form2_save_dev_start")}function form2_save_dev_start(a){console.log("aici avem a patra chestie"),console.log(a);var b='<div style="padding:10px;"><form id="form_deviation_save">';b+=HTML.formGenerate(a.form_deviation,$.t("general.save_button")),b+='</form><div data-role="popup" id="signature_pop"   data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15"><div id="signature-holder"><div id="signature" data-role="none"></div></div><button id="deviation-signature-close">'+$.t("general.save_button")+"</button></div></div>",sss_temp=a.form_deviation.task_id.value,mySwiper.appendSlide(b,"swiper-slide"),$("#"+$.mobile.activePage.attr("id")).trigger("create"),$("#signature-reset").on("click",function(a){return a.preventDefault(),$('input[name="signature"]').val("user name"),!1}),$("#signature-trigger").off("click").on("click",function(a){return a.preventDefault(),openSignaturePopup(),$(document).off("click","#deviation-signature-close").on("click","#deviation-signature-close",function(){$("#signature_pop").popup("close"),console.log("deviation-signature-close8");var a={client:User.client,token:User.lastToken,signature:JSON.stringify({name:$("#sign_name").val(),svg:$sigdiv.jSignature("getData","svgbase64")[1],parameter:"task",task_id:sss_temp})};console.log("forms.js 1256 document sign"),Page.apiCall("documentSignature",a,"get","documentSignature")}),!1}),$("#form_deviation_save").on("submit",function(a){a.preventDefault(),console.log("da submit");var b=Form.validate($(this));if(b){$(".overflow-wrapper").removeClass("overflow-wrapper-hide"),showCloseButton();var c=HTML.getFormValues($(this).parent()),d={client:User.client,token:User.lastToken,task_id:sss_temp,form:JSON.stringify(c)};console.log("dev save:"),console.log(d),Page.apiCall("deviation",d,"get","form2_save_dev_start_save"),uploadHACCPPictureForms()}return!1}),showCloseButton(),$(".overflow-wrapper").addClass("overflow-wrapper-hide"),mySwiper.swipeTo(2,300,!0),mySwiper.swipeTo(3,300,!0)}function documentSignature(a){$.isNumeric(a)&&$('input[name="task_id"]').val(a),$("#sign_name").attr("disabled",!0),$("#signature-trigger").attr("disabled",!0),$("#signature-trigger").val(a.current_time.date).button("refresh")}function form2_save_dev_start_save(){console.log("am ajuns pe save");var a=db.getDbInstance();a.transaction(getForms,db.dbErrorHandle),mySwiper.swipeTo(0,300,!1),mySwiper.removeSlide(1),mySwiper.removeSlide(1),mySwiper.removeSlide(1),$(".overflow-wrapper").addClass("overflow-wrapper-hide")}function takeHACCPPicture(a){navigator.camera.getPicture(function(b){$("#"+a).css({visibility:"visible",display:"block"}).attr("src",b)},function(a){console.log("Error getting picture: "+a)},{quality:50,destinationType:navigator.camera.DestinationType.FILE_URI})}function selectHACCPPicture(a){console.log("select picture"),Page.selectImage(a,function(b){console.log("select uri",b),$("#"+a).css({visibility:"visible",display:"block"}).attr("src",b)})}function uploadHACCPPictureForms(a,b){var c=$("#"+haccp_image_id),d=c.attr("src");console.log("upload image"),Page.uploadImage(d,function(b){c.css({visibility:"hidden",display:"none"}).attr("src",""),console.log("upload image done"),a&&(console.log("upload image done1111"),a())},b)}function registerEmployee(a){if(a.success){var b="";b='<form id="registerEmployeeForm">',b+=HTML.formGenerate(a.form_register_employee,$.t("nav.add_employee")),b+='<input type="hidden" name="edit" value="false">',b+="</form>",mySwiper.appendSlide(b,"swiper-slide"),$("#"+$.mobile.activePage.attr("id")).trigger("create"),mySwiper.swipeTo(1,300,!0),$(".overflow-wrapper").addClass("overflow-wrapper-hide"),$("#registerEmployeeForm").submit(function(a){a.preventDefault();var b=HTML.validate($(this));if(b){var c=HTML.getFormValues($(this).parent()),d={client:User.client,token:User.lastToken,data:JSON.stringify(c)};$(".overflow-wrapper").removeClass("overflow-wrapper-hide"),$("#form_back_btn i").addClass("hided"),Page.apiCall("registerEmployee",d,"get","registerEmployeeSucess")}return!1})}}function registerEmployeeSucess(a){void 0!=a.registration_steps&&void 0!=a.registration_steps.error?($("#alertPopup .alert-text").html($.t("error.duplicate_employee")),$("#alertPopup").on("popupafterclose",function(){$("#alertPopup").unbind("popupafterclose"),$(".overflow-wrapper").addClass("overflow-wrapper-hide")}),$("#alertPopup").popup("open",{positionTo:"window"})):($(".overflow-wrapper").removeClass("overflow-wrapper-hide"),mySwiper.swipeTo(0,300,!1),mySwiper.removeSlide(1)),$(".overflow-wrapper").addClass("overflow-wrapper-hide")}function registerSupplier(a){if(a.success){var b="";b='<form id="registerSupplierForm">',b+=HTML.formGenerate(a.form_register_supplier,$.t("nav.add_supplier")),b+='<input type="hidden" name="edit" value="false">',b+="</form",mySwiper.appendSlide(b,"swiper-slide"),$("#"+$.mobile.activePage.attr("id")).trigger("create"),mySwiper.swipeTo(1,300,!0),$(".overflow-wrapper").addClass("overflow-wrapper-hide"),$("#registerSupplierForm").submit(function(a){a.preventDefault();var b=HTML.validate($(this));if(b){var c=HTML.getFormValues($(this).parent()),d={client:User.client,token:User.lastToken,parameters:JSON.stringify(c)};$(".overflow-wrapper").removeClass("overflow-wrapper-hide"),Page.apiCall("registerSupplier",d,"get","registerSupplierSuccess")}return!1})}}function registerSupplierSuccess(a){void 0!=a.registration_steps&&void 0!=a.registration_steps.error?console.log($.t("error.duplicate_employee")):(console.log($.t("success.added_supplier")),$(".overflow-wrapper").removeClass("overflow-wrapper-hide")),mySwiper.swipeTo(0,300,!1),mySwiper.removeSlide(1),$(".overflow-wrapper").addClass("overflow-wrapper-hide")}var mySwiper,_h_content=0,_t,last_data_received,offline_signature,lazydatasend=[],canRedirectAfterPoisonParam=!1,formcache=new FormCache;$(window).on("orientationchange",function(a){$sigdiv.jSignature("reset"),$(".ui-popup-container").css({top:0,left:0,"max-width":"100%",width:"100%",height:parseInt($("body").height())+"px",overflow:"hidden",position:"fixed"}),setTimeout(function(){$("#signature_pop-popup").css({top:0,left:0,"max-width":"100%",width:"100%",height:parseInt($("body").height())+"px"}),console.log("asd")},500)});
+var mySwiper;
+var _h_content = 0;
+var _t;
+var last_data_received;
+var offline_signature;
+var lazydatasend = [];
+var canRedirectAfterPoisonParam = false;
+
+//navigator.connection.type = Connection.NONE;
+var formcache = new FormCache();
+function getFormsCall(tx, results) {
+	console.log("getFormsCall", results);
+    if (results.rows.length == 0 && isOffline()) {
+        $('#no_results_forms').text($.t('forms.no_forms_connection'));
+    }
+    //    else if (results.rows.length == 0  && navigator.connection.type != Connection.NONE) {
+
+    else if (results.rows.length > 0 && isOffline() ) {
+        $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+        var data = [];
+        var label, tmp, link, alias, datatype;
+
+        for (var i=0;i<results.rows.length;i++) {
+            datatype = ((results.rows.item(i).type==999)?'add_employee':(results.rows.item(i).type==1000?'add_supplier':results.rows.item(i).type));
+            try {
+                tmp = JSON.parse(results.rows.item(i).label);
+                alias = tmp.alias;
+                link = '<a href="#" data-type="' + datatype + '" class="form_generator_link">' + tmp.alias + '</a>';
+            } catch (err) {
+                link = '<a href="#" data-type="' + datatype + '" class="form_generator_link">' + results.rows.item(i).label + '</a>';
+                alias = results.rows.item(i).label;
+            }
+            data.push({
+                      'alias':    alias,
+                      'id':       i,
+                      'data':     link
+                      });
+        }
+        /*if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
+         data.push({
+         'alias':    $.t('nav.add_employee'),
+         'id':       999,
+         'data':     '<a href="#" data-type="add_employee" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.add_employee') + '</a>'
+         });
+
+         data.push({
+         'alias':    $.t('nav.add_supplier'),
+         'id':       1000,
+         'data':     '<a href="#" data-type="add_supplier" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.add_supplier') + '</a>'
+         });
+         }*/
+
+        $('#forms_list').html('');
+        _appendAndSortByAlias('#forms_list', data);
+        bind_form_click_handler();
+        bind_form2_click_handler();
+
+        $('#no_results_forms').hide();
+    }
+    else {
+        console.log('if connection is live');
+        //$('#no_results_forms').text($.t('forms.no_forms_yet'));
+
+        var data = {
+            'client': User.client,
+            'token': User.lastToken
+        };
+        Page.apiCall('formDeviationStart', data, 'get', 'formDeviationStart');
+    }
+
+    mySwiper.reInit();
+    mySwiper.resizeFix();
+}
+
+function getForms(tx) {
+    tx.executeSql('SELECT * FROM "forms" WHERE alias<>""', [], getFormsCall);
+}
+
+function formsInit() {
+//    console.log('forms init');
+    if (User.isLogged()) {
+        executeSyncQuery();
+        var d = db.getDbInstance();
+        d.transaction(getForms, db.dbErrorHandle);
+        console.log('forms.js 73 swiper init');
+        mySwiper = new Swiper('.swiper-container-form',{
+            calculateHeight:        true,
+            releaseFormElements:    true,
+            preventLinks:           false,
+            simulateTouch:          false,
+            noSwiping : true,
+            noSwipingClass: 'ui-slider',
+            //pagination: '.pagination',
+            onInit: function() {
+            	if ( mySwiper.slides.length == 1 ) {
+                    $('#footer').remove();
+                    $('#form_back_btn i').addClass('hided');
+                }
+                setSwiperMinHeight();
+            },
+            onSlideNext:            function(swiper) {
+                _t = 'next';
+            },
+
+            onSlidePrev:            function(swiper) {
+                _t = 'prev';
+            },
+            onSlideChangeStart : function (swiper) {
+
+            },
+            onSlideChangeEnd:       function(swiper) {
+
+                var poison = $(document).find('.form2_save');
+                              HTML.validate($('body'),'ex');
+
+                if(poison.length > 0){
+                    if(_t == 'next'){
+                        $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+
+                        var go = Form.validate(swiper.getSlide(swiper.previousIndex));
+                        if(go){
+                            var data_send = Form.getValues(swiper.getSlide(swiper.previousIndex));
+                            var data = {
+                                'client': User.client,
+                                'token': User.lastToken,
+                                'results': JSON.stringify(data_send)
+                            };
+                            canRedirectAfterPoisonParam = true;
+                            if (!isOffline() ) {
+                                Page.apiCall('foodPoison', data, 'get', 'foodPoisonDone');
+                            } else {
+                                lazydatasend.push(data_send);
+                                $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+                            }
+                        }else{
+                            //console.log('aiciiii222i');
+                            canRedirectAfterPoisonParam = false;
+                            swiper.swipePrev();
+                            $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
+                        }
+                    }else{
+                        if(_t == 'prev'){
+                            if(swiper.activeIndex == 0){
+                                var swiper_slides = swiper.slides.length;
+                                for  ( var i = swiper_slides; i > 0; i-- ) {
+                                    swiper.removeSlide(parseInt(i));
+//                                    alert(i);
+                                    $("div[data-role='navbar']").remove();
+                                }
+//                                swiper.removeSlide(parseInt(swiper.activeIndex) + 2);
+//                                swiper.removeAllSlides();
+                            }
+                        }
+                    }
+                }else{
+                    if (_t == 'prev') {
+                        swiper.removeSlide(parseInt(swiper.activeIndex) + 1);
+                    }
+                }
+                console.log("mySwiper.slides", mySwiper.slides);
+                if ( mySwiper.slides.length == 1 ) {
+                    $('#footer').remove();
+                    $('#form_back_btn i').addClass('hided');
+                }
+
+                $('html, body').animate({scrollTop: 0}, 500);
+                mySwiper.resizeFix();
+
+                if ( parseInt(swiper.activeIndex) == parseInt(swiper.previousIndex) ) {
+                    swiper.previousIndex--;
+                }
+
+                var redirectAfterPoison = $('.swiper-slide-active').find('.no_results');
+                if(redirectAfterPoison.length > 0 && canRedirectAfterPoisonParam ){
+                    canRedirectAfterPoisonParam = false;
+                    console.log('Is this real life?');
+                    if ( lazydatasend != [] &&  isOffline() ) {
+                        var data_send2 = Form.getValues(swiper.getSlide(swiper.previousIndex));
+                        lazydatasend.push(data_send2);
+                        var newlazy = {};
+                        newlazy['results'] = {};
+                        for ( i = 0; i< lazydatasend.length; i++ ) {
+                            for (var prop in lazydatasend[i] ) {
+                                // important check that this is objects own property
+                                // not from prototype prop inherited
+                                if(lazydatasend[i].hasOwnProperty(prop)){
+                                    if ( prop == 'task_id' ){
+                                        newlazy[prop] = lazydatasend[i][prop];
+                                        newlazy['results'][prop] = lazydatasend[i][prop];
+                                    } else {
+                                        newlazy['results'][prop] = lazydatasend[i][prop];
+                                    }
+                                }
+                            }
+                        }
+                        newlazy['results'] = JSON.stringify(newlazy.results);
+                        db.lazyQuery({
+                            'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+                            'data': [[
+                                'foodPoison',
+                                JSON.stringify(newlazy),
+                                0,
+                                'foodPoison'
+                            ]]
+                        },0);
+                    }
+                    setTimeout(function(){
+                        window.location.href = 'index.html';
+                    }, 3500);
+                }
+            }
+        });
+
+    } else {
+        Page.redirect('login.html');
+    }
+}
+
+function toObject(arr) {
+    var rv = {};
+    for (var i = 0; i < arr.length; ++i)
+        rv[arr[i][0]] = arr[i][1];
+    return rv;
+}
+
+function sortObject(o) {
+    var sorted = {},
+    key, a = [];
+
+    for (key in o) {
+        if (o.hasOwnProperty(key)) {
+            a.push(o[key]);
+        }
+    }
+
+    a.sort();
+
+    for (key = 0; key < a.length; key++) {
+        var keyName = getKeyByValue(o,a[key]);
+        console.log(keyName);
+        console.log(a[key]);
+        sorted[keyName] = a[key];
+    }
+    return sorted;
+}
+
+
+function getKeyByValue(obj,value) {
+    for( var prop in obj ) {
+        if( obj.hasOwnProperty( prop ) ) {
+            if( obj[ prop ] == value ) {
+                return prop;
+            }
+        }
+    }
+}
+
+function formDeviationStart(data) {
+    if (data.success) {
+        var f = data.form_list;
+        /* SORT SECTION */
+        var tuples = [];
+        if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
+            tuples = [
+                      [999, $.t('nav.add_employee')],
+                      [1000, $.t('nav.add_supplier')]
+                      ];
+        }
+
+        for (var key in f) {
+            if (typeof f[key] == 'object') {
+                tuples.push([key, f[key].alias]);
+            }else {
+                tuples.push([key, f[key]]);
+            }
+        }
+        tuples.sort(function(a, b) {
+                    a = a[1];
+                    b = b[1];
+                    return a < b ? -1 : (a > b ? 1 : 0);
+                    });
+        var data = []; // For show
+        var db_data = []; // For insert to local db
+
+        for (var i = 0; i < tuples.length; i++) {
+            var key = tuples[i][0];
+            var value= tuples[i][1];
+            if (key != 999 && key != 1000) {
+                data.push({
+                          'alias':    value,
+                          'id':       100 - i,
+                          'data':     '<a href="#" data-type="' + key + '" class="form_generator_link"> ' + value + '</a>'
+                          });
+            }
+            if (key == 999) {
+                data.push({
+                          'alias':    $.t('nav.add_employee'),
+                          'id':       999,
+                          'data':     '<a href="#" data-type="add_employee" class="form_generator_link"><i ></i> ' + $.t('nav.add_employee') + '</a>'
+                          });
+            }
+            if (key == 1000) {
+                data.push({
+                          'alias':    $.t('nav.add_supplier'),
+                          'id':       1000,
+                          'data':     '<a href="#" data-type="add_supplier" class="form_generator_link"><i ></i> ' + $.t('nav.add_supplier') + '</a>'
+                          });
+            }
+
+            if(key != 'maintenance' || key != 'food_poision' || (key != 999 && key != 1000)){
+                db_data.push([key, value, value]);
+            }
+        }
+
+        /* INSERT SECTION */
+        db.lazyQuery({
+                     'sql': 'INSERT OR REPLACE INTO "forms" ("type","label","alias") VALUES(?,?,?)',
+                     'data': db_data
+                     },0);
+        /* SHOW SECTION */
+        $('#forms_list').html('');
+        _appendAndSortByAlias('#forms_list', data);
+        bind_form_click_handler();
+        $('#no_results_forms').hide();
+        $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+    }
+    realignSlideHeight('max-height-form');
+}
+
+function formItemData(data) {
+	console.log('forms.js  formItemData 200');
+	if (data.success) {
+		var f = data.form_list_question;
+		if (f.info != undefined) {
+			var d = f;
+
+			last_data_received = d.form;
+			var formId = 'form2_save'+ '_' + f.info.type + '_' + mySwiper.activeIndex || 0;
+
+			var html = '<div style="padding:10px;"><form id="'+ formId +'">';
+
+			if (f.info.label != undefined) {
+				html += '<legend class="legend_task">' + f.info.label + '</legend>';
+			}
+
+			console.log('216 forms.js');
+			switch(f.info.type) {
+			/* If maintenance, add signature form*/
+			case 'maintenance':
+			case 'deviation':
+				html += HTML.formGenerate(last_data_received.form_deviation, $.t("general.save_button"));
+
+				html += '</form>' + '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.sign_button") + '</button>' + '</div>' + '</div>';
+				$(document).on('click', '#signature-reset', function(e) {
+					e.preventDefault();
+
+					$('input[name="signature"]').val('user name');
+
+					return false;
+				});
+
+				$(document).off('click', '#signature-trigger').on('click', '#signature-trigger', function(e) {
+					e.preventDefault();
+					openSignaturePopup();
+
+					$(document).off('click', '#deviation-signature-close').on('click', '#deviation-signature-close', function() {
+						$('#signature_pop').popup('close');
+						/* Save maintenance for now */
+						$('#sign_name').attr('disabled', true);
+						$('#signature-trigger').attr('disabled', true);
+						$('#signature-trigger').val('Signed').button('refresh');
+					});
+
+					return false;
+				});
+				break;
+
+			case 'food_poision':
+				/* Step 1*/
+				html = '<div style="padding:10px;"><form class="form2_save">';
+				html += '<legend class="legend_task">' + f.info.label + '</legend>';
+				var step = {
+					'task_id' : last_data_received.task_id,
+					'guestName' : last_data_received.guestName,
+					'guestAddress' : last_data_received.guestAddress,
+					'guestPhone' : last_data_received.guestPhone
+				};
+				var form = HTML.formGenerate(step, '');
+				html += form;
+				html += '</form></div>';
+				mySwiper.appendSlide(html, 'swiper-slide');
+				//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
+				/* Step 2*/
+				html = '<div style="padding:10px;"><form class="form2_save">';
+				html += '<legend class="legend_task">' + f.info.label + '</legend>';
+				step = {
+					'task_id' : last_data_received.task_id,
+					'symptoms' : last_data_received.symptoms,
+					'symptomsDateTime' : last_data_received.symptomsDateTime,
+					'symptom_days' : last_data_received.symptom_days,
+					'symptom_hours' : last_data_received.symptom_hours
+				};
+				form = HTML.formGenerate(step, '');
+				html += form;
+				html += '</form></div>';
+				mySwiper.appendSlide(html, 'swiper-slide');
+				//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
+				/* Step 3*/
+				html = '<div style="padding:10px;"><form class="form2_save">';
+				html += '<legend class="legend_task">' + f.info.label + '</legend>';
+				step = {
+					'task_id' : last_data_received.task_id,
+					'makingFoodDateTime' : last_data_received.makingFoodDateTime,
+					'makingFoodTotalGuests' : last_data_received.makingFoodTotalGuests,
+					'makingFoodSickGuests' : last_data_received.makingFoodSickGuests,
+					'makingFoodWhatFood' : last_data_received.makingFoodWhatFood,
+					'makingFoodEarlierEaten' : last_data_received.makingFoodEarlierEaten,
+					'guestTalkedDoctor' : last_data_received.guestTalkedDoctor
+				};
+				form = HTML.formGenerate(step, '');
+				html += form;
+				html += '</form></div>';
+				mySwiper.appendSlide(html, 'swiper-slide');
+				//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
+				/* Step 4*/
+				html = '<div style="padding:10px;"><form class="form2_save">';
+				html += '<legend class="legend_task">' + f.info.label + '</legend>';
+				step = {
+					'task_id' : last_data_received.task_id,
+					'ingredients' : last_data_received.ingredients,
+					'cooledDown' : last_data_received.cooledDown,
+					'reheated' : last_data_received.reheated,
+					'keptWarm' : last_data_received.keptWarm,
+					'restLeftAnalysis' : last_data_received.restLeftAnalysis
+				};
+				form = HTML.formGenerate(step, '');
+				html += form;
+				html += '</form></div>';
+				mySwiper.appendSlide(html, 'swiper-slide');
+				//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
+				/* Step 5*/
+				html = '<div style="padding:10px;"><form class="form2_save">';
+				html += '<legend class="legend_task">' + f.info.label + '</legend>';
+				step = {
+					'task_id' : last_data_received.task_id,
+					'immediateMeasures' : last_data_received.immediateMeasures,
+					'otherComplaints' : last_data_received.otherComplaints,
+					'guestCompensation' : last_data_received.guestCompensation,
+					'employee_id' : last_data_received.employee_id,
+					'deviation_deadline' : last_data_received.deviation_deadline,
+					//                        'signature': last_data_received.signature,
+					//                        'correctionalMeasures': last_data_received.correctionalMeasures
+				};
+				form = HTML.formGenerate(step, '');
+				html += form;
+				html += '</form></div>' + '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.sign_button") + '</button>' + '</div>' + '</div>';
+				var footer = '<div id="footer" data-role="footer" data-position="fixed" data-tap-toggle="false" data-theme="none" style="border:0 !important;">' + '<div data-role="navbar"><ul>' + '<li><a href="#" onclick="mySwiper.swipePrev();" data-theme="e" class="must-be-big"><i class="fa fa-angle-left fa-2x pull-left" style="color: #4c7600;"></i> Forrige</a></li>' + '<li><a href="#" onclick="mySwiper.swipeNext();" data-theme="e" class="must-be-big">Neste <i class="fa fa-angle-right fa-2x pull-right" style="color: #4c7600;"></i></a></li>' + '</ul></div></div>';
+				$(footer).insertBefore('#forms #menu_panel');
+				mySwiper.appendSlide(html, 'swiper-slide');
+				/* Last step for redirect*/
+				html = '<div class="no_results" style="color:#00cde7;font-size:34px;">' + $.t('register.food_poison_success') + '</div>';
+				mySwiper.appendSlide(html, 'swiper-slide');
+				$('#' + $.mobile.activePage.attr('id')).trigger('create');
+				//                    fixFooterPosition();
+				break;
+			default:
+				html += HTML.formGenerate(last_data_received, $.t("general.save_button"));
+				html += '</form></div>';
+				break;
+			}
+
+			if (d.type != 'food_poison') {
+				mySwiper.appendSlide(html, 'swiper-slide');
+				$('#' + $.mobile.activePage.attr('id')).trigger('create');
+			}
+			mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
+			$('#'+ formId).on('submit', function(e) {
+				console.log('hei macarena');
+				e.preventDefault();
+
+				var dd = HTML.getFormValues($(this).parent());
+				var go = HTML.validate($(this));
+
+				if (go) {
+					var deviation = false;
+
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : JSON.stringify(dd)
+					};
+					/*Different saving for maintenance */
+					if(f.info.type == 'maintenance'){
+                        console.log('Form saved successfully. 503');
+                        if(!isOffline()){
+                        	Page.apiCall('maintenance', data, 'get', 'maintenanceDoneForm');	
+                        }else{
+                        	var offline_data = {
+								'client' : User.client,
+								'token' : User.lastToken,
+								'results' : JSON.stringify(dd)
+							};
+							var $img = $('#' + haccp_image_id);
+							var imageURI = $img.attr('src');
+							if (imageURI) {
+								offline_data.imageURI = imageURI;
+							}
+							db.lazyQuery({
+								'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+								'data' : [['maintenance', JSON.stringify(offline_data), document.task_id, 'maintenanceDoneForm']]
+							}, 0, function(data) {
+								offline_data.id = data;
+								if ($.isNumeric(data)) {
+									console.log("data");
+									$('input[name="task_id"]').val(data);
+								}
+								console.log("insert form");
+								uploadHACCPPictureForms(function() {
+									deviationDoneForm(offline_data);
+								}, function() {
+									deviationDoneForm(offline_data);
+								});
+							});
+                        }
+                        
+                    } else if (f.info.type == 'deviation') {
+                        console.log('Form saved successfully2. 506');
+                        if(!isOffline()){
+                        	Page.apiCall('deviationForm', data, 'get', 'maintenanceDoneForm');
+                        }else{
+                        	var offline_data = {
+								'client' : User.client,
+								'token' : User.lastToken
+							};
+							if(document.task_id > 0){
+								offline_data.form = JSON.stringify(dd);
+							}else{
+								offline_data.results = JSON.stringify(dd);
+							}
+							var $img = $('#' + haccp_image_id);
+							var imageURI = $img.attr('src');
+							if (imageURI) {
+								offline_data.imageURI = imageURI;
+							}
+							var deviationAPI = document.task_id > 0 ? 'deviation':'deviationForm';
+							db.lazyQuery({
+								'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+								'data' : [[deviationAPI, JSON.stringify(offline_data), document.task_id, 'maintenanceSignDone']]
+							}, 0, function(insertId) {
+								if(document.task_id > 0){
+									insertId = document.task_id;
+								}
+								if ($.isNumeric(insertId)) {
+									console.log("data");
+									$('input[name="task_id"]').val(insertId);
+								}
+								console.log("insert form");
+								uploadHACCPPictureForms(function() {
+									console.log("insert photo");
+									deviationDoneForm({form_fix_deviation: dd, id: insertId});
+								}, function() {
+									deviationDoneForm({form_fix_deviation: dd, id: insertId});
+								});
+							});
+                        }
+                        
+                    } else {
+						for (var i in dd) {
+							if (dd.hasOwnProperty(i)) {
+								if (last_data_received[i].deviation != undefined) {
+									switch (last_data_received[i].type) {
+									case 'slider':
+										if (dd[i] < last_data_received[i].deviation.min || dd[i] > last_data_received[i].deviation.max) {
+											deviation = true;
+										}
+										break;
+									case 'default':
+										break;
+									}
+								}
+							}
+						}
+
+						if (deviation) {
+							$('#confirmPopup .alert-text').html($.t('general.deviation_accept_message'));
+							$('#confirmPopup').on("popupafteropen", function(event, ui) {
+								if ( !isOffline() ) {
+                                    console.log('aici avem prima chestie');
+                                    console.log(data);
+                                    Page.apiCall('formDeviationStart', data, 'get', 'form2_save_dev');
+                                } else {
+                                    console.log('else if offline');
+                                    var offline_data = {
+                                        'client': User.client,
+                                        'token': User.lastToken,
+                                        'results': JSON.stringify(dd),
+                                        'category': d.type
+                                    };
+                                    db.lazyQuery({
+                                        'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+                                        'data': [[
+                                            'formDeviationStart',
+                                            JSON.stringify(offline_data),
+                                            0,
+                                            'formDeviationStart'
+                                        ]]
+                                    },0);
+                                    //console.log('Skjema Lagres');
+                                    redirect_to_forms();
+                                    /*$('#alertPopup .alert-text').html('Skjema Lagres');
+                                    $('#alertPopup').on("popupafterclose",function(){
+                                        redirect_to_forms();
+                                        $('#alertPopup').unbind("popupafterclose");
+                                    });
+                                    $('#alertPopup').popup( "open", {positionTo: 'window'});*/
+                                }
+							});
+							$('#confirmPopup').on("popupafterclose", function(event, ui) {
+								$('#confirmButton').unbind("click");
+							});
+							$('#confirmPopup').popup("open", {
+								positionTo : 'window'
+							});
+						} else {
+							if ( !isOffline()  ) {
+                                Page.apiCall('formDeviationStart', data, 'get', 'redirect_to_forms');
+                            } else {
+                                var offline_data = {
+                                    'client': User.client,
+                                    'token': User.lastToken,
+                                    'results': JSON.stringify(dd),
+                                    'category': d.type
+                                };
+                                db.lazyQuery({
+                                    'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+                                    'data': [[
+                                        'formDeviationStart',
+                                        JSON.stringify(offline_data),
+                                        0,
+                                        'formDeviationStart'
+                                    ]]
+                                },0);
+                                redirect_to_forms();
+                            }
+						}
+					}
+				}
+
+				return false;
+			});
+			// mySwiper.resizeFix();
+			mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+			console.log("mySwiper.activeIndex", mySwiper.activeIndex);
+		} else {
+			console.log('forms.js 482', f);
+			//            alert('forms.js 482');
+			var data = [];
+			var db_data = [];
+			var html = '<div style="padding:10px;"><ul data-role="listview" data-inset="true" data-divider-theme="b">';
+			for (var i in f) {
+				if (f.hasOwnProperty(i)) {
+					html += '<li><a href="#" data-id="' + f[i].info.id + '" data-type="' + f[i].form.type.value + '" class="form_generator_link2"><i class="fa fa-edit"></i> ' + f[i].info.label + '</a></li>';
+					db_data.push([f[i].info.id, f[i].info.label, JSON.stringify(f[i].form), document.form_cat]);
+				}
+			}
+
+			html += '</ul></div>';
+			//            console.log('final to insert');
+			//            console.log(db_data);
+			console.log('forms.js 505', db_data);
+			if(!isOffline()){
+				var q = 'INSERT OR REPLACE INTO "form_item" ("id", "label", "form", "type") VALUES(?,?,?,?)';
+				db.lazyQuery({
+					'sql' : 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
+					'data' : db_data
+				}, 0);
+			}
+			mySwiper.appendSlide(html, 'swiper-slide');
+			bind_form2_click_handler();
+
+			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
+			$('#' + $.mobile.activePage.attr('id')).trigger('create');
+			mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+		}
+	} else {
+		console.log('wrooong');
+	}
+}
+
+function maintenance(data) {
+    console.log('maintenance');
+    console.log('data');
+    console.log(data);
+    if (data.form_deviation) {
+        var html = '<form id="form_maintenance">';
+        html += HTML.formGenerate(data.form_deviation,  $.t("general.save_button"));
+        html += '</form>'+
+            '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+            '<div id="signature-holder">'+
+            '<div id="signature" data-role="none"></div>'+
+            '</div>' +
+            '<button id="deviation-signature-close">'+$.t("general.sign_button")+'</button>' +
+            '</div>'+
+            '</div>';
+        mySwiper.appendSlide(html, 'swiper-slide');
+
+        $('#' + $.mobile.activePage.attr('id')).trigger('create');
+        mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+        $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+//        $('#form_maintenance').html(html);
+        $('#signature-trigger').off('click').on('click', function(e){
+            e.preventDefault();
+            openSignaturePopup();
+
+            //$('#deviation-signature-close').off('click').on('click',function(){
+            $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
+                $('#signature_pop').popup('close');
+                var data = {
+                    'client': User.client,
+                    'token': User.lastToken,
+                    'signature': JSON.stringify({
+                        "name": $('#sign_name').val(),
+                        "svg": $sigdiv.jSignature("getData", "svgbase64")[1],
+                        "parameter": "task",
+                        "task_id": sss_temp
+                    })
+                };
+                //console.log(JSON.stringify(data));
+
+                console.log('documentSignature forms.js 592');
+//                Page.apiCall('documentSignature', data, 'get', 'documentSignature');
+                Page.apiCall('documentSignature', data, 'post', 'documentSignature');
+            });
+
+            return false;
+        });
+
+        $('#form_maintenance').on('submit', function(e){
+            e.preventDefault();
+
+            var go = HTML.validate($(this));
+
+            if (go) {
+                $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+                var dd = HTML.getFormValues($(this).parent());
+
+                var data = {
+                    'client': User.client,
+                    'token':User.lastToken,
+                    'results': JSON.stringify(dd)
+                };
+
+                Page.apiCall('maintenance', data, 'get', 'maintenanceDoneForm');
+            }
+
+            return false;
+        });
+        $('#' + $.mobile.activePage.attr('id')).trigger('create');
+        $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+    }
+    if (data.form_fix_deviation) {
+        var d = new Date(data.form_fix_deviation.deviation_date.date);
+
+        var html = '<h3>Deviation form fix</h3>';
+
+        if (data.form_fix_deviation.deviation_photos != undefined && (data.form_fix_deviation.deviation_photos).length > 0) {
+            var p = $.parseJSON(data.form_fix_deviation.deviation_photos);
+            console.log(p);
+            for (var i in p) {
+                if (p.hasOwnProperty(i)) {
+                    html += '<img width="100%" height="auto" style="margin:0 auto;" src="' + p[i] + '" />';
+                }
+            }
+        }
+
+        html += '<fieldset data-role="controlgroup">Deviation. '+ data.form_fix_deviation.deviation.replace(/\+/g,' ') + '</div>';
+
+        html += '<fieldset data-role="controlgroup">Initial action. '+ data.form_fix_deviation.initial_action.replace(/\+/g,' ') + '</div>';
+
+        html += '<fieldset data-role="controlgroup">Deviation date (from system): '+ d.getDate() + '.' + (parseInt(d.getMonth()) + 1) + '.' + d.getFullYear() + '</div>';
+
+        html += '<fieldset data-role="controlgroup">Responsible for fixing deviation: '+ data.form_fix_deviation.form.responsible_fix_deviation.value + '</div>';
+
+        html += '<hr />';
+
+        html += HTML.formGenerate(data.form_fix_deviation.form,  $.t("general.save_button"));
+
+        $('#form_maintenance').html(html).off('submit').on('submit', function(e){
+            e.preventDefault();
+
+            var go = Form.validate($(this));
+
+            if (go) {
+                $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+                var dd = Form.getValues($(this));
+
+                var data = {
+                    'client': User.client,
+                    'token':User.lastToken,
+                    'task_id': get.id,
+                    'results': JSON.stringify(dd)
+                };
+
+                Page.apiCall('maintenance', data, 'get', 'maintenanceDoneForm');
+
+            }
+
+            return false;
+        });
+        $('#' + $.mobile.activePage.attr('id')).trigger('create');
+        $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+    }
+}
+
+function maintenanceDoneForm(data, callback) {
+    //console.info('maintenanceDone',data);
+    if($.isNumeric(data)){
+        $('input[name="task_id"]').val(data);
+    }
+    maintenanceSignDone(data);
+    uploadHACCPPictureForms(function(){
+    	Page.redirect('tasks.html');
+    	if(callback){
+    		callback();
+    	}
+    });
+    
+    
+    
+}
+
+function foodPoisonDone(data){
+    console.log('foodPoisonDone');
+    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+    if($.isNumeric(data)){
+        $('input[name="task_id"]').val(data);
+    }
+}
+
+function maintenanceSignDone(data) {
+//    console.log('748');
+    if($.isNumeric(data)){
+        $('input[name="task_id"]').val(data);
+    }
+    var data1 = {
+        'client': User.client,
+        'token': User.lastToken,
+        'signature': JSON.stringify({
+            "name": $('#sign_name').val(),
+            "svg": $sigdiv.jSignature("getData", "svgbase64")[1],
+            "parameter": "task",
+            "task_id": data
+        })
+    };
+    if(!isOffline()){
+    	Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+    }else{
+    	db.lazyQuery({
+			'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+			'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
+		}, 0);
+    }
+    
+}
+
+function showCloseButton(callback, params){
+	if($('#form_back_btn i').hasClass('hided')){
+		$('#form_back_btn i').removeClass('hided');
+	}
+    $('#form_back_btn').on('click', function(e) {
+    	if(callback){
+    		callback.apply(this,[params]);
+    	}
+        $("[href='forms.html']").click();
+    });
+}
+
+
+function formGeneration(type, dataBuild, callback) {
+	var d = db.getDbInstance();
+	d.transaction(function(tx) {
+		tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [type], function(tx, results) {
+			console.log("results", results);
+			//                if (results.rows.length == 0 && navigator.connection.type != Connection.NONE) {
+			if (!isOffline()) {
+				console.log('885 connection live');
+				//                if (navigator.connection.type != Connection.NONE) {
+				switch(type) {
+				case 'maintenance':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : ''
+					};
+					console.log('730');
+					Page.apiCall('maintenance', data, 'get', 'formItemData');
+					break;
+				case 'food_poision':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : ''
+					};
+					console.log(data);
+					console.log('am trimis call aici');
+					Page.apiCall('foodPoison', data, 'get', 'formItemData');
+					break;
+				case 'add_employee':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken
+					};
+					console.log('am trimis call employee aici');
+					Page.apiCall('registerEmployee', data, 'get', 'registerEmployee');
+					break;
+				case 'add_supplier':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken
+					};
+
+					Page.apiCall('registerSupplier', data, 'get', 'registerSupplier');
+					console.log('add supplier');
+					break;
+				case 'deviation':
+					console.log('deviation 851');
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : ''
+					};
+					console.log('857');
+					console.log(data);
+					Page.apiCall('deviationForm', data, 'get', 'formItemData');
+					break;
+				default:
+					console.log('744');
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'category' : type
+					};
+					Page.apiCall('formDeviationStart', data, 'get', 'formItemData');
+					break;
+				}
+				showCloseButton(callback);
+			} else if (isOffline() && results.rows.length > 0) {
+				var temperatureForm = ["dishwasher", "fridge", "vegetable_fridge", "cooler", "fridge", "sushi_fridge", "sushi_cooler", "cooling_food", "food_warm", "food_being_prepared", "received_stock"];
+				var data;
+				if (results.rows.length == 1 && temperatureForm.indexOf(type) < 0) {
+					console.log('1 connection whatever and rows > 0', results.rows);
+					var d = {};
+					$.extend(d, {
+						success : true,
+						form_list_question : {
+							form : {
+								form_deviation : JSON.parse(results.rows.item(0).form)
+							},
+							info : {
+								label : results.rows.item(0).label,
+								type : type
+							}
+						}
+
+					});
+					
+					if(dataBuild){
+						$.extend(true, d, dataBuild);
+						if(dataBuild.id){
+							document.task_id = dataBuild.id;
+						}
+					}
+					data = d;
+				} else {
+					console.log('2 connection whatever and rows > 0', results.rows);
+					var obj = {
+						success : true,
+						form_list_question : []
+					};
+					for (var i = 0; i < results.rows.length; i++) {
+						var d = {
+							form : JSON.parse(results.rows.item(i).form),
+							info : {
+								label : results.rows.item(i).label,
+								id : results.rows.item(i).id
+							}
+						};
+						obj.form_list_question.push(d);
+					}
+					data = obj;
+					console.log("data" ,data);
+				}
+				if (data) {
+					showCloseButton(callback, data);
+					formItemData(data);
+				}
+			} else {
+				noInternetError($.t("error.no_internet_for_sync"));
+			}
+		});
+	});
+}
+
+
+function bind_form_click_handler() {
+    $('.form_generator_link').off('click').on('click', function(e){
+        $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+        document.form_cat = $(this).data('type');
+		formGeneration(document.form_cat);
+    });
+}
+
+function deviationDoneForm(data){
+	maintenanceSignDone(data.id);
+	formcache.saveToTaskList('deviation', data, function(){
+          Page.redirect('tasks.html');                   		
+    });
+}
+
+function bind_form2_click_handler() {
+    $('.form_generator_link2').off('click').on('click', function(e){
+        $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+
+        var id = $(this).data('id');
+        var type = $(this).data('type');
+        var d = db.getDbInstance();
+        console.log(id);
+		var formId = 'bind_form2'+ '_' + type + '_' + mySwiper.activeIndex || 0;
+        d.transaction(function(tx){
+            tx.executeSql('SELECT * FROM "form_item" WHERE "id"=?', [id], function(tx, results){
+                if (results.rows.length > 0) {
+//              if (results.rows.length == 0) {
+                    console.log('forms.js form_item rows > 0');
+                    var d = $.extend({}, results.rows.item(0));
+
+                    last_data_received = JSON.parse(d.form);
+
+                    var html = '<div style="padding:10px;"><form id="' + formId + '">';
+                    html += '<legend style="font-weight: bold;margin-bottom:20px;">' + results.rows.item(0).label + '</legend>';
+                    html += HTML.formGenerate(last_data_received,  $.t("general.save_button"));
+
+                    html += '</form></div>';
+
+                    mySwiper.appendSlide(html, 'swiper-slide');
+
+                    $('#' + $.mobile.activePage.attr('id')).trigger('create');
+                    mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+                    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
+                    $('#'+ formId).on('submit', function(e) {
+                        e.preventDefault();
+
+                        var dd = HTML.getFormValues($(this).parent());
+                        console.log("dd", dd);
+                        var go = HTML.validate($(this));
+                        if (go) {
+                            var deviation = false;
+
+                            var data = {
+                                'client': User.client,
+                                'token': User.lastToken,
+                                'results': JSON.stringify(dd)
+                            };
+
+                            for (var i in dd) {
+                                if (dd.hasOwnProperty(i)) {
+                                    if (last_data_received[i].deviation != undefined) {
+                                        switch (last_data_received[i].type) {
+                                            case 'slider':
+                                                if (dd[i] < last_data_received[i].deviation.min || dd[i] > last_data_received[i].deviation.max) {
+                                                    deviation = true;
+                                                }
+                                                break;
+                                            case 'default':
+                                                //alert('deviation not defined: ' + last_data_received[i].type);
+                                                break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (deviation) {
+                                //alert('deviation');
+                                console.log('deviation');
+                                //var a = confirm($.t('general.deviation_accept_message'));
+                                $('#confirmPopup .alert-text').html($.t('general.deviation_accept_message'));
+                                $('#confirmPopup').on(
+                                    "popupafteropen", function( event, ui ) {
+                                        $('#confirmButton').off('click').on('click',function(){
+                                            console.log('aici avem prima chestie');
+                                            console.log(data);
+                                            if ( !isOffline() ) {
+                                                Page.apiCall('formDeviationStart', data, 'get', 'form2_save_dev');
+                                            } else {
+                                                console.log('else if offline', dd);
+                                                var offline_data = {
+                                                    'client': User.client,
+                                                    'token': User.lastToken,
+                                                    'results': JSON.stringify(dd),
+                                                    'category': d.type
+                                                };
+                                                
+                                                console.log("offline_data", offline_data);
+                                                db.lazyQuery({
+                                                    'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+                                                    'data': [[
+                                                        'formDeviationStart',
+                                                        JSON.stringify(offline_data),
+                                                        0,
+                                                        'formDeviationStart'
+                                                    ]]
+                                                },0, function(insertId){
+                                                	formGeneration('deviation',
+                                                		{
+                                                			id: insertId, 
+															form_list_question : {
+																form : {
+																	form_deviation : {
+																		deviation_description : {
+																			value: dd.temperature + " grader rapportert på "+ results.rows.item(0).label
+																		}
+																	}
+																}
+															}
+														},
+														function(response){
+															console.log("back response", response);
+															deviationDoneForm({form_deviation: response.form_list_question.form.form_deviation, id: insertId});
+														}
+													);
+                                                	
+                                                });
+                                                // redirect_to_forms();
+                                                /*$('#alertPopup .alert-text').html("Skjema Lagres");
+                                                $('#alertPopup').on("popupafterclose",function(){
+                                                    $('#alertPopup').unbind("popupafterclose");
+                                                    redirect_to_forms();
+                                                });
+                                                $('#alertPopup').popup( "open", {positionTo: 'window'});*/
+                                            }
+                                        });
+                                });
+                                $('#confirmPopup').on(
+                                    "popupafterclose", function( event, ui ) {
+                                        //var a = false;
+                                        $('#confirmButton').unbind("click");
+                                    }
+                                );
+                                $('#confirmPopup').popup( "open", {positionTo: 'window'});
+                            } else {
+                                console.log('Form saved successfully. 1302');
+                                if ( !isOffline() ) {
+                                    Page.apiCall('formDeviationStart', data, 'get', 'redirect_to_forms');
+                                } else {
+                                    var offline_data = {
+                                        'client': User.client,
+                                        'token': User.lastToken,
+                                        'results': JSON.stringify(dd),
+                                        'category': d.type
+                                    };
+                                    db.lazyQuery({
+                                        'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+                                        'data': [[
+                                            'formDeviationStart',
+                                            JSON.stringify(offline_data),
+                                            0,
+                                            'formDeviationStart'
+                                        ]]
+                                    },0);
+                                    redirect_to_forms();
+
+                                }
+
+                            }
+                        }
+                        console.log('forms.js 1101');
+                        return false;
+                    });
+                } else {
+                    console.log('forms.js form_item rows == 0');
+                    console.log('forms.js 1105');
+                    console.log('heeeeey id = ',id);
+                    tx.executeSql('SELECT * FROM "forms" WHERE "type"=?', [type], function(tx, results){
+                        if ( results.rows.length > 0 ) {
+                            var data = {
+                                'client': User.client,
+                                'token': User.lastToken,
+                                'category': results.rows.item(0).type
+                            };
+
+                            document.form_cat = results.rows.item(0).type;
+                            console.log('data:',data);
+                            console.log(results.rows.item(0));
+
+                            Page.apiCall('formDeviationStart', data, 'get', 'formCond3');
+                        } else {
+                            $('#alertPopup .alert-text').html('Operation unavailable');
+                            $('#alertPopup').on("popupafterclose",function(){
+                                $('#alertPopup').unbind("popupafterclose");
+                                $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+                            });
+                            $('#alertPopup').popup( "open", {positionTo: 'window'});
+                            //alert('Operation unavailable');
+                            //$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+                        }
+
+                    });
+                }
+            });
+        });
+        realignSlideHeight('max-height-form');
+    });
+}
+
+function formCond3(data) {
+    console.log(data);
+    console.log('forms.js 1128');
+//    var q = 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)';
+    if ( data.form_list_question instanceof Array) {
+        for ( var d in data.form_list_question ) {
+            if ( data.form_list_question.hasOwnProperty(d) ) {
+                console.log('d itera = ', d);
+                console.log(data.form_list_question[d]);
+//                return;
+                db.lazyQuery({
+                    'sql': 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
+                    'data': [[
+                        data.form_list_question[d].info.id,
+                        data.form_list_question[d].info.label,
+                        JSON.stringify(data.form_list_question[d].form),
+                        document.form_cat
+                    ]]
+                },0);
+            }
+        }
+    } else {
+        db.lazyQuery({
+            'sql': 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
+            'data': [[
+                data.form_list_question.info.id,
+                data.form_list_question.info.label,
+                JSON.stringify(data.form_list_question.form),
+                document.form_cat
+            ]]
+        },0);
+    }
+
+}
+
+function redirect_to_forms() {
+    mySwiper.swipeTo(0, 300, true);
+    mySwiper.removeSlide(1);
+    mySwiper.removeSlide(1);
+    mySwiper.reInit();
+    mySwiper.resizeFix();
+    realignSlideHeight('max-height-form');
+    var d = db.getDbInstance();
+    d.transaction(getForms, db.dbErrorHandle);
+}
+
+function form2_save_dev(data) {
+    console.log('aici avem a treia chestia');
+    console.log(data);
+
+    $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+
+    var data_send = {
+        'client': User.client,
+        'token': User.lastToken,
+        'task_id': data.form_deviation.last_task_inserted
+    };
+
+    console.log('aici avem a doua chestie');
+    console.log(data_send);
+
+    Page.apiCall('deviation', data_send, 'get', 'form2_save_dev_start');
+}
+
+function form2_save_dev_start(data) {
+
+    console.log('aici avem a patra chestie');
+    console.log(data);
+
+    var html = '<div style="padding:10px;"><form id="form_deviation_save">';
+    html += HTML.formGenerate(data.form_deviation,  $.t("general.save_button"));
+    html += '</form>' +
+        '<div data-role="popup" id="signature_pop"   data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
+        '<div id="signature-holder">'+
+        '<div id="signature" data-role="none"></div>'+
+        '</div>' +
+        '<button id="deviation-signature-close">'+ $.t("general.save_button")+ '</button>' +
+    '</div>'+
+        '</div>';
+
+    sss_temp = data.form_deviation.task_id.value;
+
+    mySwiper.appendSlide(html, 'swiper-slide');
+    $('#' + $.mobile.activePage.attr('id')).trigger('create');
+
+    $('#signature-reset').on('click', function(e){
+        e.preventDefault();
+
+        $('input[name="signature"]').val('user name');
+
+        return false;
+    });
+
+    $('#signature-trigger').off('click').on('click', function(e){
+        e.preventDefault();
+        openSignaturePopup();
+
+        //$('#deviation-signature-close').off('click').on('click',function(){
+        $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
+            $('#signature_pop').popup('close');
+            console.log("deviation-signature-close8");
+            var data = {
+                'client': User.client,
+                'token': User.lastToken,
+                'signature': JSON.stringify({
+                    "name": $('#sign_name').val(),
+                    "svg": $sigdiv.jSignature("getData", "svgbase64")[1],
+                    "parameter": "task",
+                    "task_id": sss_temp
+                })
+            };
+            //console.log(JSON.stringify(data));
+            console.log('forms.js 1256 document sign');
+            Page.apiCall('documentSignature', data, 'get', 'documentSignature');
+//            Page.apiCall('documentSignature', data, 'post', 'documentSignature');
+        });
+
+        return false;
+    });
+
+    $('#form_deviation_save').on('submit', function(e){
+        e.preventDefault();
+        console.log('da submit');
+        var go = Form.validate($(this));
+
+        if (go) {
+            $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+            showCloseButton();
+
+            var dd = HTML.getFormValues($(this).parent());
+            var data = {
+                'client': User.client,
+                'token':User.lastToken,
+                'task_id': sss_temp,
+                'form': JSON.stringify(dd)
+            };
+
+            console.log('dev save:');
+            console.log(data);
+
+            Page.apiCall('deviation', data, 'get', 'form2_save_dev_start_save');
+
+            uploadHACCPPictureForms();
+        }
+
+        return false;
+    });
+    showCloseButton();
+    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+    mySwiper.swipeTo(2, 300, true);
+    mySwiper.swipeTo(3, 300, true);
+}
+
+function documentSignature(data) {
+ //   console.log('document signature:');
+    if($.isNumeric(data)){
+        $('input[name="task_id"]').val(data);
+    }
+    $('#sign_name').attr('disabled', true);
+    $('#signature-trigger').attr('disabled', true);
+    $('#signature-trigger').val(data.current_time.date).button('refresh');
+}
+//$(document).on('focus', 'input, textarea', function () {
+//    $('div[data-role="footer"]').hide();
+//});
+//
+//$(document).on('blur', 'input, textarea', function() {
+//    setTimeout(function() {
+//        window.scrollTo(document.body.scrollLeft, document.body.scrollTop);
+//        $('div[data-role="footer"]').show();
+//    }, 10);
+//});
+
+$( window ).on( "orientationchange", function( event ) {
+
+    $sigdiv.jSignature("reset");
+    $('.ui-popup-container').css({
+        'top': 0,
+        'left': 0,
+        'max-width': '100%',
+        'width': '100%',
+        'height': parseInt($('body').height()) + 'px',
+        'overflow': 'hidden',
+        'position': 'fixed'
+    });
+    setTimeout(function(){
+        $('#signature_pop-popup').css({
+            'top': 0,
+            'left': 0,
+            'max-width': '100%',
+            'width': '100%',
+            'height': parseInt($('body').height()) + 'px'
+        });
+        console.log('asd');
+    },500);
+});
+
+
+function form2_save_dev_start_save() {
+    console.log('am ajuns pe save');
+    var d = db.getDbInstance();
+    d.transaction(getForms, db.dbErrorHandle);
+
+    mySwiper.swipeTo(0, 300, false);
+    mySwiper.removeSlide(1);
+    mySwiper.removeSlide(1);
+    mySwiper.removeSlide(1);
+    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+}
+
+function takeHACCPPicture(id) {
+
+    navigator.camera.getPicture(
+        function(uri) {
+
+            $('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
+        },
+        function(e) {
+            console.log("Error getting picture: " + e);
+        },
+        { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI});
+};
+
+/*function selectHACCPPicture(id) {
+    navigator.camera.getPicture(
+        function(uri) {
+            if ( uri.substring(0,21) == "content://com.android") {
+                photo_split = uri.split("%3A");
+                uri ="content://media/external/images/media/"+photo_split[1];
+            }
+            $('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
+//            $('.ui-popup-container').css({
+//                'top': 0,
+//                'left': 0,
+//                'max-width': '100%',
+//                'width': '100%',
+//                'height': parseInt($('body').height()) + 'px',
+//                'overflow': 'hidden',
+//                'position': 'fixed'
+//            });
+//            $('#popupDeviation').css('height', '100%');
+        },
+        function(e) {
+            console.log("Error getting picture: " + e);
+        },
+        { quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
+        realignSlideHeight('max-height-task');
+};*/
+
+function selectHACCPPicture(id) {
+	console.log("select picture");
+	Page.selectImage(id, function(uri){
+		console.log("select uri", uri);
+		$('#'+id).css({'visibility': 'visible', 'display': 'block'}).attr('src', uri);
+	});
+};
+
+
+function uploadHACCPPictureForms(success, error) {
+    var $img = $('#'+haccp_image_id);
+    var imageURI = $img.attr('src');
+    console.log("upload image");
+    Page.uploadImage(imageURI, function(data){
+    	$img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
+    	console.log("upload image done");
+    	if(success){
+    		console.log("upload image done1111");
+    		success();
+    	}
+    }, error);
+}
+
+/* Add employee section*/
+function registerEmployee(data) {
+    if (data.success) {
+        var html = '';
+
+        html = '<form id="registerEmployeeForm">';
+        html += HTML.formGenerate(data.form_register_employee, $.t('nav.add_employee'));
+        html += '<input type="hidden" name="edit" value="false">';
+        html += '</form>';
+
+        mySwiper.appendSlide(html, 'swiper-slide');
+        $('#' + $.mobile.activePage.attr('id')).trigger('create');
+        mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+
+        $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
+        $('#registerEmployeeForm').submit(function(e){
+            e.preventDefault();
+
+            var cango = HTML.validate($(this));
+
+            if (cango) {
+                var v = HTML.getFormValues($(this).parent());
+
+                var data = {
+                    'client': User.client,
+                    'token': User.lastToken,
+                    'data': JSON.stringify(v)
+                };
+
+                //console.log(JSON.stringify(data));
+
+                $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+                $('#form_back_btn i').addClass('hided');
+
+                Page.apiCall('registerEmployee', data, 'get', 'registerEmployeeSucess');
+            }
+
+            return false;
+        });
+    }
+}
+
+function registerEmployeeSucess(data) {
+//    console.log(data);
+    if (data.registration_steps != undefined && data.registration_steps.error != undefined) {
+        //alert($.t('error.duplicate_employee'));
+        //$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
+        $('#alertPopup .alert-text').html($.t('error.duplicate_employee'));
+        $('#alertPopup').on("popupafterclose",function(){
+            $('#alertPopup').unbind("popupafterclose");
+            $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+        });
+        $('#alertPopup').popup( "open", {positionTo: 'window'});
+    } else {
+        $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+//        add_employeeInit();
+        mySwiper.swipeTo(0, 300, false);
+        mySwiper.removeSlide(1);
+    }
+    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+}
+
+
+/* Add supplier section */
+function registerSupplier(data) {
+    if (data.success) {
+        var html = '';
+        html = '<form id="registerSupplierForm">';
+        html += HTML.formGenerate(data.form_register_supplier, $.t('nav.add_supplier'));
+        html += '<input type="hidden" name="edit" value="false">';
+        html += '</form';
+//        $('#add_supplier_container').html(html);
+//        $('#' + $.mobile.activePage.attr('id')).trigger('create');
+        mySwiper.appendSlide(html, 'swiper-slide');
+        $('#' + $.mobile.activePage.attr('id')).trigger('create');
+        mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+
+        $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
+        $('#registerSupplierForm').submit(function(e){
+            e.preventDefault();
+
+            var cango = HTML.validate($(this));
+
+            if (cango) {
+                var v = HTML.getFormValues($(this).parent());
+
+                var data = {
+                    'client': User.client,
+                    'token': User.lastToken,
+                    'parameters': JSON.stringify(v)
+                };
+
+                //console.log(JSON.stringify(data));
+
+                $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+                Page.apiCall('registerSupplier', data, 'get', 'registerSupplierSuccess');
+            }
+
+            return false;
+        });
+    }
+}
+
+function registerSupplierSuccess(data) {
+    if (data.registration_steps != undefined && data.registration_steps.error != undefined) {
+        console.log($.t('error.duplicate_employee'));
+//        $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+    } else {
+        console.log($.t('success.added_supplier'));
+        $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+//        add_supplierInit();
+    }
+    mySwiper.swipeTo(0, 300, false);
+    mySwiper.removeSlide(1);
+    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+}

@@ -22,7 +22,7 @@ function FormCache() {
 					"responsible_fix_deviation" : {
 						"type" : "hidden",
 						"value" : function(obj) {
-							return localStorage.getItem("contact_name");
+							return obj.form_fix_deviation.responsible_fix_deviation;
 						}
 					},
 					"responsible_fix_deviation_id" : {

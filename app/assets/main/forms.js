@@ -336,7 +336,7 @@ function formItemData(data) {
 			var d = f;
 
 			last_data_received = d.form;
-			var formId = 'form2_save'+ '_' + f.info.type + '_' + mySwiper.activeIndex;
+			var formId = 'form2_save'+ '_' + f.info.type + '_' + mySwiper.activeIndex || 0;
 
 			var html = '<div style="padding:10px;"><form id="'+ formId +'">';
 
@@ -367,34 +367,9 @@ function formItemData(data) {
 					$(document).off('click', '#deviation-signature-close').on('click', '#deviation-signature-close', function() {
 						$('#signature_pop').popup('close');
 						/* Save maintenance for now */
-						var dd1 = HTML.getFormValues($(document).find('#form2_save').parent());
-						var data_m = {
-							'client' : User.client,
-							'token' : User.lastToken,
-							'results' : JSON.stringify(dd1)
-						};
-						if (!isOffline()) {
-							if (d.type == 'maintenance') {
-								Page.apiCall('maintenance', data_m, 'get', 'maintenanceSignDone');
-							} else {
-								Page.apiCall('deviationForm', data_m, 'get', 'maintenanceSignDone');
-							}
-
-						} else {
-							offline_signature = {
-								'signature' : JSON.stringify({
-									"name" : $('#sign_name').val(),
-									"svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
-									"parameter" : "task",
-									"task_id" : $(document).find('input[name="task_id"]').val()
-								})
-							};
-							console.log('offline_signature = ');
-							console.log(offline_signature);
-							$('#sign_name').attr('disabled', true);
-							$('#signature-trigger').attr('disabled', true);
-							$('#signature-trigger').val('Signed').button('refresh');
-						}
+						$('#sign_name').attr('disabled', true);
+						$('#signature-trigger').attr('disabled', true);
+						$('#signature-trigger').val('Signed').button('refresh');
 					});
 
 					return false;
@@ -518,51 +493,24 @@ function formItemData(data) {
 						'results' : JSON.stringify(dd)
 					};
 					/*Different saving for maintenance */
-					if(f.info.type == 'maintenance'){
-                        console.log('Form saved successfully. 503');
+					
+					for(var i = 0; i < last_data_received.form_deviation.employee_id.list.length; i++){
+						if(last_data_received.form_deviation.employee_id.list[i][dd.employee_id]){
+							dd.responsible_fix_deviation = last_data_received.form_deviation.employee_id.list[i][dd.employee_id];
+							break;
+						}
+					}
+					if(f.info.type == 'maintenance' || f.info.type == 'deviation'){
+						var api = f.info.type;
+						if(f.info.type == 'deviation'){
+                    		api = "deviationForm";
+                    	}
                         if(!isOffline()){
-                        	Page.apiCall('maintenance', data, 'get', 'maintenanceDoneForm');	
+                        	Page.apiCall(api, data, 'get', 'maintenanceDoneForm');	
                         }else{
                         	var offline_data = {
 								'client' : User.client,
-								'token' : User.lastToken,
-								'results' : JSON.stringify(dd),
-								'signature' : offline_signature.signature
-							};
-							var $img = $('#' + haccp_image_id);
-							var imageURI = $img.attr('src');
-							if (imageURI) {
-								offline_data.imageURI = imageURI;
-							}
-							console.log(offline_data);
-							console.log(offline_signature);
-							db.lazyQuery({
-								'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-								'data' : [['maintenance', JSON.stringify(offline_data), document.task_id, 'maintenanceDoneForm']]
-							}, 0, function(data) {
-								offline_data.id = data;
-								if ($.isNumeric(data)) {
-									console.log("data");
-									$('input[name="task_id"]').val(data);
-								}
-								console.log("insert form");
-								uploadHACCPPictureForms(function() {
-									deviationDoneForm(offline_data);
-								}, function() {
-									deviationDoneForm(offline_data);
-								});
-							});
-                        }
-                        
-                    } else if (f.info.type == 'deviation') {
-                        console.log('Form saved successfully2. 506');
-                        if(!isOffline()){
-                        	Page.apiCall('deviationForm', data, 'get', 'maintenanceDoneForm');
-                        }else{
-                        	var offline_data = {
-								'client' : User.client,
-								'token' : User.lastToken,
-								'signature' : offline_signature.signature
+								'token' : User.lastToken
 							};
 							if(document.task_id > 0){
 								offline_data.form = JSON.stringify(dd);
@@ -574,12 +522,12 @@ function formItemData(data) {
 							if (imageURI) {
 								offline_data.imageURI = imageURI;
 							}
-							console.log(offline_data);
-							console.log(offline_signature);
-							var deviationAPI = document.task_id > 0 ? 'deviation':'deviationForm';
+							if(document.task_id > 0){
+								api = 'deviation';
+							}
 							db.lazyQuery({
 								'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-								'data' : [[deviationAPI, JSON.stringify(offline_data), document.task_id, 'maintenanceSignDone']]
+								'data' : [[api, JSON.stringify(offline_data), document.task_id, 'maintenanceDoneForm']]
 							}, 0, function(insertId) {
 								if(document.task_id > 0){
 									insertId = document.task_id;
@@ -588,9 +536,7 @@ function formItemData(data) {
 									console.log("data");
 									$('input[name="task_id"]').val(insertId);
 								}
-								console.log("insert form");
 								uploadHACCPPictureForms(function() {
-									console.log("insert photo");
 									deviationDoneForm({form_fix_deviation: dd, id: insertId});
 								}, function() {
 									deviationDoneForm({form_fix_deviation: dd, id: insertId});
@@ -852,12 +798,15 @@ function maintenanceDoneForm(data, callback) {
     if($.isNumeric(data)){
         $('input[name="task_id"]').val(data);
     }
+    maintenanceSignDone(data);
     uploadHACCPPictureForms(function(){
     	Page.redirect('tasks.html');
     	if(callback){
     		callback();
     	}
     });
+    
+    
     
 }
 
@@ -874,6 +823,9 @@ function maintenanceSignDone(data) {
     if($.isNumeric(data)){
         $('input[name="task_id"]').val(data);
     }
+    if(typeof $sigdiv == 'undefined'){
+    	return;
+    }
     var data1 = {
         'client': User.client,
         'token': User.lastToken,
@@ -884,7 +836,15 @@ function maintenanceSignDone(data) {
             "task_id": data
         })
     };
-    Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+    if(!isOffline()){
+    	Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+    }else{
+    	db.lazyQuery({
+			'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+			'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
+		}, 0);
+    }
+    
 }
 
 function showCloseButton(callback, params){
@@ -969,9 +929,10 @@ function formGeneration(type, dataBuild, callback) {
 				}
 				showCloseButton(callback);
 			} else if (isOffline() && results.rows.length > 0) {
-				console.log('756 connection whatever and rows > 0');
+				var temperatureForm = ["dishwasher", "fridge", "vegetable_fridge", "cooler", "fridge", "sushi_fridge", "sushi_cooler", "cooling_food", "food_warm", "food_being_prepared", "received_stock"];
 				var data;
-				if (results.rows.length == 1) {
+				if (results.rows.length == 1 && temperatureForm.indexOf(type) < 0) {
+					console.log('1 connection whatever and rows > 0', results.rows);
 					var d = {};
 					$.extend(d, {
 						success : true,
@@ -994,7 +955,8 @@ function formGeneration(type, dataBuild, callback) {
 						}
 					}
 					data = d;
-				} else if (results.rows.length > 1) {
+				} else {
+					console.log('2 connection whatever and rows > 0', results.rows);
 					var obj = {
 						success : true,
 						form_list_question : []
@@ -1010,6 +972,7 @@ function formGeneration(type, dataBuild, callback) {
 						obj.form_list_question.push(d);
 					}
 					data = obj;
+					console.log("data" ,data);
 				}
 				if (data) {
 					showCloseButton(callback, data);
@@ -1032,6 +995,7 @@ function bind_form_click_handler() {
 }
 
 function deviationDoneForm(data){
+	maintenanceSignDone(data.id);
 	formcache.saveToTaskList('deviation', data, function(){
           Page.redirect('tasks.html');                   		
     });
@@ -1045,7 +1009,7 @@ function bind_form2_click_handler() {
         var type = $(this).data('type');
         var d = db.getDbInstance();
         console.log(id);
-
+		var formId = 'bind_form2'+ '_' + type + '_' + mySwiper.activeIndex || 0;
         d.transaction(function(tx){
             tx.executeSql('SELECT * FROM "form_item" WHERE "id"=?', [id], function(tx, results){
                 if (results.rows.length > 0) {
@@ -1055,7 +1019,7 @@ function bind_form2_click_handler() {
 
                     last_data_received = JSON.parse(d.form);
 
-                    var html = '<div style="padding:10px;"><form id="form2_save">';
+                    var html = '<div style="padding:10px;"><form id="' + formId + '">';
                     html += '<legend style="font-weight: bold;margin-bottom:20px;">' + results.rows.item(0).label + '</legend>';
                     html += HTML.formGenerate(last_data_received,  $.t("general.save_button"));
 
@@ -1067,7 +1031,7 @@ function bind_form2_click_handler() {
                     mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
                     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
-                    $('#form2_save').on('submit', function(e) {
+                    $('#'+ formId).on('submit', function(e) {
                         e.preventDefault();
 
                         var dd = HTML.getFormValues($(this).parent());
