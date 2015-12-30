@@ -1538,7 +1538,7 @@ function registerEmployee(data) {
                             0,
                             'registerEmployeeSucess'
                         ]]
-                    },0);
+                    },0, 'registerEmployeeSucess');
 				}
                 
             }
@@ -1603,7 +1603,20 @@ function registerSupplier(data) {
                 //console.log(JSON.stringify(data));
 
                 $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-                Page.apiCall('registerSupplier', data, 'get', 'registerSupplierSuccess');
+                
+                if(!isOffline()){
+					Page.apiCall('registerSupplier', data, 'get', 'registerSupplierSuccess');	
+				}else{
+					db.lazyQuery({
+                        'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+                        'data': [[
+                            'registerSupplier',
+                            JSON.stringify(data),
+                            0,
+                            'registerSupplierSuccess'
+                        ]]
+                    },0, 'registerSupplierSuccess');
+				}
             }
 
             return false;
