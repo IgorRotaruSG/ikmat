@@ -355,6 +355,11 @@ Page.prototype.uploadImage = function() {
 				request.task_id = _params.task_id;
 			}
 		}
+		if(!request || (request.imageURI && request.imageURI.length <= 0)){
+			if (callbackFunction) {
+				callbackFunction();
+			}
+		}
 
 		if (isOffline()) {
 			cacheImage(request, callbackFunction);
@@ -1553,7 +1558,7 @@ Form.prototype.signature = function(name, label) {
 	var html = '<label>' + $.t("haccp.signature") + '</label><div class="ui-grid-a"><div class="ui-block-a"><input type="text" name="name" id="sign_name" placeholder=""/></div><div class="ui-block-b"><input type="submit" value="' + $.t("general.sign_button") + '" id="signature-trigger" data-position-to="window"/></div></div>';
 
 	return html;
-}
+};
 
 Form.prototype.checkboxList = function(name, label, value, checkboxes, name2) {
 

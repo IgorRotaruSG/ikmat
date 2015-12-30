@@ -1099,6 +1099,8 @@ function haccpDeviationFix(data) {
             if (go) {
                 var dd = Form.getValues($(this));
                 
+                console.log("form_haccp_deviation_fix", dd);
+                
                 if ( !isOffline()) {
                 	
                 	var data = {

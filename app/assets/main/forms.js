@@ -21,7 +21,7 @@ function getFormsCall(tx, results) {
         var label, tmp, link, alias, datatype;
 
         for (var i=0;i<results.rows.length;i++) {
-            datatype = ((results.rows.item(i).type==999)?'add_employee':(results.rows.item(i).type==1000?'add_supplier':results.rows.item(i).type));
+            datatype = ((results.rows.item(i).type==999)?'employee':(results.rows.item(i).type==1000?'supplier':results.rows.item(i).type));
             try {
                 tmp = JSON.parse(results.rows.item(i).label);
                 alias = tmp.alias;
@@ -38,15 +38,15 @@ function getFormsCall(tx, results) {
         }
         /*if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
          data.push({
-         'alias':    $.t('nav.add_employee'),
+         'alias':    $.t('nav.employee'),
          'id':       999,
-         'data':     '<a href="#" data-type="add_employee" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.add_employee') + '</a>'
+         'data':     '<a href="#" data-type="employee" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.employee') + '</a>'
          });
 
          data.push({
-         'alias':    $.t('nav.add_supplier'),
+         'alias':    $.t('nav.supplier'),
          'id':       1000,
-         'data':     '<a href="#" data-type="add_supplier" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.add_supplier') + '</a>'
+         'data':     '<a href="#" data-type="supplier" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.supplier') + '</a>'
          });
          }*/
 
@@ -263,8 +263,8 @@ function formDeviationStart(data) {
         var tuples = [];
         if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
             tuples = [
-                      [999, $.t('nav.add_employee')],
-                      [1000, $.t('nav.add_supplier')]
+                      [999, $.t('nav.employee')],
+                      [1000, $.t('nav.supplier')]
                       ];
         }
 
@@ -295,16 +295,16 @@ function formDeviationStart(data) {
             }
             if (key == 999) {
                 data.push({
-                          'alias':    $.t('nav.add_employee'),
+                          'alias':    $.t('nav.employee'),
                           'id':       999,
-                          'data':     '<a href="#" data-type="add_employee" class="form_generator_link"><i ></i> ' + $.t('nav.add_employee') + '</a>'
+                          'data':     '<a href="#" data-type="employee" class="form_generator_link"><i ></i> ' + $.t('nav.employee') + '</a>'
                           });
             }
             if (key == 1000) {
                 data.push({
-                          'alias':    $.t('nav.add_supplier'),
+                          'alias':    $.t('nav.supplier'),
                           'id':       1000,
-                          'data':     '<a href="#" data-type="add_supplier" class="form_generator_link"><i ></i> ' + $.t('nav.add_supplier') + '</a>'
+                          'data':     '<a href="#" data-type="supplier" class="form_generator_link"><i ></i> ' + $.t('nav.supplier') + '</a>'
                           });
             }
 
@@ -329,290 +329,343 @@ function formDeviationStart(data) {
 }
 
 function formItemData(data) {
-    console.log('forms.js  formItemData 200');
-    if (data.success) {
-        var f = data.form_list_question;
-        if (f.info != undefined) {
-            var d = f;
+	console.log('forms.js  formItemData 200');
+	if (data.success) {
+		var f = data.form_list_question;
+		if (f.info != undefined) {
+			var d = f;
 
-            last_data_received = d.form;
+			last_data_received = d.form;
+			var formId = 'form2_save'+ '_' + f.info.type + '_' + mySwiper.activeIndex || 0;
 
-            var html = '<div style="padding:10px;"><form id="form2_save">';
+			var html = '<div style="padding:10px;"><form id="'+ formId +'">';
 
-            if (f.info.label != undefined) {
-                html += '<legend class="legend_task">' + f.info.label + '</legend>';
-            }
+			if (f.info.label != undefined) {
+				html += '<legend class="legend_task">' + f.info.label + '</legend>';
+			}
 
-            console.log('216 forms.js');
-            switch(f.info.type){
-                /* If maintenance, add signature form*/
-                case 'maintenance':
-                case 'deviation':
-                    //console.log('maintenance 306');
-                    html += HTML.formGenerate(last_data_received.form_deviation,  $.t("general.save_button"));
+			console.log('216 forms.js');
+			switch(f.info.type) {
+			/* If maintenance, add signature form*/
+			case 'maintenance':
+			case 'deviation':
+				html += HTML.formGenerate(last_data_received.form_deviation, $.t("general.save_button"));
 
-                    html += '</form>' +
-                        '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
-                        '<div id="signature-holder">'+
-                        '<div id="signature" data-role="none"></div>'+
-                        '</div>' +
-                        '<button id="deviation-signature-close">'+ $.t("general.sign_button") +'</button>' +
-                        '</div>'+
-                        '</div>';
-                    $(document).on('click', '#signature-reset' , function(e){
-                        e.preventDefault();
+				html += '</form>' + '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.sign_button") + '</button>' + '</div>' + '</div>';
+				$(document).on('click', '#signature-reset', function(e) {
+					e.preventDefault();
 
-                        $('input[name="signature"]').val('user name');
+					$('input[name="signature"]').val('user name');
 
-                        return false;
-                    });
+					return false;
+				});
 
-                    $(document).off('click','#signature-trigger').on('click','#signature-trigger', function(e){
-                        e.preventDefault();
-                        openSignaturePopup();
+				$(document).off('click', '#signature-trigger').on('click', '#signature-trigger', function(e) {
+					e.preventDefault();
+					openSignaturePopup();
 
-                        $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
-                            $('#signature_pop').popup('close');
-                            /* Save maintenance for now */
-                            var dd1 = HTML.getFormValues($(document).find('#form2_save').parent());
-                            console.log(dd1);
-                            var data_m = {
-                                'client': User.client,
-                                'token': User.lastToken,
-                                'results': JSON.stringify(dd1)
-                            };
-                            if(f.info.type == 'maintenance'){
-                            	Page.apiCall('maintenance', data_m, 'get', 'maintenanceSignDone');
-                            }else{
-                            	Page.apiCall('deviationForm', data_m, 'get', 'maintenanceSignDone');
-                            }
-                        });
+					$(document).off('click', '#deviation-signature-close').on('click', '#deviation-signature-close', function() {
+						$('#signature_pop').popup('close');
+						/* Save maintenance for now */
+						$('#sign_name').attr('disabled', true);
+						$('#signature-trigger').attr('disabled', true);
+						$('#signature-trigger').val('Signed').button('refresh');
+					});
 
-                        return false;
-                    });
-                    break;
+					return false;
+				});
+				break;
 
-                case 'food_poision':
-                    /* Step 1*/
-                    html = '<div style="padding:10px;"><form class="form2_save">';
-                    html += '<legend class="legend_task">' + f.info.label + '</legend>';
-                    var step = {
-                        'task_id': last_data_received.task_id,
-                        'guestName': last_data_received.guestName,
-                        'guestAddress': last_data_received.guestAddress,
-                        'guestPhone': last_data_received.guestPhone
-                    };
-                    var form = HTML.formGenerate(step, '');
-                    html += form;
-                    html += '</form></div>';
-                    mySwiper.appendSlide(html, 'swiper-slide');
-//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
-                    /* Step 2*/
-                    html = '<div style="padding:10px;"><form class="form2_save">';
-                    html += '<legend class="legend_task">' + f.info.label + '</legend>';
-                    step = {
-                        'task_id': last_data_received.task_id,
-                        'symptoms': last_data_received.symptoms,
-                        'symptomsDateTime': last_data_received.symptomsDateTime,
-                        'symptom_days': last_data_received.symptom_days,
-                        'symptom_hours': last_data_received.symptom_hours
-                    };
-                    form = HTML.formGenerate(step, '');
-                    html += form;
-                    html += '</form></div>';
-                    mySwiper.appendSlide(html, 'swiper-slide');
-//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
-                    /* Step 3*/
-                    html = '<div style="padding:10px;"><form class="form2_save">';
-                    html += '<legend class="legend_task">' + f.info.label + '</legend>';
-                    step = {
-                        'task_id': last_data_received.task_id,
-                        'makingFoodDateTime': last_data_received.makingFoodDateTime,
-                        'makingFoodTotalGuests': last_data_received.makingFoodTotalGuests,
-                        'makingFoodSickGuests': last_data_received.makingFoodSickGuests,
-                        'makingFoodWhatFood': last_data_received.makingFoodWhatFood,
-                        'makingFoodEarlierEaten': last_data_received.makingFoodEarlierEaten,
-                        'guestTalkedDoctor': last_data_received.guestTalkedDoctor
-                    };
-                    form = HTML.formGenerate(step, '');
-                    html += form;
-                    html += '</form></div>';
-                    mySwiper.appendSlide(html, 'swiper-slide');
-//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
-                    /* Step 4*/
-                    html = '<div style="padding:10px;"><form class="form2_save">';
-                    html += '<legend class="legend_task">' + f.info.label + '</legend>';
-                    step = {
-                        'task_id': last_data_received.task_id,
-                        'ingredients': last_data_received.ingredients,
-                        'cooledDown': last_data_received.cooledDown,
-                        'reheated': last_data_received.reheated,
-                        'keptWarm': last_data_received.keptWarm,
-                        'restLeftAnalysis': last_data_received.restLeftAnalysis
-                    };
-                    form = HTML.formGenerate(step, '');
-                    html += form;
-                    html += '</form></div>';
-                    mySwiper.appendSlide(html, 'swiper-slide');
-//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
-                    /* Step 5*/
-                    html = '<div style="padding:10px;"><form class="form2_save">';
-                    html += '<legend class="legend_task">' + f.info.label + '</legend>';
-                    step = {
-                        'task_id': last_data_received.task_id,
-                        'immediateMeasures': last_data_received.immediateMeasures,
-                        'otherComplaints': last_data_received.otherComplaints,
-                        'guestCompensation': last_data_received.guestCompensation,
-                        'employee_id': last_data_received.employee_id,
-                        'deviation_deadline': last_data_received.deviation_deadline,
-//                        'signature': last_data_received.signature,
-//                        'correctionalMeasures': last_data_received.correctionalMeasures
-                    };
-                    form = HTML.formGenerate(step, '');
-                    html += form;
-                    html += '</form></div>'+
-                        '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
-                        '<div id="signature-holder">'+
-                        '<div id="signature" data-role="none"></div>'+
-                        '</div>' +
-                        '<button id="deviation-signature-close">'+$.t("general.sign_button")+'</button>' +
-                        '</div>'+
-                        '</div>'
-                    ;
-                    var footer = '<div id="footer" data-role="footer" data-position="fixed" data-tap-toggle="false" data-theme="none" style="border:0 !important;">'+
-                        '<div data-role="navbar"><ul>' +
-                        '<li><a href="#" onclick="mySwiper.swipePrev();" data-theme="e" class="must-be-big"><i class="fa fa-angle-left fa-2x pull-left" style="color: #4c7600;"></i> Forrige</a></li>'+
-                        '<li><a href="#" onclick="mySwiper.swipeNext();" data-theme="e" class="must-be-big">Neste <i class="fa fa-angle-right fa-2x pull-right" style="color: #4c7600;"></i></a></li>' +
-                        '</ul></div></div>';
-                    $(footer).insertBefore('#forms #menu_panel');
-                    mySwiper.appendSlide(html, 'swiper-slide');
-                    /* Last step for redirect*/
-                    html = '<div class="no_results" style="color:#00cde7;font-size:34px;">' + $.t('register.food_poison_success') + '</div>';
-                    mySwiper.appendSlide(html, 'swiper-slide');
-                    $('#' + $.mobile.activePage.attr('id')).trigger('create');
-//                    fixFooterPosition();
-                    break;
-                default:
-                    html += HTML.formGenerate(last_data_received,  $.t("general.save_button"));
-                    html += '</form></div>';
-                    break;
-            }
+			case 'food_poision':
+				/* Step 1*/
+				html = '<div style="padding:10px;"><form class="form2_save">';
+				html += '<legend class="legend_task">' + f.info.label + '</legend>';
+				var step = {
+					'task_id' : last_data_received.task_id,
+					'guestName' : last_data_received.guestName,
+					'guestAddress' : last_data_received.guestAddress,
+					'guestPhone' : last_data_received.guestPhone
+				};
+				var form = HTML.formGenerate(step, '');
+				html += form;
+				html += '</form></div>';
+				mySwiper.appendSlide(html, 'swiper-slide');
+				//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
+				/* Step 2*/
+				html = '<div style="padding:10px;"><form class="form2_save">';
+				html += '<legend class="legend_task">' + f.info.label + '</legend>';
+				step = {
+					'task_id' : last_data_received.task_id,
+					'symptoms' : last_data_received.symptoms,
+					'symptomsDateTime' : last_data_received.symptomsDateTime,
+					'symptom_days' : last_data_received.symptom_days,
+					'symptom_hours' : last_data_received.symptom_hours
+				};
+				form = HTML.formGenerate(step, '');
+				html += form;
+				html += '</form></div>';
+				mySwiper.appendSlide(html, 'swiper-slide');
+				//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
+				/* Step 3*/
+				html = '<div style="padding:10px;"><form class="form2_save">';
+				html += '<legend class="legend_task">' + f.info.label + '</legend>';
+				step = {
+					'task_id' : last_data_received.task_id,
+					'makingFoodDateTime' : last_data_received.makingFoodDateTime,
+					'makingFoodTotalGuests' : last_data_received.makingFoodTotalGuests,
+					'makingFoodSickGuests' : last_data_received.makingFoodSickGuests,
+					'makingFoodWhatFood' : last_data_received.makingFoodWhatFood,
+					'makingFoodEarlierEaten' : last_data_received.makingFoodEarlierEaten,
+					'guestTalkedDoctor' : last_data_received.guestTalkedDoctor
+				};
+				form = HTML.formGenerate(step, '');
+				html += form;
+				html += '</form></div>';
+				mySwiper.appendSlide(html, 'swiper-slide');
+				//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
+				/* Step 4*/
+				html = '<div style="padding:10px;"><form class="form2_save">';
+				html += '<legend class="legend_task">' + f.info.label + '</legend>';
+				step = {
+					'task_id' : last_data_received.task_id,
+					'ingredients' : last_data_received.ingredients,
+					'cooledDown' : last_data_received.cooledDown,
+					'reheated' : last_data_received.reheated,
+					'keptWarm' : last_data_received.keptWarm,
+					'restLeftAnalysis' : last_data_received.restLeftAnalysis
+				};
+				form = HTML.formGenerate(step, '');
+				html += form;
+				html += '</form></div>';
+				mySwiper.appendSlide(html, 'swiper-slide');
+				//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
+				/* Step 5*/
+				html = '<div style="padding:10px;"><form class="form2_save">';
+				html += '<legend class="legend_task">' + f.info.label + '</legend>';
+				step = {
+					'task_id' : last_data_received.task_id,
+					'immediateMeasures' : last_data_received.immediateMeasures,
+					'otherComplaints' : last_data_received.otherComplaints,
+					'guestCompensation' : last_data_received.guestCompensation,
+					'employee_id' : last_data_received.employee_id,
+					'deviation_deadline' : last_data_received.deviation_deadline,
+					//                        'signature': last_data_received.signature,
+					//                        'correctionalMeasures': last_data_received.correctionalMeasures
+				};
+				form = HTML.formGenerate(step, '');
+				html += form;
+				html += '</form></div>' + '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.sign_button") + '</button>' + '</div>' + '</div>';
+				var footer = '<div id="footer" data-role="footer" data-position="fixed" data-tap-toggle="false" data-theme="none" style="border:0 !important;">' + '<div data-role="navbar"><ul>' + '<li><a href="#" onclick="mySwiper.swipePrev();" data-theme="e" class="must-be-big"><i class="fa fa-angle-left fa-2x pull-left" style="color: #4c7600;"></i> Forrige</a></li>' + '<li><a href="#" onclick="mySwiper.swipeNext();" data-theme="e" class="must-be-big">Neste <i class="fa fa-angle-right fa-2x pull-right" style="color: #4c7600;"></i></a></li>' + '</ul></div></div>';
+				$(footer).insertBefore('#forms #menu_panel');
+				mySwiper.appendSlide(html, 'swiper-slide');
+				/* Last step for redirect*/
+				html = '<div class="no_results" style="color:#00cde7;font-size:34px;">' + $.t('register.food_poison_success') + '</div>';
+				mySwiper.appendSlide(html, 'swiper-slide');
+				$('#' + $.mobile.activePage.attr('id')).trigger('create');
+				//                    fixFooterPosition();
+				break;
+			default:
+				html += HTML.formGenerate(last_data_received, $.t("general.save_button"));
+				html += '</form></div>';
+				break;
+			}
 
-            if(d.type != 'food_poison'){
-                mySwiper.appendSlide(html, 'swiper-slide');
-                $('#' + $.mobile.activePage.attr('id')).trigger('create');
-            }
-            mySwiper.swipeTo(2, 300, true);
-            $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+			if (d.type != 'food_poison') {
+				mySwiper.appendSlide(html, 'swiper-slide');
+				$('#' + $.mobile.activePage.attr('id')).trigger('create');
+			}
+			mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
-            $('#form2_save').on('submit', function(e) {
-                console.log('hei macarena');
-                e.preventDefault();
+			$('#'+ formId).on('submit', function(e) {
+				console.log('hei macarena');
+				e.preventDefault();
 
-                var dd = HTML.getFormValues($(this).parent());
-                var go = HTML.validate($(this));
+				var dd = HTML.getFormValues($(this).parent());
+				var go = HTML.validate($(this));
 
-                if (go) {
-                    var deviation = false;
+				if (go) {
+					var deviation = false;
 
-                    var data = {
-                        'client': User.client,
-                        'token': User.lastToken,
-                        'results': JSON.stringify(dd)
-                    };
-                    /*Different saving for maintenance */
-                    if(f.info.type == 'maintenance'){
-                        console.log('Form saved successfully. 503');
-                        Page.apiCall('maintenance', data, 'get', 'maintenanceDoneForm');
-                    } else if (f.info.type == 'deviation') {
-                        console.log('Form saved successfully2. 506');
-                        Page.apiCall('deviationForm', data, 'get', 'maintenanceDoneForm');
-                    }
-                    else{
-                        for (var i in dd) {
-                            if (dd.hasOwnProperty(i)) {
-                                if (last_data_received[i].deviation != undefined) {
-                                    switch (last_data_received[i].type) {
-                                        case 'slider':
-                                            if (dd[i] < last_data_received[i].deviation.min || dd[i] > last_data_received[i].deviation.max) {
-                                                deviation = true;
-                                            }
-                                            break;
-                                        case 'default':
-                                            break;
-                                    }
-                                }
-                            }
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : JSON.stringify(dd)
+					};
+					/*Different saving for maintenance */
+					
+					for(var i = 0; i < last_data_received.form_deviation.employee_id.list.length; i++){
+						if(last_data_received.form_deviation.employee_id.list[i][dd.employee_id]){
+							dd.responsible_fix_deviation = last_data_received.form_deviation.employee_id.list[i][dd.employee_id];
+							break;
+						}
+					}
+					if(f.info.type == 'maintenance' || f.info.type == 'deviation'){
+						var api = f.info.type;
+						if(f.info.type == 'deviation'){
+                    		api = "deviationForm";
+                    	}
+                        if(!isOffline()){
+                        	Page.apiCall(api, data, 'get', 'maintenanceDoneForm');	
+                        }else{
+                        	var offline_data = {
+								'client' : User.client,
+								'token' : User.lastToken
+							};
+							if(document.task_id > 0){
+								offline_data.form = JSON.stringify(dd);
+							}else{
+								offline_data.results = JSON.stringify(dd);
+							}
+							var $img = $('#' + haccp_image_id);
+							var imageURI = $img.attr('src');
+							if (imageURI) {
+								offline_data.imageURI = imageURI;
+							}
+							if(document.task_id > 0){
+								api = 'deviation';
+							}
+							db.lazyQuery({
+								'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+								'data' : [[api, JSON.stringify(offline_data), document.task_id, 'maintenanceDoneForm']]
+							}, 0, function(insertId) {
+								if(document.task_id > 0){
+									insertId = document.task_id;
+								}
+								if ($.isNumeric(insertId)) {
+									console.log("data");
+									$('input[name="task_id"]').val(insertId);
+								}
+								uploadHACCPPictureForms(function() {
+									deviationDoneForm({form_fix_deviation: dd, id: insertId});
+								}, function() {
+									deviationDoneForm({form_fix_deviation: dd, id: insertId});
+								});
+							});
                         }
+                        
+                    } else {
+						for (var i in dd) {
+							if (dd.hasOwnProperty(i)) {
+								if (last_data_received[i].deviation != undefined) {
+									switch (last_data_received[i].type) {
+									case 'slider':
+										if (dd[i] < last_data_received[i].deviation.min || dd[i] > last_data_received[i].deviation.max) {
+											deviation = true;
+										}
+										break;
+									case 'default':
+										break;
+									}
+								}
+							}
+						}
 
-                        if (deviation) {
-                            $('#confirmPopup .alert-text').html($.t('general.deviation_accept_message'));
-                            $('#confirmPopup').on(
-                                "popupafteropen", function( event, ui ) {
-                                    $('#confirmButton').off('click').on('click',function(){
-                                        console.log('aici avem prima chestie');
-                                        Page.apiCall('formDeviationStart', data, 'get', 'form2_save_dev');
+						if (deviation) {
+							$('#confirmPopup .alert-text').html($.t('general.deviation_accept_message'));
+							$('#confirmPopup').on("popupafteropen", function(event, ui) {
+								if ( !isOffline() ) {
+                                    console.log('aici avem prima chestie');
+                                    console.log(data);
+                                    Page.apiCall('formDeviationStart', data, 'get', 'form2_save_dev');
+                                } else {
+                                    console.log('else if offline');
+                                    var offline_data = {
+                                        'client': User.client,
+                                        'token': User.lastToken,
+                                        'results': JSON.stringify(dd),
+                                        'category': d.type
+                                    };
+                                    db.lazyQuery({
+                                        'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+                                        'data': [[
+                                            'formDeviationStart',
+                                            JSON.stringify(offline_data),
+                                            0,
+                                            'formDeviationStart'
+                                        ]]
+                                    },0);
+                                    //console.log('Skjema Lagres');
+                                    redirect_to_forms();
+                                    /*$('#alertPopup .alert-text').html('Skjema Lagres');
+                                    $('#alertPopup').on("popupafterclose",function(){
+                                        redirect_to_forms();
+                                        $('#alertPopup').unbind("popupafterclose");
                                     });
-                                });
-                            $('#confirmPopup').on(
-                                "popupafterclose", function( event, ui ) {
-                                    //var a = false;
-                                    $('#confirmButton').unbind("click");
+                                    $('#alertPopup').popup( "open", {positionTo: 'window'});*/
                                 }
-                            );
-                            $('#confirmPopup').popup( "open", {positionTo: 'window'});
-                        } else {
-                            console.log('Form saved successfully. 536');
+							});
+							$('#confirmPopup').on("popupafterclose", function(event, ui) {
+								$('#confirmButton').unbind("click");
+							});
+							$('#confirmPopup').popup("open", {
+								positionTo : 'window'
+							});
+						} else {
+							if ( !isOffline()  ) {
+                                Page.apiCall('formDeviationStart', data, 'get', 'redirect_to_forms');
+                            } else {
+                                var offline_data = {
+                                    'client': User.client,
+                                    'token': User.lastToken,
+                                    'results': JSON.stringify(dd),
+                                    'category': d.type
+                                };
+                                db.lazyQuery({
+                                    'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+                                    'data': [[
+                                        'formDeviationStart',
+                                        JSON.stringify(offline_data),
+                                        0,
+                                        'formDeviationStart'
+                                    ]]
+                                },0);
+                                redirect_to_forms();
+                            }
+						}
+					}
+				}
 
-                            Page.apiCall('formDeviationStart', data, 'get', 'redirect_to_forms');
-                        }
-                    }
-                }
+				return false;
+			});
+			// mySwiper.resizeFix();
+			mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+			console.log("mySwiper.activeIndex", mySwiper.activeIndex);
+		} else {
+			console.log('forms.js 482', f);
+			//            alert('forms.js 482');
+			var data = [];
+			var db_data = [];
+			var html = '<div style="padding:10px;"><ul data-role="listview" data-inset="true" data-divider-theme="b">';
+			for (var i in f) {
+				if (f.hasOwnProperty(i)) {
+					html += '<li><a href="#" data-id="' + f[i].info.id + '" data-type="' + f[i].form.type.value + '" class="form_generator_link2"><i class="fa fa-edit"></i> ' + f[i].info.label + '</a></li>';
+					db_data.push([f[i].info.id, f[i].info.label, JSON.stringify(f[i].form), document.form_cat]);
+				}
+			}
 
-                return false;
-            });
+			html += '</ul></div>';
+			//            console.log('final to insert');
+			//            console.log(db_data);
+			console.log('forms.js 505', db_data);
+			if(!isOffline()){
+				var q = 'INSERT OR REPLACE INTO "form_item" ("id", "label", "form", "type") VALUES(?,?,?,?)';
+				db.lazyQuery({
+					'sql' : 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
+					'data' : db_data
+				}, 0);
+			}
+			mySwiper.appendSlide(html, 'swiper-slide');
+			bind_form2_click_handler();
 
-            mySwiper.swipeTo(1, 300, true);
-        } else {
-            console.log('forms.js 482');
-//            alert('forms.js 482');
-            var data = [];
-            var db_data = [];
-            var html = '<div style="padding:10px;"><ul data-role="listview" data-inset="true" data-divider-theme="b">';
-            for (var i in f) {
-                if (f.hasOwnProperty(i)) {
-                    html += '<li><a href="#" data-id="' + f[i].info.id + '" data-type="'+ f[i].form.type.value +'" class="form_generator_link2"><i class="fa fa-edit"></i> ' + f[i].info.label + '</a></li>';
+			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
-                    db_data.push([
-                        f[i].info.id,
-                        f[i].info.label,
-                        JSON.stringify(f[i].form),
-                        document.form_cat
-                    ]);
-                }
-            }
-
-            html += '</ul></div>';
-//            console.log('final to insert');
-//            console.log(db_data);
-            console.log('forms.js 505',db_data);
-            var q = 'INSERT OR REPLACE INTO "form_item" ("id", "label", "form", "type") VALUES(?,?,?,?)';
-            db.lazyQuery({
-                'sql': 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
-                'data': db_data
-            },0);
-
-            mySwiper.appendSlide(html, 'swiper-slide');
-            bind_form2_click_handler();
-
-            $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-
-            $('#' + $.mobile.activePage.attr('id')).trigger('create');
-            mySwiper.swipeTo(1, 300, true);
-        }
-    } else {
-        console.log('wrooong');
-    }
+			$('#' + $.mobile.activePage.attr('id')).trigger('create');
+			mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+		}
+	} else {
+		console.log('wrooong');
+	}
 }
 
 function maintenance(data) {
@@ -633,7 +686,7 @@ function maintenance(data) {
         mySwiper.appendSlide(html, 'swiper-slide');
 
         $('#' + $.mobile.activePage.attr('id')).trigger('create');
-        mySwiper.swipeTo(2, 300, true);
+        mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 //        $('#form_maintenance').html(html);
         $('#signature-trigger').off('click').on('click', function(e){
@@ -745,12 +798,15 @@ function maintenanceDoneForm(data, callback) {
     if($.isNumeric(data)){
         $('input[name="task_id"]').val(data);
     }
+    maintenanceSignDone(data);
     uploadHACCPPictureForms(function(){
     	Page.redirect('tasks.html');
     	if(callback){
     		callback();
     	}
     });
+    
+    
     
 }
 
@@ -767,6 +823,9 @@ function maintenanceSignDone(data) {
     if($.isNumeric(data)){
         $('input[name="task_id"]').val(data);
     }
+    if(typeof $sigdiv == 'undefined'){
+    	return;
+    }
     var data1 = {
         'client': User.client,
         'token': User.lastToken,
@@ -777,488 +836,191 @@ function maintenanceSignDone(data) {
             "task_id": data
         })
     };
-    Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+    if(!isOffline()){
+    	Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+    }else{
+    	db.lazyQuery({
+			'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+			'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
+		}, 0);
+    }
+    
 }
 
-function showCloseButton(){
-	$('#form_back_btn i').removeClass('hided');
+function showCloseButton(callback, params){
+	if($('#form_back_btn i').hasClass('hided')){
+		$('#form_back_btn i').removeClass('hided');
+	}
     $('#form_back_btn').on('click', function(e) {
+    	if(callback){
+    		callback.apply(this,[params]);
+    	}
         $("[href='forms.html']").click();
     });
 }
 
+
+function formGeneration(type, dataBuild, callback) {
+	var d = db.getDbInstance();
+	d.transaction(function(tx) {
+		tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [type], function(tx, results) {
+			console.log("results", results);
+			//                if (results.rows.length == 0 && navigator.connection.type != Connection.NONE) {
+			if (!isOffline()) {
+				console.log('885 connection live');
+				//                if (navigator.connection.type != Connection.NONE) {
+				switch(type) {
+				case 'maintenance':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : ''
+					};
+					console.log('730');
+					Page.apiCall('maintenance', data, 'get', 'formItemData');
+					break;
+				case 'food_poision':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : ''
+					};
+					console.log(data);
+					console.log('am trimis call aici');
+					Page.apiCall('foodPoison', data, 'get', 'formItemData');
+					break;
+				case 'employee':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken
+					};
+					console.log('am trimis call employee aici');
+					Page.apiCall('registerEmployee', data, 'get', 'registerEmployee');
+					break;
+				case 'supplier':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken
+					};
+
+					Page.apiCall('registerSupplier', data, 'get', 'registerSupplier');
+					console.log('add supplier');
+					break;
+				case 'deviation':
+					console.log('deviation 851');
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : ''
+					};
+					console.log('857');
+					console.log(data);
+					Page.apiCall('deviationForm', data, 'get', 'formItemData');
+					break;
+				default:
+					console.log('744');
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'category' : type
+					};
+					Page.apiCall('formDeviationStart', data, 'get', 'formItemData');
+					break;
+				}
+				showCloseButton(callback);
+			} else if (isOffline() && results.rows.length > 0) {
+				var temperatureForm = ["dishwasher", "fridge", "vegetable_fridge", "cooler", "fridge", "sushi_fridge", "sushi_cooler", "cooling_food", "food_warm", "food_being_prepared", "received_stock"];
+				var data;
+				switch(type) {
+					case "dishwasher":
+					case "fridge":
+					case "vegetable_fridge":
+					case "cooler":
+					case "sushi_fridge":
+					case "sushi_cooler":
+					case "cooling_food":
+					case "food_warm":
+					case "food_being_prepared":
+					case "received_stock":
+						var obj = {
+							success : true,
+							form_list_question : []
+						};
+						for (var i = 0; i < results.rows.length; i++) {
+							var d = {
+								form : JSON.parse(results.rows.item(i).form),
+								info : {
+									label : results.rows.item(i).label,
+									id : results.rows.item(i).id
+								}
+							};
+							obj.form_list_question.push(d);
+						}
+						data = obj;
+						formItemData(data);
+						break;
+					case "deviation":
+					case "maintenance":
+						var d = {};
+						$.extend(d, {
+							success : true,
+							form_list_question : {
+								form : {
+									form_deviation : JSON.parse(results.rows.item(0).form)
+								},
+								info : {
+									label : results.rows.item(0).label,
+									type : type
+								}
+							}
+	
+						});
+						
+						if(dataBuild){
+							$.extend(true, d, dataBuild);
+							if(dataBuild.id){
+								document.task_id = dataBuild.id;
+							}
+						}
+						data = d;
+						formItemData(data);
+						break;
+					case 'employee':
+						var d = {};
+						$.extend(d, {
+							success : true,
+							form_register_employee : JSON.parse(results.rows.item(0).form)
+						});
+						registerEmployee(d);
+						break;
+					case 'supplier':
+						var d = {};
+							$.extend(d, {
+								success : true,
+								form_register_supplier : JSON.parse(results.rows.item(0).form)
+							});
+						registerSupplier(d);
+						break;
+				}
+				showCloseButton(callback, data);
+			} else {
+				noInternetError($.t("error.no_internet_for_sync"));
+			}
+		});
+	});
+}
+
+
 function bind_form_click_handler() {
     $('.form_generator_link').off('click').on('click', function(e){
-
-        showCloseButton();
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
         document.form_cat = $(this).data('type');
-        console.log('686 '+ document.form_cat);
-
-        var d = db.getDbInstance();
-        d.transaction(function(tx){
-            tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?',[document.form_cat], function(tx, results){
-            	console.log("results", results);
-//                if (results.rows.length == 0 && navigator.connection.type != Connection.NONE) {
-                if (!isOffline()) {
-                    console.log('885 connection live');
-//                if (navigator.connection.type != Connection.NONE) {
-                    switch(document.form_cat){
-                        case 'maintenance':
-                            var data = {
-                                'client': User.client,
-                                'token': User.lastToken,
-                                'results': ''
-                            };
-                            console.log('730');
-                            Page.apiCall('maintenance', data, 'get', 'formItemData');
-                            break;
-                        case 'food_poision':
-                            var data = {
-                                'client': User.client,
-                                'token': User.lastToken,
-                                'results': ''
-                            };
-                            console.log(data);
-                            console.log('am trimis call aici');
-                            Page.apiCall('foodPoison', data, 'get', 'formItemData');
-                            break;
-                        case 'add_employee':
-                            var data = {
-                                'client': User.client,
-                                'token': User.lastToken
-                            };
-                            console.log('am trimis call employee aici');
-                            Page.apiCall('registerEmployee', data, 'get', 'registerEmployee');
-                            break;
-                        case 'add_supplier':
-                            var data = {
-                                'client': User.client,
-                                'token': User.lastToken
-                            };
-
-                            Page.apiCall('registerSupplier', data, 'get', 'registerSupplier');
-                            console.log('add supplier');
-                            break;
-                        case 'deviation':
-                            console.log('deviation 851');
-                            var data = {
-                                'client': User.client,
-                                'token': User.lastToken,
-                                'results': ''
-                            };
-                            console.log('857');
-                            console.log(data);
-                            Page.apiCall('deviationForm', data, 'get', 'formItemData');
-                            break;
-                        default:
-                            console.log('744');
-                            var data = {
-                                'client': User.client,
-                                'token': User.lastToken,
-                                'category': document.form_cat
-                            };
-                            Page.apiCall('formDeviationStart', data, 'get', 'formItemData');
-                            break;
-                    }
-                }
-                else if ( isOffline() && results.rows.length > 0 ) {
-                    console.log('756 connection whatever and rows > 0');
-                    if (results.rows.length == 1 ) {
-                        var d = $.extend({}, results.rows.item(0));
-                        console.log('aici e form-ul de maintenance');
-                        last_data_received = JSON.parse(d.form);
-
-                        var html = '<div style="padding:10px;"><form id="form2_save">';
-                        console.log(d.type);
-                        switch(d.type){
-                            /* If maintenance, add signature form*/
-                            case 'maintenance':
-                            case 'deviation':
-                                html += '<legend class="legend_task">' + results.rows.item(0).label + '</legend>';
-                                html += HTML.formGenerate(last_data_received,  $.t("general.save_button"));
-                                html += '</form>' +
-                                    '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
-                                    '<div id="signature-holder">'+
-                                    '<div id="signature" data-role="none"></div>'+
-                                    '</div>' +
-                                    '<button id="deviation-signature-close">'+$.t("general.sign_button")+'</button>' +
-                                    '</div>'+
-                                    '</div>';
-                                $(document).on('click', '#signature-reset' , function(e){
-                                    e.preventDefault();
-
-                                    $('input[name="signature"]').val('user name');
-
-                                    return false;
-                                });
-
-                                $(document).off('click','#signature-trigger').on('click','#signature-trigger', function(e){
-                                    e.preventDefault();
-                                    openSignaturePopup();
-
-                                    $(document).off('click','#deviation-signature-close').on('click','#deviation-signature-close' ,function(){
-                                        $('#signature_pop').popup('close');
-                                        /* Save maintenance for now */
-                                        var dd1 = HTML.getFormValues($(document).find('#form2_save').parent());
-                                        //console.log(dd1);
-                                        var data_m = {
-                                            'client': User.client,
-                                            'token': User.lastToken,
-                                            'results': JSON.stringify(dd1)
-                                        };
-                                        console.log('api call signature');
-                                        if ( !isOffline() ) {
-                                        	if(d.type == 'maintenance'){
-                                        		Page.apiCall('maintenance', data_m, 'get', 'maintenanceSignDone');
-                                        	}else {
-                                        		Page.apiCall('deviationForm', data_m, 'get', 'maintenanceSignDone');
-                                        	}
-
-                                        } else {
-                                            offline_signature = {
-                                                'signature': JSON.stringify({
-                                                    "name": $('#sign_name').val(),
-                                                    "svg": $sigdiv.jSignature("getData", "svgbase64")[1],
-                                                    "parameter": "task",
-                                                    "task_id": $(document).find('input[name="task_id"]').val()
-                                                })
-                                            };
-                                            console.log('offline_signature = ');
-                                            console.log(offline_signature);
-                                            $('#sign_name').attr('disabled', true);
-                                            $('#signature-trigger').attr('disabled', true);
-                                            $('#signature-trigger').val('Signed').button('refresh');
-                                        }
-                                    });
-
-                                    return false;
-                                });
-                                break;
-                            case 'food_poision':
-                                /* Step 1*/
-                                html = '<div style="padding:10px;"><form class="form2_save">';
-                                html += '<legend class="legend_task">' + results.rows.item(0).label + '</legend>';
-                                var step = {
-                                    'task_id': last_data_received.task_id,
-                                    'guestName': last_data_received.guestName,
-                                    'guestAddress': last_data_received.guestAddress,
-                                    'guestPhone': last_data_received.guestPhone
-                                };
-                                var form = HTML.formGenerate(step, '');
-                                html += form;
-                                html += '</form></div>';
-                                mySwiper.appendSlide(html, 'swiper-slide');
-//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
-                                /* Step 2*/
-                                html = '<div style="padding:10px;"><form class="form2_save">';
-                                html += '<legend class="legend_task">' + results.rows.item(0).label + '</legend>';
-                                step = {
-                                    'task_id': last_data_received.task_id,
-                                    'symptoms': last_data_received.symptoms,
-                                    'symptomsDateTime': last_data_received.symptomsDateTime,
-                                    'symptom_days': last_data_received.symptom_days,
-                                    'symptom_hours': last_data_received.symptom_hours
-                                };
-                                form = HTML.formGenerate(step, '');
-                                html += form;
-                                html += '</form></div>';
-                                mySwiper.appendSlide(html, 'swiper-slide');
-//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
-                                /* Step 3*/
-                                html = '<div style="padding:10px;"><form class="form2_save">';
-                                html += '<legend class="legend_task">' + results.rows.item(0).label + '</legend>';
-                                step = {
-                                    'task_id': last_data_received.task_id,
-                                    'makingFoodDateTime': last_data_received.makingFoodDateTime,
-                                    'makingFoodTotalGuests': last_data_received.makingFoodTotalGuests,
-                                    'makingFoodSickGuests': last_data_received.makingFoodSickGuests,
-                                    'makingFoodWhatFood': last_data_received.makingFoodWhatFood,
-                                    'makingFoodEarlierEaten': last_data_received.makingFoodEarlierEaten,
-                                    'guestTalkedDoctor': last_data_received.guestTalkedDoctor
-                                };
-                                form = HTML.formGenerate(step, '');
-                                html += form;
-                                html += '</form></div>';
-                                mySwiper.appendSlide(html, 'swiper-slide');
-//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
-                                /* Step 4*/
-                                html = '<div style="padding:10px;"><form class="form2_save">';
-                                html += '<legend class="legend_task">' + results.rows.item(0).label + '</legend>';
-                                step = {
-                                    'task_id': last_data_received.task_id,
-                                    'ingredients': last_data_received.ingredients,
-                                    'cooledDown': last_data_received.cooledDown,
-                                    'reheated': last_data_received.reheated,
-                                    'keptWarm': last_data_received.keptWarm,
-                                    'restLeftAnalysis': last_data_received.restLeftAnalysis
-                                };
-                                form = HTML.formGenerate(step, '');
-                                html += form;
-                                html += '</form></div>';
-                                mySwiper.appendSlide(html, 'swiper-slide');
-//                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
-                                /* Step 5*/
-                                html = '<div style="padding:10px;"><form class="form2_save">';
-                                html += '<legend class="legend_task">' + results.rows.item(0).label + '</legend>';
-                                step = {
-                                    'task_id': last_data_received.task_id,
-                                    'immediateMeasures': last_data_received.immediateMeasures,
-                                    'otherComplaints': last_data_received.otherComplaints,
-                                    'guestCompensation': last_data_received.guestCompensation,
-                                    'employee_id': last_data_received.employee_id,
-                                    'deviation_deadline': last_data_received.deviation_deadline,
-//                                    'signature': last_data_received.signature,
-//                                    'correctionalMeasures': last_data_received.correctionalMeasures
-                                };
-                                form = HTML.formGenerate(step, '');
-                                html += form;
-                                html += '</form></div>'+
-                                    '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">'+
-                                    '<div id="signature-holder">'+
-                                    '<div id="signature" data-role="none"></div>'+
-                                    '</div>' +
-                                    '<button id="deviation-signature-close">'+$.t("general.sign_button")+'</button>' +
-                                    '</div>'+
-                                    '</div>'
-                                ;
-                                var footer = '<div data-role="footer" data-position="fixed" data-tap-toggle="false" data-theme="none" style="border:0 !important;">'+
-                                    '<div data-role="navbar"><ul>' +
-                                        '<li><a href="#" onclick="mySwiper.swipePrev();" data-theme="e" class="must-be-big"><i class="fa fa-angle-left fa-2x pull-left" style="color: #4c7600;"></i> Forrige</a></li>'+
-                                        '<li><a href="#" onclick="mySwiper.swipeNext();" data-theme="e" class="must-be-big">Neste <i class="fa fa-angle-right fa-2x pull-right" style="color: #4c7600;"></i></a></li>' +
-                                    '</ul></div></div>';
-                                $(footer).insertBefore('#forms #menu_panel');
-                                mySwiper.appendSlide(html, 'swiper-slide');
-                                /* Last step for redirect*/
-                                html = '<div class="no_results" style="color:#00cde7;font-size:34px;">' + $.t('register.food_poison_success') + '</div>';
-                                mySwiper.appendSlide(html, 'swiper-slide');
-                                $('#' + $.mobile.activePage.attr('id')).trigger('create');
-                                break;
-                            default:
-                                console.log('930');
-                                html += '<legend class="legend_task">' + results.rows.item(0).label + '</legend>';
-                                html += HTML.formGenerate(last_data_received,  $.t("general.save_button"));
-                                html += '</form></div>';
-                                break;
-                        }
-
-                        if(d.type != 'food_poison'){
-                            mySwiper.appendSlide(html, 'swiper-slide');
-                            $('#' + $.mobile.activePage.attr('id')).trigger('create');
-                        }
-                        mySwiper.swipeTo(2, 300, true);
-                        $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-
-                        $('#form2_save').on('submit', function(e) {
-                            e.preventDefault();
-
-                            var dd = HTML.getFormValues($(this).parent());
-                            var go = HTML.validate($(this));
-                            if (go) {
-                                var deviation = false;
-
-                                var data = {
-                                    'client': User.client,
-                                    'token': User.lastToken,
-                                    'results': JSON.stringify(dd)
-                                };
-                                /*Different saving for maintenance */
-                                console.log(d.type);
-                                console.log(dd.task_id);
-                                if(d.type == 'maintenance'){
-                                    console.log('Form saved successfully. 1155');
-                                    if ( !isOffline()  ) {
-                                        console.log('online form save');
-                                        Page.apiCall('maintenance', data, 'get', 'maintenanceDoneForm');
-                                    } else {
-                                        console.log('offline form save');
-                                        var offline_data = {
-                                            'client': User.client,
-                                            'token': User.lastToken,
-                                            'results': JSON.stringify(dd),
-                                            'signature': offline_signature.signature
-                                        };
-                                        db.lazyQuery({
-                                            'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-                                            'data': [[
-                                                'maintenance',
-                                                JSON.stringify(offline_data),
-                                                document.task_id,
-                                                'maintenanceDoneForm'
-                                            ]]
-                                        },0, function(data){
-                                        	offline_data.id = data;
-                                        	formcache.saveToTaskList(offline_data);
-                                        });
-                                        console.log(" Page.redirect");
-                                        Page.redirect('tasks.html');
-//                                        return;
-                                    }
-                                } else if (d.type == 'deviation') {
-                                    var offline_data = {
-                                            'client': User.client,
-                                            'token': User.lastToken,
-                                            'results': JSON.stringify(dd),
-                                            'signature': offline_signature.signature
-                                        };
-                                        var $img = $('#'+haccp_image_id);
-    									var imageURI = $img.attr('src');
-    									if(imageURI){
-    										offline_data.imageURI = imageURI;
-    									}
-                                        console.log(offline_data);
-                                        console.log(offline_signature);
-                                        db.lazyQuery({
-                                            'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-                                            'data':
-                                             [[
-                                                'deviationForm',
-                                                JSON.stringify(offline_data),
-                                                document.task_id,
-                                                'maintenanceSignDone'
-                                        	]]
-                                        	},0, function(data){
-	                                        	offline_data.id = data;
-	                                        	if($.isNumeric(data)){
-	                                        		console.log("data");
-										        	$('input[name="task_id"]').val(data);
-											    }
-											    console.log("insert form");
-											    uploadHACCPPictureForms(function(){
-											    	console.log("insert photo");
-											    	deviationDoneForm(offline_data);
-											    },function(){
-											    	deviationDoneForm(offline_data);
-											    });
-                                        			
-	                                        	
-                                        });
-                                        console.log(" Page.redirect");
-                                        // Page.redirect('tasks.html');
-                                }else{
-                                    /*food poison*/
-                                    console.log(d);
-                                    for (var i in dd) {
-                                        if (dd.hasOwnProperty(i)) {
-                                            if (last_data_received[i].deviation != undefined) {
-                                                switch (last_data_received[i].type) {
-                                                    case 'slider':
-                                                        if (dd[i] < last_data_received[i].deviation.min || dd[i] > last_data_received[i].deviation.max) {
-                                                            deviation = true;
-                                                        }
-                                                        break;
-                                                    case 'default':
-                                                        //console.log('deviation not defined: ' + last_data_received[i].type);
-                                                        break;
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    if (deviation) {
-                                        console.log('if deviation');
-                                        $('#confirmPopup .alert-text').html($.t('general.deviation_accept_message'));
-                                        $('#confirmPopup').on(
-                                            "popupafteropen", function( event, ui ) {
-                                                $('#confirmButton').off('click').on('click',function(){
-                                                    if ( !isOffline() ) {
-                                                        console.log('aici avem prima chestie');
-                                                        console.log(data);
-                                                        Page.apiCall('formDeviationStart', data, 'get', 'form2_save_dev');
-                                                    } else {
-                                                        console.log('else if offline');
-                                                        var offline_data = {
-                                                            'client': User.client,
-                                                            'token': User.lastToken,
-                                                            'results': JSON.stringify(dd),
-                                                            'category': d.type
-                                                        };
-                                                        db.lazyQuery({
-                                                            'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-                                                            'data': [[
-                                                                'formDeviationStart',
-                                                                JSON.stringify(offline_data),
-                                                                0,
-                                                                'formDeviationStart'
-                                                            ]]
-                                                        },0);
-                                                        //console.log('Skjema Lagres');
-                                                        redirect_to_forms();
-                                                        /*$('#alertPopup .alert-text').html('Skjema Lagres');
-                                                        $('#alertPopup').on("popupafterclose",function(){
-                                                            redirect_to_forms();
-                                                            $('#alertPopup').unbind("popupafterclose");
-                                                        });
-                                                        $('#alertPopup').popup( "open", {positionTo: 'window'});*/
-                                                    }
-                                                });
-                                            });
-                                        $('#confirmPopup').on(
-                                            "popupafterclose", function( event, ui ) {
-                                                //var a = false;
-                                                $('#confirmButton').unbind("click");
-                                            }
-                                        );
-                                        $('#confirmPopup').popup( "open", {positionTo: 'window'});
-
-                                    } else {
-                                        console.log('Form saved successfully. 1199');
-                                        if ( !isOffline()  ) {
-                                            Page.apiCall('formDeviationStart', data, 'get', 'redirect_to_forms');
-                                        } else {
-                                            var offline_data = {
-                                                'client': User.client,
-                                                'token': User.lastToken,
-                                                'results': JSON.stringify(dd),
-                                                'category': d.type
-                                            };
-                                            db.lazyQuery({
-                                                'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-                                                'data': [[
-                                                    'formDeviationStart',
-                                                    JSON.stringify(offline_data),
-                                                    0,
-                                                    'formDeviationStart'
-                                                ]]
-                                            },0);
-                                            redirect_to_forms();
-                                        }
-                                    }
-                                }
-                            }
-
-                            return false;
-                        });
-                        mySwiper.swipeTo(1, 300, true);
-                        mySwiper.resizeFix();
-                    } else {
-                        console.log('1001 + results : ');
-                        var html = '<div style="padding:10px;"><ul data-role="listview" data-inset="true" data-divider-theme="b">';
-
-                        for (var i=0;i<results.rows.length;i++) {
-                            console.log(results.rows.item(i));
-                            html += '<li><a href="#" data-id="' + results.rows.item(i).id + '" data-type="'+ results.rows.item(i).type +'" class="form_generator_link2"><i class="fa fa-edit"></i> ' + results.rows.item(i).label + '</a></li>';
-                        }
-
-                        html += '</ul></div>';
-                        mySwiper.appendSlide(html, 'swiper-slide');
-                        bind_form2_click_handler();
-                        $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-
-                        $('#' + $.mobile.activePage.attr('id')).trigger('create');
-                        mySwiper.swipeTo(1, 300, true);
-                        mySwiper.resizeFix();
-                    }
-                } else {
-                    //console.log('Offline');
-                    noInternetError($.t("error.no_internet_for_sync"));
-                }
-            });
-        });
+		formGeneration(document.form_cat);
     });
 }
 
 function deviationDoneForm(data){
+	maintenanceSignDone(data.id);
 	formcache.saveToTaskList('deviation', data, function(){
           Page.redirect('tasks.html');                   		
     });
@@ -1272,7 +1034,7 @@ function bind_form2_click_handler() {
         var type = $(this).data('type');
         var d = db.getDbInstance();
         console.log(id);
-
+		var formId = 'bind_form2'+ '_' + type + '_' + mySwiper.activeIndex || 0;
         d.transaction(function(tx){
             tx.executeSql('SELECT * FROM "form_item" WHERE "id"=?', [id], function(tx, results){
                 if (results.rows.length > 0) {
@@ -1282,7 +1044,7 @@ function bind_form2_click_handler() {
 
                     last_data_received = JSON.parse(d.form);
 
-                    var html = '<div style="padding:10px;"><form id="form2_save">';
+                    var html = '<div style="padding:10px;"><form id="' + formId + '">';
                     html += '<legend style="font-weight: bold;margin-bottom:20px;">' + results.rows.item(0).label + '</legend>';
                     html += HTML.formGenerate(last_data_received,  $.t("general.save_button"));
 
@@ -1291,13 +1053,14 @@ function bind_form2_click_handler() {
                     mySwiper.appendSlide(html, 'swiper-slide');
 
                     $('#' + $.mobile.activePage.attr('id')).trigger('create');
-                    mySwiper.swipeTo(2, 300, true);
+                    mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
                     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
-                    $('#form2_save').on('submit', function(e) {
+                    $('#'+ formId).on('submit', function(e) {
                         e.preventDefault();
 
                         var dd = HTML.getFormValues($(this).parent());
+                        console.log("dd", dd);
                         var go = HTML.validate($(this));
                         if (go) {
                             var deviation = false;
@@ -1338,13 +1101,15 @@ function bind_form2_click_handler() {
                                             if ( !isOffline() ) {
                                                 Page.apiCall('formDeviationStart', data, 'get', 'form2_save_dev');
                                             } else {
-                                                console.log('else if offline');
+                                                console.log('else if offline', dd);
                                                 var offline_data = {
                                                     'client': User.client,
                                                     'token': User.lastToken,
                                                     'results': JSON.stringify(dd),
                                                     'category': d.type
                                                 };
+                                                
+                                                console.log("offline_data", offline_data);
                                                 db.lazyQuery({
                                                     'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
                                                     'data': [[
@@ -1353,8 +1118,28 @@ function bind_form2_click_handler() {
                                                         0,
                                                         'formDeviationStart'
                                                     ]]
-                                                },0);
-                                                redirect_to_forms();
+                                                },0, function(insertId){
+                                                	formGeneration('deviation',
+                                                		{
+                                                			id: insertId, 
+															form_list_question : {
+																form : {
+																	form_deviation : {
+																		deviation_description : {
+																			value: dd.temperature + " grader rapportert på "+ results.rows.item(0).label
+																		}
+																	}
+																}
+															}
+														},
+														function(response){
+															console.log("back response", response);
+															deviationDoneForm({form_deviation: response.form_list_question.form.form_deviation, id: insertId});
+														}
+													);
+                                                	
+                                                });
+                                                // redirect_to_forms();
                                                 /*$('#alertPopup .alert-text').html("Skjema Lagres");
                                                 $('#alertPopup').on("popupafterclose",function(){
                                                     $('#alertPopup').unbind("popupafterclose");
@@ -1714,13 +1499,13 @@ function registerEmployee(data) {
         var html = '';
 
         html = '<form id="registerEmployeeForm">';
-        html += HTML.formGenerate(data.form_register_employee, $.t('nav.add_employee'));
+        html += HTML.formGenerate(data.form_register_employee, $.t('nav.employee'));
         html += '<input type="hidden" name="edit" value="false">';
         html += '</form>';
 
         mySwiper.appendSlide(html, 'swiper-slide');
         $('#' + $.mobile.activePage.attr('id')).trigger('create');
-        mySwiper.swipeTo(1, 300, true);
+        mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
 
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
@@ -1742,8 +1527,20 @@ function registerEmployee(data) {
 
                 $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
                 $('#form_back_btn i').addClass('hided');
-
-                Page.apiCall('registerEmployee', data, 'get', 'registerEmployeeSucess');
+				if(!isOffline()){
+					Page.apiCall('registerEmployee', data, 'get', 'registerEmployeeSucess');	
+				}else{
+					db.lazyQuery({
+                        'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+                        'data': [[
+                            'registerEmployee',
+                            JSON.stringify(data),
+                            0,
+                            'registerEmployeeSucess'
+                        ]]
+                    },0);
+				}
+                
             }
 
             return false;
@@ -1765,7 +1562,7 @@ function registerEmployeeSucess(data) {
         $('#alertPopup').popup( "open", {positionTo: 'window'});
     } else {
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-//        add_employeeInit();
+//        employeeInit();
         mySwiper.swipeTo(0, 300, false);
         mySwiper.removeSlide(1);
     }
@@ -1778,14 +1575,14 @@ function registerSupplier(data) {
     if (data.success) {
         var html = '';
         html = '<form id="registerSupplierForm">';
-        html += HTML.formGenerate(data.form_register_supplier, $.t('nav.add_supplier'));
+        html += HTML.formGenerate(data.form_register_supplier, $.t('nav.supplier'));
         html += '<input type="hidden" name="edit" value="false">';
         html += '</form';
-//        $('#add_supplier_container').html(html);
+//        $('#supplier_container').html(html);
 //        $('#' + $.mobile.activePage.attr('id')).trigger('create');
         mySwiper.appendSlide(html, 'swiper-slide');
         $('#' + $.mobile.activePage.attr('id')).trigger('create');
-        mySwiper.swipeTo(1, 300, true);
+        mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
 
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
@@ -1821,7 +1618,7 @@ function registerSupplierSuccess(data) {
     } else {
         console.log($.t('success.added_supplier'));
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-//        add_supplierInit();
+//        supplierInit();
     }
     mySwiper.swipeTo(0, 300, false);
     mySwiper.removeSlide(1);
