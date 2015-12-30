@@ -21,7 +21,7 @@ function getFormsCall(tx, results) {
         var label, tmp, link, alias, datatype;
 
         for (var i=0;i<results.rows.length;i++) {
-            datatype = ((results.rows.item(i).type==999)?'add_employee':(results.rows.item(i).type==1000?'add_supplier':results.rows.item(i).type));
+            datatype = ((results.rows.item(i).type==999)?'employee':(results.rows.item(i).type==1000?'supplier':results.rows.item(i).type));
             try {
                 tmp = JSON.parse(results.rows.item(i).label);
                 alias = tmp.alias;
@@ -38,15 +38,15 @@ function getFormsCall(tx, results) {
         }
         /*if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
          data.push({
-         'alias':    $.t('nav.add_employee'),
+         'alias':    $.t('nav.employee'),
          'id':       999,
-         'data':     '<a href="#" data-type="add_employee" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.add_employee') + '</a>'
+         'data':     '<a href="#" data-type="employee" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.employee') + '</a>'
          });
 
          data.push({
-         'alias':    $.t('nav.add_supplier'),
+         'alias':    $.t('nav.supplier'),
          'id':       1000,
-         'data':     '<a href="#" data-type="add_supplier" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.add_supplier') + '</a>'
+         'data':     '<a href="#" data-type="supplier" class="form_generator_link"><i class="fa fa-users"></i> ' + $.t('nav.supplier') + '</a>'
          });
          }*/
 
@@ -263,8 +263,8 @@ function formDeviationStart(data) {
         var tuples = [];
         if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
             tuples = [
-                      [999, $.t('nav.add_employee')],
-                      [1000, $.t('nav.add_supplier')]
+                      [999, $.t('nav.employee')],
+                      [1000, $.t('nav.supplier')]
                       ];
         }
 
@@ -295,16 +295,16 @@ function formDeviationStart(data) {
             }
             if (key == 999) {
                 data.push({
-                          'alias':    $.t('nav.add_employee'),
+                          'alias':    $.t('nav.employee'),
                           'id':       999,
-                          'data':     '<a href="#" data-type="add_employee" class="form_generator_link"><i ></i> ' + $.t('nav.add_employee') + '</a>'
+                          'data':     '<a href="#" data-type="employee" class="form_generator_link"><i ></i> ' + $.t('nav.employee') + '</a>'
                           });
             }
             if (key == 1000) {
                 data.push({
-                          'alias':    $.t('nav.add_supplier'),
+                          'alias':    $.t('nav.supplier'),
                           'id':       1000,
-                          'data':     '<a href="#" data-type="add_supplier" class="form_generator_link"><i ></i> ' + $.t('nav.add_supplier') + '</a>'
+                          'data':     '<a href="#" data-type="supplier" class="form_generator_link"><i ></i> ' + $.t('nav.supplier') + '</a>'
                           });
             }
 
@@ -889,7 +889,7 @@ function formGeneration(type, dataBuild, callback) {
 					console.log('am trimis call aici');
 					Page.apiCall('foodPoison', data, 'get', 'formItemData');
 					break;
-				case 'add_employee':
+				case 'employee':
 					var data = {
 						'client' : User.client,
 						'token' : User.lastToken
@@ -897,7 +897,7 @@ function formGeneration(type, dataBuild, callback) {
 					console.log('am trimis call employee aici');
 					Page.apiCall('registerEmployee', data, 'get', 'registerEmployee');
 					break;
-				case 'add_supplier':
+				case 'supplier':
 					var data = {
 						'client' : User.client,
 						'token' : User.lastToken
@@ -931,53 +931,78 @@ function formGeneration(type, dataBuild, callback) {
 			} else if (isOffline() && results.rows.length > 0) {
 				var temperatureForm = ["dishwasher", "fridge", "vegetable_fridge", "cooler", "fridge", "sushi_fridge", "sushi_cooler", "cooling_food", "food_warm", "food_being_prepared", "received_stock"];
 				var data;
-				if (results.rows.length == 1 && temperatureForm.indexOf(type) < 0) {
-					console.log('1 connection whatever and rows > 0', results.rows);
-					var d = {};
-					$.extend(d, {
-						success : true,
-						form_list_question : {
-							form : {
-								form_deviation : JSON.parse(results.rows.item(0).form)
-							},
-							info : {
-								label : results.rows.item(0).label,
-								type : type
-							}
-						}
-
-					});
-					
-					if(dataBuild){
-						$.extend(true, d, dataBuild);
-						if(dataBuild.id){
-							document.task_id = dataBuild.id;
-						}
-					}
-					data = d;
-				} else {
-					console.log('2 connection whatever and rows > 0', results.rows);
-					var obj = {
-						success : true,
-						form_list_question : []
-					};
-					for (var i = 0; i < results.rows.length; i++) {
-						var d = {
-							form : JSON.parse(results.rows.item(i).form),
-							info : {
-								label : results.rows.item(i).label,
-								id : results.rows.item(i).id
-							}
+				switch(type) {
+					case "dishwasher":
+					case "fridge":
+					case "vegetable_fridge":
+					case "cooler":
+					case "sushi_fridge":
+					case "sushi_cooler":
+					case "cooling_food":
+					case "food_warm":
+					case "food_being_prepared":
+					case "received_stock":
+						var obj = {
+							success : true,
+							form_list_question : []
 						};
-						obj.form_list_question.push(d);
-					}
-					data = obj;
-					console.log("data" ,data);
+						for (var i = 0; i < results.rows.length; i++) {
+							var d = {
+								form : JSON.parse(results.rows.item(i).form),
+								info : {
+									label : results.rows.item(i).label,
+									id : results.rows.item(i).id
+								}
+							};
+							obj.form_list_question.push(d);
+						}
+						data = obj;
+						formItemData(data);
+						break;
+					case "deviation":
+					case "maintenance":
+						var d = {};
+						$.extend(d, {
+							success : true,
+							form_list_question : {
+								form : {
+									form_deviation : JSON.parse(results.rows.item(0).form)
+								},
+								info : {
+									label : results.rows.item(0).label,
+									type : type
+								}
+							}
+	
+						});
+						
+						if(dataBuild){
+							$.extend(true, d, dataBuild);
+							if(dataBuild.id){
+								document.task_id = dataBuild.id;
+							}
+						}
+						data = d;
+						formItemData(data);
+						break;
+					case 'employee':
+						var d = {};
+						$.extend(d, {
+							success : true,
+							form_register_employee : JSON.parse(results.rows.item(0).form)
+						});
+						registerEmployee(d);
+						break;
+					case 'supplier':
+						var d = {};
+							$.extend(d, {
+								success : true,
+								form_register_supplier : JSON.parse(results.rows.item(0).form)
+							});
+						registerSupplier(d);
+						break;
 				}
-				if (data) {
-					showCloseButton(callback, data);
-					formItemData(data);
-				}
+				showCloseButton(callback, data);
 			} else {
 				noInternetError($.t("error.no_internet_for_sync"));
 			}
@@ -1474,7 +1499,7 @@ function registerEmployee(data) {
         var html = '';
 
         html = '<form id="registerEmployeeForm">';
-        html += HTML.formGenerate(data.form_register_employee, $.t('nav.add_employee'));
+        html += HTML.formGenerate(data.form_register_employee, $.t('nav.employee'));
         html += '<input type="hidden" name="edit" value="false">';
         html += '</form>';
 
@@ -1502,8 +1527,20 @@ function registerEmployee(data) {
 
                 $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
                 $('#form_back_btn i').addClass('hided');
-
-                Page.apiCall('registerEmployee', data, 'get', 'registerEmployeeSucess');
+				if(!isOffline()){
+					Page.apiCall('registerEmployee', data, 'get', 'registerEmployeeSucess');	
+				}else{
+					db.lazyQuery({
+                        'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+                        'data': [[
+                            'registerEmployee',
+                            JSON.stringify(data),
+                            0,
+                            'registerEmployeeSucess'
+                        ]]
+                    },0);
+				}
+                
             }
 
             return false;
@@ -1525,7 +1562,7 @@ function registerEmployeeSucess(data) {
         $('#alertPopup').popup( "open", {positionTo: 'window'});
     } else {
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-//        add_employeeInit();
+//        employeeInit();
         mySwiper.swipeTo(0, 300, false);
         mySwiper.removeSlide(1);
     }
@@ -1538,10 +1575,10 @@ function registerSupplier(data) {
     if (data.success) {
         var html = '';
         html = '<form id="registerSupplierForm">';
-        html += HTML.formGenerate(data.form_register_supplier, $.t('nav.add_supplier'));
+        html += HTML.formGenerate(data.form_register_supplier, $.t('nav.supplier'));
         html += '<input type="hidden" name="edit" value="false">';
         html += '</form';
-//        $('#add_supplier_container').html(html);
+//        $('#supplier_container').html(html);
 //        $('#' + $.mobile.activePage.attr('id')).trigger('create');
         mySwiper.appendSlide(html, 'swiper-slide');
         $('#' + $.mobile.activePage.attr('id')).trigger('create');
@@ -1581,7 +1618,7 @@ function registerSupplierSuccess(data) {
     } else {
         console.log($.t('success.added_supplier'));
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-//        add_supplierInit();
+//        supplierInit();
     }
     mySwiper.swipeTo(0, 300, false);
     mySwiper.removeSlide(1);

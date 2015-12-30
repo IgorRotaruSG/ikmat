@@ -67,7 +67,7 @@ function _appendAndSortByAlias(b, e) {
         }
 
     }
-    $(b).listview("refresh")
+    $(b).listview("refresh");
 }
 
 function in_array(e, d, c) {
