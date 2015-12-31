@@ -148,7 +148,7 @@ function sync_query(data, params) {
 			_sync_data_rows = false;
 			$('#syncing_tasks').addClass('hide');
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-			// window.location.reload();
+			window.location.reload();
 		}
 	}
 }
