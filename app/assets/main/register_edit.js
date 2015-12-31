@@ -43,7 +43,7 @@ function register_editInit() {
     load_done = true;
     db_back_step = false;
     loaded_steps = [];
-    zh = parseInt($('body').height())-110;
+    zh = parseInt($('body').height())-100;
     max_steps = 19;
     max_stepsB = 20;
     mySwiper = new Swiper('.swiper-container',{
@@ -126,7 +126,7 @@ function register_editInit() {
                         ]]
                     },0);
                     if (!isOffline()) {
-                        Page.apiCall('companyEdit', data, 'post', 'newCompanyRegistration', {"test": "TEST"});
+                        Page.apiCall('companyEdit', data, 'post', 'newCompanyRegistration');
                         //truncate table haccp_items so if there are any changes, it will take them again online
                         db.execute('DELETE FROM "haccp_items"');
                     } else {
@@ -430,8 +430,9 @@ function newCompanyRegistration(data, params) {
                 }
             }
             $('#' + $.mobile.activePage.attr('id')).trigger('create');
-
-
+			$('a i.fa-plus').parent().parent().on('click', offlinePrevent);
+			$('a i.fa-minus').parent().parent().on('click', offlinePrevent);
+			
             if (load_done) {
             	console.log("LoadDone");
                 mySwiper.reInit();
@@ -440,9 +441,18 @@ function newCompanyRegistration(data, params) {
                 load_done = false;
                 var $c = $(mySwiper.activeSlide());
                 var go = HTML.validate($c,"REG");
+                
             }
         }
     }
+}
+
+function offlinePrevent(e){
+	if(isOffline()){
+		e.preventDefault();
+		e.stopPropagation();
+		noInternetError($.t("error.no_internet_for_sync"), null, $('span.language', this).text());
+	}
 }
 
 function validate_extra() {
