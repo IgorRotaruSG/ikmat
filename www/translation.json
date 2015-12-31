@@ -36,8 +36,8 @@
         "forms": "Skjemaer",
         "reports": "Rapporter",
         "logout": "Logg ut",
-        "add_employee": "Ansattskjema",
-        "add_supplier": "Leverandørskjema",
+        "employee": "Ansattskjema",
+        "supplier": "Leverandørskjema",
         "documents": "Selskapsdokument"
     },
 
@@ -78,8 +78,8 @@
         "haccp_deviation":  "Avvik",
         "haccp_deviation_fix": "Avmeld avvik",
         "reports_view":     "Se rapport",
-        "add_employee":     "Ny ansatt",
-        "add_supplier":     "Ny leverandør",
+        "employee":     "Ny ansatt",
+        "supplier":     "Ny leverandør",
         "documents":        "Dokumenter",
         "tos":              "Brukeravtale",
         "maintenance":      "Vedlikehold",

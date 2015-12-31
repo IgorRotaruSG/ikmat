@@ -1,9 +1,9 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    // 'apiDomain':        'http://ikmatapp.no/api/',
-    // 'apiPath':        'http://ikmatapp.no',
-    'apiDomain':        'http://10.16.43.33/api/',
-    'apiPath':        'http://10.16.43.33',
+    'apiDomain':        'http://ikmatapp.no/api/',
+    'apiPath':        'http://ikmatapp.no',
+    // 'apiDomain':        'http://10.16.43.33/api/',
+    // 'apiPath':        'http://10.16.43.33',
     'apiUploadPath':    'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -15,8 +15,8 @@ var settings = {
 	},
 	'requestTimeout' : 25000,
 	'excludeOffline': ["haccp.html", "flowchart.html"],
-	'version': "2.0.61",
-	'rebuild': "2.0.61"
+	'version': "2.0.63",
+	'rebuild': "2.0.63"
 };
 
 var performance = window.performance;
@@ -2193,7 +2193,7 @@ function bind_menuClick(t, n) {
 	} else {
 		contactName.html(localStorage.getItem('contact_name'));
 	}
-	$(t).find('#app-version').html("IK-mat 2.0.7");
+	$(t).find('#app-version').html("IK-mat 2.0.8");
 	displayOnline(isOffline());
 }
 
