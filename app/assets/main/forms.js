@@ -6,9 +6,6 @@ var offline_signature;
 var lazydatasend = [];
 var canRedirectAfterPoisonParam = false;
 var mapForm = {
-	"maintenance" : 3,
-	"food_poision" : 4,
-	"deviation" : 5,
 	"cooling_food" : 9,
 	"food_warm" : 10,
 	"received_stock" : 11,
