@@ -310,6 +310,30 @@ function getTaskData(data) {
                                         'data': [['1',document.task_id]]
                                     },0);
                                 } else {
+                                	db.lazyQuery({
+										'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+										'data' : [['formDeviationStart', JSON.stringify(offline_data), 0, 'formDeviationStart']]
+									}, 0, function(insertId) {
+										formGeneration('deviation', {
+											id : insertId,
+											form_list_question : {
+												form : {
+													form_deviation : {
+														deviation_description : {
+															value : dd.temperature + " grader rapportert på " + results.rows.item(0).label
+														}
+													}
+												}
+											}
+										}, function(response) {
+											console.log("back response", response);
+											deviationDoneForm({
+												form_deviation : response.form_list_question.form.form_deviation,
+												id : insertId
+											});
+										});
+
+									});
                                     db.lazyQuery({
                                         'sql': 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
                                         'data': [[
@@ -382,6 +406,56 @@ function getTaskData(data) {
         console.warn('it seems that we have a problem');
     }
 }
+
+function formGeneration(type, dataBuild, callback) {
+	var d = db.getDbInstance();
+	d.transaction(function(tx) {
+		tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [type], function(tx, results) {
+			if (isOffline() && results.rows.length > 0) {
+				var data;
+				switch(type) {
+				case "deviation":
+				case "maintenance":
+					var d = {};
+					$.extend(d, {
+						success : true,
+						form_list_question : {
+							form : {
+								form_deviation : JSON.parse(results.rows.item(0).form)
+							},
+							info : {
+								label : results.rows.item(0).label,
+								type : type
+							}
+						}
+
+					});
+
+					if (dataBuild) {
+						$.extend(true, d, dataBuild);
+						if (dataBuild.id) {
+							document.task_id = dataBuild.id;
+						}
+					}
+					data = d;
+					getDeviationForm(data);
+					break;
+				closeButtonDisplay(callback, data);
+			} else {
+				noInternetError($.t("error.no_internet_for_sync"));
+			}
+		});
+	});
+}
+
+function deviationDoneForm(data) {
+	maintenanceSignDone(data.id);
+	var formcache = new FormCache();
+	formcache.saveToTaskList('deviation', data, function() {
+		Page.redirect('tasks.html');
+	});
+}
+
 
 function redirectToTasks() {
     $('#taskList').empty();
@@ -1167,9 +1241,12 @@ function haccpDeviationFixSave(data) {
 }
 /********* END HACCP DEVIATION **********/
 
-function closeButtonDisplay(){
+function closeButtonDisplay(callback, params){
 	$('#form_back_btn i').removeClass('hided');
 	 $('#form_back_btn').on('click', function(e) {
+	 	if (callback) {
+			callback.apply(this, [params]);
+		}
          $("[href='tasks.html']").click();
     });
 }

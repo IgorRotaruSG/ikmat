@@ -373,6 +373,155 @@ function formDeviationStart(data) {
 	realignSlideHeight('max-height-form');
 }
 
+function formGeneration(type, dataBuild, callback) {
+	var d = db.getDbInstance();
+	d.transaction(function(tx) {
+		tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [type], function(tx, results) {
+			console.log("results", results);
+			//                if (results.rows.length == 0 && navigator.connection.type != Connection.NONE) {
+			if (!isOffline()) {
+				console.log('885 connection live');
+				//                if (navigator.connection.type != Connection.NONE) {
+				switch(type) {
+				case 'maintenance':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : ''
+					};
+					console.log('730');
+					Page.apiCall('maintenance', data, 'get', 'formItemData');
+					break;
+				case 'food_poision':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : ''
+					};
+					console.log(data);
+					console.log('am trimis call aici');
+					Page.apiCall('foodPoison', data, 'get', 'formItemData');
+					break;
+				case 'employee':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken
+					};
+					console.log('am trimis call employee aici');
+					Page.apiCall('registerEmployee', data, 'get', 'registerEmployee');
+					break;
+				case 'supplier':
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken
+					};
+
+					Page.apiCall('registerSupplier', data, 'get', 'registerSupplier');
+					console.log('add supplier');
+					break;
+				case 'deviation':
+					console.log('deviation 851');
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'results' : ''
+					};
+					console.log('857');
+					console.log(data);
+					Page.apiCall('deviationForm', data, 'get', 'formItemData');
+					break;
+				default:
+					console.log('744');
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'category' : type
+					};
+					Page.apiCall('formDeviationStart', data, 'get', 'formItemData');
+					break;
+				}
+				showCloseButton(callback);
+			} else if (isOffline() && results.rows.length > 0) {
+				var data;
+				switch(type) {
+				case "dishwasher":
+				case "fridge":
+				case "vegetable_fridge":
+				case "cooler":
+				case "sushi_fridge":
+				case "sushi_cooler":
+				case "cooling_food":
+				case "food_warm":
+				case "food_being_prepared":
+				case "received_stock":
+					var obj = {
+						success : true,
+						form_list_question : []
+					};
+					for (var i = 0; i < results.rows.length; i++) {
+						var d = {
+							form : JSON.parse(results.rows.item(i).form),
+							info : {
+								label : results.rows.item(i).label,
+								id : results.rows.item(i).id
+							}
+						};
+						obj.form_list_question.push(d);
+					}
+					data = obj;
+					formItemData(data);
+					break;
+				case "deviation":
+				case "maintenance":
+					var d = {};
+					$.extend(d, {
+						success : true,
+						form_list_question : {
+							form : {
+								form_deviation : JSON.parse(results.rows.item(0).form)
+							},
+							info : {
+								label : results.rows.item(0).label,
+								type : type
+							}
+						}
+
+					});
+
+					if (dataBuild) {
+						$.extend(true, d, dataBuild);
+						if (dataBuild.id) {
+							document.task_id = dataBuild.id;
+						}
+					}
+					data = d;
+					formItemData(data);
+					break;
+				case 'employee':
+					var d = {};
+					$.extend(d, {
+						success : true,
+						form_register_employee : JSON.parse(results.rows.item(0).form)
+					});
+					registerEmployee(d);
+					break;
+				case 'supplier':
+					var d = {};
+					$.extend(d, {
+						success : true,
+						form_register_supplier : JSON.parse(results.rows.item(0).form)
+					});
+					registerSupplier(d);
+					break;
+				}
+				showCloseButton(callback, data);
+			} else {
+				noInternetError($.t("error.no_internet_for_sync"));
+			}
+		});
+	});
+}
+
 function formItemData(data) {
 	console.log('forms.js  formItemData 200');
 	if (data.success) {
@@ -631,14 +780,7 @@ function formItemData(data) {
 										'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
 										'data' : [['formDeviationStart', JSON.stringify(offline_data), 0, 'formDeviationStart']]
 									}, 0);
-									//console.log('Skjema Lagres');
 									redirect_to_forms();
-									/*$('#alertPopup .alert-text').html('Skjema Lagres');
-									 $('#alertPopup').on("popupafterclose",function(){
-									 redirect_to_forms();
-									 $('#alertPopup').unbind("popupafterclose");
-									 });
-									 $('#alertPopup').popup( "open", {positionTo: 'window'});*/
 								}
 							});
 							$('#confirmPopup').on("popupafterclose", function(event, ui) {
@@ -891,156 +1033,6 @@ function showCloseButton(callback, params) {
 	});
 }
 
-function formGeneration(type, dataBuild, callback) {
-	var d = db.getDbInstance();
-	d.transaction(function(tx) {
-		tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [type], function(tx, results) {
-			console.log("results", results);
-			//                if (results.rows.length == 0 && navigator.connection.type != Connection.NONE) {
-			if (!isOffline()) {
-				console.log('885 connection live');
-				//                if (navigator.connection.type != Connection.NONE) {
-				switch(type) {
-				case 'maintenance':
-					var data = {
-						'client' : User.client,
-						'token' : User.lastToken,
-						'results' : ''
-					};
-					console.log('730');
-					Page.apiCall('maintenance', data, 'get', 'formItemData');
-					break;
-				case 'food_poision':
-					var data = {
-						'client' : User.client,
-						'token' : User.lastToken,
-						'results' : ''
-					};
-					console.log(data);
-					console.log('am trimis call aici');
-					Page.apiCall('foodPoison', data, 'get', 'formItemData');
-					break;
-				case 'employee':
-					var data = {
-						'client' : User.client,
-						'token' : User.lastToken
-					};
-					console.log('am trimis call employee aici');
-					Page.apiCall('registerEmployee', data, 'get', 'registerEmployee');
-					break;
-				case 'supplier':
-					var data = {
-						'client' : User.client,
-						'token' : User.lastToken
-					};
-
-					Page.apiCall('registerSupplier', data, 'get', 'registerSupplier');
-					console.log('add supplier');
-					break;
-				case 'deviation':
-					console.log('deviation 851');
-					var data = {
-						'client' : User.client,
-						'token' : User.lastToken,
-						'results' : ''
-					};
-					console.log('857');
-					console.log(data);
-					Page.apiCall('deviationForm', data, 'get', 'formItemData');
-					break;
-				default:
-					console.log('744');
-					var data = {
-						'client' : User.client,
-						'token' : User.lastToken,
-						'category' : type
-					};
-					Page.apiCall('formDeviationStart', data, 'get', 'formItemData');
-					break;
-				}
-				showCloseButton(callback);
-			} else if (isOffline() && results.rows.length > 0) {
-				var temperatureForm = ["dishwasher", "fridge", "vegetable_fridge", "cooler", "fridge", "sushi_fridge", "sushi_cooler", "cooling_food", "food_warm", "food_being_prepared", "received_stock"];
-				var data;
-				switch(type) {
-				case "dishwasher":
-				case "fridge":
-				case "vegetable_fridge":
-				case "cooler":
-				case "sushi_fridge":
-				case "sushi_cooler":
-				case "cooling_food":
-				case "food_warm":
-				case "food_being_prepared":
-				case "received_stock":
-					var obj = {
-						success : true,
-						form_list_question : []
-					};
-					for (var i = 0; i < results.rows.length; i++) {
-						var d = {
-							form : JSON.parse(results.rows.item(i).form),
-							info : {
-								label : results.rows.item(i).label,
-								id : results.rows.item(i).id
-							}
-						};
-						obj.form_list_question.push(d);
-					}
-					data = obj;
-					formItemData(data);
-					break;
-				case "deviation":
-				case "maintenance":
-					var d = {};
-					$.extend(d, {
-						success : true,
-						form_list_question : {
-							form : {
-								form_deviation : JSON.parse(results.rows.item(0).form)
-							},
-							info : {
-								label : results.rows.item(0).label,
-								type : type
-							}
-						}
-
-					});
-
-					if (dataBuild) {
-						$.extend(true, d, dataBuild);
-						if (dataBuild.id) {
-							document.task_id = dataBuild.id;
-						}
-					}
-					data = d;
-					formItemData(data);
-					break;
-				case 'employee':
-					var d = {};
-					$.extend(d, {
-						success : true,
-						form_register_employee : JSON.parse(results.rows.item(0).form)
-					});
-					registerEmployee(d);
-					break;
-				case 'supplier':
-					var d = {};
-					$.extend(d, {
-						success : true,
-						form_register_supplier : JSON.parse(results.rows.item(0).form)
-					});
-					registerSupplier(d);
-					break;
-				}
-				showCloseButton(callback, data);
-			} else {
-				noInternetError($.t("error.no_internet_for_sync"));
-			}
-		});
-	});
-}
-
 function bind_form_click_handler() {
 	$('.form_generator_link').off('click').on('click', function(e) {
 		$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
@@ -1052,7 +1044,7 @@ function bind_form_click_handler() {
 function deviationDoneForm(data) {
 	maintenanceSignDone(data.id);
 	formcache.saveToTaskList('deviation', data, function() {
-		Page.redirect('tasks.html');
+		Page.redirect('forms.html');
 	});
 }
 
@@ -1163,13 +1155,6 @@ function bind_form2_click_handler() {
 												});
 
 											});
-											// redirect_to_forms();
-											/*$('#alertPopup .alert-text').html("Skjema Lagres");
-											 $('#alertPopup').on("popupafterclose",function(){
-											 $('#alertPopup').unbind("popupafterclose");
-											 redirect_to_forms();
-											 });
-											 $('#alertPopup').popup( "open", {positionTo: 'window'});*/
 										}
 									});
 								});
