@@ -351,6 +351,13 @@ function reportTables(data) {
 
 function bind_form_click_handler_r() {
     $('.report_generator_link').off('click').on('click', function(e){
+        /* Set month to current time */
+        var current_date = new Date();
+        current_month = getMonth(current_date.getMonth() + 1);
+        current_month_nr = current_date.getMonth() + 1;
+        /* Set year to current time */
+        reports_date_start = new Date().getFullYear() + '-' + (new Date().getMonth()+1).toString().replace(/\d{0,2}/,function(m){return '0'.slice(m.length-1) + m;}) + '-01';
+
         report_name = $(this).text();
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
         document.form_cat = $(this).data('type');
