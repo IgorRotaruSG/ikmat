@@ -139,6 +139,7 @@ function formsInit() {
 								'results' : JSON.stringify(data_send)
 							};
 							canRedirectAfterPoisonParam = true;
+							console.log("data_send", data_send);
 							if (!isOffline()) {
 								Page.apiCall('foodPoison', data, 'get', 'foodPoisonDone');
 							} else {
@@ -146,7 +147,6 @@ function formsInit() {
 								$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 							}
 						} else {
-							//console.log('aiciiii222i');
 							canRedirectAfterPoisonParam = false;
 							swiper.swipePrev();
 							$('.overflow-wrapper').addClass('overflow-wrapper-hide');
@@ -161,8 +161,6 @@ function formsInit() {
 									//                                    alert(i);
 									$("div[data-role='navbar']").remove();
 								}
-								//                                swiper.removeSlide(parseInt(swiper.activeIndex) + 2);
-								//                                swiper.removeAllSlides();
 							}
 						}
 					}
@@ -171,7 +169,6 @@ function formsInit() {
 						swiper.removeSlide(parseInt(swiper.activeIndex) + 1);
 					}
 				}
-				console.log("mySwiper.slides", mySwiper.slides);
 				if (mySwiper.slides.length == 1) {
 					$('#footer').remove();
 					$('#form_back_btn i').addClass('hided');
@@ -210,14 +207,22 @@ function formsInit() {
 							}
 						}
 						newlazy['results'] = JSON.stringify(newlazy.results);
+						console.log("newlazy", newlazy);
 						db.lazyQuery({
 							'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
 							'data' : [['foodPoison', JSON.stringify(newlazy), 0, 'foodPoison']]
-						}, 0);
+						}, 0, function(insertId){
+							newlazy['results'] = JSON.parse(newlazy.results);
+							newlazy.results.id = insertId;
+							formcache.generateFoodPoisonTask('food_poision', newlazy['results'], function() {
+								newlazy = {};
+								Page.redirect('index.html');
+							});
+						});
 					}
-					setTimeout(function() {
-						window.location.href = 'index.html';
-					}, 3500);
+					// setTimeout(function() {
+// 						
+					// }, 3500);
 				}
 			}
 		});
@@ -237,17 +242,19 @@ function checkForm(type, callback) {
 	var d = db.getDbInstance();
 	d.transaction(function(tx) {
 		tx.executeSql('SELECT * FROM "sync_query" WHERE "extra"=? ORDER BY id DESC LIMIT 1', [mapForm[type]], function(tx, results) {
-			console.log("results.rows", results.rows);
+			// console.log("results.rows", results.rows);
 			if (results.rows.length > 0) {
 				var data = JSON.parse(results.rows.item(0).data);
-				data.parameters = JSON.parse(data.parameters);
-				console.log("data.parameters", data.parameters);
-				for (key in data.parameters) {
-					if (data.parameters.hasOwnProperty(key) && data.parameters[key] == "off") {
-						if (callback) {
-							callback(false);
+				
+				if(data.parameters){
+					data.parameters = JSON.parse(data.parameters);
+					for (key in data.parameters) {
+						if (data.parameters.hasOwnProperty(key) && data.parameters[key] == "off") {
+							if (callback) {
+								callback(false);
+							}
+							return;
 						}
-						return;
 					}
 				}
 				if (callback) {
@@ -513,7 +520,25 @@ function formGeneration(type, dataBuild, callback) {
 					});
 					registerSupplier(d);
 					break;
+				default:
+					var d = {};
+					$.extend(d, {
+						success : true,
+						form_list_question : {
+							form : JSON.parse(results.rows.item(0).form),
+							info : {
+								label : results.rows.item(0).label,
+								type : type
+							}
+						}
+
+					});
+					data = d;
+					console.log("data", data);
+					formItemData(data);
+					break;
 				}
+				
 				showCloseButton(callback, data);
 			} else {
 				noInternetError($.t("error.no_internet_for_sync"));
@@ -1215,8 +1240,6 @@ function bind_form2_click_handler() {
 							$('#alertPopup').popup("open", {
 								positionTo : 'window'
 							});
-							//alert('Operation unavailable');
-							//$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 						}
 
 					});

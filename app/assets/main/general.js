@@ -1,9 +1,9 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    // 'apiDomain':        'http://ikmatapp.no/api/',
-    // 'apiPath':        'http://ikmatapp.no',
-    'apiDomain':        'http://10.16.43.33/api/',
-    'apiPath':        'http://10.16.43.33',
+    'apiDomain':        'http://ikmatapp.no/api/',
+    'apiPath':        'http://ikmatapp.no',
+    // 'apiDomain':        'http://10.16.43.33/api/',
+    // 'apiPath':        'http://10.16.43.33',
     'apiUploadPath':    'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -2252,12 +2252,12 @@ function testConnection(callback) {
 				}
 
 			}
-			displayOnline(offline);
+			displayOnline(offline || isOffline());
 		};
 		img.onerror = function(){
 			offline = true;
 			displayOnline(offline);
-		}
+		};
 		img = null;
 
 	} else {
@@ -2288,7 +2288,7 @@ function displayOnline(isOffline){
 }
 
 function isOffline() {//check if application has internet connection
-	// return true;
+	return true;
 	if ((navigator.onLine || (navigator.connection && navigator.connection.type != Connection.NONE)) && offline == false) {
 		return false;
 	}

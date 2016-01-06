@@ -6,10 +6,10 @@ function selectTaskById(task_id, callback) {
 	d = db.getDbInstance();
 	d.transaction(function(tx) {
 		tx.executeSql('SELECT * FROM "sync_query" WHERE "id"=? and executed=1', [task_id], function(tx, results) {
-
 			if (results.rows.length > 0) {
-				console.log("selectTaskById", results.rows.item(0));
 				callback(results.rows.item(0));
+			}else{
+				callback({extra: task_id});
 			}
 		});
 	});
@@ -86,31 +86,7 @@ function sync_query(data, params) {
 				e.data.client = User.client;
 				e.data.token = User.lastToken;
 				_sync_lock = true;
-				if (e.api == "deviation" || e.api == "documentSignature") {
-					console.log("deviation", e.extra);
-					selectTaskById(e.extra, function(success) {
-						console.log("success", success);
-						if (success.extra) {
-							success.data = JSON.parse(success.data);
-							e.data.task_id = success.extra;
-							if(e.data.form){
-								var form = JSON.parse(e.data.form);
-								form.task_id = success.extra;
-								e.data.form = JSON.stringify(form);
-							}
-							if(e.data.signature){
-								var signature = JSON.parse(e.data.signature);
-								signature.task_id = success.extra;
-								e.data.signature = JSON.stringify(signature);
-							}
-							Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
-								id : e.id,
-								api: e.api
-							});
-						}
-					});
-					
-				} else if(e.api == "uploadPhotos"){
+				if(e.api == "uploadPhotos"){
 					console.log("uploadPhotos", e);
 					selectTaskById(e.extra, function(success) {
 						console.log("success", success);
@@ -133,9 +109,26 @@ function sync_query(data, params) {
 						}
 					});
 				}else{
-					Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
-						id : e.id,
-						api: e.api
+					selectTaskById(e.extra, function(success) {
+						console.log("success", success);
+						if (success.extra) {
+							success.data = JSON.parse(success.data);
+							e.data.task_id = success.extra;
+							if(e.data.form){
+								var form = JSON.parse(e.data.form);
+								form.task_id = success.extra;
+								e.data.form = JSON.stringify(form);
+							}
+							if(e.data.signature){
+								var signature = JSON.parse(e.data.signature);
+								signature.task_id = success.extra;
+								e.data.signature = JSON.stringify(signature);
+							}
+							Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
+								id : e.id,
+								api: e.api
+							});
+						}
 					});
 				}
 
