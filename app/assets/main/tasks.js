@@ -74,7 +74,7 @@ function getFormsList(data) {
 		/* SORT SECTION */
 		var tuples = [];
 		if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
-			tuples = [[999, $.t('nav.add_employee')], [1000, $.t('nav.add_supplier')]];
+			tuples = [[999, $.t('nav.employee')], [1000, $.t('nav.supplier')]];
 		}
 
 		for (var key in f) {

@@ -8,22 +8,24 @@ function selectTaskById(task_id, callback) {
 		tx.executeSql('SELECT * FROM "sync_query" WHERE "id"=? and executed=1', [task_id], function(tx, results) {
 			if (results.rows.length > 0) {
 				callback(results.rows.item(0));
-			}else{
-				callback({extra: task_id});
+			} else {
+				callback({
+					extra : task_id
+				});
 			}
 		});
 	});
 }
 
-function sync_updateDB(data, params){
+function sync_updateDB(data, params) {
 	d = db.getDbInstance();
-	try{
+	try {
 		if (params && params.id) {
 			d.transaction(function(tx) {
 				var request = {};
 				if (data) {
 					var extra = data;
-					if(params.api == 'formDeviationStart'){
+					if (params.api == 'formDeviationStart') {
 						extra = data.form_deviation.last_task_inserted;
 					}
 					request.sql = 'UPDATE "sync_query" SET "executed"=?,"extra"=? WHERE "id"=?';
@@ -43,7 +45,7 @@ function sync_updateDB(data, params){
 				});
 			});
 		}
-	}catch (err) {
+	} catch (err) {
 		_sync_lock = false;
 		_sync_data_i = parseInt(_sync_data_i) + 1;
 		console.error('wtf');
@@ -57,7 +59,7 @@ function sync_query(data, params) {
 	 console.log(data);
 	 console.log('----------------------------------------|/data|---------------------------------');
 	 */
-	
+
 	if (isOffline()) {
 		_sync_data_rows = false;
 		_sync_lock = false;
@@ -86,7 +88,7 @@ function sync_query(data, params) {
 				e.data.client = User.client;
 				e.data.token = User.lastToken;
 				_sync_lock = true;
-				if(e.api == "uploadPhotos"){
+				if (e.api == "uploadPhotos") {
 					console.log("uploadPhotos", e);
 					selectTaskById(e.extra, function(success) {
 						console.log("success", success);
@@ -100,36 +102,50 @@ function sync_query(data, params) {
 										id : e.id
 									});
 								}, function() {
-									var obj = 
-									sync_updateDB(null, {
+									var obj = sync_updateDB(null, {
 										id : e.id
 									});
 								});
 							}
 						}
 					});
-				}else{
-					selectTaskById(e.extra, function(success) {
-						console.log("success", success);
-						if (success.extra) {
-							success.data = JSON.parse(success.data);
-							e.data.task_id = success.extra;
-							if(e.data.form){
-								var form = JSON.parse(e.data.form);
-								form.task_id = success.extra;
-								e.data.form = JSON.stringify(form);
+				} else {
+					if (e.extra && e.extra > 0) {
+						selectTaskById(e.extra, function(success) {
+							console.log("success", success);
+							if (success.extra) {
+								success.data = JSON.parse(success.data);
+								if(e.data.hasOwnProperty("task_id")){
+									e.data.task_id = success.extra;
+								}
+								if (e.data.form) {
+									var form = JSON.parse(e.data.form);
+									form.task_id = success.extra;
+									e.data.form = JSON.stringify(form);
+								}
+								if (e.data.signature) {
+									var signature = JSON.parse(e.data.signature);
+									signature.task_id = success.extra;
+									e.data.signature = JSON.stringify(signature);
+								}
+								if (e.data.results) {
+									var results = JSON.parse(e.data.results);
+									results.task_id = success.extra;
+									e.data.results = JSON.stringify(results);
+								}
+								Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
+									id : e.id,
+									api : e.api
+								});
 							}
-							if(e.data.signature){
-								var signature = JSON.parse(e.data.signature);
-								signature.task_id = success.extra;
-								e.data.signature = JSON.stringify(signature);
-							}
-							Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
-								id : e.id,
-								api: e.api
-							});
-						}
-					});
+						});
+					}else{
+						Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
+							id : e.id,
+							api : e.api
+						});
+					}
+
 				}
 
 			} catch (err) {

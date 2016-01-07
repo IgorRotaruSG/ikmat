@@ -94,21 +94,21 @@ function FormCache() {
 		'food_poision' : {
 			"title": "Matforgiftning",
 			"form_fix_deviation" : {
-				"Navn p\u00e5 gjest" : "",
-				"Addresse" : "",
-				"Symptomer" : "Nei",
-				"Tid og dato for symptomer" : function(obj){
-					return obj.symptomsDateTime;
-				},
-				"Hvor lenge har symptomene vart" : function(obj){
+				"Symptomer" : function(obj){
 					var result = "";
 					for (var i = 0; i < obj.symptoms.length; i++){
 						result = result + obj.form.symptoms.list[(i + 1)].label ;
 						if(i < obj.symptoms.length - 1){
-							result = result + ", ";
+							result = result + " ";
 						}
 					}
 					return result;
+				},
+				"Tid og dato for symptomer" : function(obj){
+					return obj.symptomsDateTime;
+				},
+				"Hvor lenge har symptomene vart" : function(obj){
+					return obj.symptom_days + ' Dager, ' + obj.symptom_hours + ' Timer';
 				},
 				"Tid og dato for tilberedning av maten" : function(obj){
 					return obj.makingFoodDateTime;
@@ -123,22 +123,22 @@ function FormCache() {
 					return obj.makingFoodEarlierEaten;
 				},
 				"Har gjesten kontaktet lege?" : function(obj){
-					return obj.guestTalkedDoctor;
+					return obj.guestTalkedDoctor?"Ja":"Nei";
 				},
 				"Ingredienser" : function(obj){
 					return obj.ingredients;
 				},
 				"Nedkj\u00f8lt?" : function(obj){
-					return obj.cooledDown;
+					return obj.cooledDown?"Ja":"Nei";
 				},
 				"Oppvarmet igjen?" : function(obj){
-					return obj.reheated;
+					return obj.reheated?"Ja":"Nei";
 				},
 				"Holdt varmt?" : function(obj){
-					return obj.keptWarm;
+					return obj.keptWarm?"Ja":"Nei";
 				},
 				"Er det rester igjen for analyse?" : function(obj){
-					return obj.restLeftAnalysis;
+					return obj.restLeftAnalysis?"Ja":"Nei";
 				},
 				"Umiddelbare tiltak" : function(obj){
 					return obj.immediateMeasures;
@@ -190,7 +190,7 @@ function FormCache() {
 						"label" : "Dato for retting av avvik",
 						"value" : function(obj){
 							return {
-								"date" : obj.deviation_deadline,
+								"date" : new Date().toISOString().substring(0, 10),
 								"timezone_type" : 3,
 								"timezone" : "Asia\/Bangkok"
 						   };

@@ -219,10 +219,12 @@ function formsInit() {
 								Page.redirect('index.html');
 							});
 						});
+					}else{
+						setTimeout(function() {
+							Page.redirect('index.html');
+						}, 1000);
 					}
-					// setTimeout(function() {
-// 						
-					// }, 3500);
+					
 				}
 			}
 		});
