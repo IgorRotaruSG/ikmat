@@ -22,7 +22,12 @@ function FormCache() {
 					"responsible_fix_deviation" : {
 						"type" : "hidden",
 						"value" : function(obj) {
-							return obj.responsible_fix_deviation;
+							for (var i = 0; i < obj.formData.employee_id.list.length; i++) {
+								if (obj.formData.employee_id.list[i][obj.employee_id]) {
+									return obj.formData.employee_id.list[i][obj.employee_id];
+								}
+							}
+							return "";
 						}
 					},
 					"responsible_fix_deviation_id" : {
@@ -35,7 +40,8 @@ function FormCache() {
 						"label" : "Korrigerende tiltak",
 						"type" : "textarea",
 						"placeholder" : "Beskriv hvilke korrigerende tiltak du har tatt for \u00e5 rette avviket.",
-						"validation" : ["required", "string"]
+						"validation" : ["required", "string"],
+						"value" : ""
 					},
 					"upload_photo" : {
 						"label" : "Ta eller last opp bilde",
@@ -92,61 +98,61 @@ function FormCache() {
 
 		},
 		'food_poision' : {
-			"title": "Matforgiftning",
+			"title" : "Matforgiftning",
 			"form_fix_deviation" : {
-				"Symptomer" : function(obj){
+				"Symptomer" : function(obj) {
 					var result = "";
-					for (var i = 0; i < obj.symptoms.length; i++){
-						result = result + obj.form.symptoms.list[(i + 1)].label ;
-						if(i < obj.symptoms.length - 1){
+					for (var i = 0; i < obj.symptoms.length; i++) {
+						result = result + obj.formData.symptoms.list[(i + 1)].label;
+						if (i < obj.symptoms.length - 1) {
 							result = result + " ";
 						}
 					}
 					return result;
 				},
-				"Tid og dato for symptomer" : function(obj){
+				"Tid og dato for symptomer" : function(obj) {
 					return obj.symptomsDateTime;
 				},
-				"Hvor lenge har symptomene vart" : function(obj){
+				"Hvor lenge har symptomene vart" : function(obj) {
 					return obj.symptom_days + ' Dager, ' + obj.symptom_hours + ' Timer';
 				},
-				"Tid og dato for tilberedning av maten" : function(obj){
+				"Tid og dato for tilberedning av maten" : function(obj) {
 					return obj.makingFoodDateTime;
 				},
-				"Hvem deltok i m\u00e5ltidet" :  function(obj){
+				"Hvem deltok i m\u00e5ltidet" : function(obj) {
 					return obj.makingFoodTotalGuests + ' Totalt antall gjester, ' + obj.makingFoodSickGuests + ' Syke gjester';
 				},
-				"Hvilken mat ble laget" : function(obj){
+				"Hvilken mat ble laget" : function(obj) {
 					return obj.makingFoodWhatFood;
 				},
-				"Mat spist tidligere denne dagen" : function(obj){
+				"Mat spist tidligere denne dagen" : function(obj) {
 					return obj.makingFoodEarlierEaten;
 				},
-				"Har gjesten kontaktet lege?" : function(obj){
-					return obj.guestTalkedDoctor?"Ja":"Nei";
+				"Har gjesten kontaktet lege?" : function(obj) {
+					return obj.guestTalkedDoctor ? "Ja" : "Nei";
 				},
-				"Ingredienser" : function(obj){
+				"Ingredienser" : function(obj) {
 					return obj.ingredients;
 				},
-				"Nedkj\u00f8lt?" : function(obj){
-					return obj.cooledDown?"Ja":"Nei";
+				"Nedkj\u00f8lt?" : function(obj) {
+					return obj.cooledDown ? "Ja" : "Nei";
 				},
-				"Oppvarmet igjen?" : function(obj){
-					return obj.reheated?"Ja":"Nei";
+				"Oppvarmet igjen?" : function(obj) {
+					return obj.reheated ? "Ja" : "Nei";
 				},
-				"Holdt varmt?" : function(obj){
-					return obj.keptWarm?"Ja":"Nei";
+				"Holdt varmt?" : function(obj) {
+					return obj.keptWarm ? "Ja" : "Nei";
 				},
-				"Er det rester igjen for analyse?" : function(obj){
-					return obj.restLeftAnalysis?"Ja":"Nei";
+				"Er det rester igjen for analyse?" : function(obj) {
+					return obj.restLeftAnalysis ? "Ja" : "Nei";
 				},
-				"Umiddelbare tiltak" : function(obj){
+				"Umiddelbare tiltak" : function(obj) {
 					return obj.immediateMeasures;
 				},
-				"Annen informasjon" : function(obj){
+				"Annen informasjon" : function(obj) {
 					return obj.otherComplaints;
 				},
-				"Kompensasjon til gjesten" : function(obj){
+				"Kompensasjon til gjesten" : function(obj) {
 					return obj.guestCompensation;
 				},
 				"form" : {
@@ -160,13 +166,13 @@ function FormCache() {
 					},
 					"responsible_fix_deviation" : {
 						"type" : "hidden",
-						"value" : function(obj){
-							for(var i = 0; i< obj.form.employee_id.list.length; i++){
-								if(obj.form.employee_id.list[i][obj.employee_id]){
-									return obj.form.employee_id.list[i][obj.employee_id];
+						"value" : function(obj) {
+							for (var i = 0; i < obj.formData.employee_id.list.length; i++) {
+								if (obj.formData.employee_id.list[i][obj.employee_id]) {
+									return obj.formData.employee_id.list[i][obj.employee_id];
 								}
 							}
-							return ""; 
+							return "";
 						}
 					},
 					"responsible_fix_deviation_id" : {
@@ -188,12 +194,12 @@ function FormCache() {
 					"date_deviation_fix" : {
 						"type" : "date",
 						"label" : "Dato for retting av avvik",
-						"value" : function(obj){
+						"value" : function(obj) {
 							return {
 								"date" : new Date().toISOString().substring(0, 10),
 								"timezone_type" : 3,
 								"timezone" : "Asia\/Bangkok"
-						   };
+							};
 						},
 						"placeholder" : "Dato for retting av avvik"
 					}
@@ -232,17 +238,24 @@ FormCache.prototype.saveToTaskList = function(formname, data, callback) {
 		if (data.form_fix_deviation) {
 			data.form_fix_deviation.deviation_photos = photos;
 		}
-		var form;
-		if (data.form_deviation) {
-			delete template.form_fix_deviation;
-			form = $.extend(true, template, data);
-		} else {
-			delete template.form_deviation;
-			form = executeForm(data.form_fix_deviation, template);
-		}
-		if (formname == 'deviation') {
-			that.insertTaskToDB(formname, data.id, form, callback);
-		};
+		var d = db.getDbInstance();
+		d.transaction(function(tx) {
+			tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [formname], function(tx, results) {
+				var form;
+				if (data.form_deviation) {
+					delete template.form_fix_deviation;
+					form = $.extend(true, template, data);
+				} else {
+					delete template.form_deviation;
+					data.form_fix_deviation.formData = JSON.parse(results.rows.item(0).form);
+					form = executeForm(data.form_fix_deviation, template);
+				}
+				if (formname == 'deviation') {
+					that.insertTaskToDB(formname, data.id, form, callback);
+				};
+			});
+		});
+
 	});
 
 };
@@ -254,13 +267,13 @@ FormCache.prototype.generateFoodPoisonTask = function(formname, data, callback) 
 	d.transaction(function(tx) {
 		tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [formname], function(tx, results) {
 			if (data) {
-				data.form = JSON.parse(results.rows.item(0).form);
+				data.formData = JSON.parse(results.rows.item(0).form);
 				form = executeForm(data, template);
 				that.insertTaskToDB(formname, data.id, form, callback);
 			}
 		});
 	});
-	
+
 };
 
 function executeForm(data, template) {
@@ -288,9 +301,9 @@ FormCache.prototype.insertTaskToDB = function(formname, task_id, formtpl, callba
 			var db_data = [];
 			if (formtpl.form_fix_deviation) {
 				var dateStr = "";
-				if(formtpl.form_fix_deviation.deviation_date){
+				if (formtpl.form_fix_deviation.deviation_date) {
 					dateStr = formtpl.form_fix_deviation.deviation_date.date;
-				}else if(formtpl.form_fix_deviation.date_deviation_fix){
+				} else if (formtpl.form_fix_deviation.date_deviation_fix) {
 					dateStr = formtpl.form_fix_deviation.date_deviation_fix.date;
 				}
 				db_data = [task_id, formtpl.title, formname, new Date(dateStr).getTime() > startDate.getTime(), JSON.stringify(dateStr), 0, md5(JSON.stringify(formtpl)), startDate.toISOString().substring(0, 10), JSON.stringify(formtpl)];

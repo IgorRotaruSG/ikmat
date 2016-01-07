@@ -713,14 +713,6 @@ function formItemData(data) {
 						'token' : User.lastToken,
 						'results' : JSON.stringify(dd)
 					};
-					/*Different saving for maintenance */
-
-					for (var i = 0; i < last_data_received.form_deviation.employee_id.list.length; i++) {
-						if (last_data_received.form_deviation.employee_id.list[i][dd.employee_id]) {
-							dd.responsible_fix_deviation = last_data_received.form_deviation.employee_id.list[i][dd.employee_id];
-							break;
-						}
-					}
 					if (f.info.type == 'maintenance' || f.info.type == 'deviation') {
 						var api = f.info.type;
 						if (f.info.type == 'deviation') {
@@ -1020,32 +1012,29 @@ function foodPoisonDone(data) {
 }
 
 function maintenanceSignDone(data) {
-	//    console.log('748');
 	if ($.isNumeric(data)) {
 		$('input[name="task_id"]').val(data);
 	}
 	if ( typeof $sigdiv == 'undefined') {
-		return;
+		var data1 = {
+			'client' : User.client,
+			'token' : User.lastToken,
+			'signature' : JSON.stringify({
+				"name" : $('#sign_name').val(),
+				"svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
+				"parameter" : "task",
+				"task_id" : data
+			})
+		};
+		if (!isOffline()) {
+			Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+		} else {
+			db.lazyQuery({
+				'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+				'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
+			}, 0);
+		}
 	}
-	var data1 = {
-		'client' : User.client,
-		'token' : User.lastToken,
-		'signature' : JSON.stringify({
-			"name" : $('#sign_name').val(),
-			"svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
-			"parameter" : "task",
-			"task_id" : data
-		})
-	};
-	if (!isOffline()) {
-		Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
-	} else {
-		db.lazyQuery({
-			'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-			'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
-		}, 0);
-	}
-
 }
 
 function showCloseButton(callback, params) {
@@ -1070,8 +1059,10 @@ function bind_form_click_handler() {
 
 function deviationDoneForm(data) {
 	maintenanceSignDone(data.id);
+	console.log("deviationDoneForm", data);
 	formcache.saveToTaskList('deviation', data, function() {
-		Page.redirect('forms.html');
+		console.log("saveToTaskList", data);
+		$("[href='forms.html']").click();
 	});
 }
 
@@ -1507,9 +1498,7 @@ function uploadHACCPPictureForms(success, error) {
 			'visibility' : 'hidden',
 			'display' : 'none'
 		}).attr('src', '');
-		console.log("upload image done");
 		if (success) {
-			console.log("upload image done1111");
 			success();
 		}
 	}, error);

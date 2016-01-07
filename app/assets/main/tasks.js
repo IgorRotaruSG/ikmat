@@ -311,7 +311,10 @@ function getTaskData(data) {
 									'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
 									'data' : [['formDeviationStart', JSON.stringify(dev_data), 0, 'formDeviationStart']]
 								}, 0, function(insertId) {
-									console.log("dev_data", dev_data);
+									db.lazyQuery({
+										'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
+										'data' : [['1', document.task_id]]
+									}, 0);
 									taskGeneration('deviation', {
 										id : insertId,
 										form_deviation : {
@@ -407,6 +410,8 @@ function deviationDoneTask(data) {
 	var formcache = new FormCache();
 	formcache.saveToTaskList('deviation', data, function() {
 		Page.redirect('tasks.html');
+		var d = db.getDbInstance();
+		d.transaction(getTasks, db.dbErrorHandle);
 	});
 }
 
@@ -466,6 +471,7 @@ function getDeviationForm(data, devStep) {
 		openSignaturePopup();
 
 		$(document).off('click', '#deviation-signature-close').on('click', '#deviation-signature-close', function() {
+			$('#signature_pop').popup('close');
 			$('#sign_name').attr('disabled', true);
 			$('#signature-trigger').attr('disabled', true);
 			$('#signature-trigger').val('Signed').button('refresh');
