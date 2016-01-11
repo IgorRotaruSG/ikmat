@@ -656,10 +656,13 @@ function getTasksUncompleted(data) {
 				});
 
 				for (var j = 0; j < arr.length; j++) {
+					var isExist = $('#taskList').find("a[data-id='" + arr[j].id + "']")[0];
+					if(isExist){
+						continue;
+					}
 					tasksNr++;
 					getIds.push(arr[j].id);
 					db_data.push([arr[j].id, arr[j].taskName, arr[j].type, arr[j].overdue, JSON.stringify(arr[j].dueDate), 0, md5(JSON.stringify(arr[j])), i, arr[j].taskData]);
-
 					if (arr[j].type == 'deviation') {
 						add_data = '<a href="#" data-id="' + arr[j].id + '" class="generate_deviation_fix">' + arr[j].taskName + '</a>'
 					} else if (arr[j].type == 'maintenance') {
@@ -913,6 +916,10 @@ function getTasksFromLocal(results) {
 	}
 
 	for (var i = 0; i < results.rows.length; i++) {
+		var isExist = $('#taskList').find("a[data-id='" + results.rows.item(i).id + "']")[0];
+		if(isExist){
+			continue;
+		}
 		if (!in_array(results.rows.item(i).date_start, groups)) {
 
 			var divider_exists = $('#taskList').find("li[data-id='" + results.rows.item(i).date_start + "'][data-role='list-divider']");
@@ -1202,7 +1209,8 @@ function closeButtonDisplay(callback, params) {
 		if (callback) {
 			callback.apply(this, [params]);
 		}
-		$("[href='tasks.html']").click();
+		redirectToTasks();
+		
 	});
 }
 
