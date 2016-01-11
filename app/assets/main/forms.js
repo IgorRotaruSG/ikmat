@@ -1015,7 +1015,7 @@ function maintenanceSignDone(data) {
 	if ($.isNumeric(data)) {
 		$('input[name="task_id"]').val(data);
 	}
-	if ( typeof $sigdiv == 'undefined') {
+	if ( typeof $sigdiv != 'undefined') {
 		var data1 = {
 			'client' : User.client,
 			'token' : User.lastToken,
