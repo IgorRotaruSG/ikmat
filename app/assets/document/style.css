@@ -430,16 +430,11 @@ font-size:1em;
     margin: 0 auto;
 }
 
-#flowchart_list.image_gallery {
-    text-align: center;
-}
 #flowchart_list.image_gallery .image_element {
     width: 100%;
     height: auto;
-    /*line-height: 158px;*/
-    /*border: 1px solid #ccc;*/
-    text-align: center;
-    vertical-align: middle;
+    text-align: left;
+    line-height: normal;
     display: block;
     margin: 0 1px 1px 0;
     float: left;
