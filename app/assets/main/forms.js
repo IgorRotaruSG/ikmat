@@ -570,7 +570,7 @@ function formItemData(data) {
 			/* If maintenance, add signature form*/
 			case 'maintenance':
 			case 'deviation':
-				html += HTML.formGenerate(last_data_received.form_deviation, $.t("general.save_button"));
+				html += HTML.formGenerate(last_data_received.form_deviation, $.t("general.save_button"), '+1 month');
 
 				html += '</form>' + '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.sign_button") + '</button>' + '</div>' + '</div>';
 				$(document).on('click', '#signature-reset', function(e) {
