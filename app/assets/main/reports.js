@@ -436,7 +436,9 @@ function reportsView(data) {
     mySwiper.appendSlide(html, 'swiper-slide');
     $('#' + $.mobile.activePage.attr('id')).trigger('create');
     mySwiper.swipeTo(1, 300, true);
-
+	
+	
+	
     //$('#raportItem').html(html);
     //$('#' + $.mobile.activePage.attr('id')).trigger('create');
     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
