@@ -37,39 +37,39 @@ function getFormsCall(tx, results) {
 		    skip = 0;
 
 		for (var i = 0; i < results.rows.length; i++) {
-				(function(i, results){
-					var datatype = ((results.rows.item(i).type == 999) ? 'employee' : (results.rows.item(i).type == 1000 ? 'supplier' : results.rows.item(i).type));
-					console.log(i, datatype);
-					checkForm(datatype, function(isOn) {
-						if(isOn){
-							try {
-								tmp = JSON.parse(results.rows.item(i).label);
-								alias = tmp.alias;
-								link = '<a href="#" data-type="' + datatype + '" class="form_generator_link">' + tmp.alias + '</a>';
-							} catch (err) {
-								link = '<a href="#" data-type="' + datatype + '" class="form_generator_link">' + results.rows.item(i).label + '</a>';
-								alias = results.rows.item(i).label;
-							}
-							data.push({
-								'alias' : alias,
-								'id' : i,
-								'data' : link
-							});
-						}else{
-							skip++;
+			(function(i, results) {
+				var datatype = ((results.rows.item(i).type == 999) ? 'employee' : (results.rows.item(i).type == 1000 ? 'supplier' : results.rows.item(i).type));
+				console.log(i, datatype);
+				checkForm(datatype, function(isOn) {
+					if (isOn) {
+						try {
+							tmp = JSON.parse(results.rows.item(i).label);
+							alias = tmp.alias;
+							link = '<a href="#" data-type="' + datatype + '" class="form_generator_link">' + tmp.alias + '</a>';
+						} catch (err) {
+							link = '<a href="#" data-type="' + datatype + '" class="form_generator_link">' + results.rows.item(i).label + '</a>';
+							alias = results.rows.item(i).label;
 						}
-						if((data.length + skip) == results.rows.length){
-							console.log("gen form");
-							$('#forms_list').html('');
-							_appendAndSortByAlias('#forms_list', data);
-							bind_form_click_handler();
-							bind_form2_click_handler();
-						}
-					});
-				})(i, results);
+						data.push({
+							'alias' : alias,
+							'id' : i,
+							'data' : link
+						});
+					} else {
+						skip++;
+					}
+					if ((data.length + skip) == results.rows.length) {
+						console.log("gen form");
+						$('#forms_list').html('');
+						_appendAndSortByAlias('#forms_list', data);
+						bind_form_click_handler();
+						bind_form2_click_handler();
+					}
+				});
+			})(i, results);
 		}
 		$('#no_results_forms').hide();
-		
+
 	} else {
 		console.log('if connection is live');
 		//$('#no_results_forms').text($.t('forms.no_forms_yet'));
@@ -211,7 +211,7 @@ function formsInit() {
 						db.lazyQuery({
 							'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
 							'data' : [['foodPoison', JSON.stringify(newlazy), 0, 'foodPoison']]
-						}, 0, function(insertId){
+						}, 0, function(insertId) {
 							newlazy['results'] = JSON.parse(newlazy.results);
 							newlazy.results.id = insertId;
 							formcache.generateFoodPoisonTask('food_poision', newlazy['results'], function() {
@@ -219,12 +219,12 @@ function formsInit() {
 								Page.redirect('index.html');
 							});
 						});
-					}else{
+					} else {
 						setTimeout(function() {
 							Page.redirect('index.html');
 						}, 1000);
 					}
-					
+
 				}
 			}
 		});
@@ -247,8 +247,8 @@ function checkForm(type, callback) {
 			// console.log("results.rows", results.rows);
 			if (results.rows.length > 0) {
 				var data = JSON.parse(results.rows.item(0).data);
-				
-				if(data.parameters){
+
+				if (data.parameters) {
 					data.parameters = JSON.parse(data.parameters);
 					for (key in data.parameters) {
 						if (data.parameters.hasOwnProperty(key) && data.parameters[key] == "off") {
@@ -540,7 +540,7 @@ function formGeneration(type, dataBuild, callback) {
 					formItemData(data);
 					break;
 				}
-				
+
 				showCloseButton(callback, data);
 			} else {
 				noInternetError($.t("error.no_internet_for_sync"));
@@ -781,34 +781,62 @@ function formItemData(data) {
 						}
 
 						if (deviation) {
+							//alert('deviation');
+							console.log('deviation');
+							//var a = confirm($.t('general.deviation_accept_message'));
 							$('#confirmPopup .alert-text').html($.t('general.deviation_accept_message'));
 							$('#confirmPopup').on("popupafteropen", function(event, ui) {
-								if (!isOffline()) {
+								$('#confirmButton').off('click').on('click', function() {
 									console.log('aici avem prima chestie');
 									console.log(data);
-									Page.apiCall('formDeviationStart', data, 'get', 'form2_save_dev');
-								} else {
-									console.log('else if offline');
-									var offline_data = {
-										'client' : User.client,
-										'token' : User.lastToken,
-										'results' : JSON.stringify(dd),
-										'category' : d.type
-									};
-									db.lazyQuery({
-										'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-										'data' : [['formDeviationStart', JSON.stringify(offline_data), 0, 'formDeviationStart']]
-									}, 0);
-									redirect_to_forms();
-								}
+									if (!isOffline()) {
+										Page.apiCall('formDeviationStart', data, 'get', 'form2_save_dev');
+									} else {
+										console.log('else if offline', dd);
+										var offline_data = {
+											'client' : User.client,
+											'token' : User.lastToken,
+											'results' : JSON.stringify(dd),
+											'category' : d.type
+										};
+
+										console.log("offline_data", offline_data);
+										db.lazyQuery({
+											'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+											'data' : [['formDeviationStart', JSON.stringify(offline_data), 0, 'formDeviationStart']]
+										}, 0, function(insertId) {
+											formGeneration('deviation', {
+												id : insertId,
+												form_list_question : {
+													form : {
+														form_deviation : {
+															deviation_description : {
+																value : dd.temperature + " grader rapportert på " + results.rows.item(0).label
+															}
+														}
+													}
+												}
+											}, function(response) {
+												console.log("back response", response);
+												deviationDoneForm({
+													form_deviation : response.form_list_question.form.form_deviation,
+													id : insertId
+												});
+											});
+
+										});
+									}
+								});
 							});
 							$('#confirmPopup').on("popupafterclose", function(event, ui) {
+								//var a = false;
 								$('#confirmButton').unbind("click");
 							});
 							$('#confirmPopup').popup("open", {
 								positionTo : 'window'
 							});
 						} else {
+							console.log('Form saved successfully. 1302');
 							if (!isOffline()) {
 								Page.apiCall('formDeviationStart', data, 'get', 'redirect_to_forms');
 							} else {
@@ -823,7 +851,9 @@ function formItemData(data) {
 									'data' : [['formDeviationStart', JSON.stringify(offline_data), 0, 'formDeviationStart']]
 								}, 0);
 								redirect_to_forms();
+
 							}
+
 						}
 					}
 				}
