@@ -10,8 +10,20 @@ function maintenanceInit() {
 	if (get.id != undefined) {
 		data['task_id'] = get.id;
 	}
-
-	Page.apiCall('maintenance', data, 'get', 'maintenance');
+	
+	if (!isOffline()) {
+		Page.apiCall('maintenance', data, 'get', 'maintenance');
+	} else {
+		var d = db.getDbInstance();
+		d.transaction(function(tx) {
+			tx.executeSql('SELECT * from tasks WHERE "completed" = 0 and "id" = ? ORDER BY id DESC LIMIT 1', [data['task_id']], function(tx, results) {
+				if (results.rows.length > 0) {
+					var data = JSON.parse(results.rows.item(0).taskData);
+					maintenance(data);
+				}
+			});
+		});
+	}
 }
 
 function maintenance(data) {
@@ -26,20 +38,9 @@ function maintenance(data) {
 
 			$(document).off('click', '#deviation-signature-close').on('click', '#deviation-signature-close', function() {
 				$('#signature_pop').popup('close');
-				var data = {
-					'client' : User.client,
-					'token' : User.lastToken,
-					'signature' : JSON.stringify({
-						"name" : $('#sign_name').val(),
-						"svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
-						"parameter" : "task",
-						"task_id" : sss_temp
-					})
-				};
-				//console.log(JSON.stringify(data));
-
-				Page.apiCall('documentSignature', data, 'get', 'documentSignature');
-				//                Page.apiCall('documentSignature', data, 'post', 'documentSignature');
+				$('#sign_name').attr('disabled', true);
+				$('#signature-trigger').attr('disabled', true);
+				$('#signature-trigger').val('Signed').button('refresh');
 			});
 
 			return false;
@@ -112,9 +113,20 @@ function maintenance(data) {
 					'task_id' : get.id,
 					'results' : JSON.stringify(dd)
 				};
-
-				Page.apiCall('maintenance', data, 'get', 'maintenanceDone');
-				uploadMaintenancePicture();
+				console.log("submit");
+				if (!isOffline()) {
+					Page.apiCall('maintenance', data, 'get', 'maintenanceDone');
+				} else {
+					db.lazyQuery({
+						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+						'data' : [['maintenance', JSON.stringify(data), get.id, 'maintenanceDone']]
+					}, 0, function(insertId) {
+						if ($.isNumeric(insertId)) {
+							$('input[name="task_id"]').val(get.id);
+						}
+						maintenanceDone(get.id);
+					});
+				}
 
 			}
 
@@ -134,19 +146,61 @@ $(document).on('click', '#form_back_btn', function(e) {
 });
 
 function documentSignature(data) {
-	console.log('signature:');
-	console.log(data);
 	$('#sign_name').attr('disabled', true);
 	$('#signature-trigger').attr('disabled', true);
 	$('#signature-trigger').val(data.current_time.date).button('refresh');
 }
 
+function checkTaskId(task_id, callback) {
+	if (!callback) {
+		return false;
+	}
+	d = db.getDbInstance();
+	d.transaction(function(tx) {
+		tx.executeSql('SELECT * FROM "sync_query" WHERE "id"=? and executed=1', [task_id], function(tx, results) {
+			if (results.rows.length > 0) {
+				callback(true);
+			} else {
+				callback(false);
+			}
+		});
+	});
+}
+
 function maintenanceDone(data) {
+	if ($.isNumeric(get.id)) {
+		$('input[name="task_id"]').val(get.id);
+	}
+	// if (typeof $sigdiv != 'undefined') {
+		// console.log("$sigdiv", $sigdiv);
+		// var data1 = {
+			// 'client' : User.client,
+			// 'token' : User.lastToken,
+			// 'signature' : JSON.stringify({
+				// "name" : $('#sign_name').val(),
+				// "svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
+				// "parameter" : "task",
+				// "task_id" : get.id
+			// })
+		// };
+		// if (!isOffline()) {
+			// Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+		// } else {
+			// db.lazyQuery({
+				// 'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+				// 'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
+			// }, 0);
+		// }
+	// }
+	
+	uploadMaintenancePicture();
 	db.lazyQuery({
 		'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
 		'data' : [['1', get.id]]
-	}, 0);
-	Page.redirect('tasks.html');
+	}, 0, function() {
+		console.log("update");
+		Page.redirect('tasks.html');
+	});
 }
 
 function uploadMaintenancePicture() {

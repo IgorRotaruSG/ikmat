@@ -13,6 +13,7 @@ var last_update = new Date();
 
 var res;
 var updated = 0;
+var isReload;
 
 var confirm_action = false;
 
@@ -252,6 +253,7 @@ function getTaskData(data) {
 		});
 
 		$('#form_task_save').on('submit', function(e) {
+			isReload = true;
 			e.preventDefault();
 			//console.log('getTaskData');
 
@@ -349,13 +351,14 @@ function getTaskData(data) {
 						}, 0);
 					} else {
 						db.lazyQuery({
-							'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-							'data' : [['formDeviationStart', JSON.stringify(dev_data), document.task_id, 'task_saved']]
-						}, 0, 'redirectToTasks');
-						db.lazyQuery({
 							'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
 							'data' : [['1', document.task_id]]
 						}, 0);
+						db.lazyQuery({
+							'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+							'data' : [['formDeviationStart', JSON.stringify(dev_data), document.task_id, 'task_saved']]
+						}, 0, 'redirectToTasks');
+						
 					}
 				}
 			}
@@ -416,7 +419,6 @@ function deviationDoneTask(data) {
 }
 
 function redirectToTasks() {
-	$('#taskList').empty();
 	tasks_page = 1;
 	//reset the page counter so it starts from the begining
 
@@ -424,8 +426,12 @@ function redirectToTasks() {
 	mySwiper.removeSlide(parseInt(mySwiper.activeIndex) + 1);
 	mySwiper.reInit();
 	realignSlideHeight('max-height-task');
-	var d = db.getDbInstance();
-	d.transaction(getTasks, db.dbErrorHandle);
+	if(isReload){
+		var d = db.getDbInstance();
+		d.transaction(getTasks, db.dbErrorHandle);
+	}
+	isReload = false;
+	
 }
 
 function getDeviation(data) {
@@ -481,6 +487,7 @@ function getDeviationForm(data, devStep) {
 	});
 
 	$('#form_deviation_save').on('submit', function(e) {
+		isReload = true;
 		e.preventDefault();
 		var go = HTML.validate($(this));
 		if (go) {
@@ -585,7 +592,7 @@ function taskDeviationSave(data) {
 			}, 0);
 		}
 	}
-	uploadHACCPPicture();
+	uploadHACCPPicture({task_id: data});
 	mySwiper.swipeTo(0, 300, false);
 	mySwiper.removeSlide(1);
 	mySwiper.removeSlide(1);
@@ -654,6 +661,7 @@ function getTasksUncompleted(data) {
 
 				for (var j = 0; j < arr.length; j++) {
 					var isExist = $('#taskList').find("a[data-id='" + arr[j].id + "']")[0];
+					
 					if(isExist){
 						continue;
 					}
@@ -663,9 +671,9 @@ function getTasksUncompleted(data) {
 					if (arr[j].type == 'deviation') {
 						add_data = '<a href="#" data-id="' + arr[j].id + '" class="generate_deviation_fix">' + arr[j].taskName + '</a>'
 					} else if (arr[j].type == 'maintenance') {
-						add_data = '<a href="maintenance.html?id=' + arr[j].id + '" data-transition="slide"><i class="fa fa-key"></i> ' + arr[j].taskName + '</a>';
+						add_data = '<a href="maintenance.html?id=' + arr[j].id + '" data-id="' + arr[j].id + '"  data-transition="slide"><i class="fa fa-key"></i> ' + arr[j].taskName + '</a>';
 					} else if (arr[j].type == 'food_poision') {
-						add_data = '<a href="food_poison.html?id=' + arr[j].id + '" data-transition="slide"><i class="fa fa-flask"></i> ' + arr[j].taskName + '</a>';
+						add_data = '<a href="food_poison.html?id=' + arr[j].id + '" data-id="' + arr[j].id + '" data-transition="slide"><i class="fa fa-flask"></i> ' + arr[j].taskName + '</a>';
 					} else {
 						add_data = '<a href="#" data-id="' + arr[j].id + '" class="generate_task_form">' + arr[j].taskName + '</a>';
 					}
@@ -937,9 +945,9 @@ function getTasksFromLocal(results) {
 			//add_data = '<a href="haccp_deviation_fix.html?id=' + results.rows.item(i).id + '" data-transition="slide">' + results.rows.item(i).title + '</a>'
 			add_data = '<a href="#" data-id="' + results.rows.item(i).id + '" class="generate_deviation_fix">' + results.rows.item(i).title + '</a>';
 		} else if (results.rows.item(i).type == 'maintenance') {
-			add_data = '<a href="maintenance.html?id=' + results.rows.item(i).id + '" data-transition="slide"><i class="fa fa-key"></i> ' + results.rows.item(i).title + '</a>';
+			add_data = '<a href="maintenance.html?id=' + results.rows.item(i).id + '" data-id="' + results.rows.item(i).id + '" data-transition="slide"><i class="fa fa-key"></i> ' + results.rows.item(i).title + '</a>';
 		} else if (results.rows.item(i).type == 'food_poision') {
-			add_data = '<a href="food_poison.html?id=' + results.rows.item(i).id + '" data-transition="slide"><i class="fa fa-flask"></i>' + results.rows.item(i).title + '</a>';
+			add_data = '<a href="food_poison.html?id=' + results.rows.item(i).id + '" data-id="' + results.rows.item(i).id + '"  data-transition="slide"><i class="fa fa-flask"></i>' + results.rows.item(i).title + '</a>';
 		} else {
 			add_data = '<a href="#" data-id="' + results.rows.item(i).id + '" class="generate_task_form">' + results.rows.item(i).title + '</a>';
 		}
@@ -1102,6 +1110,7 @@ function haccpDeviationFix(data) {
 		});
 
 		$('#form_haccp_deviation_fix').off('submit').on('submit', function(e) {
+			isReload = true;
 			e.preventDefault();
 
 			var go = HTML.validate($(this).parent());
@@ -1142,8 +1151,9 @@ function haccpDeviationFix(data) {
 							db.lazyQuery({
 								'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
 								'data' : [['1', devId]]
-							}, 0);
-							taskDeviationSave(devId);
+							}, 0, function(){
+								taskDeviationSave(devId);
+							});
 						}
 					});
 				}

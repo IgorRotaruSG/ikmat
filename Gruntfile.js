@@ -17,7 +17,8 @@ module.exports = function(grunt) {
 		useminPrepare : 'grunt-usemin',
 		cdnify : 'grunt-google-cdn',
 		processhtml: 'grunt-processhtml',
-		exec: 'grunt-exec'
+		exec: 'grunt-exec',
+		removeLoggingCalls: 'grunt-remove-logging-calls'
 	});
 
 	// Configurable paths for the application
@@ -175,6 +176,22 @@ module.exports = function(grunt) {
 				}]
 			},
 			server : '.tmp'
+		},
+		removeLoggingCalls: {
+			// the files inside which you want to remove the console statements 
+	 		files: ['<%= yeoman.dist %>/scripts/{,*/}*.js'],
+	 		options: {
+	 			// an array of method names to remove 
+				methods: ['log', 'info', 'assert'], 
+				
+				// replacement strategy 
+				strategy: function(consoleStatement) {
+					// comments console calls statements 
+					// return '/* ' + consoleStatement + '*/';
+		 
+					return ''; // to remove  
+				}
+			}
 		},
 
 		// Add vendor prefixed styles

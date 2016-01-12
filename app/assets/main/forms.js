@@ -753,12 +753,12 @@ function formItemData(data) {
 									deviationDoneForm({
 										form_fix_deviation : dd,
 										id : insertId
-									});
+									}, f.info.type);
 								}, function() {
 									deviationDoneForm({
 										form_fix_deviation : dd,
 										id : insertId
-									});
+									}, f.info.type);
 								});
 							});
 						}
@@ -1087,10 +1087,13 @@ function bind_form_click_handler() {
 	});
 }
 
-function deviationDoneForm(data) {
+function deviationDoneForm(data, type) {
 	maintenanceSignDone(data.id);
-	console.log("deviationDoneForm", data);
-	formcache.saveToTaskList('deviation', data, function() {
+	if(!type){
+		type = "deviation";
+	}
+	console.log("deviationDoneForm", data, type);
+	formcache.saveToTaskList(type, data, function() {
 		console.log("saveToTaskList", data);
 		$("[href='forms.html']").click();
 	});

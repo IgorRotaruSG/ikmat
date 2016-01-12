@@ -97,6 +97,62 @@ function FormCache() {
 			}
 
 		},
+		"maintenance" : {
+			"title" : "Vedlikehold",
+			"form_fix_deviation" : {
+				"deviation" : function(obj) {
+					return obj.deviation_description;
+				},
+				"initial_action" : function(obj) {
+					return obj.initial_action;
+				},
+				"deviation_date" : {
+					"date" : function(obj) {
+						return obj.deviation_deadline;
+					},
+					"timezone_type" : 3,
+					"timezone" : "Asia\/Bangkok"
+				},
+				"form" : {
+					"responsible_fix_deviation" : {
+						"type" : "hidden",
+						"value" : function(obj) {
+							for (var i = 0; i < obj.formData.employee_id.list.length; i++) {
+								if (obj.formData.employee_id.list[i][obj.employee_id]) {
+									return obj.formData.employee_id.list[i][obj.employee_id];
+								}
+							}
+							return "";
+						}
+					},
+					"responsible_fix_deviation_id" : {
+						"type" : "hidden",
+						"value" : function(obj) {
+							return obj.employee_id;
+						}
+					},
+					"correctional_measure" : {
+						"label" : "Korrigerende tiltak",
+						"type" : "textarea",
+						"placeholder" : "Beskriv hvilke korrigerende tiltak du har tatt for \u00e5 rette avviket.",
+						"validation" : ["required", "string"],
+						"value" : ""
+					},
+					"upload_photo" : {
+						"label" : "Ta eller last opp bilde",
+						"type" : "file"
+					},
+					"date_deviation_fix" : {
+						"type" : "date",
+						"label" : "Dato for retting av avvik"
+					}
+				},
+				"deviation_photos" : function(obj) {
+					return obj.deviation_photos;
+				}
+			}
+
+		},
 		'food_poision' : {
 			"title" : "Matforgiftning",
 			"form_fix_deviation" : {
@@ -250,7 +306,7 @@ FormCache.prototype.saveToTaskList = function(formname, data, callback) {
 					data.form_fix_deviation.formData = JSON.parse(results.rows.item(0).form);
 					form = executeForm(data.form_fix_deviation, template);
 				}
-				if (formname == 'deviation') {
+				if (formname == 'deviation' || formname == 'maintenance') {
 					that.insertTaskToDB(formname, data.id, form, callback);
 				};
 			});
