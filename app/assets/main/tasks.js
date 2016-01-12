@@ -586,16 +586,13 @@ function taskDeviationSave(data) {
 		}
 	}
 	uploadHACCPPicture();
-
-	var d = db.getDbInstance();
-	d.transaction(getTasks, db.dbErrorHandle);
-
 	mySwiper.swipeTo(0, 300, false);
 	mySwiper.removeSlide(1);
 	mySwiper.removeSlide(1);
 	mySwiper.resizeFix();
 	realignSlideHeight('max-height-task');
 	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	redirectToTasks();
 }
 
 function selectHACCPPicture(id) {
@@ -1096,32 +1093,9 @@ function haccpDeviationFix(data) {
 
 			$(document).off('click', '#deviation-signature-close').on('click', '#deviation-signature-close', function() {
 				$('#signature_pop').popup('close');
-				var data = {
-					'client' : User.client,
-					'token' : User.lastToken,
-					'signature' : JSON.stringify({
-						"name" : $('#sign_name').val(),
-						"svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
-						"parameter" : "task",
-						"task_id" : devId
-					})
-				};
-
-				if (!isOffline()) {
-					Page.apiCall('documentSignature', data, 'post', 'documentSignature');
-				} else {
-					offline_signature = {
-						'signature' : JSON.stringify({
-							"name" : $('#sign_name').val(),
-							"svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
-							"parameter" : "task",
-							"task_id" : sss_temp
-						})
-					};
-					$('#sign_name').attr('disabled', true);
-					$('#signature-trigger').attr('disabled', true);
-					$('#signature-trigger').val('Signed').button('refresh');
-				}
+				$('#sign_name').attr('disabled', true);
+				$('#signature-trigger').attr('disabled', true);
+				$('#signature-trigger').val('Signed').button('refresh');
 			});
 
 			return false;
@@ -1146,11 +1120,7 @@ function haccpDeviationFix(data) {
 						'form' : JSON.stringify(dd)
 					};
 
-					Page.apiCall('deviation', data, 'get', 'redirectToTasks');
-
-					uploadHACCPPicture({
-						"task_id" : devId
-					});
+					Page.apiCall('deviation', data, 'get', 'taskDeviationSave');
 
 					db.lazyQuery({
 						'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
@@ -1161,8 +1131,7 @@ function haccpDeviationFix(data) {
 						'client' : User.client,
 						'token' : User.lastToken,
 						'task_id' : document.task_id,
-						'form' : JSON.stringify(dd),
-						'signature' : offline_signature.signature
+						'form' : JSON.stringify(dd)
 					};
 					db.lazyQuery({
 						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
@@ -1170,14 +1139,11 @@ function haccpDeviationFix(data) {
 					}, 0, function(data) {
 						console.log("data", data);
 						if (data) {
-							uploadHACCPPicture({
-								"task_id" : devId
-							});
 							db.lazyQuery({
 								'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
 								'data' : [['1', devId]]
 							}, 0);
-							redirectToTasks();
+							taskDeviationSave(devId);
 						}
 					});
 				}

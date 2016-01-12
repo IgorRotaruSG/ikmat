@@ -89,15 +89,11 @@ function sync_query(data, params) {
 				e.data.token = User.lastToken;
 				_sync_lock = true;
 				if (e.api == "uploadPhotos") {
-					console.log("uploadPhotos", e);
 					selectTaskById(e.extra, function(success) {
-						console.log("success", success);
 						if (success.extra) {
-							success.data = JSON.parse(success.data);
 							e.data.task_id = success.extra;
 							if (e.data.imageURI && e.data.task_id) {
 								Page.uploadImage(e.data, function() {
-									// window.URL.revokeObjectURL(e.data.imageURI);
 									sync_updateDB(null, {
 										id : e.id
 									});
@@ -109,43 +105,44 @@ function sync_query(data, params) {
 							}
 						}
 					});
-				} else {
-					if (e.extra && e.extra > 0) {
-						selectTaskById(e.extra, function(success) {
-							console.log("success", success);
-							if (success.extra) {
-								success.data = JSON.parse(success.data);
-								if(e.data.hasOwnProperty("task_id")){
-									e.data.task_id = success.extra;
-								}
-								if (e.data.form) {
-									var form = JSON.parse(e.data.form);
-									form.task_id = success.extra;
-									e.data.form = JSON.stringify(form);
-								}
-								if (e.data.signature) {
-									var signature = JSON.parse(e.data.signature);
-									signature.task_id = success.extra;
-									e.data.signature = JSON.stringify(signature);
-								}
-								if (e.data.results) {
-									var results = JSON.parse(e.data.results);
-									results.task_id = success.extra;
-									e.data.results = JSON.stringify(results);
-								}
-								Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
-									id : e.id,
-									api : e.api
-								});
+				} else if (e.api != "companyEdit") {
+					selectTaskById(e.extra, function(success) {
+						if (success.extra) {
+							if (e.data.hasOwnProperty("task_id")) {
+								e.data.task_id = success.extra;
 							}
-						});
-					}else{
-						Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
-							id : e.id,
-							api : e.api
-						});
-					}
+							if (e.data.form) {
+								var form = JSON.parse(e.data.form);
+								form.task_id = success.extra;
+								e.data.form = JSON.stringify(form);
+							}
+							if (e.data.signature) {
+								var signature = JSON.parse(e.data.signature);
+								signature.task_id = success.extra;
+								e.data.signature = JSON.stringify(signature);
+							}
+							if (e.data.results) {
+								var results = JSON.parse(e.data.results);
+								results.task_id = success.extra;
+								e.data.results = JSON.stringify(results);
+							}
+							Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
+								id : e.id,
+								api : e.api
+							});
+						} else {
+							Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
+								id : e.id,
+								api : e.api
+							});
+						}
+					});
 
+				} else {
+					Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
+						id : e.id,
+						api : e.api
+					});
 				}
 
 			} catch (err) {

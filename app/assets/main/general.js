@@ -2,8 +2,8 @@ var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
     // 'apiDomain':        'http://ikmatapp.no/api/',
     // 'apiPath':        'http://ikmatapp.no',
-    'apiDomain':        'http://ik-mat.fsoft.com.vn/api/',
-    'apiPath':        'http://ik-mat.fsoft.com.vn',
+    'apiDomain':        'https://ik-mat.fsoft.com.vn/api/',
+    'apiPath':        'https://ik-mat.fsoft.com.vn',
     'apiUploadPath':    'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -15,8 +15,8 @@ var settings = {
 	},
 	'requestTimeout' : 25000,
 	'excludeOffline': ["haccp.html", "flowchart.html"],
-	'version': "2.0.64",
-	'rebuild': "2.0.64"
+	'version': "2.0.65",
+	'rebuild': "2.0.65"
 };
 
 var performance = window.performance;
