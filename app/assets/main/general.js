@@ -15,8 +15,8 @@ var settings = {
 	},
 	'requestTimeout' : 25000,
 	'excludeOffline': ["haccp.html", "flowchart.html"],
-	'version': "2.0.66",
-	'rebuild': "2.0.66"
+	'version': "2.0.67",
+	'rebuild': "2.0.67"
 };
 
 var performance = window.performance;
@@ -274,7 +274,8 @@ Page.prototype.selectImage = function (id, callbackFunction) {
 		}, {
 			quality : 50,
 			destinationType : navigator.camera.DestinationType.FILE_URI,
-			sourceType : navigator.camera.PictureSourceType.PHOTOLIBRARY
+			sourceType : navigator.camera.PictureSourceType.PHOTOLIBRARY,
+			targetWidth: 1024
 		});
 	} else {
 		var showPicture = $('#'+id);

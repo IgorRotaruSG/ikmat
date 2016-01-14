@@ -427,6 +427,7 @@ function redirectToTasks() {
 	mySwiper.reInit();
 	realignSlideHeight('max-height-task');
 	if(isReload){
+		$('#taskList').empty();
 		var d = db.getDbInstance();
 		d.transaction(getTasks, db.dbErrorHandle);
 	}

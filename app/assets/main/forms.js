@@ -61,6 +61,14 @@ function getFormsCall(tx, results) {
 					if ((data.length + skip) == results.rows.length) {
 						console.log("gen form");
 						$('#forms_list').html('');
+						data.sort(function(a, b){
+						    var keyA = a.id,
+						        keyB = b.id;
+						    // Compare the 2 dates
+						    if(keyA < keyB) return -1;
+						    if(keyA > keyB) return 1;
+						    return 0;
+						});
 						_appendAndSortByAlias('#forms_list', data);
 						bind_form_click_handler();
 						bind_form2_click_handler();
