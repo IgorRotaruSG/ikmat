@@ -165,9 +165,12 @@ db.prototype.dropDb = function() {
 
 db.prototype.dbDropTables = function(tx) {
     this.database = false;
-    //console.log('dbDropTables');
-    //localStorage.clear();
-    window.localStorage.clear();
+    for (var i = 0; i < localStorage.length; i++) {
+    	console.log(localStorage.key(i));
+    	if(localStorage.key(i) != "user_email"){
+    		localStorage.removeItem(localStorage.key(i));
+    	}
+    }
     tx.executeSql('DROP TABLE IF EXISTS "employees"');
     tx.executeSql('DROP TABLE IF EXISTS "flowchart"');
     tx.executeSql('DROP TABLE IF EXISTS "forms"');

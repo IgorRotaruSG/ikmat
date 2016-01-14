@@ -2,11 +2,13 @@ var loginFormId = null;
 var email = "";
 function loginInit() {
     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+    if(localStorage.getItem("user_email")){
+    	$('#input_email').val(localStorage.getItem("user_email"));
+    }
     if (isOffline()) {
         setTimeout(function () {
             noInternetError($.t("error.internet_connection_needed"), true);
         },1500);
-
         return false;
     }
 }
