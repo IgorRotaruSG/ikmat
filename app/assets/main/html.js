@@ -1213,7 +1213,9 @@ HTML.prototype.getStepData = function(step, data, data_save) {
             case 'checkbox_list':
                 for (var j in data_save[i]) {
                     if ((data_save[i]).hasOwnProperty(j)) {
-                        form_data[i].list[data_save[i][j]].checked = true;
+                    	if(form_data[i].list[data_save[i][j]]){
+                    		form_data[i].list[data_save[i][j]].checked = true;
+                    	}
                     }
                 }
                 break;

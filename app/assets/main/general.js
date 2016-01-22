@@ -15,7 +15,7 @@ var settings = {
 	},
 	'requestTimeout' : 25000,
 	'excludeOffline': ["haccp.html", "flowchart.html"],
-	'version': "2.0.68",
+	'version': "2.0.69",
 	'rebuild': "2.0.68"
 };
 

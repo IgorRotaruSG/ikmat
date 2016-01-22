@@ -317,7 +317,7 @@ function newCompanyRegistrationOff(special) {
                     console.log('325');
                     var html = '<div class="no_results" style="color:#00cde7;font-size:34px;">';
                     html += $.t('success.register_edit') + '<br /><br />';
-                    html += '<button type="submit" data-theme="e" onclick="Page.redirect(\'haccp.html\')">' + $.t('nav.haccp') + '</button>';
+                    html += '<button type="submit" data-theme="e" onclick="redirectHaccpPage()">' + $.t('nav.haccp') + '</button>';
                     html += '</div>';
                     mySwiper.appendSlide(html, 'swiper-slide');
                     $('#' + $.mobile.activePage.attr('id')).trigger('create');
@@ -327,6 +327,14 @@ function newCompanyRegistrationOff(special) {
             });
         });
     }
+}
+
+function redirectHaccpPage(){
+	if(!isOffline()){
+		Page.redirect('haccp.html');
+	}else{
+		noInternetError($.t("error.no_internet_for_sync"));
+	}
 }
 
 function newCompanyRegistration(data, params) {
