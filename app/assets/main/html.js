@@ -154,7 +154,7 @@ HTML.prototype.fileBox = function(name, label) {
     haccp_image_id = 'image_' + md5(name+label);
     var html = '<div data-role="controlgroup">';
     if(!isNative()){
-    	
+
     }
     if(isNative()){
     	html += '<a href="#" onclick="takeHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" data-theme="e"><i class="fa fa-camera pull-left"></i>' + $.t('pictures.take') + '</a>';
@@ -163,7 +163,7 @@ HTML.prototype.fileBox = function(name, label) {
     	html += '<a href="#" onclick="selectHACCPPicture(\'image_' + md5(name+label) + '\');" data-role="button" class="border" data-theme="e"><i class="fa fa-file pull-left"></i>' + $.t('pictures.select') + '</a>';
    html += '<div class="hidden"><input type="file" id="take_picture" accept="image/*"></div>';
     }
-    
+
     html += '</div>';
 
     html += '<img width="100%" height="auto" style="visibility:hidden;display:none;margin:0 auto;" id="image_' + md5(name+label) + '" src="" />';
@@ -261,7 +261,7 @@ HTML.prototype.formGenerateWill = function(form) {
     var id = md5(new Date().getTime() + '_form');
     var as = false;
     var form_data = $.extend({},form);
-    
+
     for (var i in form_data) {
         if (form_data[i].type == 'radio_list') {
             if (form_data.frequency_id.value == null || form_data.frequency_id.value == 'null') {
@@ -922,15 +922,17 @@ HTML.prototype.checkboxFlowchartList = function(name, label, list) {
 };
 
 HTML.prototype.showFlowchartImg = function(imgPath) {
-        html = '<a id="backToFlowchartList" onclick="HTML.backToFlowchartList();" ><span class="ui-btn-inner"><span class="ui-btn-text"><i class="fa fa-close"></i></span></span></a>';
-        html += "<img class='flowchart-img' style='max-height: " + mySwiper.height +"px; max-width: " + mySwiper.width +"px' src='" + settings.apiPath + imgPath + "' />";
-        mySwiper.insertSlideAfter(mySwiper.activeIndex, html, 'swiper-slide');
-        mySwiper.swipeTo( mySwiper.activeIndex + 1 , 0, false );
-        mySwiper.reInit();
-        $('#footer').hide();
+    html = '<a id="backToFlowchartList" onclick="HTML.backToFlowchartList();" ><span class="ui-btn-inner"><span class="ui-btn-text"><i class="fa fa-close"></i></span></span></a>';
+    html += "<img class='flowchart-img' style='max-height: " + mySwiper.height +"px; max-width: " + mySwiper.width +"px' src='" + settings.apiPath + imgPath + "' />";
+    mySwiper.disableKeyboardControl();
+    mySwiper.insertSlideAfter(mySwiper.activeIndex, html, 'swiper-slide');
+    mySwiper.swipeTo( mySwiper.activeIndex + 1 , 0, false );
+    mySwiper.reInit();
+    $('#footer').hide();
 };
 
 HTML.prototype.backToFlowchartList = function(imgPath) {
+    mySwiper.enableKeyboardControl();
     mySwiper.swipeTo( mySwiper.activeIndex - 1, 0, false );
     mySwiper.removeSlide(parseInt(mySwiper.activeIndex) + 1);
     mySwiper.reInit();
@@ -1279,7 +1281,7 @@ jQuery.fn.extend({
                     case 'required':
                         if ($(this).is("select")) {
                             if ($(this).val() == -1) {
-                                stepValid = false;                                
+                                stepValid = false;
                                 $(this).off('change').on('change',function(){
                                     $(this).matchValidateRules();
                                 });
