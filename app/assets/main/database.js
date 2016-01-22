@@ -238,6 +238,7 @@ db.prototype.dbCreateTables = function (tx) {
 db.prototype.dbErrorHandle = function(err) {
     console.log("Error processing SQL: ",err);
     console.log('query: ',query);
+    db.dropDb();
 };
 
 db.prototype.dbSuccessHandle = function() {

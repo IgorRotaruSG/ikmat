@@ -534,7 +534,6 @@
              * Updates the css values according to the current zoom factor and offset
              */
             update: function () {
-
                 if (this.updatePlaned) {
                     return;
                 }
@@ -543,9 +542,10 @@
                 setTimeout((function () {
                     this.updatePlaned = false;
                     this.updateAspectRatio();
-
-                    var zoomFactor = this.getInitialZoomFactor() * this.zoomFactor,
-                        offsetX = -this.offset.x / zoomFactor,
+					
+                    var zoomFactor = this.getInitialZoomFactor() * this.zoomFactor;
+                    console.log("update", zoomFactor);
+                        var offsetX = zoomFactor <= 1.2 ?	(this.container[0].offsetWidth - this.el[0].offsetWidth)/2 : -this.offset.x / zoomFactor,
                         offsetY = -this.offset.y / zoomFactor,
                         transform3d =   'scale3d('     + zoomFactor + ', '  + zoomFactor + ',1) ' +
                             'translate3d(' + offsetX    + 'px,' + offsetY    + 'px,0px)',
@@ -557,6 +557,7 @@
                                 delete this.clone;
                             }
                         }).bind(this);
+                        
 
                     // Scale 3d and translate3d are faster (at least on ios)
                     // but they also reduce the quality.

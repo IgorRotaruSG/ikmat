@@ -757,17 +757,12 @@ function formItemData(data) {
 									console.log("data");
 									$('input[name="task_id"]').val(insertId);
 								}
-								uploadHACCPPictureForms(function() {
-									deviationDoneForm({
-										form_fix_deviation : dd,
-										id : insertId
-									}, f.info.type);
-								}, function() {
-									deviationDoneForm({
-										form_fix_deviation : dd,
-										id : insertId
-									}, f.info.type);
-								});
+								uploadHACCPPictureForms();
+								
+								deviationDoneForm({
+									form_fix_deviation : dd,
+									id : insertId
+								}, f.info.type);
 							});
 						}
 
@@ -1032,12 +1027,11 @@ function maintenanceDoneForm(data, callback) {
 		$('input[name="task_id"]').val(data);
 	}
 	maintenanceSignDone(data);
-	uploadHACCPPictureForms(function() {
-		Page.redirect('tasks.html');
-		if (callback) {
-			callback();
-		}
-	});
+	uploadHACCPPictureForms();
+	Page.redirect('tasks.html');
+	if (callback) {
+		callback();
+	}
 
 }
 
