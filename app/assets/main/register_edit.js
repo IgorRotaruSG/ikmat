@@ -395,7 +395,7 @@ function newCompanyRegistration(data, params) {
             if (t_counter == max_steps) {
                 var html = '<div class="no_results" style="color:#00cde7;font-size:34px;">';
                 html += $.t('success.register_edit') + '<br /><br />';
-                html += '<button type="submit" data-theme="e" onclick="Page.redirect(\'haccp.html\')">' + $.t('nav.haccp') + '</button>';
+                html += '<button type="submit" data-theme="e" onclick="redirectHaccpPage()">' + $.t('nav.haccp') + '</button>';
                 html += '</div>';
                 mySwiper.appendSlide(html, 'swiper-slide');
                 /*$('.overflow-wrapper').addClass('overflow-wrapper-hide');
