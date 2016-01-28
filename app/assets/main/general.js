@@ -2345,16 +2345,30 @@ function executeSyncQuery() {
 	if (!isOffline()) {
 		lastSynced = performance.now();
 
-		d = db.getDbInstance();
-		d.transaction(function(tx) {
-			tx.executeSql('SELECT * FROM "sync_query" WHERE "executed"=?', [0], function(tx, results) {
-				rows = results.rows.length;
+		d = db.getDbInstance("sync_query");
+		d.query(function(doc, emit){
+			if(doc.executed == 0){
+				emit(doc);
+			}
+		},{}, function(err, results) {
+			if(results){
+				rows = results.total_rows;
 				if (rows > 0) {
 					_sync_data_rows = false;
 					testConnection(sync_query);
 				}
-			});
+			}
+				
 		});
+		// d.transaction(function(tx) {
+			// tx.executeSql('SELECT * FROM "sync_query" WHERE "executed"=?', [0], function(tx, results) {
+				// rows = results.rows.length;
+				// if (rows > 0) {
+					// _sync_data_rows = false;
+					// testConnection(sync_query);
+				// }
+			// });
+		// });
 	}
 }
 

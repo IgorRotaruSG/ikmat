@@ -68,6 +68,7 @@ function SyncMaster(data) {
 }
 
 function _syncGetAll(data){
+	console.log("_syncGetAll data", data);
     $('#login_done').removeClass('hide');
     //$('.overflow-wrapper').addClass('overflow-wrapper-hide');
     //$('#clean-overflow-wrapper').removeClass('overflow-wrapper-hide');
@@ -75,17 +76,25 @@ function _syncGetAll(data){
     //return;
     var sql = '';
     for (var i in data) {
-        if (data.hasOwnProperty(i) && i != 'token' && i != 'success' && i != 'currentTime' && i != 'form') {
-            sql = 'INSERT OR REPLACE INTO "' + i + '"(' +
-                (data[i].cols+'').replace(/([a-zA-Z_]+)/g,function(a){return '"' + a + '"';}) +
-                ') VALUES(' +
-                new Array( data[i].cols.split(',').length + 1 ).join( '?,' ).slice(0,-1)
-                + ')';
+    	//pouchdb
+    	if (data.hasOwnProperty(i) && i != 'token' && i != 'success' && i != 'currentTime' && i != 'form') {
+            sql = {collection: i, keys : data[i].cols.split(',')};
             db.lazyQuerySync({
                 'sql': sql,
                 'data': data[i].rows
             },0,'_syncDone', i);
         }
+        // if (data.hasOwnProperty(i) && i != 'token' && i != 'success' && i != 'currentTime' && i != 'form') {
+            // sql = 'INSERT OR REPLACE INTO "' + i + '"(' +
+                // (data[i].cols+'').replace(/([a-zA-Z_]+)/g,function(a){return '"' + a + '"';}) +
+                // ') VALUES(' +
+                // new Array( data[i].cols.split(',').length + 1 ).join( '?,' ).slice(0,-1)
+                // + ')';
+            // db.lazyQuerySync({
+                // 'sql': sql,
+                // 'data': data[i].rows
+            // },0,'_syncDone', i);
+        // }
     }
 
 }

@@ -16,6 +16,7 @@ function checkUserSession(tx) {
  * @param results
  */
 function getUserHandle(tx, results) {
+	console.log("results", results);
     if (results.rows.length != 4) {
         Page.redirect('login.html');
     } else {
@@ -46,8 +47,12 @@ function getUserHandle(tx, results) {
  * Init Method
  */
 function indexInit() {
-    var d = db.getDbInstance();
-    d.transaction(checkUserSession, db.dbErrorHandle);
+    var d = db.getDbInstance("settings");
+    
+    d.query(function(doc, emit){
+    	emit(doc);
+    }, {keys: ["token", "client", "name", "role"]}, getUserHandle);
+    // d.transaction(checkUserSession, db.dbErrorHandle);
 
     executeSyncQuery();
 }

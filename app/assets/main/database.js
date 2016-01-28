@@ -10,6 +10,7 @@ function db() {
     this.appVersion = localStorage.getItem('app-version');
     this.data = [];
     this.query = false;
+    this.collections = [];
 //    console.log('function db()');
 }
 
@@ -26,11 +27,17 @@ db.prototype.lazyQuery = function(q, i, callback, params) {
     }
     var thisClass = this;
     if (q && q.sql != undefined && q.data != undefined && q.data.length > i) {
-        this.db.transaction(function(tx){
+    	
+        // this.db.transaction(function(tx){
             if (q.check != undefined) {
-                tx.executeSql('SELECT COUNT(*) as "count","' + q.check.column + '" FROM "' + q.check.table + '" WHERE "' + q.check.index + '"=?',[q.data[i][q.check.index_id]],function(tx, results){
-                    if (results.rows.item(0).count > 0) {
-                        if (results.rows.item(0)[q.check.column] != q.data[i][q.check.column_id]) {
+            	this.collections[q.check.table].query(function(doc, emit){
+            		if(doc[q.check.index] == q.data[i][q.check.index_id]){
+            			emit(doc);
+            		}
+            	}, {}, function(error, results){
+            		console.log("db.prototype.lazyQuery", results);
+                    if (results && results.total_rows > 0) {
+                        if (results.rows[0][q.check.column] != q.data[i][q.check.column_id]) {
 
                             var tmp = q.data[i].slice(0);
                             var tmp_index = tmp[q.check.index_id];
@@ -44,11 +51,43 @@ db.prototype.lazyQuery = function(q, i, callback, params) {
                             thisClass.lazyQuery(q, parseInt(i)+1, callback);
                         }
                     } else {
-                        tx.executeSql(q.sql, q.data[i], function(){
-                            thisClass.lazyQuery(q, parseInt(i)+1, callback);
-                        });
+                    	//pouchdb
+                    	this.collections[q.sql.collection].bulkDocs(castToListsForm(q.sql.keys, q.data),function(error, results){
+                    		console.log("result", results);
+                		 	thisClass.lazyQuery(q, parseInt(i)+1, callback);
+                    	});
+                        // tx.executeSql(q.sql, q.data[i], function(){
+                            // thisClass.lazyQuery(q, parseInt(i)+1, callback);
+                        // });
                     }
                 });
+                // tx.executeSql('SELECT COUNT(*) as "count","' + q.check.column + '" FROM "' + q.check.table + '" WHERE "' + q.check.index + '"=?',[q.data[i][q.check.index_id]],function(tx, results){
+                    // if (results.rows.item(0).count > 0) {
+                        // if (results.rows.item(0)[q.check.column] != q.data[i][q.check.column_id]) {
+// 
+                            // var tmp = q.data[i].slice(0);
+                            // var tmp_index = tmp[q.check.index_id];
+                            // tmp.splice(q.check.index_id, 1);
+                            // tmp.push(tmp_index);
+// 
+                            // tx.executeSql(q.check.update_query, tmp, function(tx){
+                                // thisClass.lazyQuery(q, parseInt(i)+1, callback);
+                            // });
+                        // } else {
+                            // thisClass.lazyQuery(q, parseInt(i)+1, callback);
+                        // }
+                    // } else {
+                    	// //pouchdb
+                    	// console.log("aaa");
+                    	// this.collections[q.sql.collection].bulkDocs(castToListsForm(q.sql.keys, q.data[i]),function(error, results){
+                    		// console.log("result", results);
+                    		 // thisClass.lazyQuery(q, parseInt(i)+1, callback);
+                    	// });
+                        // // tx.executeSql(q.sql, q.data[i], function(){
+                            // // thisClass.lazyQuery(q, parseInt(i)+1, callback);
+                        // // });
+                    // }
+                // });
             } else {
                 tx.executeSql(q.sql, q.data[i], function(tx, results){
                 	if(q.sql.indexOf("INSERT") != -1){
@@ -57,12 +96,6 @@ db.prototype.lazyQuery = function(q, i, callback, params) {
                 	thisClass.lazyQuery(q, parseInt(i)+1, callback, params);
                 });
             }
-        }, function(el, er){
-            console.warn('We have an lazy query error here:');
-            console.log(q);
-            console.warn(el);
-            console.warn('-------------------------------------');
-        });
     } else {
         if (typeof callback != 'function' && window[callback] != undefined) {
         	if(params){
@@ -80,6 +113,23 @@ db.prototype.lazyQuery = function(q, i, callback, params) {
         }
     }
 };
+function castToListsForm(keys, data){
+	var results = [];
+	if(keys instanceof Array && data instanceof Array){
+		console.log("aaa");
+		for(var i = 0; i < data.length; i++){
+			var obj = {};
+			for(var j = 0; j < keys.length; j++){
+				obj[keys[j]] = data[i][j];
+				if(keys[j] == "id"){
+					obj._id = data[i][j] + "";
+				} 
+			}
+			results.push(obj);
+		}
+	}
+	return results;
+}
 
 db.prototype.lazyQuerySync = function(q, i, callback, callback_params) {
     if ( logout_flag == true ) {
@@ -89,17 +139,28 @@ db.prototype.lazyQuerySync = function(q, i, callback, callback_params) {
     //console.count('lazyQuerySync');
     var thisClass = this;
     if (q.sql != undefined && q.data != undefined && q.data.length > i) {
-        this.db.transaction(function(tx){
-            //console.log(q.data[i]);
-            tx.executeSql(q.sql, q.data[i], function(){
-                thisClass.lazyQuerySync(q, parseInt(i)+1, callback, callback_params);
-            });
-        }, function(el, er){
-            console.warn('We have an lazy query error here:');
-            console.log(q);
-            console.warn(el);
-            console.warn('-------------------------------------');
-        });
+    	console.log("q", q);
+    	this.collections[q.sql.collection].bulkDocs(castToListsForm(q.sql.keys, q.data),function(error, results){
+    		console.log("result", results, error);
+    		if (window[callback] != undefined) {
+	            if (callback_params != undefined) {
+	                window[callback](callback_params, results);
+	            } else {
+	                window[callback](results);
+	            }
+	        }
+    	});
+        // this.db.transaction(function(tx){
+            // //console.log(q.data[i]);
+            // tx.executeSql(q.sql, q.data[i], function(){
+                // thisClass.lazyQuerySync(q, parseInt(i)+1, callback, callback_params);
+            // });
+        // }, function(el, er){
+            // console.warn('We have an lazy query error here:');
+            // console.log(q);
+            // console.warn(el);
+            // console.warn('-------------------------------------');
+        // });
     } else {
         if (window[callback] != undefined) {
             if (callback_params != undefined) {
@@ -110,6 +171,8 @@ db.prototype.lazyQuerySync = function(q, i, callback, callback_params) {
         }
     }
 };
+
+
 
 db.prototype.clean = function() {
     query = false;
@@ -135,21 +198,27 @@ db.prototype.execute = function(q){
 };
 
 db.prototype.createTables = function(){
-    this.db.transaction(function(tx){
-        //var tables = ['settings','tasks','suppliers','employees','papers','haccp_category','haccp_items','forms','registration','form_items'];
-        var tables = ['settings','tasks','suppliers','employees','haccp_category','haccp_items','forms','registration','form_items'];
-
-        var sql = "SELECT name FROM sqlite_master WHERE type='table' AND name IN (?)";
-        var tabs = '"' + tables.join('","') + '"';
-
-        tx.executeSql(sql, [tabs], function(tx, results){
-            if (results.rows.length != tables.length) {
-                db.dbCreateTables(tx);
-            }
-        });
-
-        //this.dbCreateTables
-    }, this.dbErrorHandle, this.dbSuccessHandle);
+	console.log("aAAA");
+	var tables = ['settings','tasks','suppliers','employees','haccp_category','haccp_items','forms','registration','form_item', 'sync_query'];
+    for (var i = 0; i < tables.length; i++){
+    	 this.collections[tables[i]] = new PouchDB(this.db_name + "_" + tables[i], {skip_setup: true});
+    }
+    // this.db.transaction(function(tx){
+        // //var tables = ['settings','tasks','suppliers','employees','papers','haccp_category','haccp_items','forms','registration','form_items'];
+        // var tables = ['settings','tasks','suppliers','employees','haccp_category','haccp_items','forms','registration','form_items'];
+// 
+        // var sql = "SELECT name FROM sqlite_master WHERE type='table' AND name IN (?)";
+        // var tabs = '"' + tables.join('","') + '"';
+// 
+        // tx.executeSql(sql, [tabs], function(tx, results){
+            // if (results.rows.length != tables.length) {
+                // db.dbCreateTables(tx);
+            // }
+        // });
+//         
+// 
+        // //this.dbCreateTables
+    // }, this.dbErrorHandle, this.dbSuccessHandle);
 };
 
 
@@ -190,19 +259,40 @@ db.prototype.dbDropTables = function(tx) {
 };
 
 db.prototype.InitDB = function() {
-    this.db = window.openDatabase(this.db_name, this.db_version, "", this.db_size);
-    var isCreateDB = false;
-    if (this.database && this.database !== undefined && this.database !== null ) {
-    	isCreateDB = false;
-    } else {
-    	isCreateDB = true;
-    }
-    if(!this.appVersion || (this.appVersion && settings.rebuild && this.appVersion.replace(/\./g, "") < settings.rebuild.replace(/\./g, ""))){
-    	isCreateDB = true;
-    }
-    if(isCreateDB){
-    	this.createTables();
-    }
+    // this.db = openDatabase(this.db_name, this.db_version, "", this.db_size);
+    // this.db = new PouchDB(this.db_name);
+    // // new PouchDB(this.db_name + "2");
+    // console.log("db", this.db);
+	// this.db.post({
+	  // _id: 'mydoc2',
+	  // title: 'Heroes2'
+	// }, function(err, response) {
+	  // if (err) { return console.log(err); }
+	  // // handle response
+	// });
+// 	
+	// this.db.allDocs({
+	  // include_docs: true,
+	  // attachments: true
+	// }, function(err, response) {
+	  // if (err) { return console.log(err); }else{
+	  	// console.log(response);
+	  // }
+	  // // handle result
+	// });
+    // var isCreateDB = false;
+    // if (this.database && this.database !== undefined && this.database !== null ) {
+    	// isCreateDB = false;
+    // } else {
+    	// isCreateDB = true;
+    // }
+    // if(!this.appVersion || (this.appVersion && settings.rebuild && this.appVersion.replace(/\./g, "") < settings.rebuild.replace(/\./g, ""))){
+    	// isCreateDB = true;
+    // }
+    // if(isCreateDB){
+    	// this.createTables();
+    // }
+    this.createTables();
 };
 
 db.prototype.dbCreateTables = function (tx) {
@@ -246,6 +336,22 @@ db.prototype.dbSuccessHandle = function() {
     return true;
 };
 
-db.prototype.getDbInstance = function(){
-    return this.db;
+db.prototype.getDbInstance = function(name){
+    return this.collections[name];
 };
+// db.prototype.transaction = function(){
+    // return this.db;
+// };
+// db.prototype.executeSql = function(sql, data, callback){
+	// var command;
+	// for(var key in this.translate){
+		// if(this.translate.hasOwnPropery(key) && sql.split(this.translate[key]).length > 1){
+			// var command = key;
+			// break;
+		// }
+	// }
+	// // if(command){
+		// // this.db[command]()
+	// // }
+    // return this.db;
+// };
