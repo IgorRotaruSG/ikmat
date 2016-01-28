@@ -202,6 +202,7 @@ db.prototype.createTables = function(){
 	var tables = ['settings','tasks','suppliers','employees','haccp_category','haccp_items','forms','registration','form_item', 'sync_query'];
     for (var i = 0; i < tables.length; i++){
     	 this.collections[tables[i]] = new PouchDB(this.db_name + "_" + tables[i], {skip_setup: true});
+    	 // this.collections[tables[i]].destroy();
     }
     // this.db.transaction(function(tx){
         // //var tables = ['settings','tasks','suppliers','employees','papers','haccp_category','haccp_items','forms','registration','form_items'];
