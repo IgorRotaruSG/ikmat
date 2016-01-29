@@ -52,13 +52,7 @@ db.prototype.lazyQuery = function(q, i, callback, params) {
                         }
                     } else {
                     	//pouchdb
-                    	this.collections[q.sql.collection].bulkDocs(castToListsForm(q.sql.keys, q.data),function(error, results){
-                    		console.log("result", results);
-                		 	thisClass.lazyQuery(q, parseInt(i)+1, callback);
-                    	});
-                        // tx.executeSql(q.sql, q.data[i], function(){
-                            // thisClass.lazyQuery(q, parseInt(i)+1, callback);
-                        // });
+                        this.bulkDocs(q.sql.collection, castToListsForm(q.sql.keys, q.data));
                     }
                 });
                 // tx.executeSql('SELECT COUNT(*) as "count","' + q.check.column + '" FROM "' + q.check.table + '" WHERE "' + q.check.index + '"=?',[q.data[i][q.check.index_id]],function(tx, results){
@@ -89,12 +83,7 @@ db.prototype.lazyQuery = function(q, i, callback, params) {
                     // }
                 // });
             } else {
-                tx.executeSql(q.sql, q.data[i], function(tx, results){
-                	if(q.sql.indexOf("INSERT") != -1){
-                		params = results.insertId;
-                	}
-                	thisClass.lazyQuery(q, parseInt(i)+1, callback, params);
-                });
+                this.bulkDocs(q.sql.collection, castToListsForm(q.sql.keys, q.data));
             }
     } else {
         if (typeof callback != 'function' && window[callback] != undefined) {
@@ -113,6 +102,31 @@ db.prototype.lazyQuery = function(q, i, callback, params) {
         }
     }
 };
+
+db.prototype.bulkDocs = function(collection, docs, callback, params){
+    console.log(collection, docs);
+    if(!collection){
+        return null;
+    }
+    this.collections[collection].bulkDocs(docs,function(error, results){
+        console.log(collection, results);
+        if (typeof callback != 'function' && window[callback] != undefined) {
+            if(params){
+                window[callback](params, results);
+            }else{
+                window[callback](results);
+            }
+        }else if(callback && typeof callback == 'function'){
+            if(params){
+                callback(params, results);
+            }else{
+                callback(results);
+            }
+
+        }
+    });
+}
+
 function castToListsForm(keys, data){
 	var results = [];
 	if(keys instanceof Array && data instanceof Array){
