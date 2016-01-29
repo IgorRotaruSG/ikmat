@@ -198,28 +198,10 @@ db.prototype.execute = function(q){
 };
 
 db.prototype.createTables = function(){
-	console.log("aAAA");
 	var tables = ['settings','tasks','suppliers','employees','haccp_category','haccp_items','forms','registration','form_item', 'sync_query'];
     for (var i = 0; i < tables.length; i++){
     	 this.collections[tables[i]] = new PouchDB(this.db_name + "_" + tables[i], {skip_setup: true});
-    	 // this.collections[tables[i]].destroy();
     }
-    // this.db.transaction(function(tx){
-        // //var tables = ['settings','tasks','suppliers','employees','papers','haccp_category','haccp_items','forms','registration','form_items'];
-        // var tables = ['settings','tasks','suppliers','employees','haccp_category','haccp_items','forms','registration','form_items'];
-// 
-        // var sql = "SELECT name FROM sqlite_master WHERE type='table' AND name IN (?)";
-        // var tabs = '"' + tables.join('","') + '"';
-// 
-        // tx.executeSql(sql, [tabs], function(tx, results){
-            // if (results.rows.length != tables.length) {
-                // db.dbCreateTables(tx);
-            // }
-        // });
-//         
-// 
-        // //this.dbCreateTables
-    // }, this.dbErrorHandle, this.dbSuccessHandle);
 };
 
 
@@ -241,22 +223,9 @@ db.prototype.dbDropTables = function(tx) {
     		localStorage.removeItem(localStorage.key(i));
     	}
     }
-    tx.executeSql('DROP TABLE IF EXISTS "employees"');
-    tx.executeSql('DROP TABLE IF EXISTS "flowchart"');
-    tx.executeSql('DROP TABLE IF EXISTS "forms"');
-    tx.executeSql('DROP TABLE IF EXISTS "haccp_category"');
-    tx.executeSql('DROP TABLE IF EXISTS "haccp_items"');
-    //tx.executeSql('DROP TABLE IF EXISTS "papers"');
-    tx.executeSql('DROP TABLE IF EXISTS "suppliers"');
-    tx.executeSql('DROP TABLE IF EXISTS "registration"');
-    tx.executeSql('DROP TABLE IF EXISTS "reports"');
-    tx.executeSql('DROP TABLE IF EXISTS "settings"');
-    tx.executeSql('DROP TABLE IF EXISTS "tasks"');
-    /*extra*/
-    tx.executeSql('DROP TABLE IF EXISTS "form_item"');
-    tx.executeSql('DROP TABLE IF EXISTS "suppliers"');
-    tx.executeSql('DROP TABLE IF EXISTS "sync_query"');
-    //return true;
+    for (var i = 0; i < tables.length; i++){
+    	 this.collections[tables[i]].destroy();
+    }
 };
 
 db.prototype.InitDB = function() {
