@@ -164,13 +164,13 @@ db.prototype.dropDb = function() {
 
 
 db.prototype.dbDropTables = function(tx) {
-    this.database = false;
-    for (var i = 0; i < localStorage.length; i++) {
+	for (var i = 0; i < localStorage.length; i++) {
     	console.log(localStorage.key(i));
     	if(localStorage.key(i) != "user_email"){
     		localStorage.removeItem(localStorage.key(i));
     	}
     }
+    this.database = false;
     tx.executeSql('DROP TABLE IF EXISTS "employees"');
     tx.executeSql('DROP TABLE IF EXISTS "flowchart"');
     tx.executeSql('DROP TABLE IF EXISTS "forms"');
@@ -186,6 +186,7 @@ db.prototype.dbDropTables = function(tx) {
     tx.executeSql('DROP TABLE IF EXISTS "form_item"');
     tx.executeSql('DROP TABLE IF EXISTS "suppliers"');
     tx.executeSql('DROP TABLE IF EXISTS "sync_query"');
+    window.location.reload();
     //return true;
 };
 

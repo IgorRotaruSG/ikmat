@@ -925,6 +925,7 @@ HTML.prototype.showFlowchartImg = function(imgPath) {
     html = '<a id="backToFlowchartList" onclick="HTML.backToFlowchartList();" ><span class="ui-btn-inner"><span class="ui-btn-text"><i class="fa fa-close"></i></span></span></a>';
     html += "<img class='flowchart-img' style='max-height: " + mySwiper.height +"px; max-width: " + mySwiper.width +"px' src='" + settings.apiPath + imgPath + "' />";
     mySwiper.disableKeyboardControl();
+    mySwiper.disableMouseTouch();
     mySwiper.insertSlideAfter(mySwiper.activeIndex, html, 'swiper-slide');
     mySwiper.swipeTo( mySwiper.activeIndex + 1 , 0, false );
     mySwiper.reInit();
@@ -933,6 +934,7 @@ HTML.prototype.showFlowchartImg = function(imgPath) {
 
 HTML.prototype.backToFlowchartList = function(imgPath) {
     mySwiper.enableKeyboardControl();
+    mySwiper.enableMouseTouch();
     mySwiper.swipeTo( mySwiper.activeIndex - 1, 0, false );
     mySwiper.removeSlide(parseInt(mySwiper.activeIndex) + 1);
     mySwiper.reInit();

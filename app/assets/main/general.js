@@ -15,8 +15,8 @@ var settings = {
 	},
 	'requestTimeout' : 25000,
 	'excludeOffline': ["haccp.html", "flowchart.html"],
-	'version': "2.0.69",
-	'rebuild': "2.0.68"
+	'version': "2.0.71",
+	'rebuild': "2.0.71"
 };
 
 var performance = window.performance;
@@ -670,6 +670,13 @@ function logout() {
 	d = db.getDbInstance();
 
 	d.transaction(db.dbDropTables, db.dbErrorHandle, function() {
+		for (var i = 0; i < localStorage.length; i++) {
+	    	console.log(localStorage.key(i));
+	    	if(localStorage.key(i) != "user_email"){
+	    		localStorage.removeItem(localStorage.key(i));
+	    	}
+	    }
+	    db.database = false;
 		User.database = false;
 		User.client = false;
 		User.lastToken = false;
@@ -2195,7 +2202,7 @@ function bind_menuClick(t, n) {
 	} else {
 		contactName.html(localStorage.getItem('contact_name'));
 	}
-	$(t).find('#app-version').html("IK-mat 2.0.10");
+	$(t).find('#app-version').html("IK-mat 2.0.9");
 	displayOnline(isOffline());
 }
 

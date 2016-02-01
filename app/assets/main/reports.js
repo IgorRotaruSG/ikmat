@@ -469,7 +469,11 @@ function reportsView(data) {
             'filter_date_from': reports_date_start,
             'filter_date_to': reports_date_end
         };
-        Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail');
+        if(isLinkData(email_data.report_id)){
+        	Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail', email_data);
+        }else{
+        	Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail', email_data);
+        }
         // if(isNative() && cordova.plugins && cordova.plugins.email){
         //     $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
         //     var email_data = {
@@ -580,19 +584,30 @@ function reportsView(data) {
 
 }
 
-function openNativeEmail(pdf){
+function isLinkData(reportId){
+	if(reportId == 8 || reportId == 15){
+		return true;
+	}
+	return true;
+}
+
+function openNativeEmail(pdf, email_data){
     var subject = report_name ? report_name: "Rapporter";
     subject += localStorage.getItem('company_name') ? " fra " + localStorage.getItem('company_name'): "";
     var mailObject = {
         subject: subject,
         cc: localStorage.getItem("user_email") ? localStorage.getItem("user_email"): "",
     };
-
-    if(pdf.success){
+	if(pdf && !isLinkData(email_data.report_id)){
+		mailObject.attachments = "base64:" + report_name + "_" + reports_date_start + "_" + reports_date_end + ".pdf//" + pdf.data;
+	}else {
     	if(isNative()){
             mailObject.isHtml = true;
+            mailObject.body = '<div>Trykk på lenken nedenfor for å se rapporter: <a href="' + encodeURI(pdf.data) + '">' + pdf.data + '</a></div>';
+    	}else{
+    		mailObject.body = "Trykk på lenken nedenfor for å se rapporter: " + pdf.data;
     	}
-        mailObject.body = "Trykk på lenken nedenfor for å se rapporter: " + pdf.data;
+        
     }
     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
     /* Open native mail on mobile */
@@ -750,7 +765,11 @@ function documentsCall(data) {
                 'filter_date_from' : reports_date_start,
                 'filter_date_to' : reports_date_end
             };
-            Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail');
+            if(isLinkData(email_data.report_id)){
+            	Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail', email_data);
+            }else{
+            	Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail', email_data);
+            }
             // if (isNative() && cordova.plugins && cordova.plugins.email) {
             //     $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
             //     var email_data = {

@@ -5,6 +5,7 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		0614DC799D414F4F9D061CD0 /* CDVConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F6D631785584F29B3F3A487 /* CDVConnection.m */; };
 		11ED6F06ECA84452843F54EA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1516F25B7A64D8799E8DB87 /* CoreLocation.framework */; };
@@ -561,7 +562,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: AutoMagi Ltd (2ZDPCXEHU3)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: AutoMagi Ltd (2ZDPCXEHU3)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

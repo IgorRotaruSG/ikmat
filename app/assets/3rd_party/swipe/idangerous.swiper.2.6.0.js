@@ -1225,6 +1225,23 @@ var Swiper = function (selector, params) {
         _this.h.addEventListener(_this.container, _this._wheelEvent, handleMousewheel);
         return true;
     };
+    
+    _this.enableMouseTouch = function () {
+        initEvents();
+        return true;
+    };
+    
+    _this.disableMouseTouch = function () {
+    	console.log("remove");
+    	var eventTarget = params.eventTarget === 'wrapper' ? _this.wrapper : _this.container;
+    	if (_this.support.touch) {
+    		console.log("remove2");
+    		_this.h.removeEventListener(eventTarget, 'touchstart', onTouchStart);
+	    	_this.h.removeEventListener(eventTarget, 'touchmove', onTouchMove);
+	    	_this.h.removeEventListener(eventTarget, 'touchend', onTouchEnd);
+    	}
+    	return true;
+    };
 
     /*=========================
       Grab Cursor
