@@ -173,10 +173,46 @@ function deleteFlowchart(flowchartId){
 
 }
 
-function printFlowchart(flowchartSrc){
-    cordova.plugins.printer.print(encodeURIComponent(flowchartSrc), {name: 'Document.html', landscape: true}, function () {
+function printFlowchart(flowchartSrc, flowchartTitle){
+    if(isNative() && cordova.plugins && cordova.plugins.email) {
+        cordova.plugins.printer.print(encodeURIComponent(flowchartSrc), {name: 'Document.html', landscape: true}, function () {
         //alert('printing finished or canceled')
-    });
+        });
+    }
+    else {
+        w=window.open();
+
+        var flowchartHtml = '<style>' +        
+        '.image_element {' +
+            'width: 96%;' +
+            'height: 96%;' +
+            'text-align: left;' +
+            'line-height: normal;' +
+            'display: block;' +
+            'margin: 0 1px 1px 0;' +
+            'float: left;' +
+        '}' +
+        '.image_element a {' +
+            'display: block;' +
+            'height: 100%;' +
+            'width: 100%;' +
+            'padding-left: 20px' +
+        '}' +
+        '.image_element a img {' +
+            'max-width:100% !important;' +
+            'max-height:100%!important;' +
+            'display:block;' +
+        '}' +
+        '</style>' +
+        '<div class="image_element">' +
+            '<strong>' + flowchartTitle + '</trong><br>' +
+            '<a class="ui-link"><img src="' + flowchartSrc + '" /></a>' +
+        '</div>';
+
+        w.document.write(flowchartHtml);
+        w.print();
+        w.close();
+    }
     return;
 }
 
