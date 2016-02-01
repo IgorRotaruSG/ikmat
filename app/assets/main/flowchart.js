@@ -62,7 +62,7 @@ function flowchartInit() {
 }
 
 function showFlowchart(data) {
-    if (data.success) {
+    if (data.success) {        
         var add = '';
         if ( data.flowcharts.length > 0 ) {
             for (var i in data.flowcharts) {
@@ -92,7 +92,7 @@ function showFlowchart(data) {
                 beforeOpen: function() {
                 }, // called before opening
                 afterOpen: function(){
-                	// new RTP.PinchZoom($('div .current'), {});
+                	// new RTP.PinchZoom($('div .current'), {});                    
                 }, // called after opening
                 afterClose: function() {}, // called after closing
                 loopAtEnd: true // true will return to the first image after the last image is reached
@@ -215,9 +215,10 @@ function openNativeEmail(data){
             }
         );
     } else { /* Open native mail on web */
-        var mailto_link = 'mailto:?subject='+mailObject.subject+'&cc='+mailObject.cc+'&body=' + mailObject.body + '&attachment=' + encodeURI(data.image);
+        var mailto_link = 'mailto:?subject='+mailObject.subject;
+        if (mailObject.cc) mailto_link += '&cc='+mailObject.cc;
+        if (mailObject.body) mailto_link += '&body='+mailObject.body;
         location.href = mailto_link;
-
     }
 }
 
