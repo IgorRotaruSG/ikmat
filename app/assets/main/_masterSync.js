@@ -79,22 +79,8 @@ function _syncGetAll(data){
     	//pouchdb
     	if (data.hasOwnProperty(i) && i != 'token' && i != 'success' && i != 'currentTime' && i != 'form') {
             sql = {collection: i, keys : data[i].cols.split(',')};
-            db.lazyQuerySync({
-                'sql': sql,
-                'data': data[i].rows
-            },0,'_syncDone', i);
+            db.lazyQuerySync(i,castToListObject(data[i].cols.split(','), data[i].rows) , '_syncDone', i);
         }
-        // if (data.hasOwnProperty(i) && i != 'token' && i != 'success' && i != 'currentTime' && i != 'form') {
-            // sql = 'INSERT OR REPLACE INTO "' + i + '"(' +
-                // (data[i].cols+'').replace(/([a-zA-Z_]+)/g,function(a){return '"' + a + '"';}) +
-                // ') VALUES(' +
-                // new Array( data[i].cols.split(',').length + 1 ).join( '?,' ).slice(0,-1)
-                // + ')';
-            // db.lazyQuerySync({
-                // 'sql': sql,
-                // 'data': data[i].rows
-            // },0,'_syncDone', i);
-        // }
     }
 
 }
@@ -119,17 +105,14 @@ function _syncDone(i) {
             userLoginCallback = 'landingUserLogin';
         }
 
-        db.lazyQuery({
-            'sql': 'INSERT INTO "settings"("type","value") VALUES(?,?)',
-            'data': [
-                ['register_edit', _data.first_edit],
-                ['haccp', _data.first_haccp],
-                ['name', _data.company_name],
-                ['role', _data.role],
-                ['deviation_form', JSON.stringify(_data.deviation_form)],
-                ['contact_name', _data.contact_name]
-            ]
-        }, 0, userLoginCallback);
+        db.lazyQuery('settings', [
+            {_id: 'register_edit', type:'register_edit', value: _data.first_edit},
+            {_id: 'haccp', type:'haccp', value: _data.first_haccp},
+            {_id: 'name', type:'name', value: _data.company_name},
+            {_id: 'role', type:'role', value: _data.role},
+            {_id: 'deviation_form', type:'deviation_form', value: JSON.stringify(_data.deviation_form) },
+            {_id: 'contact_name', type:'contact_name', value: _data.contact_name}
+        ], userLoginCallback);
 
         var company_join_date = '';
         if (_data.company_date_added != undefined) {

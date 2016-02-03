@@ -598,52 +598,22 @@ User.prototype.saveSession = function() {
 		'client' : this.client,
 		'lastToken' : this.lastToken
 	}));
-
-	var d = db.getDbInstance();
-	d.transaction(checkUserSessionS, db.dbErrorHandle);
+	saveUserHandle();
+	
 };
 
-function saveUserHandle(tx, results) {
-	var sql = '';
-	if (results.rows.length != 2) {
-		// add action
-		sql = 'INSERT INTO settings("type","value") VALUES("client","' + User.client + '")';
-		tx.executeSql(sql, [], function() {
-		}, db.dbErrorHandle);
-
-		sql = 'INSERT INTO settings("type","value") VALUES("token","' + User.lastToken + '")';
-		tx.executeSql(sql, [], function() {
-			// Show message
-			$('.sm-success').fadeIn(1000);
+function saveUserHandle() {
+	db.lazyQuery('settings', [
+        {_id: 'client', type:'client', value: User.client},
+        {_id: 'token', type:'token', value: User.lastToken}
+    ], function(){
+    	$('.sm-success').fadeIn(1000);
 			$('.sm-failed').fadeOut(500);
-
-			if (fromLandingPage)
-				location.href = settings.apiPath + '/app/index.html';
-			else
-				Page.redirect(Page.defaultPage);
-		}, db.dbErrorHandle);
-	} else {
-		// save action
-		sql = 'UPDATE settings SET "value" = "' + User.client + '" WHERE "type" = "client"';
-		tx.executeSql(sql, [], function() {
-		}, db.dbErrorHandle);
-
-		sql = 'UPDATE settings SET "value" = "' + User.lastToken + '" WHERE "type" = "token"';
-		tx.executeSql(sql, [], function() {
-			// Show message
-			$('.sm-success').fadeIn(1000);
-			$('.sm-failed').fadeOut(500);
-
-			if (fromLandingPage)
-				location.href = settings.apiPath + '/app/index.html';
-			else
-				Page.redirect(Page.defaultPage);
-		}, db.dbErrorHandle);
-	}
-}
-
-function checkUserSessionS(tx) {
-	tx.executeSql('SELECT * FROM "settings" WHERE "type" IN ("token", "client")', [], saveUserHandle, db.dbErrorHandle);
+		if (fromLandingPage)
+			location.href = settings.apiPath + '/app/index.html';
+		else
+			Page.redirect(Page.defaultPage);
+    });
 }
 
 User.prototype.isLogged = function() {
@@ -668,8 +638,7 @@ User.prototype.logout = function() {
 function logout() {
 	logout_flag = true;
 	d = db.getDbInstance();
-
-	d.transaction(db.dbDropTables, db.dbErrorHandle, function() {
+	db.dbDropTables().then(function(){
 		User.database = false;
 		User.client = false;
 		User.lastToken = false;
@@ -2199,6 +2168,27 @@ function bind_menuClick(t, n) {
 	displayOnline(isOffline());
 }
 
+function castToListObject(keys, data){
+	var results = [];
+	if(keys instanceof Array && data instanceof Array){
+		console.log("aaa");
+		for(var i = 0; i < data.length; i++){
+			var obj = {};
+			for(var j = 0; j < keys.length; j++){
+				obj[keys[j].trim()] = data[i][j];
+				if(!obj._id && keys[j].trim() == 'type'){
+					obj._id = data[i][j] + "";
+				} 
+				if(keys[j].trim() == "id"){
+					obj._id = data[i][j] + "";
+				} 
+			}
+			results.push(obj);
+		}
+	}
+	return results;
+}
+
 function updateContactName(data) {
 	if (data.contact_name) {
 		localStorage.setItem('contact_name', data.contact_name);
@@ -2344,13 +2334,14 @@ function lockedError(message) {
 function executeSyncQuery() {
 	if (!isOffline()) {
 		lastSynced = performance.now();
-
+		
 		d = db.getDbInstance("sync_query");
 		d.query(function(doc, emit){
 			if(doc.executed == 0){
 				emit(doc);
 			}
-		},{}, function(err, results) {
+		}, function(err, results) {
+			console.log("executeSyncQuery", results, err);
 			if(results){
 				rows = results.total_rows;
 				if (rows > 0) {
@@ -2360,15 +2351,6 @@ function executeSyncQuery() {
 			}
 				
 		});
-		// d.transaction(function(tx) {
-			// tx.executeSql('SELECT * FROM "sync_query" WHERE "executed"=?', [0], function(tx, results) {
-				// rows = results.rows.length;
-				// if (rows > 0) {
-					// _sync_data_rows = false;
-					// testConnection(sync_query);
-				// }
-			// });
-		// });
 	}
 }
 

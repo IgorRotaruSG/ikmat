@@ -93,16 +93,15 @@ function getFormsCall(tx, results) {
 	mySwiper.resizeFix();
 }
 
-function getForms(tx) {
-	tx.executeSql('SELECT * FROM "forms" WHERE alias<>""', [], getFormsCall);
+function getForms() {
+	db.getDBInstance('forms').allDocs(getFormsCall);
 }
 
 function formsInit() {
 	//    console.log('forms init');
 	if (User.isLogged()) {
 		executeSyncQuery();
-		var d = db.getDbInstance();
-		d.transaction(getForms, db.dbErrorHandle);
+		getForms();
 		console.log('forms.js 73 swiper init');
 		mySwiper = new Swiper('.swiper-container-form', {
 			calculateHeight : true,
@@ -249,7 +248,7 @@ function checkForm(type, callback) {
 		}
 		return;
 	}
-	var d = db.getDbInstance();
+	var d = db.getDbInstance('sync_query');
 	d.transaction(function(tx) {
 		tx.executeSql('SELECT * FROM "sync_query" WHERE "extra"=? ORDER BY id DESC LIMIT 1', [mapForm[type]], function(tx, results) {
 			// console.log("results.rows", results.rows);
