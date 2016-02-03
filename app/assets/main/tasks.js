@@ -708,20 +708,20 @@ function getTasksUncompleted(data) {
 
 			var d = db.getDbInstance('settings').query(function(doc, emit) {
 				if (['register_edit', 'haccp', 'role'].indexOf(doc.type) != -1) {
-					emit(doc);
+					emit(doc.type, doc.value);
 				}
 			}, function(error, results) {
 				var register_edit = true,
 				    haccp = true,
 				    role = '';
-				if (results.rows.length > 0) {
+				if (results && results.rows.length > 0) {
 					for (var i = 0; i < results.rows.length; i++) {
-						if (results.rows[i].type == 'register_edit' && results.rows[i].value == 'true')
+						if (results.rows[i].doc.key == 'register_edit' && results.rows[i].doc.value == 'true')
 							register_edit = false;
-						if (results.rows[i].type == 'haccp' && results.rows[i].value == 'true')
+						if (results.rows[i].doc.key == 'haccp' && results.rows[i].doc.value == 'true')
 							haccp = false;
-						if (results.rows[i].type == 'role')
-							role = results.rows[i].value;
+						if (results.rows[i].doc.key == 'role')
+							role = results.rows[i].doc.value;
 					}
 				}
 
@@ -791,12 +791,12 @@ function getTasksUncompleted(data) {
 					    role = '';
 					if (results.rows.length > 0) {
 						for (var i = 0; i < results.rows.length; i++) {
-							if (results.rows[i].key == 'register_edit' && results.rows[i].value == 'true')
+							if (results.rows[i].doc.key == 'register_edit' && results.rows[i].doc.value == 'true')
 								register_edit = false;
-							if (results.rows[i].key == 'haccp' && results.rows[i].value == 'true')
+							if (results.rows[i].doc.key == 'haccp' && results.rows[i].doc.value == 'true')
 								haccp = false;
-							if (results.rows[i].key == 'role')
-								role = results.rows[i].value;
+							if (results.rows[i].doc.key == 'role')
+								role = results.rows[i].doc.value;
 						}
 					}
 
@@ -872,8 +872,7 @@ function findTaskData() {
 	}
 }
 
-function updateTaskData(data, taskId) {
-	console.log("updateTaskData", data);
+function updateTaskData(data) {
 	if (data.success && data.form) {
 		if (!isOffline()) {
 			db.bulkDocs('tasks', [{
@@ -888,6 +887,7 @@ function updateTaskData(data, taskId) {
 			});
 		}
 	}
+
 }
 
 function getTasksFromLocal(results) {
@@ -914,46 +914,46 @@ function getTasksFromLocal(results) {
 	}
 
 	for (var i = 0; i < results.rows.length; i++) {
-		var isExist = $('#taskList').find("a[data-id='" + results.rows[i].id + "']")[0];
+		var isExist = $('#taskList').find("a[data-id='" + results.rows[i].doc.id + "']")[0];
 		if (isExist) {
 			continue;
 		}
-		if (!in_array(results.rows[i].date_start, groups)) {
+		if (!in_array(results.rows[i].doc.date_start, groups)) {
 
-			var divider_exists = $('#taskList').find("li[data-id='" + results.rows[i].date_start + "'][data-role='list-divider']");
+			var divider_exists = $('#taskList').find("li[data-id='" + results.rows[i].doc.date_start + "'][data-role='list-divider']");
 			if (divider_exists.length == 0) {
 				data.push({
-					'id' : results.rows[i].date_start,
-					'data' : Page.formatTaskDate( date = new Date(results.rows[i].date_start)),
+					'id' : results.rows[i].doc.date_start,
+					'data' : Page.formatTaskDate( date = new Date(results.rows[i].doc.date_start)),
 					'extra' : 'data-role="list-divider"'
 				});
 			}
 
-			groups.push(results.rows[i].date_start);
+			groups.push(results.rows[i].doc.date_start);
 		}
 
 		// todo: alter this
-		if (results.rows[i].type == 'deviation') {
-			//add_data = '<a href="haccp_deviation_fix.html?id=' + results.rows[i].id + '" data-transition="slide" style="color: #ff0000;"><i class="fa fa-warning"></i> ' + results.rows[i].title + '</a>';
-			//add_data = '<a href="haccp_deviation_fix.html?id=' + results.rows[i].id + '" data-transition="slide">' + results.rows[i].title + '</a>'
-			add_data = '<a href="#" data-id="' + results.rows[i].id + '" class="generate_deviation_fix">' + results.rows[i].title + '</a>';
-		} else if (results.rows[i].type == 'maintenance') {
-			add_data = '<a href="maintenance.html?id=' + results.rows[i].id + '" data-id="' + results.rows[i].id + '" data-transition="slide"><i class="fa fa-key"></i> ' + results.rows[i].title + '</a>';
-		} else if (results.rows[i].type == 'food_poision') {
-			add_data = '<a href="food_poison.html?id=' + results.rows[i].id + '" data-id="' + results.rows[i].id + '"  data-transition="slide"><i class="fa fa-flask"></i>' + results.rows[i].title + '</a>';
+		if (results.rows[i].doc.type == 'deviation') {
+			//add_data = '<a href="haccp_deviation_fix.html?id=' + results.rows[i].doc.id + '" data-transition="slide" style="color: #ff0000;"><i class="fa fa-warning"></i> ' + results.rows[i].doc.title + '</a>';
+			//add_data = '<a href="haccp_deviation_fix.html?id=' + results.rows[i].doc.id + '" data-transition="slide">' + results.rows[i].doc.title + '</a>'
+			add_data = '<a href="#" data-id="' + results.rows[i].doc.id + '" class="generate_deviation_fix">' + results.rows[i].doc.title + '</a>';
+		} else if (results.rows[i].doc.type == 'maintenance') {
+			add_data = '<a href="maintenance.html?id=' + results.rows[i].doc.id + '" data-id="' + results.rows[i].doc.id + '" data-transition="slide"><i class="fa fa-key"></i> ' + results.rows[i].doc.title + '</a>';
+		} else if (results.rows[i].doc.type == 'food_poision') {
+			add_data = '<a href="food_poison.html?id=' + results.rows[i].doc.id + '" data-id="' + results.rows[i].doc.id + '"  data-transition="slide"><i class="fa fa-flask"></i>' + results.rows[i].doc.title + '</a>';
 		} else {
-			add_data = '<a href="#" data-id="' + results.rows[i].id + '" class="generate_task_form">' + results.rows[i].title + '</a>';
+			add_data = '<a href="#" data-id="' + results.rows[i].doc.id + '" class="generate_task_form">' + results.rows[i].doc.title + '</a>';
 		}
 
-		if (results.rows[i].overdue == 'true' && results.rows[i].type == 'deviation') {
+		if (results.rows[i].doc.overdue == 'true' && results.rows[i].doc.type == 'deviation') {
 			data.push({
-				'id' : results.rows[i].date_start,
+				'id' : results.rows[i].doc.date_start,
 				'data' : add_data,
 				'extra' : 'class="li-overdue-red"'
 			});
 		} else {
 			data.push({
-				'id' : results.rows[i].date_start,
+				'id' : results.rows[i].doc.date_start,
 				'data' : add_data
 			});
 		}
@@ -1001,7 +1001,7 @@ function checkTaskData() {
 		console.log("results", results);
 		if (results.rows.length > 0 && !isOffline()) {
 			for (var i = 0; i < results.rows.length; i++) {
-				emptytaskdata.push(results.rows[i].id);
+				emptytaskdata.push(results.rows[i].doc.id);
 			}
 			findTaskData();
 		}
@@ -1197,7 +1197,8 @@ function bindOpenTask() {
 			};
 			Page.apiCall('getTask', data, 'get', 'getTaskData');
 		} else {
-			db.getDbInstance('tasks').get(document.task_id, function(doc) {
+			console.log('document.task_id', document.task_id);
+			db.getDbInstance('tasks').get(String(document.task_id), function(err, doc) {
 				if (doc && doc.taskData) {
 					getTaskData(JSON.parse(doc.taskData));
 				} else {
@@ -1229,7 +1230,7 @@ function bindOpenTask() {
 		if (!isOffline()) {
 			Page.apiCall('deviation', data, 'get', 'haccpDeviationFix');
 		} else {
-			db.getDbInstance('tasks').get(devId, function(doc) {
+			db.getDbInstance('tasks').get(String(devId), function(err, doc) {
 				if (doc && doc.taskData) {
 					haccpDeviationFix(JSON.parse(doc.taskData));
 				} else {
