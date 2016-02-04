@@ -63,6 +63,7 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 	var promises = [];
 	var that = this;
 	for (var i = 0; i < docs.length; i++) {
+		docs[i].timestamp = new Date().toJSON();
 		var index = i;
 		(function(that, i) {
 			promises[i] = new Promise(function(resolve, reject) {
@@ -145,11 +146,25 @@ function _fetchResults(tx, results) {
 // this.db.transaction(this._execQuery, this.dbErrorHandle);
 // };
 
+function createDesignDoc(name, mapFunction) {
+	var ddoc = {
+		_id: '_design/' + name,
+		views: {
+		}
+	};
+	ddoc.views[name] = { map: mapFunction.toString() };
+	return ddoc;
+}
+
 db.prototype.createTables = function() {
 	for (var i = 0; i < this.tables.length; i++) {
 		this.collections[this.tables[i]] = new PouchDB(this.db_name + "_" + this.tables[i], {
 			skip_setup : true
 		});
+		var designDoc = createDesignDoc('sort_index', function (doc) {
+			emit(doc.timestamp);
+		});
+		this.collections[this.tables[i]].put(designDoc);
 	}
 };
 

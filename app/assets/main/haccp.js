@@ -199,16 +199,12 @@ function getHaccp() {
     }
 }
 
-function getHaccpWithLimit(tx) {
-    //console.info('f_i:' + f_i);
-    //console.log('getHaccpWithLimit(tx)');
-    tx.executeSql('select * from haccp_items ORDER BY "id" ASC LIMIT ' + f_i + ',1', [], getHaccpCall, db.dbErrorHandle);
+function getHaccpWithLimit() {
+    db.getDbInstance('haccp_items').query('sort_index',{'include_docs': true, 'skip':f_i ,'limit': 1}, getHaccpCall);
 }
 
-function getHaccpWithLimitPrev(tx) {
-    //console.info('activequetion:' + activeQuestion);
-    db.getDbInstance('haccp_items').allDocs('haccp_items', {'limit': activeQuestion}, getHaccpCallPrev);
-    // tx.executeSql('select * from haccp_items ORDER BY "id" ASC LIMIT ' + activeQuestion + ',1', [], getHaccpCallPrev, db.dbErrorHandle);
+function getHaccpWithLimitPrev() {
+    db.getDbInstance('haccp_items').query('sort_index',{'include_docs': true, 'skip':activeQuestion ,'limit': 1}, getHaccpCallPrev);
 }
 
 
@@ -318,15 +314,8 @@ function haccpInit() {
 
 function insertHaccpItem() {
 	db.lazyQuery('haccp_items', castToListObject(["id","cat","content","form","response"],fq), function(){
-		db.getDbInstance('haccp_items').allDocs({'include_docs': true, 'limit': 3}, getHaccpCall);
+		db.getDbInstance('haccp_items').query('sort_index',{'include_docs': true, 'limit': 3}, getHaccpCall);
 	});
-	// console.log("fqi", fqi, fq);
-    // if (fqi < (fq.length - 1)) {
-        // fqi = parseInt(fqi) + 1;
-        // tx.executeSql(fq[fqi], [], insertHaccpItem, db.dbErrorHandle);
-    // } else {
-        // tx.executeSql('select * from haccp_items LIMIT 3', [], getHaccpCall, db.dbErrorHandle);
-    // }
 }
 
 function haccp(data) {
@@ -470,7 +459,7 @@ function haccpComplete(data) {
                 Page.apiCall('deviation', data, 'get', 'haccpDeviation_s');
             } else {
                 f_i = parseInt(f_i) + 1;
-                d.transaction(getHaccpWithLimit, db.dbErrorHandle);
+                getHaccpWithLimit();
                 $('.overflow-wrapper').addClass('overflow-wrapper-hide');
             }
         } else {
@@ -484,21 +473,18 @@ function haccpComplete(data) {
 
 function showLocalDevPopup() {
     //console.log('showLocalDevPopup');
-    var d = db.getDbInstance();
-    d.transaction(function(tx){
-        tx.executeSql('SELECT "value" FROM "settings" WHERE "type"=?', ['deviation_form'], function(tx, results){
-            if (results.rows.length > 0) {
-                var f = JSON.parse(results.rows.item(0).value);
-                haccpDeviation_s(f);
-            } else {
-                $('#alertPopup .alert-text').html($.t("error.no_internet_for_sync"));
-                $('#alertPopup').on("popupafterclose",function(){
-                    $('#alertPopup').unbind("popupafterclose");
-                    window.location.href = 'index.html';
-                });
-                $('#alertPopup').popup( "open", {positionTo: 'window'});
-            }
-        });
+    db.getDbInstance('settings').get('deviation_form', function(err, results){
+        if (results) {
+            var f = JSON.parse(results.value);
+            haccpDeviation_s(f);
+        } else {
+            $('#alertPopup .alert-text').html($.t("error.no_internet_for_sync"));
+            $('#alertPopup').on("popupafterclose",function(){
+                $('#alertPopup').unbind("popupafterclose");
+                window.location.href = 'index.html';
+            });
+            $('#alertPopup').popup( "open", {positionTo: 'window'});
+        }
     });
 };
 
@@ -512,24 +498,24 @@ function haccpDeviation_s(data) {
         console.log('no way it gets here');
         $('#form_haccp_deviation').html(html);
         var qresults = null;
-        d.transaction(function(tx){
-            tx.executeSql('SELECT "data","id" FROM "sync_query" WHERE "q_type"=? AND "executed"=? ORDER BY "id" DESC', ['haccp_deviation','0'], function(tx, results){
-                if (results.rows.length > 0) {
-                    qresults = results;
-                    var haccp_id = JSON.parse(JSON.parse(results.rows.item(0).data).response).subcategory; // get haccp_data from haccp_items
-                    //console.log('haccp_id',haccp_id);
-                    tx.executeSql('SELECT "content" FROM "haccp_items" WHERE "id"=? ', [haccp_id], function (tx, results) {
-                        //console.info('here');
-                        if (results.rows.length > 0) {
-                            //console.log(results.rows.item(0).content);
-                            $('#form_haccp_deviation').find('textarea[name="deviation_description"]').text(results.rows.item(0).content);
-                        }
-                    });
-
-                }
-
-            });
-        });
+        //d.transaction(function(tx){
+        //    tx.executeSql('SELECT "data","id" FROM "sync_query" WHERE "q_type"=? AND "executed"=? ORDER BY "id" DESC', ['haccp_deviation','0'], function(tx, results){
+        //        if (results.rows.length > 0) {
+        //            qresults = results;
+        //            var haccp_id = JSON.parse(JSON.parse(results.rows.item(0).data).response).subcategory; // get haccp_data from haccp_items
+        //            //console.log('haccp_id',haccp_id);
+        //            tx.executeSql('SELECT "content" FROM "haccp_items" WHERE "id"=? ', [haccp_id], function (tx, results) {
+        //                //console.info('here');
+        //                if (results.rows.length > 0) {
+        //                    //console.log(results.rows.item(0).content);
+        //                    $('#form_haccp_deviation').find('textarea[name="deviation_description"]').text(results.rows.item(0).content);
+        //                }
+        //            });
+        //
+        //        }
+        //
+        //    });
+        //});
         $('#' + $.mobile.activePage.attr('id')).trigger('create');
         $('#signature-reset').off('click').on('click', function(e){
             e.preventDefault();
@@ -567,7 +553,7 @@ function haccpDeviation_s(data) {
             }
             //console.log('f_i',f_i);
             f_i = parseInt(f_i) + 1;
-            d.transaction(getHaccpWithLimit, db.dbErrorHandle);
+            getHaccpWithLimit();
             $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
             return false;
@@ -866,7 +852,7 @@ function continueHaccp(swiper){
                     },0);
 
                     f_i = parseInt(f_i) + 1;
-                    d.transaction(getHaccpWithLimit, db.dbErrorHandle);
+                    getHaccpWithLimit();
                     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
                     //swiper.destroy();
                 }
