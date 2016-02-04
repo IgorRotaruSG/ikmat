@@ -2186,6 +2186,7 @@ function castToListObject(keys, data){
 			results.push(obj);
 		}
 	}
+	console.log('keys', keys, results);
 	return results;
 }
 
@@ -2280,7 +2281,7 @@ function displayOnline(isOffline){
 }
 
 function isOffline() {//check if application has internet connection
-	// return true;
+	 return true;
 	if ((navigator.onLine || (navigator.connection && navigator.connection.type != Connection.NONE)) && offline == false) {
 		return false;
 	}
@@ -2335,15 +2336,14 @@ function executeSyncQuery() {
 	if (!isOffline()) {
 		lastSynced = performance.now();
 		
-		d = db.getDbInstance("sync_query");
-		d.query(function(doc, emit){
-			if(doc.executed == 0){
+		db.getDbInstance("sync_query").query(function(doc, emit){
+			if(!doc.executed){
 				emit(doc);
 			}
 		}, function(err, results) {
 			console.log("executeSyncQuery", results, err);
 			if(results){
-				rows = results.total_rows;
+				var rows = results.total_rows;
 				if (rows > 0) {
 					_sync_data_rows = false;
 					testConnection(sync_query);

@@ -285,7 +285,11 @@ db.prototype.dbSuccessHandle = function() {
 };
 
 db.prototype.getDbInstance = function(name) {
-	return this.collections[name];
+	console.log('getDbInstance', name);
+	if(name){
+		return this.collections[name];
+	}
+	return false;
 };
 
 db.prototype.clearCollection = function(name) {
