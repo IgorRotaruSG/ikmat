@@ -23,8 +23,8 @@ var deviationAnswers = {};
 
 //navigator.connection.type = Connection.NONE;
 
-function getHaccpCall(tx, results) {
-    //console.info(results.rows.length);
+function getHaccpCall(err, results) {
+    console.info("getHaccpCall", results);
     if (results.rows.length == 0 && isOffline() && !he_have_something) {
         console.log('getHaccpCall 18');
         $('#haccp_list_no_results').text($.t('haccp.no_haccp_yet'));
@@ -49,13 +49,13 @@ function getHaccpCall(tx, results) {
         var html = '';
         var response;
         for (var i=0;i<results.rows.length;i++) {
-            //html = '<h1>' + results.rows.item(i).id + '/' + results.rows.item(i).cat + '</h1>';
-            html = getHaccpForm(results.rows.item(i).content, results.rows.item(i).id, results.rows.item(i).cat, results.rows.item(i).response);
+            //html = '<h1>' + results.rows[i].doc.id + '/' + results.rows[i].doc.cat + '</h1>';
+            html = getHaccpForm(results.rows[i].doc.content, results.rows[i].doc.id, results.rows[i].doc.cat, results.rows[i].doc.response);
             mySwiper.appendSlide(html, 'swiper-slide');
 
-            if (results.rows.item(i).response != 0) {
+            if (results.rows[i].doc.response != 0) {
                 try {
-                    response = JSON.parse(results.rows.item(i).response);
+                    response = JSON.parse(results.rows[i].doc.response);
                     var response_possibility = response.possibility;
                     var response_consequence = response.consequence;
                 } catch(err) {
@@ -69,8 +69,8 @@ function getHaccpCall(tx, results) {
                 response = false;
             }
 
-            $('#haccp_radio_possibility_' + results.rows.item(i).id + '_' + response_possibility).trigger('click');
-            $('#haccp_radio_consequence_' + results.rows.item(i).id + '_' + response_consequence).trigger('click');
+            $('#haccp_radio_possibility_' + results.rows[i].doc.id + '_' + response_possibility).trigger('click');
+            $('#haccp_radio_consequence_' + results.rows[i].doc.id + '_' + response_consequence).trigger('click');
         }
 
         if (results.rows.length>1) {
@@ -134,13 +134,13 @@ function getHaccpCallPrev(tx, results) {
         var html = '';
         var response;
         for (var i=0;i<results.rows.length;i++) {
-            //html = '<h1>' + results.rows.item(i).id + '/' + results.rows.item(i).cat + '</h1>';
-            html += getHaccpForm(results.rows.item(i).content, results.rows.item(i).id, results.rows.item(i).cat, results.rows.item(i).response);
+            //html = '<h1>' + results.rows[i].doc.id + '/' + results.rows[i].doc.cat + '</h1>';
+            html += getHaccpForm(results.rows[i].doc.content, results.rows[i].doc.id, results.rows[i].doc.cat, results.rows[i].doc.response);
             mySwiper.prependSlide(html, 'swiper-slide');
             mySwiper.swipeTo( mySwiper.activeIndex + 1 , 0, false );
-            if (results.rows.item(i).response != 0) {
+            if (results.rows[i].doc.response != 0) {
                 try {
-                    response = JSON.parse(results.rows.item(i).response);
+                    response = JSON.parse(results.rows[i].doc.response);
                     var response_possibility = response.possibility;
                     var response_consequence = response.consequence;
                 } catch(err) {
@@ -154,8 +154,8 @@ function getHaccpCallPrev(tx, results) {
                 response = false;
             }
 
-            $('#haccp_radio_possibility_' + results.rows.item(i).id + '_' + response_possibility).trigger('click');
-            $('#haccp_radio_consequence_' + results.rows.item(i).id + '_' + response_consequence).trigger('click');
+            $('#haccp_radio_possibility_' + results.rows[i].doc.id + '_' + response_possibility).trigger('click');
+            $('#haccp_radio_consequence_' + results.rows[i].doc.id + '_' + response_consequence).trigger('click');
         }
         //console.error('hey broyher');
         if (results.rows.item.length > 1) {
@@ -181,15 +181,21 @@ function getHaccpCallPrev(tx, results) {
     }
 }
 
-function getHaccp(tx) {
+function getHaccp() {
     if (get != undefined && get.continue != undefined) {
         console.log('haccp.js 92');
-        tx.executeSql('select * from haccp_items WHERE "id" > "' + get.continue + '" ORDER BY "id" ASC LIMIT 3', [], getHaccpCall, db.dbErrorHandle);
+        db.getDbInstance('haccp_items').query(function(doc, emit){
+        	if(doc.id > get.continue){
+        		emit(doc);
+        	}
+        }, {'limit': 3}, getHaccpCall);
         //he_have_something = true;
         //tx.executeSql('select * from haccp_items  ORDER BY "id" ASC LIMIT ' + get.continue  + ',3', [], getHaccpCall, db.dbErrorHandle);
     } else {
         console.log('haccp.js 95');
-        tx.executeSql('select * from haccp_items ORDER BY "id" ASC LIMIT 3', [], getHaccpCall, db.dbErrorHandle);
+        db.getDbInstance('haccp_items').query(function(doc, emit){
+        	emit(doc);
+        }, {'limit': 3}, getHaccpCall);
     }
 }
 
@@ -201,7 +207,8 @@ function getHaccpWithLimit(tx) {
 
 function getHaccpWithLimitPrev(tx) {
     //console.info('activequetion:' + activeQuestion);
-    tx.executeSql('select * from haccp_items ORDER BY "id" ASC LIMIT ' + activeQuestion + ',1', [], getHaccpCallPrev, db.dbErrorHandle);
+    db.getDbInstance('haccp_items').allDocs('haccp_items', {'limit': activeQuestion}, getHaccpCallPrev);
+    // tx.executeSql('select * from haccp_items ORDER BY "id" ASC LIMIT ' + activeQuestion + ',1', [], getHaccpCallPrev, db.dbErrorHandle);
 }
 
 
@@ -227,9 +234,7 @@ function haccpInit() {
             //            f_i = parseInt(get.continue);
         }
         //console.log('lastid = ',last_id);
-        
-        var d = db.getDbInstance();
-        d.transaction(getHaccp, db.dbErrorHandle);
+        getHaccp();
         
         mySwiper = new Swiper('.swiper-container-haccp',{
                               calculateHeight:        true,
@@ -311,13 +316,17 @@ function haccpInit() {
     }
 }
 
-function insertHaccpItem(tx) {
-    if (fqi < (fq.length - 1)) {
-        fqi = parseInt(fqi) + 1;
-        tx.executeSql(fq[fqi], [], insertHaccpItem, db.dbErrorHandle);
-    } else {
-        tx.executeSql('select * from haccp_items LIMIT 3', [], getHaccpCall, db.dbErrorHandle);
-    }
+function insertHaccpItem() {
+	db.lazyQuery('haccp_items', castToListObject(["id","cat","content","form","response"],fq), function(){
+		db.getDbInstance('haccp_items').allDocs({'include_docs': true, 'limit': 3}, getHaccpCall);
+	});
+	// console.log("fqi", fqi, fq);
+    // if (fqi < (fq.length - 1)) {
+        // fqi = parseInt(fqi) + 1;
+        // tx.executeSql(fq[fqi], [], insertHaccpItem, db.dbErrorHandle);
+    // } else {
+        // tx.executeSql('select * from haccp_items LIMIT 3', [], getHaccpCall, db.dbErrorHandle);
+    // }
 }
 
 function haccp(data) {
@@ -325,12 +334,11 @@ function haccp(data) {
     if (data.success) {
         if (data.haccp_category.length > 0) {
             //var c = data.haccp_category;
-            var s, q, h, j, catid, ll;
+            var s, h, j, catid, ll;
             var response = 0;
             for (var i in data.haccp_category) {
                 if ((data.haccp_category).hasOwnProperty(i)) {
                     //console.log('insert into haccp-items');
-                    q = 'INSERT INTO "haccp_items"("id","cat","content","form","response")';
                     //q = 'INSERT OR REPLACE INTO "haccp_items"("id","cat","content","form","response")';
                     h = false;
                     ll = false;
@@ -338,30 +346,12 @@ function haccp(data) {
 
                     for (j in data.haccp_category[i].subcategories) {
                         if ((data.haccp_category[i].subcategories).hasOwnProperty(j)) {
-                            ll = true;
-                            if (h) {
-                                q += ' UNION';
-                            } else {
-                                h = true;
-                            }
-                            q += ' SELECT ' +
-                            '"' + j + '" as "id", ' +
-                            '"' + catid + '" as "cat", ' +
-                            '"' + data.haccp_category[i].subcategories[j] + '" as "content",' +
-                            "'" + JSON.stringify(data.haccp_subcategories_form) + "'" + ' as "form", ' +
-                            "'" + response + "'" + ' as "response"';
+                            fq.push([j, catid, data.haccp_category[i].subcategories[j], JSON.stringify(data.haccp_subcategories_form), response]);
                         }
-                    }
-                    if (ll) {
-                        /*console.log('----------------------------');
-                         console.log(q);
-                         console.log('----------------------------');*/
-                        fq.push(q);
                     }
                 }
             }
-            var ds = db.getDbInstance();
-            ds.transaction(insertHaccpItem, db.dbErrorHandle);
+            insertHaccpItem();
         } else {
             //alert('no_results');
             console.log('no_results');

@@ -13,7 +13,7 @@ function db() {
 	this.data = [];
 	this.query = false;
 	this.collections = [];
-	this.tables = ['settings', 'tasks', 'suppliers', 'employees', 'haccp_category', 'haccp_items', 'forms', 'registration', 'form_item', 'sync_query', 'reports'];
+	this.tables = ['settings', 'tasks', 'suppliers', 'employees', 'haccp_category', 'haccp_items', 'forms', 'registration', 'form_item', 'sync_query', 'reports', 'flowchart'];
 	//    console.log('function db()');
 }
 
@@ -30,35 +30,7 @@ db.prototype.lazyQuery = function(collection, data, callback, params) {
 	}
 	var thisClass = this;
 	if (collection && data != undefined && data.length > 0) {
-		if (collection.check != undefined) {
-			this.collections[q.check.table].query(function(doc, emit) {
-				if (doc[q.check.index] == q.data[i][q.check.index_id]) {
-					emit(doc);
-				}
-			}, {}, function(error, results) {
-				console.log("db.prototype.lazyQuery", results);
-				if (results && results.total_rows > 0) {
-					if (results.rows[0][q.check.column] != q.data[i][q.check.column_id]) {
-
-						var tmp = q.data[i].slice(0);
-						var tmp_index = tmp[q.check.index_id];
-						tmp.splice(q.check.index_id, 1);
-						tmp.push(tmp_index);
-
-						tx.executeSql(q.check.update_query, tmp, function(tx) {
-							thisClass.lazyQuery(q, parseInt(i) + 1, callback);
-						});
-					} else {
-						thisClass.lazyQuery(q, parseInt(i) + 1, callback);
-					}
-				} else {
-					//pouchdb
-					this.bulkDocs(collection, data, callback, params);
-				}
-			});
-		} else {
-			this.bulkDocs(collection, data, callback, params);
-		}
+		this.bulkDocs(collection, data, callback, params);
 	} else {
 		if ( typeof callback != 'function' && window[callback] != undefined) {
 			if (params) {
@@ -94,12 +66,13 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 		var index = i;
 		(function(that, i) {
 			promises[i] = new Promise(function(resolve, reject) {
-				that.collections[collection].get(docs[i]._id, function(err, doc) {
+				that.collections[collection].get(String(docs[i]._id), function(err, doc) {
 					if (err) {
 						 resolve(false);
 					}
 					if (!err && doc && doc._rev) {
 						docs[i]._rev = doc._rev;
+						docs[i]._id = doc._id;
 						resolve(true);
 					}else{
 						resolve(false);
@@ -110,8 +83,9 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 		})(that, index);
 	}
 	Promise.all(promises).then(function() {
+		console.log("docs", docs);
 		that.collections[collection].bulkDocs(docs, function(error, results) {
-			console.log(collection, results);
+			console.log(collection, results, error);
 			if ( typeof callback != 'function' && window[callback] != undefined) {
 				if (params) {
 					window[callback](params, results);

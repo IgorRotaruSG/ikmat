@@ -2281,7 +2281,7 @@ function displayOnline(isOffline){
 }
 
 function isOffline() {//check if application has internet connection
-	 return true;
+	 // return true;
 	if ((navigator.onLine || (navigator.connection && navigator.connection.type != Connection.NONE)) && offline == false) {
 		return false;
 	}

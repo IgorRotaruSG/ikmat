@@ -716,12 +716,12 @@ function getTasksUncompleted(data) {
 				    role = '';
 				if (results && results.rows.length > 0) {
 					for (var i = 0; i < results.rows.length; i++) {
-						if (results.rows[i].doc.key == 'register_edit' && results.rows[i].doc.value == 'true')
+						if (results.rows[i].key == 'register_edit' && results.rows[i].value == 'true')
 							register_edit = false;
-						if (results.rows[i].doc.key == 'haccp' && results.rows[i].doc.value == 'true')
+						if (results.rows[i].key == 'haccp' && results.rows[i].value == 'true')
 							haccp = false;
-						if (results.rows[i].doc.key == 'role')
-							role = results.rows[i].doc.value;
+						if (results.rows[i].key == 'role')
+							role = results.rows[i].value;
 					}
 				}
 
@@ -1001,7 +1001,7 @@ function checkTaskData() {
 		console.log("results", results);
 		if (results.rows.length > 0 && !isOffline()) {
 			for (var i = 0; i < results.rows.length; i++) {
-				emptytaskdata.push(results.rows[i].doc.id);
+				emptytaskdata.push(results.rows[i].id);
 			}
 			findTaskData();
 		}

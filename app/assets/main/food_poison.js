@@ -12,15 +12,12 @@ function food_poisonInit() {
 	if (!isOffline()) {
 		Page.apiCall('foodPoison', data, 'get', 'foodPoison');
 	} else {
-		var d = db.getDbInstance();
-		d.transaction(function(tx) {
-			tx.executeSql('SELECT * from tasks WHERE "completed" = 0 and "id" = ? ORDER BY id DESC LIMIT 1', [data['task_id']], function(tx, results) {
-				// console.log("results.rows", results.rows);
-				if (results.rows.length > 0) {
-					var data = JSON.parse(results.rows.item(0).taskData);
-					foodPoison(data);
-				}
-			});
+		db.getDbInstance('tasks').get(String(data['task_id']), function(err, results) {
+			// console.log("results.rows", results.rows);
+			if (results && !results.completed) {
+				var data = JSON.parse(results.taskData);
+				foodPoison(data);
+			}
 		});
 	}
 
@@ -109,14 +106,13 @@ function checkTaskId(task_id, callback) {
 		return false;
 	}
 	d = db.getDbInstance();
-	d.transaction(function(tx) {
-		tx.executeSql('SELECT * FROM "sync_query" WHERE "id"=? and executed=1', [task_id], function(tx, results) {
-			if (results.rows.length > 0) {
-				callback(true);
-			} else {
-				callback(false);
-			}
-		});
+	db.getDbInstance('sync_query').get(String(task_id), function(err, results) {
+		// console.log("results.rows", results.rows);
+		if (results && results.executed) {
+			callback(true);
+		}else{
+			callback(false);
+		}
 	});
 }
 

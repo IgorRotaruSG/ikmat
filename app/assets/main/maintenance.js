@@ -14,14 +14,11 @@ function maintenanceInit() {
 	if (!isOffline()) {
 		Page.apiCall('maintenance', data, 'get', 'maintenance');
 	} else {
-		var d = db.getDbInstance();
-		d.transaction(function(tx) {
-			tx.executeSql('SELECT * from tasks WHERE "completed" = 0 and "id" = ? ORDER BY id DESC LIMIT 1', [data['task_id']], function(tx, results) {
-				if (results.rows.length > 0) {
-					var data = JSON.parse(results.rows.item(0).taskData);
-					maintenance(data);
-				}
-			});
+		db.getDbInstance('tasks').get(data['task_id'], function(error, results) {
+			if (results && !results.completed) {
+				var data = JSON.parse(results.taskData);
+				maintenance(data);
+			}
 		});
 	}
 }
@@ -155,15 +152,12 @@ function checkTaskId(task_id, callback) {
 	if (!callback) {
 		return false;
 	}
-	d = db.getDbInstance();
-	d.transaction(function(tx) {
-		tx.executeSql('SELECT * FROM "sync_query" WHERE "id"=? and executed=1', [task_id], function(tx, results) {
-			if (results.rows.length > 0) {
-				callback(true);
-			} else {
-				callback(false);
-			}
-		});
+	db.getDbInstance('sync_query').get(task_id, function(tx, results) {
+		if (results && results.executed) {
+			callback(true);
+		} else {
+			callback(false);
+		}
 	});
 }
 

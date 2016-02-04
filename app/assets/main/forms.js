@@ -375,10 +375,7 @@ function formDeviationStart(data) {
 		}
 
 		/* INSERT SECTION */
-		db.lazyQuery({
-			'sql' : 'INSERT OR REPLACE INTO "forms" ("type","label","alias") VALUES(?,?,?)',
-			'data' : db_data
-		}, 0);
+		db.lazyQuery('forms', db_data);
 		/* SHOW SECTION */
 		$('#forms_list').html('');
 		_appendAndSortByAlias('#forms_list', data);
@@ -848,10 +845,12 @@ function formItemData(data) {
 									'results' : JSON.stringify(dd),
 									'category' : d.type
 								};
-								db.lazyQuery({
-									'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-									'data' : [['formDeviationStart', JSON.stringify(offline_data), 0, 'formDeviationStart']]
-								}, 0);
+								db.lazyQuery('sync_query', [{
+									'api': formDeviationStart,
+									'data': JSON.stringify(offline_data),
+									'extra': 0,
+									'q_type': 'formDeviationStart'
+								}]);
 								redirect_to_forms();
 
 							}
@@ -1107,16 +1106,16 @@ function bind_form2_click_handler() {
 		var id = $(this).data('id');
 		var type = $(this).data('type');
 		var formId = 'bind_form2' + '_' + type + '_' + mySwiper.activeIndex || 0;
-		db.getDbInstance('form_item').get(id, function(tx, results) {
-			if (results.rows.length > 0) {
+		db.getDbInstance('form_item').get(String(id), function(error, results) {
+			if (results) {
 				//              if (results.rows.length == 0) {
 				console.log('forms.js form_item rows > 0');
-				var d = $.extend({}, results.rows.item(0));
+				var d = $.extend({}, results);
 
 				last_data_received = JSON.parse(d.form);
 
 				var html = '<div style="padding:10px;"><form id="' + formId + '">';
-				html += '<legend style="font-weight: bold;margin-bottom:20px;">' + results.rows.item(0).label + '</legend>';
+				html += '<legend style="font-weight: bold;margin-bottom:20px;">' + results.label + '</legend>';
 				html += HTML.formGenerate(last_data_received, $.t("general.save_button"));
 
 				html += '</form></div>';
@@ -1242,11 +1241,12 @@ function bind_form2_click_handler() {
 				console.log('forms.js form_item rows == 0');
 				console.log('forms.js 1105');
 				console.log('heeeeey id = ', id);
-				db.getDBInstance('forms').query(function(doc, emit){
+				db.getDbInstance('forms').query(function(doc, emit){
 					if(doc.type == type){
 						emit(doc);
 					}
 				}, {'include_docs' : true}, function(tx, results) {
+					console.log('results', type, results);
 					if (results.rows.length > 0) {
 						var data = {
 							'client' : User.client,

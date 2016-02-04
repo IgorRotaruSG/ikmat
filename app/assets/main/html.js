@@ -1,4 +1,3 @@
-var db_temp_data = {};
 var haccp_image_id = '';
 
 function HTML() {
@@ -1238,25 +1237,12 @@ HTML.prototype.getStepData = function(step, data, data_save) {
     this.preformRegisterSave(step, data2);
 };
 
-function preformRegisterSaveDBCheck(tx, results) {
-    if (results.rows.length == 0) {
-        tx.executeSql('INSERT INTO "registration" ("step","data") VALUES (?,?)', [db_temp_data.step,JSON.stringify(db_temp_data.data)], function(){}, db.dbErrorHandle);
-    } else {
-        tx.executeSql('UPDATE "registration" SET "data" =? WHERE "step" =?', [JSON.stringify(db_temp_data.data),db_temp_data.step], function(){}, db.dbErrorHandle);
-    }
-};
-
-function preformRegisterSaveDB(tx) {
-    tx.executeSql('SELECT * FROM "registration" WHERE "step" = "' + db_temp_data.step + '"', [], preformRegisterSaveDBCheck, db.dbErrorHandle);
-}
-
 HTML.prototype.preformRegisterSave = function(step, data) {
-    db_temp_data = {
-        'step': step,
-        'data': data
-    };
-    var d = db.getDbInstance();
-    d.transaction(preformRegisterSaveDB, d.dbErrorHandle);
+ 	db.lazyQuery('registration', [{
+    	'_id': step,
+    	'step': step,
+    	'data': JSON.stringify(data)
+    }]);
 };
 
 function validateEmail(email) {
