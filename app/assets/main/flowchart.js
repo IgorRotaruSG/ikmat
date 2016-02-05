@@ -172,10 +172,46 @@ function deleteFlowchart(flowchartId){
 
 }
 
-function printFlowchart(flowchartSrc){
-    cordova.plugins.printer.print(encodeURIComponent(flowchartSrc), {name: 'Document.html', landscape: true}, function () {
+function printFlowchart(flowchartSrc, flowchartTitle){
+    if(isNative() && cordova.plugins && cordova.plugins.email) {
+        cordova.plugins.printer.print(encodeURIComponent(flowchartSrc), {name: 'Document.html', landscape: true}, function () {
         //alert('printing finished or canceled')
-    });
+        });
+    }
+    else {
+        w=window.open();
+
+        var flowchartHtml = '<style>' +        
+        '.image_element {' +
+            'width: 96%;' +
+            'height: 96%;' +
+            'text-align: left;' +
+            'line-height: normal;' +
+            'display: block;' +
+            'margin: 0 1px 1px 0;' +
+            'float: left;' +
+        '}' +
+        '.image_element a {' +
+            'display: block;' +
+            'height: 100%;' +
+            'width: 100%;' +
+            'padding-left: 20px' +
+        '}' +
+        '.image_element a img {' +
+            'max-width:100% !important;' +
+            'max-height:100%!important;' +
+            'display:block;' +
+        '}' +
+        '</style>' +
+        '<div class="image_element">' +
+            '<strong>' + flowchartTitle + '</trong><br>' +
+            '<a class="ui-link"><img src="' + flowchartSrc + '" /></a>' +
+        '</div>';
+
+        w.document.write(flowchartHtml);
+        w.print();
+        w.close();
+    }
     return;
 }
 
@@ -214,7 +250,9 @@ function openNativeEmail(data){
             }
         );
     } else { /* Open native mail on web */
-        var mailto_link = 'mailto:?subject='+mailObject.subject+'&cc='+mailObject.cc+'&body=' + mailObject.body + '&attachment=' + encodeURI(data.image);
+        var mailto_link = 'mailto:?subject='+mailObject.subject;
+        if (mailObject.cc) mailto_link += '&cc='+mailObject.cc;
+        if (mailObject.body) mailto_link += '&body='+mailObject.body;
         location.href = mailto_link;
 
     }

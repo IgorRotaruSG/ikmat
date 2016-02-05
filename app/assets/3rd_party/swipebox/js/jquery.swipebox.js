@@ -922,12 +922,14 @@
             printFlowchart: function () {
                 var index = $( '#swipebox-slider .slide' ).index( $( '#swipebox-slider .slide.current' ) );
                 var flowchartSrc = null;
+                var flowchartTitle = null;
 
                 if ( elements[ index ] !== undefined ) {
                     flowchartSrc = elements[ index ].href;
+                    flowchartTitle = elements[ index ].title;
                 }
                 if ( flowchartSrc ) {
-                    printFlowchart(flowchartSrc);
+                    printFlowchart(flowchartSrc, flowchartTitle);
                 }
             },
 
