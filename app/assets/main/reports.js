@@ -456,7 +456,12 @@ function reportsView(data) {
         if(isLinkData(email_data.report_id)){
         	Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail', email_data);
         }else{
-        	Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail', email_data);
+         if(isNative() {
+            Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail', email_data);
+         }
+         else {
+            Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail', email_data);
+         }
         }
         // if(isNative() && cordova.plugins && cordova.plugins.email){
         //     $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
@@ -742,10 +747,15 @@ function documentsCall(data) {
                 'filter_date_from' : reports_date_start,
                 'filter_date_to' : reports_date_end
             };
-            if(isLinkData(email_data.report_id)){
-            	Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail', email_data);
-            }else{
-            	Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail', email_data);
+            
+            if(isNative()) {
+               if(isLinkData(email_data.report_id)){
+                  Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail', email_data);
+               }else{
+                  Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail', email_data);
+               }
+            } else {
+               Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail', email_data);
             }
             // if (isNative() && cordova.plugins && cordova.plugins.email) {
             //     $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
