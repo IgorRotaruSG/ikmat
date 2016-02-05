@@ -25,13 +25,13 @@ var deviationAnswers = {};
 
 function getHaccpCall(err, results) {
 	console.info("getHaccpCall", results, err);
-	if (!results && isOffline() && !he_have_something) {
+	if ((!results || results.rows.length == 0) && isOffline() && !he_have_something) {
 		console.log('getHaccpCall 18');
 		$('#haccp_list_no_results').text($.t('haccp.no_haccp_yet'));
 		setTimeout(function() {
 			Page.redirect('index.html');
 		}, 3500);
-	} else if (!results && !isOffline() && !he_have_something && get.continue == undefined) {
+	} else if ((!results || results.rows.length == 0) && !isOffline() && !he_have_something && get.continue == undefined) {
 		console.log('getHaccpCall from API');
 		var data = {
 			'client' : User.client,
