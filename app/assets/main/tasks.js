@@ -843,7 +843,7 @@ function getTasksUncompleted(data) {
 		}
 		mySwiper.resizeFix();
 		realignSlideHeight('max-height-task');
-		checkTasksList();
+		// checkTasksList();
 	}
 }
 
