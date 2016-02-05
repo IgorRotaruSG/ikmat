@@ -63,6 +63,7 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 	var promises = [];
 	var that = this;
 	for (var i = 0; i < docs.length; i++) {
+		console.log("i", i);
 		docs[i].timestamp = new Date().toJSON();
 		var index = i;
 		(function(that, i) {
@@ -86,7 +87,7 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 	Promise.all(promises).then(function() {
 		console.log("docs", docs);
 		that.collections[collection].bulkDocs(docs, function(error, results) {
-			console.log(collection, results, error);
+			console.log("aaaaaaaaa:", collection, results, error);
 			if ( typeof callback != 'function' && window[callback] != undefined) {
 				if (params) {
 					window[callback](params, results);

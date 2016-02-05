@@ -35,7 +35,7 @@ function _append(b, e) {
         }
 
     }
-    $(b).listview("refresh")
+    $(b).listview("refresh");
 }
 
 function _appendAndSortByAlias(b, e) {

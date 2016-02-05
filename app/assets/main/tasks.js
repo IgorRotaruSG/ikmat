@@ -27,6 +27,7 @@ var devId = 0;
 //for deviation completed
 
 function getTasksCall(err, results) {
+	console.log('getTasksCall1', err, results);
 	bindLoadMoreFunction();
 	//console.log('results.rows.length',results.rows.length);
 	if (results.rows.length == 0 && isOffline()) {
@@ -45,7 +46,7 @@ function getTasksCall(err, results) {
 			$('#load_more_tasks').parent().hide();
 		}
 	} else if (!isOffline()) {
-		//console.log('not offline 39');
+		console.log('not offline 39');
 		$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 		var data = {
 			'client' : User.client,
@@ -61,7 +62,6 @@ function getTasksCall(err, results) {
 		//get reportlist of user, preparing for reportlist in offline mode
 		Page.apiCall('getReportList', data, 'get', 'getReportsList');
 	} else if (results.rows.length > 0) {
-		//console.log('offline 51');
 		getTasksFromLocal(results);
 	} else {
 		$('#load_more_tasks').parent().hide();
@@ -631,7 +631,7 @@ function getTasksUncompleted(data) {
 	$('#load_more_tasks').attr('disabled', 'disabled');
 	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.loading"));
 	//disable LoadMore button until tastdata gets updated
-
+	console.log("data", data);
 	if (data.success) {
 		if (data.tasks) {
 			var add = [];
@@ -700,17 +700,17 @@ function getTasksUncompleted(data) {
 				db.clearCollection('tasks');
 			}
 			//db.execute('DELETE FROM "tasks"');
-			console.log("db_data", db_data);
 			db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data));
 
 			checkTaskData();
 			//$('#taskList').html('');
 
-			var d = db.getDbInstance('settings').query(function(doc, emit) {
+			db.getDbInstance('settings').query(function(doc, emit) {
 				if (['register_edit', 'haccp', 'role'].indexOf(doc.type) != -1) {
 					emit(doc.type, doc.value);
 				}
 			}, function(error, results) {
+				console.log('error', error, results);
 				var register_edit = true,
 				    haccp = true,
 				    role = '';
@@ -776,7 +776,6 @@ function getTasksUncompleted(data) {
 				}
 			}
 		} else {
-			var d = db.getDbInstance();
 			var date = new Date();
 			var add = [];
 			db.getDbInstance("settings").query({
@@ -785,18 +784,18 @@ function getTasksUncompleted(data) {
 						emit(doc.type, doc.value);
 					}
 				}
-			},  function(tx, results) {
+			}, function(tx, results) {
 					var register_edit = true,
 					    haccp = true,
 					    role = '';
 					if (results.rows.length > 0) {
 						for (var i = 0; i < results.rows.length; i++) {
-							if (results.rows[i].doc.key == 'register_edit' && results.rows[i].doc.value == 'true')
+							if (results.rows[i].key == 'register_edit' && results.rows[i].value == 'true')
 								register_edit = false;
-							if (results.rows[i].doc.key == 'haccp' && results.rows[i].doc.value == 'true')
+							if (results.rows[i].key == 'haccp' && results.rows[i].value == 'true')
 								haccp = false;
-							if (results.rows[i].doc.key == 'role')
-								role = results.rows[i].doc.value;
+							if (results.rows[i].key == 'role')
+								role = results.rows[i].value;
 						}
 					}
 
@@ -868,12 +867,14 @@ function findTaskData() {
 			'token' : User.lastToken,
 			'task_id' : emptytaskdata[i]
 		};
-		Page.apiCall('getTask', data, 'get', 'updateTaskData');
+		Page.apiCall('getTask', data, 'get', 'updateTaskData', emptytaskdata[i]);
 	}
 }
 
-function updateTaskData(data) {
-	if (data.success && data.form) {
+function updateTaskData(data, task_id) {
+	console.log("updateTaskData", data, task_id);
+	if (data.success) {
+		console.log("updateTaskData1", data);
 		if (!isOffline()) {
 			db.bulkDocs('tasks', [{
 				_id : data.form.task_id.value,
@@ -886,11 +887,13 @@ function updateTaskData(data) {
 				}
 			});
 		}
+	}else{
+		delete emptytaskdata[task_id];
 	}
-
 }
 
 function getTasksFromLocal(results) {
+	console.log('getTasksFromLocal', results);
 	var data = [];
 	var groups = [];
 	var c;
@@ -1009,6 +1012,7 @@ function checkTaskData() {
 }
 
 function checkTasksList() {
+	console.log("checkTasksList");
 	setTimeout(function() {
 		var content = $('#taskList').html();
 		if (content == "") {

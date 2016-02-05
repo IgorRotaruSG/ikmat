@@ -319,6 +319,7 @@ function getKeyByValue(obj, value) {
 }
 
 function formDeviationStart(data) {
+	console.log('data', data);
 	if (data.success) {
 		var f = data.form_list;
 		/* SORT SECTION */
@@ -1179,17 +1180,19 @@ function bind_form2_click_handler() {
 										};
 
 										console.log("offline_data", offline_data);
-										db.lazyQuery({
-											'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-											'data' : [['formDeviationStart', JSON.stringify(offline_data), 0, 'formDeviationStart']]
-										}, 0, function(insertId) {
+										db.lazyQuery('sync_query', [{
+											"api": 'formDeviationStart',
+											"data": JSON.stringify(offline_data),
+											"extra": 0,
+											"q_type": 'formDeviationStart'
+										}], function(result) {
 											formGeneration('deviation', {
-												id : insertId,
+												id : result.id,
 												form_list_question : {
 													form : {
 														form_deviation : {
 															deviation_description : {
-																value : dd.temperature + " grader rapportert på " + results.rows.item(0).label
+																value : dd.temperature + " grader rapportert på " + results.label
 															}
 														}
 													}

@@ -86,7 +86,7 @@ function getReportsCall(error, results) {
 	} else if (results.rows.length > 0) {
 		var db_data = [];
 		for (var i = 0; i < results.rows.length; i++) {
-			db_data.push(results.rows.item(i));
+			db_data.push(results.rows[i].doc);
 		}
 		showOfflineReports(db_data);
 
