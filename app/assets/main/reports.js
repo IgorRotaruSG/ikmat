@@ -585,7 +585,7 @@ function reportsView(data) {
 }
 
 function isLinkData(reportId){
-	if(reportId == 8 || reportId == 15){
+	if(reportId == 15){
 		return false;
 	}
 	return true;
