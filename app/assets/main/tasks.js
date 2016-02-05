@@ -1021,7 +1021,7 @@ function checkTasksList() {
 		if (content == "") {
 			$('#taskList').parent().html('<div class="no_results" style="width: ' + ($(window).width() - 80) + 'px">' + $.t('error.no_tasks') + '</div>');
 		}
-	}, 1000);
+	}, 2000);
 	return true;
 }
 
