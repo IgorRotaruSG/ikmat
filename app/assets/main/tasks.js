@@ -62,8 +62,10 @@ function getTasksCall(err, results) {
 		//get reportlist of user, preparing for reportlist in offline mode
 		Page.apiCall('getReportList', data, 'get', 'getReportsList');
 	} else if (results.rows.length > 0) {
+		console.log("1");
 		getTasksFromLocal(results);
 	} else {
+		console.log("2");
 		$('#load_more_tasks').parent().hide();
 		checkTasksList();
 	}
@@ -749,6 +751,7 @@ function getTasksUncompleted(data) {
 						});
 					}
 				}
+				console.log("aad", add);
 				// moved all the login here
 				_append('#taskList', add);
 
@@ -1012,13 +1015,13 @@ function checkTaskData() {
 }
 
 function checkTasksList() {
-	console.log("checkTasksList");
+	console.log("checkTasksList111");
 	setTimeout(function() {
 		var content = $('#taskList').html();
 		if (content == "") {
 			$('#taskList').parent().html('<div class="no_results" style="width: ' + ($(window).width() - 80) + 'px">' + $.t('error.no_tasks') + '</div>');
 		}
-	}, 500);
+	}, 1000);
 	return true;
 }
 

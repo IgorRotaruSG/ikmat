@@ -16,7 +16,7 @@ function _append(b, e) {
         extra = "";
         $(b).find("li").each(function() {
             if ($(this).data("id") >= e[c].id) {
-                a = $(this)
+                a = $(this);
             } else if ( $(this).data("id") == e[c].id ) {
                 exists = true;
             }
@@ -35,6 +35,7 @@ function _append(b, e) {
         }
 
     }
+    console.log('$(b)', $(b));
     $(b).listview("refresh");
 }
 
