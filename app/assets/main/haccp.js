@@ -184,18 +184,10 @@ function getHaccpCallPrev(tx, results) {
 function getHaccp() {
     if (get != undefined && get.continue != undefined) {
         console.log('haccp.js 92');
-        db.getDbInstance('haccp_items').query(function(doc, emit){
-        	if(doc.id > get.continue){
-        		emit(doc);
-        	}
-        }, {'limit': 3}, getHaccpCall);
-        //he_have_something = true;
-        //tx.executeSql('select * from haccp_items  ORDER BY "id" ASC LIMIT ' + get.continue  + ',3', [], getHaccpCall, db.dbErrorHandle);
+        db.getDbInstance('haccp_items').query('sort_index',{'include_docs': true, 'skip':get.continue ,'limit': 3}, getHaccpCall);
     } else {
         console.log('haccp.js 95');
-        db.getDbInstance('haccp_items').query(function(doc, emit){
-        	emit(doc);
-        }, {'limit': 3}, getHaccpCall);
+        db.getDbInstance('haccp_items').query('sort_index',{'include_docs': true, 'limit': 3}, getHaccpCall);
     }
 }
 
@@ -544,10 +536,10 @@ function haccpDeviation_s(data) {
                     //console.log('task',task);
                     var new_task = JSON.stringify(task);
                     //console.log('newtask',new_task);
-                    db.lazyQuery({
-                        'sql': 'UPDATE "sync_query" SET "data"=? WHERE "id"=?',
-                        'data': [[new_task,qresults.rows.item(0).id]]
-                    },0);
+                    db.lazyQuery('sync_query', [{
+                    	'_id': qresults.rows.item(0).id,
+                    	'data': new_task
+                    }]);
                     $('#popupDeviation').popup('close');
                 }
             }
@@ -798,22 +790,15 @@ function continueHaccp(swiper){
             };
 
 
-            db.lazyQuery({
-                'sql': 'UPDATE "haccp_items" SET "response"=? WHERE "cat"=? AND "id"=?',
-                'data': [[
-                    JSON.stringify(dd),
-                    dd.category,
-                    dd.subcategory
-                ]]
-            },0);
+            db.lazyQuery('haccp_items', [{
+            	'_id': dd.subcategory,
+            	'response':  JSON.stringify(dd)
+            }]);
 
-            db.lazyQuery({
-                'sql': 'UPDATE "settings" SET "value"=? WHERE "type"=?',
-                'data': [[
-                    'true',
-                    'haccp'
-                ]]
-            },0);
+            db.lazyQuery('settings',[{
+            	'_id': 'haccp',
+            	'value': true
+            }]);
 
             if ( !isOffline() ) {
                 console.log('haccp 244');
@@ -831,25 +816,19 @@ function continueHaccp(swiper){
                 console.log('942 no internet');
                 var sum = parseInt(dd.possibility) + parseInt(dd.consequence);
                 if (sum >= 3) {
-                    db.lazyQuery({
-                        'sql': 'INSERT INTO "sync_query"("api","data","q_type") VALUES(?,?,?)',
-                        'data': [[
-                            'haccp',
-                            JSON.stringify(data),
-                            'haccp_deviation'
-                        ]]
-                    },0, 'showLocalDevPopup');
+                    db.lazyQuery('sync_query',[{
+                            'api': 'haccp',
+                            'data': JSON.stringify(data),
+                            'q_type': 'haccp_deviation'
+                    }],'showLocalDevPopup');
 
                 }
                 else {
-                    db.lazyQuery({
-                        'sql': 'INSERT INTO "sync_query"("api","data","q_type") VALUES(?,?,?)',
-                        'data': [[
-                            'haccp',
-                            JSON.stringify(data),
-                            'haccp_deviation'
-                        ]]
-                    },0);
+                	db.lazyQuery('sync_query',[{
+                            'api': 'haccp',
+                            'data': JSON.stringify(data),
+                            'q_type': 'haccp_deviation'
+                    }]);
 
                     f_i = parseInt(f_i) + 1;
                     getHaccpWithLimit();
