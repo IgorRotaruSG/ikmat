@@ -30,7 +30,7 @@ function getTasksCall(err, results) {
 	console.log('getTasksCall1', err, results);
 	bindLoadMoreFunction();
 	//console.log('results.rows.length',results.rows.length);
-	if (results.rows.length == 0 && isOffline()) {
+	if (!results && isOffline()) {
 		$('#alertPopup .alert-text').html($.t("error.no_internet_for_sync"));
 		$('#alertPopup').popup("open", {
 			positionTo : 'window'
@@ -902,7 +902,7 @@ function getTasksFromLocal(results) {
 	$('#load_more_tasks').removeAttr('disabled');
 	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
 
-	if (results.rows.length == 0) {
+	if (!results) {
 		//$('#taskList').parent().html('<div class="no_results">' + $.t('error.no_tasks') + '</div>');
 		//$('#load_more_tasks').removeAttr('disabled');
 		//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
