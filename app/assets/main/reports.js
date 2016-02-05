@@ -456,7 +456,7 @@ function reportsView(data) {
         if(isLinkData(email_data.report_id)){
         	Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail', email_data);
         }else{
-         if(isNative() {
+         if(isNative()) {
             Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail', email_data);
          }
          else {
