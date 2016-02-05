@@ -10,7 +10,7 @@ var report_name;
 //navigator.connection.type = Connection.NONE;
 
 if (localStorage.getItem('company_join_date')) {
-	company_year = localStorage.getItem('company_join_date').split('-')[0];
+    company_year = localStorage.getItem('company_join_date').split('-')[0];
 }
 
 function reportsGetCurrentDate() {
@@ -439,86 +439,115 @@ function reportsView(data) {
 		}
 	});
 
-	$('.report_4_link').off('click').on('click', function(e) {
-		e.preventDefault();
-		Page.redirect('reports_task.html?report=' + get.id + '&task_id=' + $(this).data('id'));
-	});
+    $('.report_4_link').off('click').on('click', function(e){
+        e.preventDefault();
+        Page.redirect('reports_task.html?report=' + get.id + '&task_id=' + $(this).data('id'));
+    });
 
-	$('#send_email').off('click').on('click', function(e) {
-		$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-		var email_data = {
-			'client' : User.client,
-			'token' : User.lastToken,
-			'report_id' : data.report_number,
-			'filter_date_from' : reports_date_start,
-			'filter_date_to' : reports_date_end
-		};
-		Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail');
-	});
+    $('#send_email').off('click').on('click', function(e){
+        $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+        var email_data = {
+            'client': User.client,
+            'token': User.lastToken,
+            'report_id': data.report_number,
+            'filter_date_from': reports_date_start,
+            'filter_date_to': reports_date_end
+        };
+        if(isLinkData(email_data.report_id)){
+        	Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail', email_data);
+        }else{
+        	Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail', email_data);
+        }
+        // if(isNative() && cordova.plugins && cordova.plugins.email){
+        //     $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+        //     var email_data = {
+        //         'client': User.client,
+        //         'token': User.lastToken,
+        //         'report_id': data.report_number,
+        //         'filter_date_from': reports_date_start,
+        //         'filter_date_to': reports_date_end
+        //     };
+        //     Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail');
+        // }else{
+        //     $('#popup-send-email').unbind("popupafterclose");
+        //     /*step 1: display the date chooser*/
+        //     $("#popup-send-email").popup("open");
+        //     $("#popup-send-email").parent().css({
+        //         'top': 0,
+        //         'left': 0,
+        //         'max-width': '100%',
+        //         'width': '100%',
+        //         'height': parseInt($('body').height()) + 'px',
+        //         'overflow': 'hidden',
+        //         'position': 'fixed'
+        //     });
+        //     $('#popup-send-email').css('height', '100%');
+        // }
+    });
 
-	$("#confirm-send").off('click').on("click", function(event, ui) {
-		var ok = HTML.validate($('#popup-send-email'));
+    $("#confirm-send").off('click').on("click", function( event, ui ) {
+        var ok = HTML.validate($('#popup-send-email'));
 
-		if (ok) {
-			$("#confirm-send").attr('disabled', true);
-			$("#confirm-send").parent().find('.ui-btn-text').html($.t('general.loading'));
-			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-			var email_data = {
-				'client' : User.client,
-				'token' : User.lastToken,
-				'report_id' : data.report_number,
-				'email' : $('#email').val(),
-				'filter_date_from' : reports_date_start,
-				'filter_date_to' : reports_date_end
-			};
-			Page.apiCall('send-report-by-email', email_data, 'get', 'sendEmail');
-		}
-	});
+        if ( ok ) {
+            $("#confirm-send").attr('disabled', true);
+            $("#confirm-send").parent().find('.ui-btn-text').html($.t('general.loading'));
+            $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+            var email_data = {
+                'client': User.client,
+                'token': User.lastToken,
+                'report_id': data.report_number,
+                'email' : $('#email').val(),
+                'filter_date_from': reports_date_start,
+                'filter_date_to': reports_date_end
+            };
+            Page.apiCall('send-report-by-email', email_data, 'get', 'sendEmail');
+        }
+    });
 
-	$(".photopopup").on({
-		popupbeforeposition : function() {
-			//            alert('wadafac');
-			var maxHeight = $(window).height() - 60 + "px";
-			$(".photopopup img").css("max-height", maxHeight);
-		}
-	});
+    $( ".photopopup" ).on({
+        popupbeforeposition: function() {
+//            alert('wadafac');
+            var maxHeight = $( window ).height() - 60 + "px";
+            $( ".photopopup img" ).css( "max-height", maxHeight );
+        }
+    });
 
-	$('#current-year').off('click').on('click', function(e) {
-		$('#report-year-wrap').show();
-	});
+    $('#current-year').off('click').on('click',function(e){
+        $('#report-year-wrap').show();
+    });
 
-	$('#current-month').off('click').on('click', function(e) {
-		$('#report-month-wrap').show();
-	});
+    $('#current-month').off('click').on('click',function(e){
+        $('#report-month-wrap').show();
+    });
 
-	$('#report-year').off('click').on('click', function(e) {
-		$('#report-year').closest('.report-date-selector').on("click").on("click", function() {
-			e.preventDefault();
-			var date = new Date($('#report-year').val());
-			var date_start = (date.getFullYear()) + '-01-01';
-			var date_end = (date.getFullYear()) + '-12-31';
-			$('#current-year').html($(this).find('option:selected').html());
-			$('#current-year').parent().children('span.ui-btn-inner').html($(this).find('option:selected').html());
+    $('#report-year').off('click').on('click',function(e){
+        $('#report-year').closest('.report-date-selector').on("click").on("click",function(){
+            e.preventDefault();
+            var date = new Date($('#report-year').val());
+            var date_start =  (date.getFullYear()) + '-01-01';
+            var date_end =  (date.getFullYear()) + '-12-31';
+            $('#current-year').html($(this).find('option:selected').html());
+            $('#current-year').parent().children('span.ui-btn-inner').html($(this).find('option:selected').html());
 
-			reports_date_start = date_start;
-			reports_date_end = date_end;
-			getNewReport(date_start, date_end);
-		});
+            reports_date_start = date_start;
+            reports_date_end = date_end;
+            getNewReport(date_start,date_end);
+        });
 
-	});
+    });
 
-	$('#report-month').off('change').on('change', function(e) {
-		e.preventDefault();
-		var date = new Date($('#report-year').val());
-		var date_start = (date.getFullYear()) + '-' + $(this).val() + '-01';
-		var last_day = new Date((date.getFullYear()), $(this).val(), 0);
-		var date_end = (date.getFullYear()) + '-' + $(this).val() + '-' + last_day.getDate();
-		$('#current-month').html($(this).find('option:selected').html());
-		$('#current-month').parent().children('span.ui-btn-inner').html($(this).find('option:selected').html());
-		current_month = getMonth($(this).val());
-		current_month_nr = $(this).val();
+    $('#report-month').off('change').on('change',function(e){
+        e.preventDefault();
+        var date = new Date($('#report-year').val());
+        var date_start =  (date.getFullYear()) + '-' + $(this).val() + '-01';
+        var last_day = new Date((date.getFullYear()), $(this).val(), 0);
+        var date_end =  (date.getFullYear()) + '-' + $(this).val() + '-' +last_day.getDate();
+        $('#current-month').html($(this).find('option:selected').html());
+        $('#current-month').parent().children('span.ui-btn-inner').html($(this).find('option:selected').html());
+        current_month = getMonth($(this).val());
+        current_month_nr = $(this).val();
 
-		var m = $(this).val();
+        var m = $(this).val();
 
 		var m_m = m.toString().replace(/\d{0,2}/, function(m) {
 			return '0'.slice(m.length - 1) + m;
@@ -526,47 +555,58 @@ function reportsView(data) {
 		reports_date_start = date.getFullYear() + '-' + m_m + '-' + '01';
 		reports_date_end = date.getFullYear() + '-' + m_m + '-' + new Date(date.getFullYear(), m, 0).getDate();
 
-		//alert(current_month);
-		getNewReport(date_start, date_end);
-	});
+        //alert(current_month);
+        getNewReport(date_start,date_end);
+    });
 
-	if (document.form_cat == '12' || document.form_cat == '1' || document.form_cat == '3' || document.form_cat == '15') {
-		$('.report-date-selector-container').hide();
-		$('.semi-title-blue').css('margin-top', '10px');
-	} else {
-		$('.report-date-selector-container').show();
-		$('.semi-title-blue').css('margin-top', '0px');
-	}
-	realignSlideHeight('max-height-reports');
+    if ( document.form_cat == '12'|| document.form_cat == '1' || document.form_cat == '3' || document.form_cat == '15') {
+        $('.report-date-selector-container').hide();
+        $('.semi-title-blue').css('margin-top','10px');
+    } else{
+        $('.report-date-selector-container').show();
+        $('.semi-title-blue').css('margin-top','0px');
+    }
+    realignSlideHeight('max-height-reports');
 
 }
 
-function openNativeEmail(pdf) {
-	var subject = report_name ? report_name : "Rapporter";
-	subject += localStorage.getItem('company_name') ? " fra " + localStorage.getItem('company_name') : "";
-	var mailObject = {
-		subject : subject,
-		cc : localStorage.getItem("user_email") ? localStorage.getItem("user_email") : "",
-	};
-
-	if (pdf.success) {
-		if (isNative()) {
-			mailObject.isHtml = true;
-		}
-		mailObject.body = "Trykk på lenken nedenfor for å se rapporter: " + pdf.data;
+function isLinkData(reportId){
+	if(reportId == 15){
+		return true;
 	}
-	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-	/* Open native mail on mobile */
-	if (isNative() && cordova.plugins && cordova.plugins.email) {
-		cordova.plugins.email.isAvailable(function(isAvailable) {
-			cordova.plugins.email.open(mailObject);
-		});
-	} else {/* Open native mail on web */
-		var mailto_link = 'mailto:?subject=' + mailObject.subject;
-		if (mailObject.cc)
-			mailto_link += '&cc=' + mailObject.cc;
-		if (mailObject.body)
-			mailto_link += '&body=' + mailObject.body;
+	return false;
+}
+
+function openNativeEmail(pdf, email_data){
+    var subject = report_name ? report_name: "Rapporter";
+    subject += localStorage.getItem('company_name') ? " fra " + localStorage.getItem('company_name'): "";
+    var mailObject = {
+        subject: subject,
+        cc: localStorage.getItem("user_email") ? localStorage.getItem("user_email"): "",
+    };
+	if(pdf && !isLinkData(email_data.report_id)){
+		mailObject.attachments = "base64:" + report_name + "_" + reports_date_start + "_" + reports_date_end + ".pdf//" + pdf.data;
+	}else {
+    	if(isNative()){
+            mailObject.isHtml = true;
+            mailObject.body = '<div>Trykk på lenken nedenfor for å se rapporter: <a href="' + encodeURI(pdf.data) + '">' + pdf.data + '</a></div>';
+    	}else{
+    		mailObject.body = "Trykk på lenken nedenfor for å se rapporter: " + pdf.data;
+    	}
+        
+    }
+    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+    /* Open native mail on mobile */
+    if(isNative() && cordova.plugins && cordova.plugins.email) {
+        cordova.plugins.email.isAvailable(
+            function (isAvailable) {
+                cordova.plugins.email.open(mailObject);
+            }
+        );
+    } else { /* Open native mail on web */
+        var mailto_link = 'mailto:?subject='+mailObject.subject;
+        if (mailObject.cc) mailto_link += '&cc='+mailObject.cc;
+        if (mailObject.body) mailto_link += '&body='+mailObject.body;
 		location.href = mailto_link;
 
 	}
@@ -603,20 +643,20 @@ function displayDocumnetList(isShow) {
 
 function documentsCall(data) {
 
-	if (data.success) {
-		var form_data = {
-			'signature' : {
-				'type' : 'signature',
-				'label' : 'Sign this document'
-			}
-		};
-		// Anchor for documents
-		displayDocumnetList(true);
+      if (data.success) {
+        var form_data = {
+            'signature': {
+                'type': 'signature',
+                'label': 'Sign this document'
+            }
+        };
+        // Anchor for documents
+        displayDocumnetList(true);
 
-		$('h1.ui-title').html('Selskapsdokument');
-		var docsContentList = '';
-		$(data.html).find("h2.heading").each(function(index, value) {
-			docsContentList += '<dt><a data-rel="close" class="anchor-item" data-transition="slide" href="' + index + '" class="email_flowcharts">' + (index + 1) + ". " + value.innerText + '</a></dt>';
+        $('h1.ui-title').html('Selskapsdokument');
+        var docsContentList = '';
+        $(data.html).find("h2.heading").each(function(index, value){
+           docsContentList += '<dt><a data-rel="close" class="anchor-item" data-transition="slide" href="' + index + '" class="email_flowcharts">' + (index + 1) + ". "+value.innerText + '</a></dt>';
 		});
 		$('#doc-list-contents').html('').html(docsContentList);
 		$('#document-list .ui-panel-inner').css({
@@ -626,130 +666,134 @@ function documentsCall(data) {
 
 		var html = '';
 		html += decodeURIComponent(data.html);
-		html += '<form id="documentsForm">';
-		html += HTML.formGenerate(form_data, $.t('general.submit_button'));
-		html += '</form>';
+        html += '<form id="documentsForm">';
+        html += HTML.formGenerate(form_data, $.t('general.submit_button') );
+        html += '</form>';
 
-		html += '<div data-role="popup" data-history="false" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t('general.sign_button') + '</button>' + '</div>';
+        html += '<div data-role="popup" data-history="false" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t('general.sign_button') + '</button>' + '</div>';
 
-		mySwiper.appendSlide(html, 'swiper-slide');
-		$('#' + $.mobile.activePage.attr('id')).trigger('create');
-		mySwiper.swipeTo(1, 300, true);
-		$('#documents_container').html(html);
+        mySwiper.appendSlide(html, 'swiper-slide');
+        $('#' + $.mobile.activePage.attr('id')).trigger('create');
+        mySwiper.swipeTo(1, 300, true);
+        $('#documents_container').html(html);
 
-		$('#' + $.mobile.activePage.attr('id')).trigger('create');
+        $('#' + $.mobile.activePage.attr('id')).trigger('create');
 
-		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+        $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
-		$('#documentsForm').submit(function(e) {
-			e.preventDefault();
+        $('#documentsForm').submit(function(e){
+            e.preventDefault();
 
-			var data = {
-				'client' : User.client,
-				'token' : User.lastToken,
-				'choose' : '{"signed":true}'
-			};
+            var data = {
+                'client': User.client,
+                'token': User.lastToken,
+                'choose': '{"signed":true}'
+            };
 
-			Page.apiCall('reports', data, 'get', 'reportsSigned');
+            Page.apiCall('reports', data, 'get', 'reportsSigned');
 
-			return false;
-		});
-		$('.anchor-item').off('click').on('click', function() {
-			$('#document-list').panel("close");
-			$('#max-height-reports').animate({
-				scrollTop : $('#max-height-reports h2.heading').eq(parseInt($(this).attr("href"))).position().top
-			});
-			return false;
-		});
-		$('#signature-trigger').off('click').on('click', function(e) {
-			e.preventDefault();
+            return false;
+        });
+        $('.anchor-item').off('click').on('click', function () {
+            $('#document-list').panel("close");
+            $('#max-height-reports').animate({
+                  scrollTop: $('#max-height-reports h2.heading').eq(parseInt($(this).attr("href"))).position().top
+              });
+              return false;
+        });
+        $('#signature-trigger').off('click').on('click', function(e){
+            e.preventDefault();
 
-			openSignaturePopup();
+            openSignaturePopup();
 
-			$('#deviation-signature-close').off('click').on('click', function() {
-				$('#signature_pop').popup('close');
+            $('#deviation-signature-close').off('click').on('click',function(){
+                $('#signature_pop').popup('close');
 
-				var data = {
-					'client' : User.client,
-					'token' : User.lastToken,
-					'signature' : JSON.stringify({
-						"name" : $('#sign_name').val(),
-						"svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
-						"parameter" : "document"
-					})
-				};
-				/*
-				var data = {
-				'client': User.client,
-				'token': User.lastToken,
-				'choose': '{"signed":true}'
-				};*/
-				//                Page.apiCall('reports', data, 'get', 'reportsSigned');
-				//                Page.apiCall('reports', data, 'post', '');
+                var data = {
+                    'client': User.client,
+                    'token': User.lastToken,
+                    'signature': JSON.stringify({
+                        "name": $('#sign_name').val(),
+                        "svg": $sigdiv.jSignature("getData", "svgbase64")[1],
+                        "parameter": "document"
+                    })
+                };
+                /*
+                var data = {
+                    'client': User.client,
+                    'token': User.lastToken,
+                    'choose': '{"signed":true}'
+                };*/
+//                Page.apiCall('reports', data, 'get', 'reportsSigned');
+//                Page.apiCall('reports', data, 'post', '');
 
-				Page.apiCall('documentSignature', data, 'get', 'documentSignature');
-			});
+                Page.apiCall('documentSignature', data, 'get', 'documentSignature');
+            });
 
-			return false;
-		});
+            return false;
+        });
 
 		$('#send_email').off('click').on('click', function(e) {
-			$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-			var email_data = {
-				'client' : User.client,
-				'token' : User.lastToken,
-				'report_id' : data.report_number,
-				'filter_date_from' : reports_date_start,
-				'filter_date_to' : reports_date_end
-			};
-			Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail');
-			// if (isNative() && cordova.plugins && cordova.plugins.email) {
-			//     $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-			//     var email_data = {
-			//         'client' : User.client,
-			//         'token' : User.lastToken,
-			//         'report_id' : data.report_number,
-			//         'filter_date_from' : reports_date_start,
-			//         'filter_date_to' : reports_date_end
-			//     };
-			//     Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail');
-			// } else {
+            $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+            var email_data = {
+                'client' : User.client,
+                'token' : User.lastToken,
+                'report_id' : data.report_number,
+                'filter_date_from' : reports_date_start,
+                'filter_date_to' : reports_date_end
+            };
+            if(isLinkData(email_data.report_id)){
+            	Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail', email_data);
+            }else{
+            	Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail', email_data);
+            }
+            // if (isNative() && cordova.plugins && cordova.plugins.email) {
+            //     $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+            //     var email_data = {
+            //         'client' : User.client,
+            //         'token' : User.lastToken,
+            //         'report_id' : data.report_number,
+            //         'filter_date_from' : reports_date_start,
+            //         'filter_date_to' : reports_date_end
+            //     };
+            //     Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmail');
+            // } else {
 
-			//     /*step 1: display the date chooser*/
-			//     $("#popup-send-email").popup("open");
-			//     $('#popup-send-email').parent().css({
-			//         'top': 0,
-			//         'left': 0,
-			//         'max-width': '100%',
-			//         'width': '100%',
-			//         'height': parseInt($('body').height()) + 'px',
-			//         'overflow': 'hidden',
-			//         'position': 'fixed'
-			//     });
-			//     $('#popup-send-email').css('height', '100%');
-			//     $("#confirm-send").off('click').on( "click", function( event, ui ) {
-			//         var ok = HTML.validate($('#popup-send-email'));
+            //     /*step 1: display the date chooser*/
+            //     $("#popup-send-email").popup("open");
+            //     $('#popup-send-email').parent().css({
+            //         'top': 0,
+            //         'left': 0,
+            //         'max-width': '100%',
+            //         'width': '100%',
+            //         'height': parseInt($('body').height()) + 'px',
+            //         'overflow': 'hidden',
+            //         'position': 'fixed'
+            //     });
+            //     $('#popup-send-email').css('height', '100%');
+            //     $("#confirm-send").off('click').on( "click", function( event, ui ) {
+            //         var ok = HTML.validate($('#popup-send-email'));
 
-			//         if ( ok ) {
-			//             $("#confirm-send").attr('disabled', true);
-			//             $("#confirm-send").parent().find('.ui-btn-text').html($.t('general.loading'));
-			//             $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-			//             var email_data = {
-			//                 'client': User.client,
-			//                 'token': User.lastToken,
-			//                 'report_id': 0,
-			//                 'email' : $('#email').val(),
-			//                 'filter_date_from': reports_date_start,
-			//                 'filter_date_to': reports_date_end
-			//             };
-			//             Page.apiCall('send-report-by-email', email_data, 'get', 'sendEmail');
-			//         } else {
+            //         if ( ok ) {
+            //             $("#confirm-send").attr('disabled', true);
+            //             $("#confirm-send").parent().find('.ui-btn-text').html($.t('general.loading'));
+            //             $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+            //             var email_data = {
+            //                 'client': User.client,
+            //                 'token': User.lastToken,
+            //                 'report_id': 0,
+            //                 'email' : $('#email').val(),
+            //                 'filter_date_from': reports_date_start,
+            //                 'filter_date_to': reports_date_end
+            //             };
+            //             Page.apiCall('send-report-by-email', email_data, 'get', 'sendEmail');
+            //         } else {
 
-			//         }
-			//     });
-			// }
-		});
-	}
+            //         }
+            //     });
+            // }
+        });
+    }
 
 }
 
@@ -760,101 +804,101 @@ function reportsSigned(data) {
 }
 
 function documentSignature(data) {
-	$('#sign_name').attr('disabled', true);
-	$('#signature-trigger').attr('disabled', true);
-	$('#signature-trigger').val(data.current_time.date).button('refresh');
+    $('#sign_name').attr('disabled', true);
+    $('#signature-trigger').attr('disabled', true);
+    $('#signature-trigger').val(data.current_time.date).button('refresh');
 }
 
 function sendEmail(data) {
-	$('#confirm-send').removeAttr('disabled');
+    $('#confirm-send').removeAttr('disabled');
 	$("#confirm-send").parent().find('.ui-btn-text').html($.t('general.send'));
 	reports_date_start = new Date().getFullYear() + '-' + (new Date().getMonth() + 1).toString().replace(/\d{0,2}/, function(m) {
 		return '0'.slice(m.length - 1) + m;
 	}) + '-01';
 	reports_date_end = reportsGetCurrentDate();
-	/*$('#popup-send-email').off("popupafterclose").on("popupafterclose",function(){
-	 $('#alertPopup .alert-text').html("E-post ble sendt!");
-	 $('#alertPopup').popup( "open", {positionTo: "window"});
-	 });*/
-	$('#popup-send-email').popup('close');
-	$('.swiper-slide-active').scrollTop(0);
-	$('.semi-title-blue').parent().find('p').append('<div class="report_email_sent">' + $.t('general.email_sent') + '</div>');
+    /*$('#popup-send-email').off("popupafterclose").on("popupafterclose",function(){
+        $('#alertPopup .alert-text').html("E-post ble sendt!");
+        $('#alertPopup').popup( "open", {positionTo: "window"});
+    });*/
+    $('#popup-send-email').popup('close');
+    $('.swiper-slide-active').scrollTop(0);
+    $('.semi-title-blue').parent().find('p').append('<div class="report_email_sent">'+$.t('general.email_sent') + '</div>');
 }
 
 var months = {
-	'1' : $.t('reports_filter.months.1'),
-	'2' : $.t('reports_filter.months.2'),
-	'3' : $.t('reports_filter.months.3'),
-	'4' : $.t('reports_filter.months.4'),
-	'5' : $.t('reports_filter.months.5'),
-	'6' : $.t('reports_filter.months.6'),
-	'7' : $.t('reports_filter.months.7'),
-	'8' : $.t('reports_filter.months.8'),
-	'9' : $.t('reports_filter.months.9'),
-	'10' : $.t('reports_filter.months.10'),
-	'11' : $.t('reports_filter.months.11'),
-	'12' : $.t('reports_filter.months.12')
+    '1': $.t('reports_filter.months.1'),
+    '2': $.t('reports_filter.months.2'),
+    '3': $.t('reports_filter.months.3'),
+    '4': $.t('reports_filter.months.4'),
+    '5': $.t('reports_filter.months.5'),
+    '6': $.t('reports_filter.months.6'),
+    '7': $.t('reports_filter.months.7'),
+    '8': $.t('reports_filter.months.8'),
+    '9': $.t('reports_filter.months.9'),
+    '10': $.t('reports_filter.months.10'),
+    '11': $.t('reports_filter.months.11'),
+    '12': $.t('reports_filter.months.12')
 };
 
-function getMonths() {
-	var html = '';
-	//var d = new Date();
+function getMonths(){
+    var html = '';
+    //var d = new Date();
 
-	html += '';
-	for (var i = 12; i > 0; i--) {
-		html += '<option value="' + i + '" ' + (current_month_nr == i ? 'selected' : '' ) + '>' + months[i] + '</option>';
-	}
-	return html;
+    html += '';
+    for (var i = 12; i > 0; i--) {
+        html += '<option value="' + i + '" '+ ( current_month_nr == i ? 'selected' : '' ) +'>' + months[i] + '</option>';
+    }
+    return html;
 }
 
-function getMonth(nr) {
+function getMonth(nr){
 
-	var html = months[nr];
+    var html = months[nr];
 
-	return html;
+    return html;
 }
 
-function getWeeks() {
-	var d = new Date(),
-	    d_start = null,
-	    d_end = null,
-	    html = '';
+function getWeeks(){
+    var d = new Date(),
+        d_start = null,
+        d_end = null,
+        html = '';
 
-	html += '';
-	for (var i = d.get; i > 0; i--) {
-		html += '<option value="' + i + '">' + i + '</option>';
-	}
-	return html;
+    html += '';
+    for (var i = d.get; i > 0; i--) {
+        html += '<option value="' + i + '">' + i + '</option>';
+    }
+    return html;
 
-	//    html += '</select>';
-	//    var m = d.getMonth().toString().replace(/\d{0,2}/,function(m){return '0'.slice(m.length-1) + m;});
-	d_start = d.getFullYear() + '-' + m + '-' + '01';
-	d_end = d.getFullYear() + '-' + m + '-' + new Date(d.getFullYear(), d.getMonth(), 0).getDate();
+//    html += '</select>';
+//    var m = d.getMonth().toString().replace(/\d{0,2}/,function(m){return '0'.slice(m.length-1) + m;});
+    d_start = d.getFullYear() + '-' + m + '-' + '01';
+    d_end = d.getFullYear() + '-' + m + '-' + new Date(d.getFullYear(), d.getMonth(), 0).getDate();
 }
 
 function getYears() {
-	var d = new Date(),
-	    d_start = null,
-	    d_end = null,
-	    html = '',
-	    date_1 = d.getFullYear() + 1;
-	var report_year = new Date(reports_date_start);
-	for (var i = date_1; i >= parseInt(company_year); i--) {
-		html += '<option value="' + i + '" ' + (i == report_year.getFullYear() ? 'selected' : '' ) + '>' + i + '</option>';
-	}
-	return html;
+    var d = new Date(),
+        d_start = null,
+        d_end = null,
+        html = '',
+        date_1 = d.getFullYear() + 1;
+    var report_year = new Date(reports_date_start);
+    for (var i = date_1; i >= parseInt(company_year) ;i--) {
+        html += '<option value="' + i + '" '+ ( i == report_year.getFullYear() ? 'selected' : '' ) +'>' + i + '</option>';
+    }
+    return html;
 }
 
-function getNewReport(date_start, date_end) {
-	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-	var data = {
-		'client' : User.client,
-		'token' : User.lastToken,
-		'report_number' : document.form_cat,
-		'filter_date_from' : date_start,
-		'filter_date_to' : date_end
-	};
-	Page.apiCall('reportTables', data, 'get', 'reportsView');
+function getNewReport(date_start, date_end){
+    $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+    var data = {
+        'client': User.client,
+        'token': User.lastToken,
+        'report_number':  document.form_cat,
+        'filter_date_from': date_start,
+        'filter_date_to': date_end
+    };
+    Page.apiCall('reportTables', data, 'get', 'reportsView');
 
-	mySwiper.removeSlide(1);
+    mySwiper.removeSlide(1);
 }
