@@ -8,13 +8,6 @@
         "is_top_level": true,
         "variables": {}
     },
-    "com.phonegap.plugins.sqlite": {
-        "source": {
-            "type": "git",
-            "url": "https://github.com/lite4cordova/Cordova-SQLitePlugin.git",
-            "subdir": "."
-        }
-    },
     "de.appplant.cordova.plugin.printer": {
         "source": {
             "type": "git",
@@ -102,6 +95,15 @@
         "source": {
             "type": "registry",
             "id": "cordova-plugin-email"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-sqlite-storage": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/litehelpers/Cordova-sqlite-storage",
+            "subdir": "."
         },
         "is_top_level": true,
         "variables": {}

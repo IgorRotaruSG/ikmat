@@ -10,7 +10,7 @@ function maintenanceInit() {
 	if (get.id != undefined) {
 		data['task_id'] = get.id;
 	}
-	
+
 	if (!isOffline()) {
 		Page.apiCall('maintenance', data, 'get', 'maintenance');
 	} else {
@@ -134,6 +134,7 @@ function maintenance(data) {
 		$('#form_back_btn i').removeClass('hided');
 
 	}
+	realignSlideHeight('max-height-task');
 }
 
 
@@ -166,27 +167,27 @@ function maintenanceDone(data) {
 		$('input[name="task_id"]').val(get.id);
 	}
 	// if (typeof $sigdiv != 'undefined') {
-		// console.log("$sigdiv", $sigdiv);
-		// var data1 = {
-			// 'client' : User.client,
-			// 'token' : User.lastToken,
-			// 'signature' : JSON.stringify({
-				// "name" : $('#sign_name').val(),
-				// "svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
-				// "parameter" : "task",
-				// "task_id" : get.id
-			// })
-		// };
-		// if (!isOffline()) {
-			// Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
-		// } else {
-			// db.lazyQuery({
-				// 'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-				// 'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
-			// }, 0);
-		// }
+	// console.log("$sigdiv", $sigdiv);
+	// var data1 = {
+	// 'client' : User.client,
+	// 'token' : User.lastToken,
+	// 'signature' : JSON.stringify({
+	// "name" : $('#sign_name').val(),
+	// "svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
+	// "parameter" : "task",
+	// "task_id" : get.id
+	// })
+	// };
+	// if (!isOffline()) {
+	// Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+	// } else {
+	// db.lazyQuery({
+	// 'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+	// 'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
+	// }, 0);
 	// }
-	
+	// }
+
 	uploadMaintenancePicture();
 	db.lazyQuery({
 		'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
@@ -202,10 +203,15 @@ function uploadMaintenancePicture() {
 	// Get URI of picture to upload
 	var $img = $('#' + haccp_image_id);
 	var imageURI = $img.attr('src');
-	
+
 	if (imageURI) {
-		Page.uploadImage(imageURI, {"role":"fixed"}, function(data){
-	    	$img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
-	    });
+		Page.uploadImage(imageURI, {
+			"role" : "fixed"
+		}, function(data) {
+			$img.css({
+				'visibility' : 'hidden',
+				'display' : 'none'
+			}).attr('src', '');
+		});
 	}
 }

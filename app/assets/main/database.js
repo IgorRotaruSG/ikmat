@@ -63,7 +63,6 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 	var promises = [];
 	var that = this;
 	for (var i = 0; i < docs.length; i++) {
-		console.log("i", i);
 		docs[i].timestamp = new Date().toJSON();
 		var index = i;
 		(function(that, i) {

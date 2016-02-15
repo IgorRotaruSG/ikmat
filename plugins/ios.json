@@ -7,9 +7,6 @@
         "files": {}
     },
     "installed_plugins": {
-        "com.phonegap.plugins.sqlite": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
         "cordova-plugin-device": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
@@ -41,6 +38,9 @@
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "cordova-plugin-email": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-sqlite-storage": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         }
     },

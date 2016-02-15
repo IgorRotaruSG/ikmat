@@ -9,10 +9,6 @@
                 "parents": {
                     "/*": [
                         {
-                            "xml": "<feature name=\"SQLitePlugin\"><param name=\"ios-package\" value=\"SQLitePlugin\" /></feature>",
-                            "count": 1
-                        },
-                        {
                             "xml": "<feature name=\"Printer\"><param name=\"ios-package\" value=\"APPPrinter\" /></feature>",
                             "count": 1
                         },
@@ -63,6 +59,10 @@
                         {
                             "xml": "<feature name=\"EmailComposer\"><param name=\"ios-package\" value=\"APPEmailComposer\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"SQLitePlugin\"><param name=\"ios-package\" value=\"SQLitePlugin\" /></feature>",
+                            "count": 1
                         }
                     ]
                 }
@@ -80,9 +80,6 @@
         }
     },
     "installed_plugins": {
-        "com.phonegap.plugins.sqlite": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
@@ -115,18 +112,13 @@
         },
         "cordova-plugin-email": {
             "PACKAGE_NAME": "hygiene.app.automagi"
+        },
+        "cordova-sqlite-storage": {
+            "PACKAGE_NAME": "hygiene.app.automagi"
         }
     },
     "dependent_plugins": {},
     "modules": [
-        {
-            "file": "plugins/com.phonegap.plugins.sqlite/www/SQLitePlugin.js",
-            "id": "com.phonegap.plugins.sqlite.SQLitePlugin",
-            "pluginId": "com.phonegap.plugins.sqlite",
-            "clobbers": [
-                "SQLitePlugin"
-            ]
-        },
         {
             "file": "plugins/de.appplant.cordova.plugin.printer/www/printer.js",
             "id": "de.appplant.cordova.plugin.printer.Printer",
@@ -409,12 +401,21 @@
                 "cordova.plugins.email",
                 "plugin.email"
             ]
+        },
+        {
+            "file": "plugins/cordova-sqlite-storage/www/SQLitePlugin.js",
+            "id": "cordova-sqlite-storage.SQLitePlugin",
+            "pluginId": "cordova-sqlite-storage",
+            "clobbers": [
+                "SQLitePlugin"
+            ]
         }
     ],
     "plugin_metadata": {
         "cordova-plugin-statusbar": "2.0.0",
         "cordova-plugin-file-transfer": "1.4.0",
         "cordova-plugin-file": "3.0.0",
-        "cordova-plugin-email": "1.0.0"
+        "cordova-plugin-email": "1.0.0",
+        "cordova-sqlite-storage": "0.8.2"
     }
 }

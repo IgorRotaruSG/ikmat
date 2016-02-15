@@ -1,14 +1,6 @@
 cordova.define('cordova/plugin_list', function(require, exports, module) {
 module.exports = [
     {
-        "file": "plugins/com.phonegap.plugins.sqlite/www/SQLitePlugin.js",
-        "id": "com.phonegap.plugins.sqlite.SQLitePlugin",
-        "pluginId": "com.phonegap.plugins.sqlite",
-        "clobbers": [
-            "SQLitePlugin"
-        ]
-    },
-    {
         "file": "plugins/cordova-plugin-device/www/device.js",
         "id": "cordova-plugin-device.device",
         "pluginId": "cordova-plugin-device",
@@ -296,6 +288,14 @@ module.exports = [
             "cordova.plugins.email",
             "plugin.email"
         ]
+    },
+    {
+        "file": "plugins/cordova-sqlite-storage/www/SQLitePlugin.js",
+        "id": "cordova-sqlite-storage.SQLitePlugin",
+        "pluginId": "cordova-sqlite-storage",
+        "clobbers": [
+            "SQLitePlugin"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -304,7 +304,8 @@ module.exports.metadata =
     "cordova-plugin-statusbar": "2.0.0",
     "cordova-plugin-file-transfer": "1.4.0",
     "cordova-plugin-file": "3.0.0",
-    "cordova-plugin-email": "1.0.0"
+    "cordova-plugin-email": "1.0.0",
+    "cordova-sqlite-storage": "0.8.2"
 }
 // BOTTOM OF METADATA
 });

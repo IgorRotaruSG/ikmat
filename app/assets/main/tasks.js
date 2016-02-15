@@ -164,13 +164,11 @@ function updateTasks(data) {
 
 function getTasks() {
 	var offset = (tasks_page - 1 ) * per_page;
-	console.log("getTasks");
-	db.getDbInstance("tasks").allDocs({
+	db.getDbInstance('tasks').query('sort_index', {
 		'include_docs' : true,
 		'skip' : offset,
 		'limit' : per_page
 	}, getTasksCall);
-	// tx.executeSql('select * from tasks WHERE "completed" = 0 ORDER BY "date_start" DESC LIMIT ?,? ', [offset, per_page], getTasksCall, db.dbErrorHandle);
 }
 
 function tasksInit() {
@@ -383,32 +381,32 @@ function getTaskData(data) {
 }
 
 function taskGeneration(type, dataBuild, callback) {
-	db.getDbInstance('form_item').get(type, function(result){
+	db.getDbInstance('form_item').get(type, function(result) {
 		if (isOffline() && result && result.form) {
-				var data;
-				switch(type) {
-				case "deviation":
-				case "maintenance":
-					var d = {};
-					$.extend(d, {
-						success : true,
-						form_deviation : JSON.parse(result.form)
-					});
+			var data;
+			switch(type) {
+			case "deviation":
+			case "maintenance":
+				var d = {};
+				$.extend(d, {
+					success : true,
+					form_deviation : JSON.parse(result.form)
+				});
 
-					if (dataBuild) {
-						$.extend(true, d, dataBuild);
-						if (dataBuild.id) {
-							document.task_id = dataBuild.id;
-						}
+				if (dataBuild) {
+					$.extend(true, d, dataBuild);
+					if (dataBuild.id) {
+						document.task_id = dataBuild.id;
 					}
-					data = d;
-					getDeviationForm(data);
-					break;
 				}
-				closeButtonDisplay(callback, data);
-			} else {
-				noInternetError($.t("error.no_internet_for_sync"));
+				data = d;
+				getDeviationForm(data);
+				break;
 			}
+			closeButtonDisplay(callback, data);
+		} else {
+			noInternetError($.t("error.no_internet_for_sync"));
+		}
 	});
 }
 
@@ -718,9 +716,9 @@ function getTasksUncompleted(data) {
 				    role = '';
 				if (results && results.rows.length > 0) {
 					for (var i = 0; i < results.rows.length; i++) {
-						if (results.rows[i].key == 'register_edit' && results.rows[i].value == 'true')
+						if (results.rows[i].key == 'register_edit' && results.rows[i].value)
 							register_edit = false;
-						if (results.rows[i].key == 'haccp' && results.rows[i].value == 'true')
+						if (results.rows[i].key == 'haccp' && results.rows[i].value)
 							haccp = false;
 						if (results.rows[i].key == 'role')
 							role = results.rows[i].value;
@@ -751,7 +749,6 @@ function getTasksUncompleted(data) {
 						});
 					}
 				}
-				console.log("aad", add);
 				// moved all the login here
 				_append('#taskList', add);
 
@@ -782,64 +779,64 @@ function getTasksUncompleted(data) {
 			var date = new Date();
 			var add = [];
 			db.getDbInstance("settings").query({
-				map: function(doc, emit){
-					if(['register_edit', 'haccp', 'role'].indexOf(doc.type) != -1){
+				map : function(doc, emit) {
+					if (['register_edit', 'haccp', 'role'].indexOf(doc.type) != -1) {
 						emit(doc.type, doc.value);
 					}
 				}
 			}, function(tx, results) {
-					var register_edit = true,
-					    haccp = true,
-					    role = '';
-					if (results.rows.length > 0) {
-						for (var i = 0; i < results.rows.length; i++) {
-							if (results.rows[i].key == 'register_edit' && results.rows[i].value == 'true')
-								register_edit = false;
-							if (results.rows[i].key == 'haccp' && results.rows[i].value == 'true')
-								haccp = false;
-							if (results.rows[i].key == 'role')
-								role = results.rows[i].value;
-						}
+				var register_edit = true,
+				    haccp = true,
+				    role = '';
+				if (results.rows.length > 0) {
+					for (var i = 0; i < results.rows.length; i++) {
+						if (results.rows[i].key == 'register_edit' && results.rows[i].value == 'true')
+							register_edit = false;
+						if (results.rows[i].key == 'haccp' && results.rows[i].value == 'true')
+							haccp = false;
+						if (results.rows[i].key == 'role')
+							role = results.rows[i].value;
+					}
+				}
+
+				if (tasks_page == 1) {
+					db.execute('DELETE FROM "tasks"');
+					//truncate TASKS table
+					if ((register_edit || haccp) && role != 'ROLE_EMPLOYEE') {
+						add.push({
+							'id' : 9999,
+							'data' : $.t('tasks.registration_steps'),
+							'extra' : 'data-role="list-divider"'
+						});
+					} else {
+						//$('#taskList').parent().html('<div class="no_results">' + $.t('error.no_tasks') + '</div>');
+						//$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+						$('#load_more_tasks').attr('disabled', 'disabled');
+						//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
+						$('#load_more_tasks').parent().hide();
 					}
 
-					if (tasks_page == 1) {
-						db.execute('DELETE FROM "tasks"');
-						//truncate TASKS table
-						if ((register_edit || haccp) && role != 'ROLE_EMPLOYEE') {
-							add.push({
-								'id' : 9999,
-								'data' : $.t('tasks.registration_steps'),
-								'extra' : 'data-role="list-divider"'
-							});
-						} else {
-							//$('#taskList').parent().html('<div class="no_results">' + $.t('error.no_tasks') + '</div>');
-							//$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-							$('#load_more_tasks').attr('disabled', 'disabled');
-							//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
-							$('#load_more_tasks').parent().hide();
-						}
-
-						if (register_edit && role != 'ROLE_EMPLOYEE') {
-							add.push({
-								'id' : 9998,
-								'data' : '<a href="register_edit.html" data-transition="slide">' + $.t('tasks.complete_profile') + '</a>',
-								'extra' : 'data-icon="false"'
-							});
-						}
-						if (haccp && role != 'ROLE_EMPLOYEE') {
-							add.push({
-								'id' : 9997,
-								'data' : '<a href="haccp.html" data-transition="slide">' + $.t('tasks.complete_haccp') + '</a>',
-								'extra' : 'data-icon="false"'
-							});
-						}
+					if (register_edit && role != 'ROLE_EMPLOYEE') {
+						add.push({
+							'id' : 9998,
+							'data' : '<a href="register_edit.html" data-transition="slide">' + $.t('tasks.complete_profile') + '</a>',
+							'extra' : 'data-icon="false"'
+						});
 					}
-					_append('#taskList', add);
-					mySwiper.reInit();
-					mySwiper.resizeFix();
-					realignSlideHeight('max-height-task');
-					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-				});
+					if (haccp && role != 'ROLE_EMPLOYEE') {
+						add.push({
+							'id' : 9997,
+							'data' : '<a href="haccp.html" data-transition="slide">' + $.t('tasks.complete_haccp') + '</a>',
+							'extra' : 'data-icon="false"'
+						});
+					}
+				}
+				_append('#taskList', add);
+				mySwiper.reInit();
+				mySwiper.resizeFix();
+				realignSlideHeight('max-height-task');
+				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+			});
 		}
 		mySwiper.resizeFix();
 		realignSlideHeight('max-height-task');
@@ -875,28 +872,23 @@ function findTaskData() {
 }
 
 function updateTaskData(data, task_id) {
-	console.log("updateTaskData", data, task_id);
+	delete emptytaskdata.splice(emptytaskdata.indexOf(task_id), 1);
 	if (data.success) {
-		console.log("updateTaskData1", data);
 		if (!isOffline()) {
 			db.bulkDocs('tasks', [{
 				_id : data.form.task_id.value,
 				taskData : JSON.stringify(data)
 			}], function() {
-				delete emptytaskdata[data.form.task_id.value];
 				if (emptytaskdata.length == 0) {
 					$('#load_more_tasks').removeAttr('disabled');
 					$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
 				}
 			});
 		}
-	}else{
-		delete emptytaskdata[task_id];
 	}
 }
 
 function getTasksFromLocal(results) {
-	console.log('getTasksFromLocal', results);
 	var data = [];
 	var groups = [];
 	var c;
@@ -1000,11 +992,9 @@ function checkTaskData() {
 	//get task data for the taks that does not have any
 	db.getDbInstance('tasks').query(function(doc, emit) {
 		if (!doc.taskData || doc.taskData == '' || doc.taskData == 'undefined') {
-			console.log("doc", doc);
 			emit(doc);
 		}
 	}, function(error, results) {
-		console.log("results", results);
 		if (results.rows.length > 0 && !isOffline()) {
 			for (var i = 0; i < results.rows.length; i++) {
 				emptytaskdata.push(results.rows[i].id);
@@ -1015,7 +1005,6 @@ function checkTaskData() {
 }
 
 function checkTasksList() {
-	console.log("checkTasksList111");
 	setTimeout(function() {
 		var content = $('#taskList').html();
 		if (content == "") {
@@ -1028,10 +1017,8 @@ function checkTasksList() {
 /********* START HACCP DEVIATION **********/
 
 function haccpDeviationFix(data) {
-	console.log('haccpDeviationFix data: ', data);
 	if (data.form_fix_deviation) {//FIX deviation
 		var taskId = devId;
-		console.log('haccpDeviationFix');
 		//var d = new Date(data.form_fix_deviation.deviation_date.date);
 		var d = new Date(data.form_fix_deviation.deviation_date.date.replace(' ', 'T'));
 
@@ -1070,8 +1057,6 @@ function haccpDeviationFix(data) {
 		html += HTML.formGenerate(data.form_fix_deviation.form, $.t("general.save_button"));
 		html += '<div data-role="popup" data-history="false" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.sign_button") + '</button>' + '</div>';
 		html += '</form>' + '</div>';
-		//console.log('deviationfix html',html);
-		//$('#form_haccp_deviation_fix').html(html);
 		mySwiper.appendSlide(html, 'swiper-slide');
 		$('#' + $.mobile.activePage.attr('id')).trigger('create');
 
@@ -1114,8 +1099,6 @@ function haccpDeviationFix(data) {
 
 			if (go) {
 				var dd = Form.getValues($(this));
-
-				console.log("form_haccp_deviation_fix", dd);
 
 				if (!isOffline()) {
 

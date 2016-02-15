@@ -178,14 +178,12 @@ function getHaccpCallPrev(tx, results) {
 function getHaccp() {
 	console.log('getHaccp11');
 	if (get != undefined && get.continue != undefined) {
-		console.log('haccp.js 92');
 		db.getDbInstance('haccp_items').query('sort_index', {
 			'include_docs' : true,
 			'skip' : get.continue,
 			'limit' : 3
 		}, getHaccpCall);
 	} else {
-		console.log('haccp.js 95');
 		db.getDbInstance('haccp_items').query('sort_index', {
 			'include_docs' : true,
 			'limit' : 3
