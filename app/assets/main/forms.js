@@ -371,7 +371,7 @@ function formDeviationStart(data) {
 			}
 
 			if (key != 'maintenance' || key != 'food_poision' || (key != 999 && key != 1000)) {
-				db_data.push([key, value, value]);
+				db_data.push({'_id': String(key), 'alias': value,'data': value});
 			}
 		}
 
