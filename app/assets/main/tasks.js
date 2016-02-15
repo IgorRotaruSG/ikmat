@@ -790,9 +790,9 @@ function getTasksUncompleted(data) {
 				    role = '';
 				if (results.rows.length > 0) {
 					for (var i = 0; i < results.rows.length; i++) {
-						if (results.rows[i].key == 'register_edit' && results.rows[i].value == 'true')
+						if (results.rows[i].key == 'register_edit' && results.rows[i].value)
 							register_edit = false;
-						if (results.rows[i].key == 'haccp' && results.rows[i].value == 'true')
+						if (results.rows[i].key == 'haccp' && results.rows[i].value)
 							haccp = false;
 						if (results.rows[i].key == 'role')
 							role = results.rows[i].value;
@@ -943,7 +943,7 @@ function getTasksFromLocal(results) {
 			add_data = '<a href="#" data-id="' + results.rows[i].doc.id + '" class="generate_task_form">' + results.rows[i].doc.title + '</a>';
 		}
 
-		if (results.rows[i].doc.overdue == 'true' && results.rows[i].doc.type == 'deviation') {
+		if (results.rows[i].doc.overdue && results.rows[i].doc.type == 'deviation') {
 			data.push({
 				'id' : results.rows[i].doc.date_start,
 				'data' : add_data,
