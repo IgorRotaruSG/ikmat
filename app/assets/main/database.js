@@ -156,6 +156,11 @@ function createDesignDoc(name, mapFunction) {
 	return ddoc;
 }
 
+db.prototype.createView = function(collection, name, mapFunction){
+	var designDoc = createDesignDoc(name, mapFunction);
+	this.collections[collection].put(designDoc);
+};
+
 db.prototype.createTables = function() {
 	for (var i = 0; i < this.tables.length; i++) {
 		this.collections[this.tables[i]] = new PouchDB(this.db_name + "_" + this.tables[i], {

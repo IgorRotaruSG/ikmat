@@ -340,11 +340,7 @@ function reportTables(data) {
 		//}
 
 		if (db_data.length > 0) {
-			var q = 'INSERT OR REPLACE INTO "reports"("id","name") VALUES(?,?)';
-			db.lazyQuery({
-				'sql' : q,
-				'data' : db_data
-			}, 0);
+			db.lazyQuery('reports', castToListObject(["id","name"], db_data));
 		}
 
 		$('#no_results_raports').hide();

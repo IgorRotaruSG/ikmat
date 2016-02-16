@@ -59,11 +59,7 @@ function formItemData(data) {
                 ]);
             }
         }
-
-        db.lazyQuery({
-            'sql': 'INSERT INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
-            'data': db_data
-        },0);
+        db.lazyQuery('form_item', castToListObject(["id", "label", "form", "type"], db_data));
 
         _append('#form_item_data', data);
     }

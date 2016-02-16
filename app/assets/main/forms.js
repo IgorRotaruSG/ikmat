@@ -93,7 +93,9 @@ function getFormsCall(error, results) {
 }
 
 function getForms() {
-	db.getDbInstance("forms").allDocs({'include_docs': true}, getFormsCall);
+	db.getDbInstance('forms').query('sort_index', {
+		'include_docs' : true
+	}, getFormsCall);
 }
 
 function formsInit() {
@@ -214,16 +216,21 @@ function formsInit() {
 						}
 						newlazy['results'] = JSON.stringify(newlazy.results);
 						console.log("newlazy", newlazy);
-						db.lazyQuery({
-							'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-							'data' : [['foodPoison', JSON.stringify(newlazy), 0, 'foodPoison']]
-						}, 0, function(insertId) {
-							newlazy['results'] = JSON.parse(newlazy.results);
-							newlazy.results.id = insertId;
-							formcache.generateFoodPoisonTask('food_poision', newlazy['results'], function() {
-								newlazy = {};
-								Page.redirect('index.html');
-							});
+						db.lazyQuery('sync_query', [{
+							'api' : 'foodPoison',
+							'data' : JSON.stringify(newlazy),
+							'extra' : 0,
+							'q_type' : 'foodPoison'
+						}], function(results) {
+							if (results && results.length > 0) {
+								var insertId = results[0].id;
+								newlazy['results'] = JSON.parse(newlazy.results);
+								newlazy.results.id = insertId;
+								formcache.generateFoodPoisonTask('food_poision', newlazy['results'], function() {
+									newlazy = {};
+									Page.redirect('index.html');
+								});
+							}
 						});
 					} else {
 						setTimeout(function() {
@@ -456,7 +463,7 @@ function formGeneration(type, dataBuild, callback) {
 					break;
 			}
 			showCloseButton(callback);
-		} else if (isOffline() && results) {
+		} else if (isOffline() && results && results.rows.length > 0) {
 			var data;
 			switch(type) {
 				case "dishwasher":
@@ -743,24 +750,30 @@ function formItemData(data) {
 							if (document.task_id > 0) {
 								api = 'deviation';
 							}
-							db.lazyQuery({
-								'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-								'data' : [[api, JSON.stringify(offline_data), document.task_id, 'maintenanceDoneForm']]
-							}, 0, function(insertId) {
-								if (document.task_id > 0) {
-									insertId = document.task_id;
+							
+							db.lazyQuery('sync_query', [{
+								'api' : api,
+								'data' : JSON.stringify(offline_data),
+								'extra' : document.task_id,
+								'q_type' : 'maintenanceDoneForm'
+							}], function(results) {
+								if (results && results.length > 0) {
+									var insertId = results[0].id;
+									if (document.task_id > 0) {
+										insertId = document.task_id;
+									}
+									if ($.isNumeric(insertId)) {
+										console.log("data");
+										$('input[name="task_id"]').val(insertId);
+									}
+									uploadHACCPPictureForms();
+
+									deviationDoneForm({
+										form_fix_deviation : dd,
+										id : insertId
+									}, f.info.type);
 								}
-								if ($.isNumeric(insertId)) {
-									console.log("data");
-									$('input[name="task_id"]').val(insertId);
-								}
-								uploadHACCPPictureForms();
-								
-								deviationDoneForm({
-									form_fix_deviation : dd,
-									id : insertId
-								}, f.info.type);
-							});
+							}); 
 						}
 
 					} else {
@@ -801,29 +814,33 @@ function formItemData(data) {
 										};
 
 										console.log("offline_data", offline_data);
-										db.lazyQuery({
-											'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-											'data' : [['formDeviationStart', JSON.stringify(offline_data), 0, 'formDeviationStart']]
-										}, 0, function(insertId) {
-											formGeneration('deviation', {
-												id : insertId,
-												form_list_question : {
-													form : {
-														form_deviation : {
-															deviation_description : {
-																value : dd.temperature + " grader rapportert på " + results.rows.item(0).label
+										db.lazyQuery('sync_query', [{
+											'api' : 'formDeviationStart',
+											'data' : JSON.stringify(offline_data),
+											'extra' : 0,
+											'q_type' : 'formDeviationStart'
+										}], function(results) {
+											if (results && results.length > 0) {
+												var insertId = results[0].id;
+												formGeneration('deviation', {
+													id : insertId,
+													form_list_question : {
+														form : {
+															form_deviation : {
+																deviation_description : {
+																	value : dd.temperature + " grader rapportert på " + results.rows.item(0).label
+																}
 															}
 														}
 													}
-												}
-											}, function(response) {
-												console.log("back response", response);
-												deviationDoneForm({
-													form_deviation : response.form_list_question.form.form_deviation,
-													id : insertId
+												}, function(response) {
+													console.log("back response", response);
+													deviationDoneForm({
+														form_deviation : response.form_list_question.form.form_deviation,
+														id : insertId
+													});
 												});
-											});
-
+											}
 										});
 									}
 								});
@@ -883,11 +900,7 @@ function formItemData(data) {
 			//            console.log(db_data);
 			console.log('forms.js 505', db_data);
 			if (!isOffline()) {
-				var q = 'INSERT OR REPLACE INTO "form_item" ("id", "label", "form", "type") VALUES(?,?,?,?)';
-				db.lazyQuery({
-					'sql' : 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
-					'data' : db_data
-				}, 0);
+				db.lazyQuery('form_item', castToListObject(["id", "label", "form", "type"], db_data));
 			}
 			mySwiper.appendSlide(html, 'swiper-slide');
 			bind_form2_click_handler();
@@ -1060,10 +1073,12 @@ function maintenanceSignDone(data) {
 		if (!isOffline()) {
 			Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
 		} else {
-			db.lazyQuery({
-				'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-				'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
-			}, 0);
+			db.lazyQuery('sync_query', [{
+				'api' : 'documentSignature',
+				'data' : JSON.stringify(data1),
+				'extra' : data,
+				'q_type' : 'documentSignature'
+			}]);
 		}
 	}
 }
@@ -1227,10 +1242,12 @@ function bind_form2_click_handler() {
 									'results' : JSON.stringify(dd),
 									'category' : d.type
 								};
-								db.lazyQuery({
-									'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-									'data' : [['formDeviationStart', JSON.stringify(offline_data), 0, 'formDeviationStart']]
-								}, 0);
+								db.lazyQuery('sync_query', [{
+									'api' : 'formDeviationStart',
+									'data' : JSON.stringify(offline_data),
+									'extra' : 0,
+									'q_type' : 'formDeviationStart'
+								}]);
 								redirect_to_forms();
 
 							}
@@ -1289,18 +1306,11 @@ function formCond3(data) {
 			if (data.form_list_question.hasOwnProperty(d)) {
 				console.log('d itera = ', d);
 				console.log(data.form_list_question[d]);
-				//                return;
-				db.lazyQuery({
-					'sql' : 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
-					'data' : [[data.form_list_question[d].info.id, data.form_list_question[d].info.label, JSON.stringify(data.form_list_question[d].form), document.form_cat]]
-				}, 0);
+				db.lazyQuery('form_item', castToListObject(["id", "label", "form", "type"], [data.form_list_question[d].info.id, data.form_list_question[d].info.label, JSON.stringify(data.form_list_question[d].form), document.form_cat]));
 			}
 		}
 	} else {
-		db.lazyQuery({
-			'sql' : 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
-			'data' : [[data.form_list_question.info.id, data.form_list_question.info.label, JSON.stringify(data.form_list_question.form), document.form_cat]]
-		}, 0);
+		db.lazyQuery('form_item', castToListObject(["id", "label", "form", "type"], [data.form_list_question.info.id, data.form_list_question.info.label, JSON.stringify(data.form_list_question.form), document.form_cat]));
 	}
 
 }
@@ -1576,10 +1586,13 @@ function registerEmployee(data) {
 				if (!isOffline()) {
 					Page.apiCall('registerEmployee', data, 'post', 'registerEmployeeSucess');
 				} else {
-					db.lazyQuery({
-						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-						'data' : [['registerEmployee', JSON.stringify(data), 0, 'registerEmployeeSucess']]
-					}, 0);
+					db.lazyQuery('sync_query', [{
+						'api' : 'registerEmployee',
+						'data' : JSON.stringify(data),
+						'extra' : 0,
+						'q_type' : 'registerEmployeeSucess'
+					}]); 
+
 				}
 
 			}
@@ -1648,12 +1661,17 @@ function registerSupplier(data) {
 				if (!isOffline()) {
 					Page.apiCall('registerSupplier', data, 'post', 'registerSupplierSuccess');
 				} else {
-					db.lazyQuery({
-						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-						'data' : [['registerSupplier', JSON.stringify(data), 0, 'registerSupplierSuccess']]
-					}, 0, function(data) {
-						registerSupplierSuccess(data);
-					});
+					db.lazyQuery('sync_query', [{
+						'api' : 'registerSupplier',
+						'data' : JSON.stringify(data),
+						'extra' : 0,
+						'q_type' : 'registerSupplierSuccess'
+					}], function(results) {
+						if (results && results.length > 0) {
+							var insertId = results[0].id;
+							registerSupplierSuccess(insertId);
+						}
+					}); 
 				}
 			}
 

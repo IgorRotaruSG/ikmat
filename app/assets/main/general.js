@@ -461,10 +461,13 @@ Page.prototype.uploadImage = function() {
 function cacheImage(request, callback) {
 	if (request && request.imageURI && request.task_id) {
 		if (isNative()) {
-			db.lazyQuery({
-				'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-				'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
-			}, 0, callback);
+			
+			db.lazyQuery('sync_query', [{
+				'api' : 'uploadPhotos',
+				'data' : JSON.stringify(request),
+				'extra' : request.task_id,
+				'q_type' : 'uploadDone'
+			}], callback); 
 		} else {
 			var blob;
 			var oReq = new XMLHttpRequest();
@@ -479,10 +482,12 @@ function cacheImage(request, callback) {
 					reader.readAsDataURL(blob);
 					reader.onloadend = function() {
 						request.data = reader.result;
-						db.lazyQuery({
-							'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-							'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
-						}, 0, callback);
+						db.lazyQuery('sync_query', [{
+							'api' : 'uploadPhotos',
+							'data' : JSON.stringify(request),
+							'extra' : request.task_id,
+							'q_type' : 'uploadDone'
+						}], callback);
 					};
 				}
 			};

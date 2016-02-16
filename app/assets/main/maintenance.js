@@ -114,17 +114,22 @@ function maintenance(data) {
 				if (!isOffline()) {
 					Page.apiCall('maintenance', data, 'get', 'maintenanceDone');
 				} else {
-					db.lazyQuery({
-						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-						'data' : [['maintenance', JSON.stringify(data), get.id, 'maintenanceDone']]
-					}, 0, function(insertId) {
+					
+					db.lazyQuery('sync_query', [{
+						'api' : 'maintenance',
+						'data' : JSON.stringify(data),
+						'extra' : get.id,
+						'q_type' : 'maintenanceDone'
+					}], function(result) {
+						if(result && result.rows.length > 0){
+							var insertId = result.rows[0].id;
+						}
 						if ($.isNumeric(insertId)) {
 							$('input[name="task_id"]').val(get.id);
 						}
 						maintenanceDone(get.id);
-					});
+					}); 
 				}
-
 			}
 
 			return false;
@@ -189,14 +194,13 @@ function maintenanceDone(data) {
 	// }
 
 	uploadMaintenancePicture();
-	db.lazyQuery({
-		'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
-		'data' : [['1', get.id]]
-	}, 0, function() {
+	db.lazyQuery('tasks', [{
+		'_id' : String(get.id),
+		'completed' : true
+	}], function() {
 		console.log("update");
 		Page.redirect('tasks.html');
 	});
-}
 
 function uploadMaintenancePicture() {
 

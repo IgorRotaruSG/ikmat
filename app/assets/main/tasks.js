@@ -59,7 +59,7 @@ function getTasksCall(err, results) {
 
 		//get reportlist of user, preparing for reportlist in offline mode
 		Page.apiCall('getReportList', data, 'get', 'getReportsList');
-	} else if (results.rows.length > 0) {
+	} else if (results && results.rows.length > 0) {
 		getTasksFromLocal(results);
 	} else {
 		$('#load_more_tasks').parent().hide();
@@ -102,10 +102,7 @@ function getFormsList(data) {
 
 		/* INSERT SECTION */
 		if (db_data.length > 0) {
-			db.lazyQuery({
-				'sql' : 'INSERT OR REPLACE INTO "forms" ("type","label","alias") VALUES(?,?,?)',
-				'data' : db_data
-			}, 0);
+			db.lazyQuery('forms', castToListObject(["type","label","alias"], db_data));
 		}
 	}
 }
@@ -129,10 +126,7 @@ function getReportsList(data) {
 		});
 
 		if (tuples.length > 0) {
-			db.lazyQuery({
-				'sql' : 'INSERT OR REPLACE INTO "reports"("id","name") VALUES(?,?)',
-				'data' : tuples
-			}, 0);
+			db.lazyQuery('reports', castToListObject(["id","name"], tuples));
 		}
 	}
 }
@@ -231,10 +225,10 @@ function tasksInit() {
 function getTaskData(data) {
 	if (data.success && data.form) {
 		if (!isOffline()) {
-			db.lazyQuery({
-				'sql' : 'UPDATE "tasks" SET "taskData"=? WHERE "id"=?',
-				'data' : [[JSON.stringify(data), document.task_id]]
-			}, 0);
+			db.lazyQuery('tasks', [{
+				'_id' : document.task_id,
+				'taskData' : JSON.stringify(data)
+			}]);
 		}
 
 		last_data_received = data.form;
@@ -305,37 +299,53 @@ function getTaskData(data) {
 							confirm_action = false;
 							if (!isOffline()) {
 								Page.apiCall('formDeviationStart', dev_data, 'get', 'getDeviation');
-								db.lazyQuery({
-									'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
-									'data' : [['1', document.task_id]]
-								}, 0);
+								db.lazyQuery('tasks', [{
+									'_id' : String(document.task_id),
+									'completed' : true
+								}]);
 							} else {
-								db.lazyQuery({
-									'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-									'data' : [['formDeviationStart', JSON.stringify(dev_data), 0, 'formDeviationStart']]
-								}, 0, function(insertId) {
-									db.lazyQuery({
-										'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
-										'data' : [['1', document.task_id]]
-									}, 0);
-									taskGeneration('deviation', {
-										id : insertId,
-										form_deviation : {
-											task_id : {
-												value : JSON.parse(dev_data.results).task_id
-											},
-											deviation_description : {
-												value : dd.temperature + " grader rapportert på " + data.form.label.value
+								
+								db.lazyQuery('sync_query', [{
+									'api' : 'formDeviationStart',
+									'data' : JSON.stringify(dev_data),
+									'extra' : 0,
+									'q_type' : 'formDeviationStart'
+								}], function(data) {
+									if (data) {
+										db.lazyQuery('tasks', [{
+											'_id' : String(devId),
+											'completed' : true
+										}], function(results) {
+											console.log("result", results);
+											if(results && results.length > 0){
+												var insertId = results[0].id;
+												db.lazyQuery('tasks', [{
+													'_id' : String(document.task_id),
+													'completed' : true
+												}]);
+												taskGeneration('deviation', {
+													id : insertId,
+													form_deviation : {
+														task_id : {
+															value : JSON.parse(dev_data.results).task_id
+														},
+														deviation_description : {
+															value : dd.temperature + " grader rapportert på " + data.form.label.value
+														}
+													}
+												}, function(response) {
+													deviationDoneTask({
+														form_deviation : response.form_deviation,
+														id : insertId
+													});
+												});
 											}
-										}
-									}, function(response) {
-										deviationDoneTask({
-											form_deviation : response.form_deviation,
-											id : insertId
-										});
-									});
+											
 
-								});
+										});
+									}
+								}); 
+
 							}
 						}
 					});
@@ -346,20 +356,22 @@ function getTaskData(data) {
 				} else {
 					if (!isOffline()) {
 						Page.apiCall('formDeviationStart', dev_data, 'get', 'redirectToTasks');
-						db.lazyQuery({
-							'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
-							'data' : [['1', document.task_id]]
-						}, 0);
+						db.lazyQuery('tasks', [{
+							'_id' : String(document.task_id),
+							'completed' : true
+						}]);
 					} else {
-						db.lazyQuery({
-							'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
-							'data' : [['1', document.task_id]]
-						}, 0);
-						db.lazyQuery({
-							'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-							'data' : [['formDeviationStart', JSON.stringify(dev_data), document.task_id, 'task_saved']]
-						}, 0, 'redirectToTasks');
-
+						
+						db.lazyQuery('tasks', [{
+							'_id' : String(document.task_id),
+							'completed' : true
+						}]);
+						db.lazyQuery('sync_query', [{
+							'api' : 'formDeviationStart',
+							'data' : JSON.stringify(dev_data),
+							'extra' : document.task_id,
+							'q_type' : 'task_saved'
+						}], 'redirectToTasks');
 					}
 				}
 			}
@@ -499,11 +511,10 @@ function getDeviationForm(data, devStep) {
 					'task_id' : sss_temp,
 					'form' : JSON.stringify(dd)
 				};
-
-				db.lazyQuery({
-					'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
-					'data' : [['1', sss_temp]]
-				}, 0);
+				db.lazyQuery('tasks', [{
+					'_id' : String(sss_temp),
+					'completed' : true
+				}]);
 				Page.apiCall('deviation', data, 'get', 'taskDeviationSave');
 			} else {
 				var offline_data = {
@@ -523,22 +534,28 @@ function getDeviationForm(data, devStep) {
 				if (document.task_id > 0) {
 					api = 'deviation';
 				}
-				db.lazyQuery({
-					'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-					'data' : [[api, JSON.stringify(offline_data), document.task_id, 'taskDeviationSave']]
-				}, 0, function(insertId) {
-					if (document.task_id > 0) {
-						insertId = document.task_id;
+				
+				db.lazyQuery('sync_query', [{
+					'api' : api,
+					'data' : JSON.stringify(offline_data),
+					'extra' : document.task_id,
+					'q_type' : 'taskDeviationSave'
+				}], function(results) {
+					if (results && results.length > 0) {
+						var insertId = results[0].id;
+						if (document.task_id > 0) {
+							insertId = document.task_id;
+						}
+						if ($.isNumeric(insertId)) {
+							console.log("data");
+							$('input[name="task_id"]').val(insertId);
+						}
+						deviationDoneTask({
+							form_fix_deviation : dd,
+							id : insertId
+						});
 					}
-					if ($.isNumeric(insertId)) {
-						console.log("data");
-						$('input[name="task_id"]').val(insertId);
-					}
-					deviationDoneTask({
-						form_fix_deviation : dd,
-						id : insertId
-					});
-				});
+				}); 
 			}
 		}
 
@@ -583,10 +600,13 @@ function taskDeviationSave(data) {
 		if (!isOffline()) {
 			Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
 		} else {
-			db.lazyQuery({
-				'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-				'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
-			}, 0);
+			
+			db.lazyQuery('sync_query', [{
+				'api' : 'documentSignature',
+				'data' : JSON.stringify(data1),
+				'extra' : data,
+				'q_type' : 'documentSignature'
+			}]); 
 		}
 	}
 	uploadHACCPPicture({
@@ -760,17 +780,13 @@ function getTasksUncompleted(data) {
 			});
 			
 			if (tasksNr < per_page) {
-				console.log("less", tasksNr, per_page);
 				$('#load_more_tasks').attr('disabled', true);
 				$('#load_more_tasks').parent().hide();
 			} else {
-				console.log("than", tasksNr, per_page, data.tasks_total_nr);
 				if (data.tasks_total_nr <= per_page) {
-					console.log('load_more_tasks disabled');
 					$('#load_more_tasks').attr('disabled', true);
 					$('#load_more_tasks').parent().hide();
 				} else {
-					console.log('load_more_tasks enable');
 					$('#load_more_tasks').removeAttr('disabled');
 					$('#load_more_tasks').parent().show();
 					$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
@@ -785,12 +801,11 @@ function getTasksUncompleted(data) {
 						emit(doc.type, doc.value);
 					}
 				}
-			}, function(tx, results) {
-				console.log("aaadfd11", tx, results);
+			}, function(error, results) {
 				var register_edit = true,
 				    haccp = true,
 				    role = '';
-				if (results.rows.length > 0) {
+				if (results && results.rows.length > 0) {
 					for (var i = 0; i < results.rows.length; i++) {
 						if (results.rows[i].key == 'register_edit' && results.rows[i].value)
 							register_edit = false;
@@ -909,7 +924,6 @@ function getTasksFromLocal(results) {
 		checkTasksList();
 		return;
 	} else if (results.rows.length < per_page && isOffline()) {
-		console.log("disabled 1");
 		$('#load_more_tasks').attr('disabled', true);
 		//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
 		$('#load_more_tasks').parent().hide();
@@ -999,7 +1013,7 @@ function checkTaskData() {
 			emit(doc);
 		}
 	}, function(error, results) {
-		if (results.rows.length > 0 && !isOffline()) {
+		if (results && results.rows.length > 0 && !isOffline()) {
 			for (var i = 0; i < results.rows.length; i++) {
 				emptytaskdata.push(results.rows[i].id);
 			}
@@ -1009,7 +1023,6 @@ function checkTaskData() {
 }
 
 function checkTasksList() {
-	console.log('checkTasksList');
 	setTimeout(function() {
 		var content = $('#taskList').html();
 		if (content == "") {
@@ -1116,10 +1129,10 @@ function haccpDeviationFix(data) {
 
 					Page.apiCall('deviation', data, 'get', 'taskDeviationSave');
 
-					db.lazyQuery({
-						'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
-						'data' : [['1', devId]]
-					}, 0);
+					db.lazyQuery('tasks',[{
+						'_id': String(devId),
+						'completed': true
+					}]);
 				} else {
 					var data_off = {
 						'client' : User.client,
@@ -1127,16 +1140,17 @@ function haccpDeviationFix(data) {
 						'task_id' : document.task_id,
 						'form' : JSON.stringify(dd)
 					};
-					db.lazyQuery({
-						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-						'data' : [['deviation', JSON.stringify(data_off), devId, 'deviation_saved']]
-					}, 0, function(data) {
-						console.log("data", data);
+					db.lazyQuery('sync_query', [{
+						"api": "deviation",
+						"data": JSON.stringify(data_off),
+						"extra": devId,
+						"q_type": 'deviation_saved'
+					}], function(data) {
 						if (data) {
-							db.lazyQuery({
-								'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
-								'data' : [['1', devId]]
-							}, 0, function() {
+							db.lazyQuery('tasks',[{
+								'_id': String(devId),
+								'completed': true
+							}], function() {
 								taskDeviationSave(devId);
 							});
 						}
