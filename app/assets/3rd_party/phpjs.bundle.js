@@ -35,7 +35,6 @@ function _append(b, e) {
         }
 
     }
-    console.log('$(b)', $(b));
     $(b).listview("refresh");
 }
 

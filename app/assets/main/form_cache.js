@@ -294,22 +294,28 @@ FormCache.prototype.saveToTaskList = function(formname, data, callback) {
 		if (data.form_fix_deviation) {
 			data.form_fix_deviation.deviation_photos = photos;
 		}
-		var d = db.getDbInstance();
-		d.transaction(function(tx) {
-			tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [formname], function(tx, results) {
-				var form;
-				if (data.form_deviation) {
-					delete template.form_fix_deviation;
-					form = $.extend(true, template, data);
-				} else {
-					delete template.form_deviation;
-					data.form_fix_deviation.formData = JSON.parse(results.rows.item(0).form);
-					form = executeForm(data.form_fix_deviation, template);
-				}
-				if (formname == 'deviation' || formname == 'maintenance') {
-					that.insertTaskToDB(formname, data.id, form, callback);
-				};
-			});
+		db.getDbInstance('form_item').query(function(doc, emit){
+			if(doc.type == formname){
+				emit(doc._id, doc.form);
+			}
+		}, function(error, results) {
+			console.log('error', error, results);
+			if(error){
+				callback(false);
+				return;
+			}
+			var form;
+			if (data.form_deviation) {
+				delete template.form_fix_deviation;
+				form = $.extend(true, template, data);
+			} else {
+				delete template.form_deviation;
+				data.form_fix_deviation.formData = JSON.parse(results.rows[0].value);
+				form = executeForm(data.form_fix_deviation, template);
+			}
+			if (formname == 'deviation' || formname == 'maintenance') {
+				that.insertTaskToDB(formname, data.id, form, callback);
+			};
 		});
 
 	});
@@ -319,15 +325,20 @@ FormCache.prototype.saveToTaskList = function(formname, data, callback) {
 FormCache.prototype.generateFoodPoisonTask = function(formname, data, callback) {
 	var template = this.templates[formname];
 	var that = this;
-	var d = db.getDbInstance();
-	d.transaction(function(tx) {
-		tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [formname], function(tx, results) {
-			if (data) {
-				data.formData = JSON.parse(results.rows.item(0).form);
-				form = executeForm(data, template);
-				that.insertTaskToDB(formname, data.id, form, callback);
+	db.getDbInstance('form_item').query(function(doc, emit){
+			if(doc.type == formname){
+				emit(doc._id, doc.form);
 			}
-		});
+	}, function(error, results) {
+		if(error){
+			callback(false);
+			return;
+		}
+		if (data) {
+			data.formData = JSON.parse(results.rows[0].value);
+			form = executeForm(data, template);
+			that.insertTaskToDB(formname, data.id, form, callback);
+		}
 	});
 
 };

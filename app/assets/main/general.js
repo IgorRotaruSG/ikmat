@@ -356,7 +356,6 @@ Page.prototype.uploadImage = function() {
 				request.task_id = _params.task_id;
 			}
 		}
-		console.log("request", request);
 		if(!request || (request.imageURI && request.imageURI.length <= 0)){
 			if (callbackFunction) {
 				callbackFunction();
@@ -396,7 +395,6 @@ Page.prototype.uploadImage = function() {
 
 					var ft = new FileTransfer();
 					ft.upload(request.imageURI, server, function(r) {
-						console.log("Upload successful: " + r.bytesSent + " bytes uploaded.");
 						if (callbackFunction) {
 							callbackFunction(r);
 						}
@@ -2176,22 +2174,20 @@ function bind_menuClick(t, n) {
 function castToListObject(keys, data){
 	var results = [];
 	if(keys instanceof Array && data instanceof Array){
-		console.log("aaa");
 		for(var i = 0; i < data.length; i++){
 			var obj = {};
 			for(var j = 0; j < keys.length; j++){
 				obj[keys[j].trim()] = data[i][j];
 				if(!obj._id && keys[j].trim() == 'type'){
-					obj._id = data[i][j] + "";
+					obj._id = String(data[i][j]);
 				} 
 				if(keys[j].trim() == "id"){
-					obj._id = data[i][j] + "";
+					obj._id = String(data[i][j]);
 				} 
 			}
 			results.push(obj);
 		}
 	}
-	console.log('keys', keys, results);
 	return results;
 }
 
@@ -2286,7 +2282,7 @@ function displayOnline(isOffline){
 }
 
 function isOffline() {//check if application has internet connection
-	 // return true;
+	 return true;
 	if ((navigator.onLine || (navigator.connection && navigator.connection.type != Connection.NONE)) && offline == false) {
 		return false;
 	}

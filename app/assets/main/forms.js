@@ -93,7 +93,7 @@ function getFormsCall(error, results) {
 }
 
 function getForms() {
-	db.getDbInstance('forms').query('sort_index', {
+	db.getDbInstance('forms').query('sort_label', {
 		'include_docs' : true
 	}, getFormsCall);
 }
@@ -101,6 +101,9 @@ function getForms() {
 function formsInit() {
 	//    console.log('forms init');
 	if (User.isLogged()) {
+		db.createView('forms', 'sort_label', function(doc){
+			emit(doc.label);
+		});
 		executeSyncQuery();
 		getForms();
 		console.log('forms.js 73 swiper init');

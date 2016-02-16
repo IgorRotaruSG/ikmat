@@ -72,8 +72,8 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 						 resolve(false);
 					}
 					if (!err && doc && doc._rev) {
-						docs[i]._rev = doc._rev;
-						docs[i]._id = doc._id;
+						docs[i] = jQuery.extend(doc, docs[i]);
+						docs[i]._id = String(docs[i]._id);
 						resolve(true);
 					}else{
 						resolve(false);

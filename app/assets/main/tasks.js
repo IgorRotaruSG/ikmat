@@ -27,6 +27,7 @@ var devId = 0;
 //for deviation completed
 
 function getTasksCall(err, results) {
+	console.log("getTasksCall", err, results);
 	bindLoadMoreFunction();
 	//console.log('results.rows.length',results.rows.length);
 	if (!results && isOffline()) {
@@ -716,7 +717,8 @@ function getTasksUncompleted(data) {
 				db.clearCollection('tasks');
 			}
 			//db.execute('DELETE FROM "tasks"');
-			db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data));
+			console.log("tasks data", castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data))
+;			db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data));
 
 			checkTaskData();
 			//$('#taskList').html('');
@@ -726,7 +728,6 @@ function getTasksUncompleted(data) {
 					emit(doc.type, doc.value);
 				}
 			}, function(error, results) {
-				console.log('error', error, results);
 				var register_edit = true,
 				    haccp = true,
 				    role = '';
@@ -907,12 +908,14 @@ function updateTaskData(data, task_id) {
 }
 
 function getTasksFromLocal(results) {
+	console.log('getTasksFromLocal');
 	var data = [];
 	var groups = [];
 	var c;
 	var add_data;
 
 	$('#load_more_tasks').removeAttr('disabled');
+	$('#load_more_tasks').parent().show();
 	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
 
 	if (!results) {
@@ -923,7 +926,7 @@ function getTasksFromLocal(results) {
 		$('#load_more_tasks').parent().hide();
 		checkTasksList();
 		return;
-	} else if (results.rows.length < per_page && isOffline()) {
+	} else if (results.rows.length <= per_page && isOffline()) {
 		$('#load_more_tasks').attr('disabled', true);
 		//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
 		$('#load_more_tasks').parent().hide();
@@ -974,7 +977,6 @@ function getTasksFromLocal(results) {
 			});
 		}
 	}
-
 	_append('#taskList', data);
 
 	mySwiper.reInit();
@@ -1240,6 +1242,7 @@ function bindOpenTask() {
 			Page.apiCall('deviation', data, 'get', 'haccpDeviationFix');
 		} else {
 			db.getDbInstance('tasks').get(String(devId), function(err, doc) {
+				console.log("get", err, doc);
 				if (doc && doc.taskData) {
 					haccpDeviationFix(JSON.parse(doc.taskData));
 				} else {
