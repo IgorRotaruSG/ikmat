@@ -27,7 +27,6 @@ var devId = 0;
 //for deviation completed
 
 function getTasksCall(err, results) {
-	console.log('getTasksCall1', err, results);
 	bindLoadMoreFunction();
 	//console.log('results.rows.length',results.rows.length);
 	if (!results && isOffline()) {
@@ -38,7 +37,6 @@ function getTasksCall(err, results) {
 
 		tasks_page--;
 		if (tasks_page == 0) {
-			checkTasksList();
 			//$('#load_more_tasks').parent().hide();
 			$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_tasks"));
 		} else {
@@ -62,10 +60,8 @@ function getTasksCall(err, results) {
 		//get reportlist of user, preparing for reportlist in offline mode
 		Page.apiCall('getReportList', data, 'get', 'getReportsList');
 	} else if (results.rows.length > 0) {
-		console.log("1");
 		getTasksFromLocal(results);
 	} else {
-		console.log("2");
 		$('#load_more_tasks').parent().hide();
 		checkTasksList();
 	}
@@ -653,7 +649,7 @@ function getTasksUncompleted(data) {
 				}
 
 				var arr = Object.keys(data.tasks[i]).map(function(k) {
-					return data.tasks[i][k]
+					return data.tasks[i][k];
 				});
 
 				arr.sort(function(a, b) {
@@ -762,16 +758,21 @@ function getTasksUncompleted(data) {
 				mySwiper.reInit();
 				mySwiper.resizeFix();
 			});
-
+			
 			if (tasksNr < per_page) {
+				console.log("less", tasksNr, per_page);
 				$('#load_more_tasks').attr('disabled', true);
 				$('#load_more_tasks').parent().hide();
 			} else {
+				console.log("than", tasksNr, per_page, data.tasks_total_nr);
 				if (data.tasks_total_nr <= per_page) {
+					console.log('load_more_tasks disabled');
 					$('#load_more_tasks').attr('disabled', true);
 					$('#load_more_tasks').parent().hide();
 				} else {
+					console.log('load_more_tasks enable');
 					$('#load_more_tasks').removeAttr('disabled');
+					$('#load_more_tasks').parent().show();
 					$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
 				}
 			}
@@ -785,6 +786,7 @@ function getTasksUncompleted(data) {
 					}
 				}
 			}, function(tx, results) {
+				console.log("aaadfd11", tx, results);
 				var register_edit = true,
 				    haccp = true,
 				    role = '';
@@ -881,6 +883,7 @@ function updateTaskData(data, task_id) {
 			}], function() {
 				if (emptytaskdata.length == 0) {
 					$('#load_more_tasks').removeAttr('disabled');
+					$('#load_more_tasks').parent().show();
 					$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
 				}
 			});
@@ -906,6 +909,7 @@ function getTasksFromLocal(results) {
 		checkTasksList();
 		return;
 	} else if (results.rows.length < per_page && isOffline()) {
+		console.log("disabled 1");
 		$('#load_more_tasks').attr('disabled', true);
 		//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
 		$('#load_more_tasks').parent().hide();
@@ -1005,6 +1009,7 @@ function checkTaskData() {
 }
 
 function checkTasksList() {
+	console.log('checkTasksList');
 	setTimeout(function() {
 		var content = $('#taskList').html();
 		if (content == "") {
