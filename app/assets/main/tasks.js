@@ -155,7 +155,7 @@ function updateTasks(data) {
 
 function getTasks() {
 	var offset = (tasks_page - 1 ) * per_page;
-	db.getDbInstance('tasks').query('sort_index', {
+	db.getDbInstance('tasks').query('tasks_uncompleted', {
 		'include_docs' : true,
 		'skip' : offset,
 		'limit' : per_page
@@ -168,6 +168,11 @@ function tasksInit() {
 	testInternetConnection();
 
 	if (User.isLogged()) {
+		db.createView('tasks', 'tasks_uncompleted', function(doc){
+			if(!doc.completed){
+				emit(JSON.parse(doc.dueDate).date);
+			}
+		});
 		executeSyncQuery();
 		mySwiper = new Swiper('.swiper-container-task', {
 			calculateHeight : true,
@@ -908,7 +913,7 @@ function updateTaskData(data, task_id) {
 }
 
 function getTasksFromLocal(results) {
-	console.log('getTasksFromLocal');
+	console.log('getTasksFromLocal', per_page);
 	var data = [];
 	var groups = [];
 	var c;
@@ -926,7 +931,7 @@ function getTasksFromLocal(results) {
 		$('#load_more_tasks').parent().hide();
 		checkTasksList();
 		return;
-	} else if (results.rows.length <= per_page && isOffline()) {
+	} else if (results.total_rows <= per_page && isOffline()) {
 		$('#load_more_tasks').attr('disabled', true);
 		//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
 		$('#load_more_tasks').parent().hide();
@@ -1148,6 +1153,7 @@ function haccpDeviationFix(data) {
 						"extra": devId,
 						"q_type": 'deviation_saved'
 					}], function(data) {
+						console.log('data', data);
 						if (data) {
 							db.lazyQuery('tasks',[{
 								'_id': String(devId),

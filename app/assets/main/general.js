@@ -2282,7 +2282,7 @@ function displayOnline(isOffline){
 }
 
 function isOffline() {//check if application has internet connection
-	 return true;
+	 // return true;
 	if ((navigator.onLine || (navigator.connection && navigator.connection.type != Connection.NONE)) && offline == false) {
 		return false;
 	}
@@ -2337,21 +2337,17 @@ function executeSyncQuery() {
 	if (!isOffline()) {
 		lastSynced = performance.now();
 		
-		// db.getDbInstance("sync_query").query(function(doc, emit){
-			// if(!doc.executed){
-				// emit(doc);
-			// }
-		// }, function(err, results) {
-			// console.log("executeSyncQuery", results, err);
-			// if(results){
-				// var rows = results.total_rows;
-				// if (rows > 0) {
-					// _sync_data_rows = false;
-					// testConnection(sync_query);
-				// }
-			// }
-// 				
-		// });
+		db.getDbInstance("sync_query").query('get_sync', function(err, results) {
+			console.log("executeSyncQuery", results, err);
+			if(results){
+				var rows = results.total_rows;
+				if (rows > 0) {
+					_sync_data_rows = false;
+					testConnection(sync_query);
+				}
+			}
+				
+		});
 	}
 }
 

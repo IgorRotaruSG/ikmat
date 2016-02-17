@@ -171,6 +171,11 @@ db.prototype.createTables = function() {
 		});
 		this.collections[this.tables[i]].put(designDoc);
 	}
+	this.createView('sync_query', 'get_sync', function(doc){
+		if(!doc.executed){
+			emit(doc.timestamp);
+		}
+	});
 };
 
 db.prototype.dropDb = function() {

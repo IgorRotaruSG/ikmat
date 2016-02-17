@@ -62,11 +62,7 @@ function sync_query(data, params) {
 		return;
 	}
 	if (!_sync_data_rows) {
-		db.getDbInstance('sync_query').query(function(doc, emit){
-			if(!doc.executed){
-				emit(doc);
-			}
-		}, {'include_docs': true}, function(error, results) {
+		db.getDbInstance("sync_query").query('get_sync', {'include_docs': true}, function(error, results) {
 			console.log("test", error, results);
 				_sync_data_rows = results.rows;
 				console.log("_sync_data_rows", _sync_data_rows);

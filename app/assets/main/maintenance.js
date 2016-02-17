@@ -10,7 +10,7 @@ function maintenanceInit() {
 	if (get.id != undefined) {
 		data['task_id'] = get.id;
 	}
-
+	console.log("maintenanceInit", data);
 	if (!isOffline()) {
 		Page.apiCall('maintenance', data, 'get', 'maintenance');
 	} else {
@@ -21,6 +21,37 @@ function maintenanceInit() {
 			}
 		});
 	}
+	
+	new Swiper('.swiper-container-maintenance', {
+		calculateHeight : true,
+		releaseFormElements : true,
+		preventLinks : true,
+		simulateTouch : true,
+		keyboardControl : false,
+		noSwiping : true,
+		noSwipingClass : 'ui-slider',
+		//mousewheelControl:      true,// TODO: remove mousewheel support on production
+		onInit : function() {
+			//setSwiperMinHeight();
+			console.log('init swiper');
+		},
+		onSlideNext : function(swiper) {
+			_t = 'next';
+		},
+
+		onSlidePrev : function(swiper) {
+			_t = 'prev';
+		},
+
+		onSlideChangeEnd : function(swiper) {
+			$('html, body').animate({
+				scrollTop : 0
+			}, 500);
+           // mySwiper.resizeFix();
+			
+
+		}
+	});
 }
 
 function maintenance(data) {
@@ -114,21 +145,22 @@ function maintenance(data) {
 				if (!isOffline()) {
 					Page.apiCall('maintenance', data, 'get', 'maintenanceDone');
 				} else {
-					
+
 					db.lazyQuery('sync_query', [{
 						'api' : 'maintenance',
 						'data' : JSON.stringify(data),
 						'extra' : get.id,
 						'q_type' : 'maintenanceDone'
 					}], function(result) {
-						if(result && result.rows.length > 0){
-							var insertId = result.rows[0].id;
+						if (result && result.length > 0) {
+							var insertId = result[0].id;
+							if ($.isNumeric(insertId)) {
+								$('input[name="task_id"]').val(get.id);
+							}
+							maintenanceDone(get.id);
 						}
-						if ($.isNumeric(insertId)) {
-							$('input[name="task_id"]').val(get.id);
-						}
-						maintenanceDone(get.id);
-					}); 
+						
+					});
 				}
 			}
 
@@ -139,7 +171,7 @@ function maintenance(data) {
 		$('#form_back_btn i').removeClass('hided');
 
 	}
-	realignSlideHeight('max-height-task');
+	realignSlideHeight('max-height-maintenance');
 }
 
 
@@ -201,6 +233,7 @@ function maintenanceDone(data) {
 		console.log("update");
 		Page.redirect('tasks.html');
 	});
+}
 
 function uploadMaintenancePicture() {
 
