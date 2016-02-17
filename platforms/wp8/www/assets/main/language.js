@@ -1,3 +1,1 @@
-var lang_string = {
-    'menu_registration': 'Registration1'
-}
+var lang_string={menu_registration:"Registration1"};

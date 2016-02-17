@@ -107,6 +107,9 @@
         },
         "cordova-plugin-email": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "cordova-sqlite-storage": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         }
     },
     "dependent_plugins": {},
@@ -386,12 +389,21 @@
                 "cordova.plugins.email",
                 "plugin.email"
             ]
+        },
+        {
+            "file": "plugins/cordova-sqlite-storage/www/SQLitePlugin.js",
+            "id": "cordova-sqlite-storage.SQLitePlugin",
+            "pluginId": "cordova-sqlite-storage",
+            "clobbers": [
+                "SQLitePlugin"
+            ]
         }
     ],
     "plugin_metadata": {
         "cordova-plugin-statusbar": "2.0.0",
         "cordova-plugin-file-transfer": "1.4.0",
         "cordova-plugin-file": "3.0.0",
-        "cordova-plugin-email": "1.0.0"
+        "cordova-plugin-email": "1.0.0",
+        "cordova-sqlite-storage": "0.8.2"
     }
 }
