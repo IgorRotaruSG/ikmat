@@ -1,4 +1,4 @@
-function getEmployeesCall(tx, results) {
+function getEmployeesCall(error, results) {
     if (results.rows.length == 0 && isOffline()) {
         $('#employee_no_results').text('No employees to show. Please connect to internet to sync.');
     }
@@ -8,7 +8,7 @@ function getEmployeesCall(tx, results) {
         var data = {
             'client': User.client,
             'token': User.lastToken
-        }
+        };
 
         Page.apiCall('getEmployees', data, 'get', 'getEmployees');
     }
@@ -17,8 +17,8 @@ function getEmployeesCall(tx, results) {
 
         for (var i=0;i<results.rows.length;i++) {
 
-            html += '<li data-role="list-divider">' + results.rows.item(i).first_name + ' ' + results.rows.item(i).last_name  + '</li>';
-            html += '<li>' + results.rows.item(i).email + ' ' + results.rows.item(i).role + '</li>';
+            html += '<li data-role="list-divider">' + results.rows[i].doc.first_name + ' ' + results.rows[i].doc.last_name  + '</li>';
+            html += '<li>' + results.rows[i].doc.email + ' ' + results.rows[i].doc.role + '</li>';
         }
 
         $('#employee_no_results').hide();
@@ -26,15 +26,9 @@ function getEmployeesCall(tx, results) {
     }
 }
 
-function getEmployeesR(tx) {
-    query = 'select * from employees';
-    tx.executeSql(query, [], getEmployeesCall, db.dbErrorHandle);
-}
-
 function employeesInit() {
     if (User.isLogged()) {
-        var d = db.getDbInstance();
-        d.transaction(getEmployeesR, db.dbErrorHandle);
+        db.getDbInstance('employees').allDocs({'include_docs': true}, getEmployeesCall);
     } else {
         Page.redirect('login.html');
     }

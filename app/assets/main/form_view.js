@@ -1,8 +1,8 @@
-function getFormItemCall(tx, results) {
-    if (results.rows.length == 0 && isOffline()) {
+function getFormItemCall(error, results) {
+    if (results && isOffline()) {
         Page.redirect('forms.html');
     }
-    else if (results.rows.length == 0 && !isOffline()) {
+    else if (results.length == 0 && !isOffline()) {
         var data = {
             'client': User.client,
             'token': User.lastToken,
@@ -13,27 +13,23 @@ function getFormItemCall(tx, results) {
     } else {
         var data = [];
 
-        for (var i=0;i<results.rows.length;i++) {
-            data.push({
-                'id':       results.rows.item(i).id,
-                'data':     '<a href="form_view2.html?id=' + results.rows.item(i).id + '" data-transition="slide"><i class="fa fa-edit"></i> ' + results.rows.item(i).label + '</a>'
-            });
-        }
+        data.push({
+            'id':       results.id,
+            'data':     '<a href="form_view2.html?id=' + results.id + '" data-transition="slide"><i class="fa fa-edit"></i> ' + results.label + '</a>'
+        });
 
         _append('#form_item_data', data);
     }
 }
 
-function getFormItem(tx) {
-    tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [get.type], getFormItemCall);
+function getFormItem() {
+	db.getDbInstance('form_item').get([get.type], getFormItemCall);
 }
 
 function form_viewInit() {
     if (User.isLogged()) {
         get = Page.get();
-
-        var d = db.getDbInstance();
-        d.transaction(getFormItem, db.dbErrorHandle);
+        getFormItem();
     } else {
         Page.redirect('login.html');
     }
@@ -63,11 +59,7 @@ function formItemData(data) {
                 ]);
             }
         }
-
-        db.lazyQuery({
-            'sql': 'INSERT INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
-            'data': db_data
-        },0);
+        db.lazyQuery('form_item', castToListObject(["id", "label", "form", "type"], db_data));
 
         _append('#form_item_data', data);
     }

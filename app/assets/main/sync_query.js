@@ -3,46 +3,40 @@ var _sync_data_i = 0;
 var _sync_lock = false;
 
 function selectTaskById(task_id, callback) {
-	d = db.getDbInstance();
-	d.transaction(function(tx) {
-		tx.executeSql('SELECT * FROM "sync_query" WHERE "id"=? and executed=1', [task_id], function(tx, results) {
-			if (results.rows.length > 0) {
-				callback(results.rows.item(0));
-			} else {
-				callback({
-					extra : task_id
-				});
-			}
-		});
+	db.getDbInstance('sync_query').get(task_id, function(error, results) {
+		if (results && results.executed) {
+			callback(results);
+		} else {
+			callback({
+				extra : task_id
+			});
+		}
 	});
 }
 
 function sync_updateDB(data, params) {
-	d = db.getDbInstance();
+	console.log('sync_updateDB', data, params);
 	try {
 		if (params && params.id) {
-			d.transaction(function(tx) {
-				var request = {};
-				if (data) {
-					var extra = data;
-					if (params.api == 'formDeviationStart') {
-						extra = data.form_deviation.last_task_inserted;
-					}
-					request.sql = 'UPDATE "sync_query" SET "executed"=?,"extra"=? WHERE "id"=?';
-					request.args = [1, extra, params.id];
-				} else {
-					request.sql = 'UPDATE "sync_query" SET "executed"=? WHERE "id"=?';
-					request.args = [1, params.id];
+			var request = [];
+			if (data) {
+				var extra = data;
+				if (params.api == 'formDeviationStart') {
+					extra = data.form_deviation.last_task_inserted;
 				}
-				tx.executeSql(request.sql, request.args, function() {
-					_sync_lock = false;
-					_sync_data_i = parseInt(_sync_data_i) + 1;
-					if (_sync_data_i >= _sync_data_rows.length || !_sync_data_rows) {
-						$('#syncing_tasks').addClass('hide');
-						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-					}
-					sync_query(data, params);
-				});
+				request = [{'executed': 1, 'extra': extra, '_id': params.id}];
+			} else {
+				request = [{'executed': 1, '_id': params.id}];
+			}
+			db.lazyQuery('sync_query', request, function() {
+				console.log('sync_query updae', params.id);
+				_sync_lock = false;
+				_sync_data_i = parseInt(_sync_data_i) + 1;
+				if (_sync_data_i >= _sync_data_rows.length || !_sync_data_rows) {
+					$('#syncing_tasks').addClass('hide');
+					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+				}
+				sync_query(data, params);
 			});
 		}
 	} catch (err) {
@@ -68,13 +62,12 @@ function sync_query(data, params) {
 		return;
 	}
 	if (!_sync_data_rows) {
-		d.transaction(function(tx) {
-			tx.executeSql('SELECT * FROM "sync_query" WHERE "executed"=?', [0], function(tx, results) {
+		db.getDbInstance("sync_query").query('get_sync', {'include_docs': true}, function(error, results) {
+			console.log("test", error, results);
 				_sync_data_rows = results.rows;
 				console.log("_sync_data_rows", _sync_data_rows);
 				_sync_data_i = 0;
 				sync_query();
-			});
 		});
 	} else {
 		if (_sync_data_i < _sync_data_rows.length && !_sync_lock) {
@@ -82,7 +75,8 @@ function sync_query(data, params) {
 				$('#syncing_tasks').removeClass('hide');
 			}
 			$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-			var e = object = $.extend({}, _sync_data_rows.item(_sync_data_i));
+			var e = object = $.extend({}, _sync_data_rows[_sync_data_i].doc);
+			console.log("test _sync_data_i", e, e._id);
 			try {
 				e.data = JSON.parse(e.data);
 				e.data.client = User.client;
@@ -95,11 +89,11 @@ function sync_query(data, params) {
 							if (e.data.imageURI && e.data.task_id) {
 								Page.uploadImage(e.data, function() {
 									sync_updateDB(null, {
-										id : e.id
+										id : e._id
 									});
 								}, function() {
 									var obj = sync_updateDB(null, {
-										id : e.id
+										id : e._id
 									});
 								});
 							}
@@ -127,12 +121,12 @@ function sync_query(data, params) {
 								e.data.results = JSON.stringify(results);
 							}
 							Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
-								id : e.id,
+								id : e._id,
 								api : e.api
 							});
 						} else {
 							Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
-								id : e.id,
+								id : e._id,
 								api : e.api
 							});
 						}
@@ -140,7 +134,7 @@ function sync_query(data, params) {
 
 				} else {
 					Page.apiCall(e.api, e.data, 'post', 'sync_updateDB', {
-						id : e.id,
+						id : e._id,
 						api : e.api
 					});
 				}

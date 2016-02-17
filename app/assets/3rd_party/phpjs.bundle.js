@@ -16,7 +16,7 @@ function _append(b, e) {
         extra = "";
         $(b).find("li").each(function() {
             if ($(this).data("id") >= e[c].id) {
-                a = $(this)
+                a = $(this);
             } else if ( $(this).data("id") == e[c].id ) {
                 exists = true;
             }
@@ -35,7 +35,7 @@ function _append(b, e) {
         }
 
     }
-    $(b).listview("refresh")
+    $(b).listview("refresh");
 }
 
 function _appendAndSortByAlias(b, e) {

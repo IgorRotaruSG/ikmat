@@ -1,5 +1,4 @@
 function FormCache() {
-	this.d = db.getDbInstance();
 	var that = this;
 	this.templates = {
 		"deviation" : {
@@ -272,17 +271,18 @@ FormCache.prototype.getTemplate = function(request, callback) {
 
 FormCache.prototype.getPhotoFromDB = function(data, callback) {
 	if (data) {
-		this.d.transaction(function(tx) {
-			tx.executeSql('SELECT * FROM "sync_query" WHERE "extra"=? and "api"=?', [data.id, "uploadPhotos"], function(tx, results) {
-				var photos = [];
-				for (var i = 0; i < results.rows.length; i++) {
-					var photo = results.rows.item(i);
-					var row = JSON.parse(photo.data);
-					var image = row.data || row.imageURI;
-					photos.push(image);
-				}
-				callback(photos);
-			});
+		db.getDbInstance('sync_query').query(function(doc, emit){
+			if(doc.extra == data.id && doc.api == 'uploadPhotos'){
+				emit(doc._id, doc.data);
+			}
+		}, function(error, results) {
+			var photos = [];
+			for (var i = 0; i < results.rows.length; i++) {
+				var row = JSON.parse(results.rows[i].value);
+				var image = row.data || row.imageURI;
+				photos.push(image);
+			}
+			callback(photos);
 		});
 	}
 };
@@ -294,22 +294,28 @@ FormCache.prototype.saveToTaskList = function(formname, data, callback) {
 		if (data.form_fix_deviation) {
 			data.form_fix_deviation.deviation_photos = photos;
 		}
-		var d = db.getDbInstance();
-		d.transaction(function(tx) {
-			tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [formname], function(tx, results) {
-				var form;
-				if (data.form_deviation) {
-					delete template.form_fix_deviation;
-					form = $.extend(true, template, data);
-				} else {
-					delete template.form_deviation;
-					data.form_fix_deviation.formData = JSON.parse(results.rows.item(0).form);
-					form = executeForm(data.form_fix_deviation, template);
-				}
-				if (formname == 'deviation' || formname == 'maintenance') {
-					that.insertTaskToDB(formname, data.id, form, callback);
-				};
-			});
+		db.getDbInstance('form_item').query(function(doc, emit){
+			if(doc.type == formname){
+				emit(doc._id, doc.form);
+			}
+		}, function(error, results) {
+			console.log('error', error, results);
+			if(error){
+				callback(false);
+				return;
+			}
+			var form;
+			if (data.form_deviation) {
+				delete template.form_fix_deviation;
+				form = $.extend(true, template, data);
+			} else {
+				delete template.form_deviation;
+				data.form_fix_deviation.formData = JSON.parse(results.rows[0].value);
+				form = executeForm(data.form_fix_deviation, template);
+			}
+			if (formname == 'deviation' || formname == 'maintenance') {
+				that.insertTaskToDB(formname, data.id, form, callback);
+			};
 		});
 
 	});
@@ -319,15 +325,20 @@ FormCache.prototype.saveToTaskList = function(formname, data, callback) {
 FormCache.prototype.generateFoodPoisonTask = function(formname, data, callback) {
 	var template = this.templates[formname];
 	var that = this;
-	var d = db.getDbInstance();
-	d.transaction(function(tx) {
-		tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [formname], function(tx, results) {
-			if (data) {
-				data.formData = JSON.parse(results.rows.item(0).form);
-				form = executeForm(data, template);
-				that.insertTaskToDB(formname, data.id, form, callback);
+	db.getDbInstance('form_item').query(function(doc, emit){
+			if(doc.type == formname){
+				emit(doc._id, doc.form);
 			}
-		});
+	}, function(error, results) {
+		if(error){
+			callback(false);
+			return;
+		}
+		if (data) {
+			data.formData = JSON.parse(results.rows[0].value);
+			form = executeForm(data, template);
+			that.insertTaskToDB(formname, data.id, form, callback);
+		}
 	});
 
 };
@@ -353,28 +364,19 @@ function executeForm(data, template) {
 FormCache.prototype.insertTaskToDB = function(formname, task_id, formtpl, callback) {
 	if (formtpl) {
 		var startDate = new Date();
-		this.d.transaction(function(tx) {
-			var db_data = [];
-			if (formtpl.form_fix_deviation) {
-				var dateStr = "";
-				if (formtpl.form_fix_deviation.deviation_date) {
-					dateStr = formtpl.form_fix_deviation.deviation_date.date;
-				} else if (formtpl.form_fix_deviation.date_deviation_fix) {
-					dateStr = formtpl.form_fix_deviation.date_deviation_fix.date;
-				}
-				db_data = [task_id, formtpl.title, formname, new Date(dateStr).getTime() > startDate.getTime(), JSON.stringify(dateStr), 0, md5(JSON.stringify(formtpl)), startDate.toISOString().substring(0, 10), JSON.stringify(formtpl)];
-			} else {
-				db_data = [task_id, formtpl.title, formname, false, "", 0, md5(JSON.stringify(formtpl)), startDate.toISOString().substring(0, 10), JSON.stringify(formtpl)];
+		var db_data = [];
+		if (formtpl.form_fix_deviation) {
+			var dateStr = "";
+			if (formtpl.form_fix_deviation.deviation_date) {
+				dateStr = formtpl.form_fix_deviation.deviation_date.date;
+			} else if (formtpl.form_fix_deviation.date_deviation_fix) {
+				dateStr = formtpl.form_fix_deviation.date_deviation_fix.date;
 			}
-
-			var q = 'INSERT OR REPLACE INTO "tasks"("id","title","type", "overdue", "dueDate", "completed", "check", "date_start", "taskData") VALUES(?,?,?,?,?,?,?,?,?)';
-			db.lazyQuery({
-				'sql' : q,
-				'data' : [db_data],
-			}, 0, function(data) {
-				callback(data, db_data);
-			});
-		});
+			db_data = [task_id, formtpl.title, formname, new Date(dateStr).getTime() > startDate.getTime(), JSON.stringify(dateStr), 0, md5(JSON.stringify(formtpl)), startDate.toISOString().substring(0, 10), JSON.stringify(formtpl)];
+		} else {
+			db_data = [task_id, formtpl.title, formname, false, "", 0, md5(JSON.stringify(formtpl)), startDate.toISOString().substring(0, 10), JSON.stringify(formtpl)];
+		}
+		db.lazyQuery('tasks', castToListObject(["id","title","type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], [db_data]), callback, db_data);
 	}
 };
 

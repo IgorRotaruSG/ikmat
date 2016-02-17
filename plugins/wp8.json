@@ -7,9 +7,6 @@
         "files": {}
     },
     "installed_plugins": {
-        "com.phonegap.plugins.sqlite": {
-            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
-        },
         "cordova-plugin-device": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
@@ -41,6 +38,9 @@
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
         "cordova-plugin-email": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "cordova-sqlite-storage": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         }
     },

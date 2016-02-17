@@ -12,15 +12,12 @@ function food_poisonInit() {
 	if (!isOffline()) {
 		Page.apiCall('foodPoison', data, 'get', 'foodPoison');
 	} else {
-		var d = db.getDbInstance();
-		d.transaction(function(tx) {
-			tx.executeSql('SELECT * from tasks WHERE "completed" = 0 and "id" = ? ORDER BY id DESC LIMIT 1', [data['task_id']], function(tx, results) {
-				// console.log("results.rows", results.rows);
-				if (results.rows.length > 0) {
-					var data = JSON.parse(results.rows.item(0).taskData);
-					foodPoison(data);
-				}
-			});
+		db.getDbInstance('tasks').get(String(data['task_id']), function(err, results) {
+			// console.log("results.rows", results.rows);
+			if (results && !results.completed) {
+				var data = JSON.parse(results.taskData);
+				foodPoison(data);
+			}
 		});
 	}
 
@@ -63,20 +60,24 @@ function foodPoison(data) {
 				if (!isOffline()) {
 					Page.apiCall('foodPoison', data, 'get', 'maintenanceDone');
 				} else {
-					db.lazyQuery({
-						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-						'data' : [['foodPoison', JSON.stringify(data), get.id, 'maintenanceDone']]
-					}, 0, function(insertId) {
-						checkTaskId(get.id, function(isExist) {
-							if (!isExist) {
-								insertId = get.id;
-							}
-							if ($.isNumeric(insertId)) {
-								$('input[name="task_id"]').val(insertId);
-							}
-							maintenanceDone(insertId);
-						});
-
+					db.lazyQuery('sync_query', [{
+						'api' : 'foodPoison',
+						'data' : JSON.stringify(data),
+						'extra' : get.id,
+						'q_type' : 'maintenanceDone'
+					}], function(result) {
+						if(result && result.rows[0]._id){
+							var insertId = result.rows[0]._id;
+							checkTaskId(get.id, function(isExist) {
+								if (!isExist) {
+									insertId = get.id;
+								}
+								if ($.isNumeric(insertId)) {
+									$('input[name="task_id"]').val(insertId);
+								}
+								maintenanceDone(insertId);
+							}); 	
+						}
 					});
 				}
 			}
@@ -109,14 +110,13 @@ function checkTaskId(task_id, callback) {
 		return false;
 	}
 	d = db.getDbInstance();
-	d.transaction(function(tx) {
-		tx.executeSql('SELECT * FROM "sync_query" WHERE "id"=? and executed=1', [task_id], function(tx, results) {
-			if (results.rows.length > 0) {
-				callback(true);
-			} else {
-				callback(false);
-			}
-		});
+	db.getDbInstance('sync_query').get(String(task_id), function(err, results) {
+		// console.log("results.rows", results.rows);
+		if (results && results.executed) {
+			callback(true);
+		}else{
+			callback(false);
+		}
 	});
 }
 
@@ -172,17 +172,19 @@ function maintenanceDone(data) {
 		if (!isOffline()) {
 			Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
 		} else {
-			db.lazyQuery({
-				'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-				'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
-			}, 0);
+			
+			db.lazyQuery('sync_query', [{
+				'api' : 'documentSignature',
+				'data' : JSON.stringify(data1),
+				'extra' : data,
+				'q_type' : 'documentSignature'
+			}]); 
 		}
 	}
-
-	db.lazyQuery({
-		'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
-		'data' : [['1', get.id]]
-	}, 0, function() {
+	db.lazyQuery('tasks', [{
+		'_id' : String(get.id),
+		'completed' : true
+	}], function() {
 		Page.redirect('tasks.html');
 	});
 }

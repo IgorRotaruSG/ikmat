@@ -544,7 +544,6 @@
                     this.updateAspectRatio();
 					
                     var zoomFactor = this.getInitialZoomFactor() * this.zoomFactor;
-                    console.log("update", zoomFactor);
                         var offsetX = zoomFactor <= 1.2 ?	(this.container[0].offsetWidth - this.el[0].offsetWidth)/2 : -this.offset.x / zoomFactor,
                         offsetY = -this.offset.y / zoomFactor,
                         transform3d =   'scale3d('     + zoomFactor + ', '  + zoomFactor + ',1) ' +

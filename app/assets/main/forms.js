@@ -15,13 +15,12 @@ var mapForm = {
 	"sushi_fridge" : 15,
 	"cooler" : 16,
 	"sushi_cooler" : 17,
-	"dishwasher" : 18,
+	"dishwasher" : 18
 };
 
 //navigator.connection.type = Connection.NONE;
 var formcache = new FormCache();
-function getFormsCall(tx, results) {
-	console.log("getFormsCall", results);
+function getFormsCall(error, results) {
 	if (results.rows.length == 0 && isOffline()) {
 		$('#no_results_forms').text($.t('forms.no_forms_connection'));
 	}
@@ -38,17 +37,17 @@ function getFormsCall(tx, results) {
 
 		for (var i = 0; i < results.rows.length; i++) {
 			(function(i, results) {
-				var datatype = ((results.rows.item(i).type == 999) ? 'employee' : (results.rows.item(i).type == 1000 ? 'supplier' : results.rows.item(i).type));
+				var datatype = ((results.rows[i].doc.type == 999) ? 'employee' : (results.rows[i].doc.type == 1000 ? 'supplier' : results.rows[i].doc.type));
 				console.log(i, datatype);
 				checkForm(datatype, function(isOn) {
 					if (isOn) {
 						try {
-							tmp = JSON.parse(results.rows.item(i).label);
+							tmp = JSON.parse(results.rows[i].doc.label);
 							alias = tmp.alias;
 							link = '<a href="#" data-type="' + datatype + '" class="form_generator_link">' + tmp.alias + '</a>';
 						} catch (err) {
-							link = '<a href="#" data-type="' + datatype + '" class="form_generator_link">' + results.rows.item(i).label + '</a>';
-							alias = results.rows.item(i).label;
+							link = '<a href="#" data-type="' + datatype + '" class="form_generator_link">' + results.rows[i].doc.label + '</a>';
+							alias = results.rows[i].doc.label;
 						}
 						data.push({
 							'alias' : alias,
@@ -93,16 +92,20 @@ function getFormsCall(tx, results) {
 	mySwiper.resizeFix();
 }
 
-function getForms(tx) {
-	tx.executeSql('SELECT * FROM "forms" WHERE alias<>""', [], getFormsCall);
+function getForms() {
+	db.getDbInstance('forms').query('sort_label', {
+		'include_docs' : true
+	}, getFormsCall);
 }
 
 function formsInit() {
 	//    console.log('forms init');
 	if (User.isLogged()) {
+		db.createView('forms', 'sort_label', function(doc){
+			emit(doc.label);
+		});
 		executeSyncQuery();
-		var d = db.getDbInstance();
-		d.transaction(getForms, db.dbErrorHandle);
+		getForms();
 		console.log('forms.js 73 swiper init');
 		mySwiper = new Swiper('.swiper-container-form', {
 			calculateHeight : true,
@@ -216,16 +219,21 @@ function formsInit() {
 						}
 						newlazy['results'] = JSON.stringify(newlazy.results);
 						console.log("newlazy", newlazy);
-						db.lazyQuery({
-							'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-							'data' : [['foodPoison', JSON.stringify(newlazy), 0, 'foodPoison']]
-						}, 0, function(insertId) {
-							newlazy['results'] = JSON.parse(newlazy.results);
-							newlazy.results.id = insertId;
-							formcache.generateFoodPoisonTask('food_poision', newlazy['results'], function() {
-								newlazy = {};
-								Page.redirect('index.html');
-							});
+						db.lazyQuery('sync_query', [{
+							'api' : 'foodPoison',
+							'data' : JSON.stringify(newlazy),
+							'extra' : 0,
+							'q_type' : 'foodPoison'
+						}], function(results) {
+							if (results && results.length > 0) {
+								var insertId = results[0].id;
+								newlazy['results'] = JSON.parse(newlazy.results);
+								newlazy.results.id = insertId;
+								formcache.generateFoodPoisonTask('food_poision', newlazy['results'], function() {
+									newlazy = {};
+									Page.redirect('index.html');
+								});
+							}
 						});
 					} else {
 						setTimeout(function() {
@@ -249,34 +257,35 @@ function checkForm(type, callback) {
 		}
 		return;
 	}
-	var d = db.getDbInstance();
-	d.transaction(function(tx) {
-		tx.executeSql('SELECT * FROM "sync_query" WHERE "extra"=? ORDER BY id DESC LIMIT 1', [mapForm[type]], function(tx, results) {
-			// console.log("results.rows", results.rows);
-			if (results.rows.length > 0) {
-				var data = JSON.parse(results.rows.item(0).data);
+	db.getDbInstance('sync_query').query(function(doc, emit){
+		if(doc.extra == mapForm[type]){
+			emit(doc.id, doc.data);
+		}
+	},{limit: 1}, function(error, results) {
+		 console.log("results.rows", results);
+		if (results && results.rows.length > 0) {
+			var data = JSON.parse(results.rows[0].value);
 
-				if (data.parameters) {
-					data.parameters = JSON.parse(data.parameters);
-					for (key in data.parameters) {
-						if (data.parameters.hasOwnProperty(key) && data.parameters[key] == "off") {
-							if (callback) {
-								callback(false);
-							}
-							return;
+			if (data.parameters) {
+				data.parameters = JSON.parse(data.parameters);
+				for (key in data.parameters) {
+					if (data.parameters.hasOwnProperty(key) && data.parameters[key] == "off") {
+						if (callback) {
+							callback(false);
 						}
+						return;
 					}
 				}
-				if (callback) {
-					callback(true);
-				}
-			} else {
-				if (callback) {
-					callback(true);
-				}
-				return;
 			}
-		});
+			if (callback) {
+				callback(true);
+			}
+		} else {
+			if (callback) {
+				callback(true);
+			}
+			return;
+		}
 	});
 }
 
@@ -371,15 +380,12 @@ function formDeviationStart(data) {
 			}
 
 			if (key != 'maintenance' || key != 'food_poision' || (key != 999 && key != 1000)) {
-				db_data.push([key, value, value]);
+				db_data.push({'_id': String(key), 'alias': value,'data': value});
 			}
 		}
 
 		/* INSERT SECTION */
-		db.lazyQuery({
-			'sql' : 'INSERT OR REPLACE INTO "forms" ("type","label","alias") VALUES(?,?,?)',
-			'data' : db_data
-		}, 0);
+		db.lazyQuery('forms', db_data);
 		/* SHOW SECTION */
 		$('#forms_list').html('');
 		_appendAndSortByAlias('#forms_list', data);
@@ -391,15 +397,16 @@ function formDeviationStart(data) {
 }
 
 function formGeneration(type, dataBuild, callback) {
-	var d = db.getDbInstance();
-	d.transaction(function(tx) {
-		tx.executeSql('SELECT * FROM "form_item" WHERE "type"=?', [type], function(tx, results) {
-			console.log("results", results);
-			//                if (results.rows.length == 0 && navigator.connection.type != Connection.NONE) {
-			if (!isOffline()) {
-				console.log('885 connection live');
-				//                if (navigator.connection.type != Connection.NONE) {
-				switch(type) {
+	db.getDbInstance('form_item').query(function(doc, emit){
+		if(doc.type == type){
+			emit(doc);
+		}
+	}, {'include_docs' : true}, function(tx, results) {
+		console.log("results", results);
+		if (!isOffline()) {
+			console.log('885 connection live');
+			//                if (navigator.connection.type != Connection.NONE) {
+			switch(type) {
 				case 'maintenance':
 					var data = {
 						'client' : User.client,
@@ -456,11 +463,11 @@ function formGeneration(type, dataBuild, callback) {
 					};
 					Page.apiCall('formDeviationStart', data, 'get', 'formItemData');
 					break;
-				}
-				showCloseButton(callback);
-			} else if (isOffline() && results.rows.length > 0) {
-				var data;
-				switch(type) {
+			}
+			showCloseButton(callback);
+		} else if (isOffline() && results && results.rows.length > 0) {
+			var data;
+			switch(type) {
 				case "dishwasher":
 				case "fridge":
 				case "vegetable_fridge":
@@ -477,10 +484,10 @@ function formGeneration(type, dataBuild, callback) {
 					};
 					for (var i = 0; i < results.rows.length; i++) {
 						var d = {
-							form : JSON.parse(results.rows.item(i).form),
+							form : JSON.parse(results.rows[i].doc.form),
 							info : {
-								label : results.rows.item(i).label,
-								id : results.rows.item(i).id
+								label : results.rows[i].doc.label,
+								id : results.rows[i].doc.id
 							}
 						};
 						obj.form_list_question.push(d);
@@ -495,10 +502,10 @@ function formGeneration(type, dataBuild, callback) {
 						success : true,
 						form_list_question : {
 							form : {
-								form_deviation : JSON.parse(results.rows.item(0).form)
+								form_deviation : JSON.parse(results.rows[0].doc.form)
 							},
 							info : {
-								label : results.rows.item(0).label,
+								label : results.rows[0].doc.label,
 								type : type
 							}
 						}
@@ -518,7 +525,7 @@ function formGeneration(type, dataBuild, callback) {
 					var d = {};
 					$.extend(d, {
 						success : true,
-						form_register_employee : JSON.parse(results.rows.item(0).form)
+						form_register_employee : JSON.parse(results.rows[0].doc.form)
 					});
 					registerEmployee(d);
 					break;
@@ -526,7 +533,7 @@ function formGeneration(type, dataBuild, callback) {
 					var d = {};
 					$.extend(d, {
 						success : true,
-						form_register_supplier : JSON.parse(results.rows.item(0).form)
+						form_register_supplier : JSON.parse(results.rows[0].doc.form)
 					});
 					registerSupplier(d);
 					break;
@@ -535,9 +542,9 @@ function formGeneration(type, dataBuild, callback) {
 					$.extend(d, {
 						success : true,
 						form_list_question : {
-							form : JSON.parse(results.rows.item(0).form),
+							form : JSON.parse(results.rows[0].doc.form),
 							info : {
-								label : results.rows.item(0).label,
+								label : results.rows[0].doc.label,
 								type : type
 							}
 						}
@@ -547,13 +554,12 @@ function formGeneration(type, dataBuild, callback) {
 					console.log("data", data);
 					formItemData(data);
 					break;
-				}
-
-				showCloseButton(callback, data);
-			} else {
-				noInternetError($.t("error.no_internet_for_sync"));
 			}
-		});
+
+			showCloseButton(callback, data);
+		} else {
+			noInternetError($.t("error.no_internet_for_sync"));
+		}
 	});
 }
 
@@ -746,24 +752,30 @@ function formItemData(data) {
 							if (document.task_id > 0) {
 								api = 'deviation';
 							}
-							db.lazyQuery({
-								'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-								'data' : [[api, JSON.stringify(offline_data), document.task_id, 'maintenanceDoneForm']]
-							}, 0, function(insertId) {
-								if (document.task_id > 0) {
-									insertId = document.task_id;
+							
+							db.lazyQuery('sync_query', [{
+								'api' : api,
+								'data' : JSON.stringify(offline_data),
+								'extra' : document.task_id,
+								'q_type' : 'maintenanceDoneForm'
+							}], function(results) {
+								if (results && results.length > 0) {
+									var insertId = results[0].id;
+									if (document.task_id > 0) {
+										insertId = document.task_id;
+									}
+									if ($.isNumeric(insertId)) {
+										console.log("data");
+										$('input[name="task_id"]').val(insertId);
+									}
+									uploadHACCPPictureForms();
+
+									deviationDoneForm({
+										form_fix_deviation : dd,
+										id : insertId
+									}, f.info.type);
 								}
-								if ($.isNumeric(insertId)) {
-									console.log("data");
-									$('input[name="task_id"]').val(insertId);
-								}
-								uploadHACCPPictureForms();
-								
-								deviationDoneForm({
-									form_fix_deviation : dd,
-									id : insertId
-								}, f.info.type);
-							});
+							}); 
 						}
 
 					} else {
@@ -804,29 +816,33 @@ function formItemData(data) {
 										};
 
 										console.log("offline_data", offline_data);
-										db.lazyQuery({
-											'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-											'data' : [['formDeviationStart', JSON.stringify(offline_data), 0, 'formDeviationStart']]
-										}, 0, function(insertId) {
-											formGeneration('deviation', {
-												id : insertId,
-												form_list_question : {
-													form : {
-														form_deviation : {
-															deviation_description : {
-																value : dd.temperature + " grader rapportert på " + results.rows.item(0).label
+										db.lazyQuery('sync_query', [{
+											'api' : 'formDeviationStart',
+											'data' : JSON.stringify(offline_data),
+											'extra' : 0,
+											'q_type' : 'formDeviationStart'
+										}], function(results) {
+											if (results && results.length > 0) {
+												var insertId = results[0].id;
+												formGeneration('deviation', {
+													id : insertId,
+													form_list_question : {
+														form : {
+															form_deviation : {
+																deviation_description : {
+																	value : dd.temperature + " grader rapportert på " + results.rows.item(0).label
+																}
 															}
 														}
 													}
-												}
-											}, function(response) {
-												console.log("back response", response);
-												deviationDoneForm({
-													form_deviation : response.form_list_question.form.form_deviation,
-													id : insertId
+												}, function(response) {
+													console.log("back response", response);
+													deviationDoneForm({
+														form_deviation : response.form_list_question.form.form_deviation,
+														id : insertId
+													});
 												});
-											});
-
+											}
 										});
 									}
 								});
@@ -849,10 +865,12 @@ function formItemData(data) {
 									'results' : JSON.stringify(dd),
 									'category' : d.type
 								};
-								db.lazyQuery({
-									'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-									'data' : [['formDeviationStart', JSON.stringify(offline_data), 0, 'formDeviationStart']]
-								}, 0);
+								db.lazyQuery('sync_query', [{
+									'api': formDeviationStart,
+									'data': JSON.stringify(offline_data),
+									'extra': 0,
+									'q_type': 'formDeviationStart'
+								}]);
 								redirect_to_forms();
 
 							}
@@ -884,11 +902,7 @@ function formItemData(data) {
 			//            console.log(db_data);
 			console.log('forms.js 505', db_data);
 			if (!isOffline()) {
-				var q = 'INSERT OR REPLACE INTO "form_item" ("id", "label", "form", "type") VALUES(?,?,?,?)';
-				db.lazyQuery({
-					'sql' : 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
-					'data' : db_data
-				}, 0);
+				db.lazyQuery('form_item', castToListObject(["id", "label", "form", "type"], db_data));
 			}
 			mySwiper.appendSlide(html, 'swiper-slide');
 			bind_form2_click_handler();
@@ -1061,10 +1075,12 @@ function maintenanceSignDone(data) {
 		if (!isOffline()) {
 			Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
 		} else {
-			db.lazyQuery({
-				'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-				'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
-			}, 0);
+			db.lazyQuery('sync_query', [{
+				'api' : 'documentSignature',
+				'data' : JSON.stringify(data1),
+				'extra' : data,
+				'q_type' : 'documentSignature'
+			}]);
 		}
 	}
 }
@@ -1107,49 +1123,46 @@ function bind_form2_click_handler() {
 
 		var id = $(this).data('id');
 		var type = $(this).data('type');
-		var d = db.getDbInstance();
-		console.log(id);
 		var formId = 'bind_form2' + '_' + type + '_' + mySwiper.activeIndex || 0;
-		d.transaction(function(tx) {
-			tx.executeSql('SELECT * FROM "form_item" WHERE "id"=?', [id], function(tx, results) {
-				if (results.rows.length > 0) {
-					//              if (results.rows.length == 0) {
-					console.log('forms.js form_item rows > 0');
-					var d = $.extend({}, results.rows.item(0));
+		db.getDbInstance('form_item').get(String(id), function(error, results) {
+			if (results) {
+				//              if (results.rows.length == 0) {
+				console.log('forms.js form_item rows > 0');
+				var d = $.extend({}, results);
 
-					last_data_received = JSON.parse(d.form);
+				last_data_received = JSON.parse(d.form);
 
-					var html = '<div style="padding:10px;"><form id="' + formId + '">';
-					html += '<legend style="font-weight: bold;margin-bottom:20px;">' + results.rows.item(0).label + '</legend>';
-					html += HTML.formGenerate(last_data_received, $.t("general.save_button"));
+				var html = '<div style="padding:10px;"><form id="' + formId + '">';
+				html += '<legend style="font-weight: bold;margin-bottom:20px;">' + results.label + '</legend>';
+				html += HTML.formGenerate(last_data_received, $.t("general.save_button"));
 
-					html += '</form></div>';
+				html += '</form></div>';
 
-					mySwiper.appendSlide(html, 'swiper-slide');
+				mySwiper.appendSlide(html, 'swiper-slide');
 
-					$('#' + $.mobile.activePage.attr('id')).trigger('create');
-					mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
-					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+				$('#' + $.mobile.activePage.attr('id')).trigger('create');
+				mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
-					$('#' + formId).on('submit', function(e) {
-						e.preventDefault();
+				$('#' + formId).on('submit', function(e) {
+					e.preventDefault();
 
-						var dd = HTML.getFormValues($(this).parent());
-						console.log("dd", dd);
-						var go = HTML.validate($(this));
-						if (go) {
-							var deviation = false;
+					var dd = HTML.getFormValues($(this).parent());
+					console.log("dd", dd);
+					var go = HTML.validate($(this));
+					if (go) {
+						var deviation = false;
 
-							var data = {
-								'client' : User.client,
-								'token' : User.lastToken,
-								'results' : JSON.stringify(dd)
-							};
+						var data = {
+							'client' : User.client,
+							'token' : User.lastToken,
+							'results' : JSON.stringify(dd)
+						};
 
-							for (var i in dd) {
-								if (dd.hasOwnProperty(i)) {
-									if (last_data_received[i].deviation != undefined) {
-										switch (last_data_received[i].type) {
+						for (var i in dd) {
+							if (dd.hasOwnProperty(i)) {
+								if (last_data_received[i].deviation != undefined) {
+									switch (last_data_received[i].type) {
 										case 'slider':
 											if (dd[i] < last_data_received[i].deviation.min || dd[i] > last_data_received[i].deviation.max) {
 												deviation = true;
@@ -1158,121 +1171,129 @@ function bind_form2_click_handler() {
 										case 'default':
 											//alert('deviation not defined: ' + last_data_received[i].type);
 											break;
-										}
 									}
 								}
 							}
+						}
 
-							if (deviation) {
-								//alert('deviation');
-								console.log('deviation');
-								//var a = confirm($.t('general.deviation_accept_message'));
-								$('#confirmPopup .alert-text').html($.t('general.deviation_accept_message'));
-								$('#confirmPopup').on("popupafteropen", function(event, ui) {
-									$('#confirmButton').off('click').on('click', function() {
-										console.log('aici avem prima chestie');
-										console.log(data);
-										if (!isOffline()) {
-											Page.apiCall('formDeviationStart', data, 'get', 'form2_save_dev');
-										} else {
-											console.log('else if offline', dd);
-											var offline_data = {
-												'client' : User.client,
-												'token' : User.lastToken,
-												'results' : JSON.stringify(dd),
-												'category' : d.type
-											};
+						if (deviation) {
+							//alert('deviation');
+							console.log('deviation');
+							//var a = confirm($.t('general.deviation_accept_message'));
+							$('#confirmPopup .alert-text').html($.t('general.deviation_accept_message'));
+							$('#confirmPopup').on("popupafteropen", function(event, ui) {
+								$('#confirmButton').off('click').on('click', function() {
+									console.log('aici avem prima chestie');
+									console.log(data);
+									if (!isOffline()) {
+										Page.apiCall('formDeviationStart', data, 'get', 'form2_save_dev');
+									} else {
+										console.log('else if offline', dd);
+										var offline_data = {
+											'client' : User.client,
+											'token' : User.lastToken,
+											'results' : JSON.stringify(dd),
+											'category' : d.type
+										};
 
-											console.log("offline_data", offline_data);
-											db.lazyQuery({
-												'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-												'data' : [['formDeviationStart', JSON.stringify(offline_data), 0, 'formDeviationStart']]
-											}, 0, function(insertId) {
-												formGeneration('deviation', {
-													id : insertId,
-													form_list_question : {
-														form : {
-															form_deviation : {
-																deviation_description : {
-																	value : dd.temperature + " grader rapportert på " + results.rows.item(0).label
-																}
+										console.log("offline_data", offline_data);
+										db.lazyQuery('sync_query', [{
+											"api": 'formDeviationStart',
+											"data": JSON.stringify(offline_data),
+											"extra": 0,
+											"q_type": 'formDeviationStart'
+										}], function(result) {
+											formGeneration('deviation', {
+												id : result.id,
+												form_list_question : {
+													form : {
+														form_deviation : {
+															deviation_description : {
+																value : dd.temperature + " grader rapportert på " + results.label
 															}
 														}
 													}
-												}, function(response) {
-													console.log("back response", response);
-													deviationDoneForm({
-														form_deviation : response.form_list_question.form.form_deviation,
-														id : insertId
-													});
+												}
+											}, function(response) {
+												console.log("back response", response);
+												deviationDoneForm({
+													form_deviation : response.form_list_question.form.form_deviation,
+													id : insertId
 												});
-
 											});
-										}
-									});
+
+										});
+									}
 								});
-								$('#confirmPopup').on("popupafterclose", function(event, ui) {
-									//var a = false;
-									$('#confirmButton').unbind("click");
-								});
-								$('#confirmPopup').popup("open", {
-									positionTo : 'window'
-								});
-							} else {
-								console.log('Form saved successfully. 1302');
-								if (!isOffline()) {
-									Page.apiCall('formDeviationStart', data, 'get', 'redirect_to_forms');
-								} else {
-									var offline_data = {
-										'client' : User.client,
-										'token' : User.lastToken,
-										'results' : JSON.stringify(dd),
-										'category' : d.type
-									};
-									db.lazyQuery({
-										'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-										'data' : [['formDeviationStart', JSON.stringify(offline_data), 0, 'formDeviationStart']]
-									}, 0);
-									redirect_to_forms();
-
-								}
-
-							}
-						}
-						console.log('forms.js 1101');
-						return false;
-					});
-				} else {
-					console.log('forms.js form_item rows == 0');
-					console.log('forms.js 1105');
-					console.log('heeeeey id = ', id);
-					tx.executeSql('SELECT * FROM "forms" WHERE "type"=?', [type], function(tx, results) {
-						if (results.rows.length > 0) {
-							var data = {
-								'client' : User.client,
-								'token' : User.lastToken,
-								'category' : results.rows.item(0).type
-							};
-
-							document.form_cat = results.rows.item(0).type;
-							console.log('data:', data);
-							console.log(results.rows.item(0));
-
-							Page.apiCall('formDeviationStart', data, 'get', 'formCond3');
-						} else {
-							$('#alertPopup .alert-text').html('Operation unavailable');
-							$('#alertPopup').on("popupafterclose", function() {
-								$('#alertPopup').unbind("popupafterclose");
-								$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 							});
-							$('#alertPopup').popup("open", {
+							$('#confirmPopup').on("popupafterclose", function(event, ui) {
+								//var a = false;
+								$('#confirmButton').unbind("click");
+							});
+							$('#confirmPopup').popup("open", {
 								positionTo : 'window'
 							});
-						}
+						} else {
+							console.log('Form saved successfully. 1302');
+							if (!isOffline()) {
+								Page.apiCall('formDeviationStart', data, 'get', 'redirect_to_forms');
+							} else {
+								var offline_data = {
+									'client' : User.client,
+									'token' : User.lastToken,
+									'results' : JSON.stringify(dd),
+									'category' : d.type
+								};
+								db.lazyQuery('sync_query', [{
+									'api' : 'formDeviationStart',
+									'data' : JSON.stringify(offline_data),
+									'extra' : 0,
+									'q_type' : 'formDeviationStart'
+								}]);
+								redirect_to_forms();
 
-					});
-				}
-			});
+							}
+
+						}
+					}
+					console.log('forms.js 1101');
+					return false;
+				});
+			} else {
+				console.log('forms.js form_item rows == 0');
+				console.log('forms.js 1105');
+				console.log('heeeeey id = ', id);
+				db.getDbInstance('forms').query(function(doc, emit){
+					if(doc.type == type){
+						emit(doc);
+					}
+				}, {'include_docs' : true}, function(tx, results) {
+					console.log('results', type, results);
+					if (results.rows.length > 0) {
+						var data = {
+							'client' : User.client,
+							'token' : User.lastToken,
+							'category' : results.rows[0].doc.type
+						};
+
+						document.form_cat = results.rows[0].doc.type;
+						console.log('data:', data);
+						console.log(results.rows[0].doc);
+
+						Page.apiCall('formDeviationStart', data, 'get', 'formCond3');
+					} else {
+						$('#alertPopup .alert-text').html('Operation unavailable');
+						$('#alertPopup').on("popupafterclose", function() {
+							$('#alertPopup').unbind("popupafterclose");
+							$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+						});
+						$('#alertPopup').popup("open", {
+							positionTo : 'window'
+						});
+					}
+
+				});
+			}
 		});
 		realignSlideHeight('max-height-form');
 	});
@@ -1287,18 +1308,11 @@ function formCond3(data) {
 			if (data.form_list_question.hasOwnProperty(d)) {
 				console.log('d itera = ', d);
 				console.log(data.form_list_question[d]);
-				//                return;
-				db.lazyQuery({
-					'sql' : 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
-					'data' : [[data.form_list_question[d].info.id, data.form_list_question[d].info.label, JSON.stringify(data.form_list_question[d].form), document.form_cat]]
-				}, 0);
+				db.lazyQuery('form_item', castToListObject(["id", "label", "form", "type"], [data.form_list_question[d].info.id, data.form_list_question[d].info.label, JSON.stringify(data.form_list_question[d].form), document.form_cat]));
 			}
 		}
 	} else {
-		db.lazyQuery({
-			'sql' : 'INSERT OR REPLACE INTO "form_item"("id", "label", "form", "type") VALUES(?,?,?,?)',
-			'data' : [[data.form_list_question.info.id, data.form_list_question.info.label, JSON.stringify(data.form_list_question.form), document.form_cat]]
-		}, 0);
+		db.lazyQuery('form_item', castToListObject(["id", "label", "form", "type"], [data.form_list_question.info.id, data.form_list_question.info.label, JSON.stringify(data.form_list_question.form), document.form_cat]));
 	}
 
 }
@@ -1310,8 +1324,7 @@ function redirect_to_forms() {
 	mySwiper.reInit();
 	mySwiper.resizeFix();
 	realignSlideHeight('max-height-form');
-	var d = db.getDbInstance();
-	d.transaction(getForms, db.dbErrorHandle);
+	getForms();
 }
 
 function form2_save_dev(data) {
@@ -1461,8 +1474,7 @@ $(window).on("orientationchange", function(event) {
 
 function form2_save_dev_start_save() {
 	console.log('am ajuns pe save');
-	var d = db.getDbInstance();
-	d.transaction(getForms, db.dbErrorHandle);
+	getForms();
 
 	mySwiper.swipeTo(0, 300, false);
 	mySwiper.removeSlide(1);
@@ -1576,10 +1588,13 @@ function registerEmployee(data) {
 				if (!isOffline()) {
 					Page.apiCall('registerEmployee', data, 'post', 'registerEmployeeSucess');
 				} else {
-					db.lazyQuery({
-						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-						'data' : [['registerEmployee', JSON.stringify(data), 0, 'registerEmployeeSucess']]
-					}, 0);
+					db.lazyQuery('sync_query', [{
+						'api' : 'registerEmployee',
+						'data' : JSON.stringify(data),
+						'extra' : 0,
+						'q_type' : 'registerEmployeeSucess'
+					}]); 
+
 				}
 
 			}
@@ -1648,12 +1663,17 @@ function registerSupplier(data) {
 				if (!isOffline()) {
 					Page.apiCall('registerSupplier', data, 'post', 'registerSupplierSuccess');
 				} else {
-					db.lazyQuery({
-						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-						'data' : [['registerSupplier', JSON.stringify(data), 0, 'registerSupplierSuccess']]
-					}, 0, function(data) {
-						registerSupplierSuccess(data);
-					});
+					db.lazyQuery('sync_query', [{
+						'api' : 'registerSupplier',
+						'data' : JSON.stringify(data),
+						'extra' : 0,
+						'q_type' : 'registerSupplierSuccess'
+					}], function(results) {
+						if (results && results.length > 0) {
+							var insertId = results[0].id;
+							registerSupplierSuccess(insertId);
+						}
+					}); 
 				}
 			}
 

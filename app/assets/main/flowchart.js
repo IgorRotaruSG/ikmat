@@ -4,7 +4,7 @@ var _t;
 
 //navigator.connection.type = Connection.NONE;
 
-function getFlowchartCall(tx, results) {
+function getFlowchartCall(error, results) {
     if ( !isOffline() ) {
         var data = {
             'client': User.client,
@@ -25,15 +25,14 @@ function getFlowchartCall(tx, results) {
     mySwiper.resizeFix();
 }
 
-function getFlowcharts(tx) {
-    tx.executeSql('SELECT * FROM "flowchart"', [], getFlowchartCall);
+function getFlowcharts() {
+	db.getDbInstance('flowchart').allDocs({'include_docs': true}, getFlowchartCall);
 }
 
 function flowchartInit() {
     if (User.isLogged()) {
         executeSyncQuery();
-        var d = db.getDbInstance();
-        d.transaction(getFlowcharts, db.dbErrorHandle);
+        getFlowcharts();
 
         mySwiper = new Swiper('.swiper-container-flowchart',{
             calculateHeight:        true,
@@ -276,8 +275,7 @@ function removeFlowchart (data){
 function resetFlowchart(data){
     if ( data.success && data.success == true) {
         //console.info('Success');
-        var d = db.getDbInstance();
-        d.transaction(getFlowcharts, db.dbErrorHandle);
+        getFlowcharts();
     }
 }
 

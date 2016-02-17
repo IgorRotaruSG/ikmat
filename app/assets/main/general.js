@@ -1,10 +1,10 @@
 var settings = {
-    //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    // 'apiDomain':        'http://ikmatapp.no/api/',
-    // 'apiPath':        'http://ikmatapp.no',
-    'apiDomain':        'https://automagi.fsoft.com.vn/api/',
-    'apiPath':        'https://automagi.fsoft.com.vn',
-    'apiUploadPath':    'uploadPhotos',
+	//'apiDomain':        'http://haccpy11.bywmds.us/api/',
+	'apiDomain' : 'http://ikmatapp.no/api/',
+	'apiPath' : 'http://ikmatapp.no',
+	// 'apiDomain':        'https://automagi.fsoft.com.vn/api/',
+	// 'apiPath':        'https://automagi.fsoft.com.vn',
+	'apiUploadPath' : 'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
 		'tasks' : 3 * 60 * 1000,
@@ -14,9 +14,9 @@ var settings = {
 		'completed_tasks' : 60 * 60 * 2 * 1000
 	},
 	'requestTimeout' : 25000,
-	'excludeOffline': ["haccp.html", "flowchart.html"],
-	'version': "2.0.73",
-	'rebuild': "2.0.73"
+	'excludeOffline' : ["haccp.html", "flowchart.html"],
+	'version' : "2.0.73",
+	'rebuild' : "2.0.73"
 };
 
 var performance = window.performance;
@@ -76,8 +76,6 @@ resizePage = function(el) {
 	$('#' + el).css('min-height', h + 'px');
 };
 
-
-
 function Page(what) {
 	if (what != undefined) {
 		this.currentPage = what;
@@ -89,20 +87,21 @@ function Page(what) {
 		//this.defaultPage = 'reports.html';
 	}
 	$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
-	    var success = options.success;
-	    options.success = function(data, textStatus, jqXHR) {
-	        // override success handling
-	        if(data && data.locked){
+		var success = options.success;
+		options.success = function(data, textStatus, jqXHR) {
+			// override success handling
+			if (data && data.locked) {
 				lockedError($.t("error.suspended_account"));
-			}else if(typeof(success) === "function") {
+			} else if ( typeof (success) === "function") {
 				return success.apply(this, [data, textStatus, jqXHR]);
 			}
-	    };
-	    var error = options.error;
-	    options.error = function(jqXHR, textStatus, errorThrown) {
-	        // override error handling
-	        if(typeof(error) === "function") return error.apply(this, [jqXHR, textStatus, errorThrown]);
-	    };
+		};
+		var error = options.error;
+		options.error = function(jqXHR, textStatus, errorThrown) {
+			// override error handling
+			if ( typeof (error) === "function")
+				return error.apply(this, [jqXHR, textStatus, errorThrown]);
+		};
 	});
 }
 
@@ -203,7 +202,6 @@ Page.prototype.get = function() {
 	return {};
 };
 
-
 Page.prototype.apiCall = function(api_method, data, method, callback, parameters) {
 	var cacheData = null;
 	if (data.hasOwnProperty("token") && data.hasOwnProperty("report_number")) {
@@ -256,16 +254,16 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 			});
 		}
 	}
-}; 
+};
 
-Page.prototype.selectImage = function (id, callbackFunction) {
+Page.prototype.selectImage = function(id, callbackFunction) {
 	if (isNative()) {
 		navigator.camera.getPicture(function(uri) {
 			if (uri.substring(0, 21) == "content://com.android") {
 				photo_split = uri.split("%3A");
 				uri = "content://media/external/images/media/" + photo_split[1];
 			}
-			if(callbackFunction){
+			if (callbackFunction) {
 				callbackFunction(uri);
 			}
 
@@ -275,14 +273,14 @@ Page.prototype.selectImage = function (id, callbackFunction) {
 			quality : 50,
 			destinationType : navigator.camera.DestinationType.FILE_URI,
 			sourceType : navigator.camera.PictureSourceType.PHOTOLIBRARY,
-			targetWidth: 1024
+			targetWidth : 1024
 		});
 	} else {
-		var showPicture = $('#'+id);
+		var showPicture = $('#' + id);
 		showPicture.onload = function(data) {
-					console.log("showPicture", this);
-					// window.URL.revokeObjectURL(this.src);
-				};
+			console.log("showPicture", this);
+			// window.URL.revokeObjectURL(this.src);
+		};
 		$("#take_picture").change(function(event) {
 			var files = event.target.files,
 			    file;
@@ -290,10 +288,10 @@ Page.prototype.selectImage = function (id, callbackFunction) {
 				file = files[0];
 
 				var imgURL = window.URL.createObjectURL(file);
-				if(callbackFunction){
-					callbackFunction(imgURL);	
+				if (callbackFunction) {
+					callbackFunction(imgURL);
 				}
-				
+
 			}
 		});
 		$("#take_picture").trigger("click", id);
@@ -303,24 +301,27 @@ Page.prototype.selectImage = function (id, callbackFunction) {
 };
 
 Page.prototype.base64toBlob = function(base64Data, contentType) {
-    contentType = contentType || '';
-    var sliceSize = 1024;
-    var byteCharacters = atob(base64Data.split(',')[1]);
-    var bytesLength = byteCharacters.length;
-    var slicesCount = Math.ceil(bytesLength / sliceSize);
-    var byteArrays = new Array(slicesCount);
+	contentType = contentType || '';
+	var sliceSize = 1024;
+	var byteCharacters = atob(base64Data.split(',')[1]);
+	var bytesLength = byteCharacters.length;
+	var slicesCount = Math.ceil(bytesLength / sliceSize);
+	var byteArrays = new Array(slicesCount);
 
-    for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
-        var begin = sliceIndex * sliceSize;
-        var end = Math.min(begin + sliceSize, bytesLength);
+	for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+		var begin = sliceIndex * sliceSize;
+		var end = Math.min(begin + sliceSize, bytesLength);
 
-        var bytes = new Array(end - begin);
-        for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {
-            bytes[i] = byteCharacters[offset].charCodeAt(0);
-        }
-        byteArrays[sliceIndex] = new Uint8Array(bytes);
-    }
-    return new Blob(byteArrays, { type: contentType });
+		var bytes = new Array(end - begin);
+		for (var offset = begin,
+		    i = 0; offset < end; ++i, ++offset) {
+			bytes[i] = byteCharacters[offset].charCodeAt(0);
+		}
+		byteArrays[sliceIndex] = new Uint8Array(bytes);
+	}
+	return new Blob(byteArrays, {
+		type : contentType
+	});
 };
 
 Page.prototype.uploadImage = function() {
@@ -352,12 +353,11 @@ Page.prototype.uploadImage = function() {
 				'imageURI' : args,
 				'task_id' : $('.swiper-slide-active input[name="task_id"]').val()
 			};
-			if(_params && _params.task_id){
+			if (_params && _params.task_id) {
 				request.task_id = _params.task_id;
 			}
 		}
-		console.log("request", request);
-		if(!request || (request.imageURI && request.imageURI.length <= 0)){
+		if (!request || (request.imageURI && request.imageURI.length <= 0)) {
 			if (callbackFunction) {
 				callbackFunction();
 			}
@@ -386,8 +386,8 @@ Page.prototype.uploadImage = function() {
 					params.token = User.lastToken;
 
 					options.params = params;
-					if(_params){
-						for(key in _params){
+					if (_params) {
+						for (key in _params) {
 							options[key] = _params[key];
 						}
 					}
@@ -396,7 +396,6 @@ Page.prototype.uploadImage = function() {
 
 					var ft = new FileTransfer();
 					ft.upload(request.imageURI, server, function(r) {
-						console.log("Upload successful: " + r.bytesSent + " bytes uploaded.");
 						if (callbackFunction) {
 							callbackFunction(r);
 						}
@@ -423,8 +422,8 @@ Page.prototype.uploadImage = function() {
 						fd.append('client', User.client);
 						fd.append('token', User.lastToken);
 						fd.append('task_id', request.task_id);
-						if(_params){
-							for(key in _params){
+						if (_params) {
+							for (key in _params) {
 								fd.append(key, _params[key]);
 							}
 						}
@@ -456,15 +455,18 @@ Page.prototype.uploadImage = function() {
 		};
 	}
 
-}; 
+};
 
 function cacheImage(request, callback) {
 	if (request && request.imageURI && request.task_id) {
 		if (isNative()) {
-			db.lazyQuery({
-				'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-				'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
-			}, 0, callback);
+
+			db.lazyQuery('sync_query', [{
+				'api' : 'uploadPhotos',
+				'data' : JSON.stringify(request),
+				'extra' : request.task_id,
+				'q_type' : 'uploadDone'
+			}], callback);
 		} else {
 			var blob;
 			var oReq = new XMLHttpRequest();
@@ -479,10 +481,12 @@ function cacheImage(request, callback) {
 					reader.readAsDataURL(blob);
 					reader.onloadend = function() {
 						request.data = reader.result;
-						db.lazyQuery({
-							'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-							'data' : [['uploadPhotos', JSON.stringify(request), request.task_id, 'uploadDone']]
-						}, 0, callback);
+						db.lazyQuery('sync_query', [{
+							'api' : 'uploadPhotos',
+							'data' : JSON.stringify(request),
+							'extra' : request.task_id,
+							'q_type' : 'uploadDone'
+						}], callback);
 					};
 				}
 			};
@@ -492,10 +496,8 @@ function cacheImage(request, callback) {
 
 }
 
-
-
 function parseQuery(qstr) {
-	if(qstr){
+	if (qstr) {
 		var query = {};
 		var a = qstr.substr(1).split('&');
 		for (var i = 0; i < a.length; i++) {
@@ -598,52 +600,27 @@ User.prototype.saveSession = function() {
 		'client' : this.client,
 		'lastToken' : this.lastToken
 	}));
+	saveUserHandle();
 
-	var d = db.getDbInstance();
-	d.transaction(checkUserSessionS, db.dbErrorHandle);
 };
 
-function saveUserHandle(tx, results) {
-	var sql = '';
-	if (results.rows.length != 2) {
-		// add action
-		sql = 'INSERT INTO settings("type","value") VALUES("client","' + User.client + '")';
-		tx.executeSql(sql, [], function() {
-		}, db.dbErrorHandle);
-
-		sql = 'INSERT INTO settings("type","value") VALUES("token","' + User.lastToken + '")';
-		tx.executeSql(sql, [], function() {
-			// Show message
-			$('.sm-success').fadeIn(1000);
-			$('.sm-failed').fadeOut(500);
-
-			if (fromLandingPage)
-				location.href = settings.apiPath + '/app/index.html';
-			else
-				Page.redirect(Page.defaultPage);
-		}, db.dbErrorHandle);
-	} else {
-		// save action
-		sql = 'UPDATE settings SET "value" = "' + User.client + '" WHERE "type" = "client"';
-		tx.executeSql(sql, [], function() {
-		}, db.dbErrorHandle);
-
-		sql = 'UPDATE settings SET "value" = "' + User.lastToken + '" WHERE "type" = "token"';
-		tx.executeSql(sql, [], function() {
-			// Show message
-			$('.sm-success').fadeIn(1000);
-			$('.sm-failed').fadeOut(500);
-
-			if (fromLandingPage)
-				location.href = settings.apiPath + '/app/index.html';
-			else
-				Page.redirect(Page.defaultPage);
-		}, db.dbErrorHandle);
-	}
-}
-
-function checkUserSessionS(tx) {
-	tx.executeSql('SELECT * FROM "settings" WHERE "type" IN ("token", "client")', [], saveUserHandle, db.dbErrorHandle);
+function saveUserHandle() {
+	db.lazyQuery('settings', [{
+		_id : 'client',
+		type : 'client',
+		value : User.client
+	}, {
+		_id : 'token',
+		type : 'token',
+		value : User.lastToken
+	}], function() {
+		$('.sm-success').fadeIn(1000);
+		$('.sm-failed').fadeOut(500);
+		if (fromLandingPage)
+			location.href = settings.apiPath + '/app/index.html';
+		else
+			Page.redirect(Page.defaultPage);
+	});
 }
 
 User.prototype.isLogged = function() {
@@ -667,16 +644,7 @@ User.prototype.logout = function() {
 
 function logout() {
 	logout_flag = true;
-	d = db.getDbInstance();
-
-	d.transaction(db.dbDropTables, db.dbErrorHandle, function() {
-		for (var i = 0; i < localStorage.length; i++) {
-	    	console.log(localStorage.key(i));
-	    	if(localStorage.key(i) != "user_email"){
-	    		localStorage.removeItem(localStorage.key(i));
-	    	}
-	    }
-	    db.database = false;
+	db.dbDropTables().then(function() {
 		User.database = false;
 		User.client = false;
 		User.lastToken = false;
@@ -2161,14 +2129,14 @@ function bind_menuClick(t, n) {
 	$(t).find('ul').listview();
 	$(".language").i18n();
 	$("dl.jqm-nav a").off('click').on('click', function(e) {
-		if(isOffline()){
-			if(settings.excludeOffline.indexOf($(this).attr("href")) != -1){
+		if (isOffline()) {
+			if (settings.excludeOffline.indexOf($(this).attr("href")) != -1) {
 				e.preventDefault();
-		    	e.stopPropagation();
-		    	noInternetError($.t("error.no_internet_for_sync"), null, $('span.language', this).text());
+				e.stopPropagation();
+				noInternetError($.t("error.no_internet_for_sync"), null, $('span.language', this).text());
 			}
 		}
-		
+
 		if ($.mobile.activePage.attr('id') != 'register_edit' && $.mobile.activePage.attr('id') != 'haccp') {
 			var swiper_slides = mySwiper.slides.length;
 			for (var i = swiper_slides; i > 0; i--) {
@@ -2204,6 +2172,26 @@ function bind_menuClick(t, n) {
 	}
 	$(t).find('#app-version').html("IK-mat 2.0.9");
 	displayOnline(isOffline());
+}
+
+function castToListObject(keys, data) {
+	var results = [];
+	if ( keys instanceof Array && data instanceof Array) {
+		for (var i = 0; i < data.length; i++) {
+			var obj = {};
+			for (var j = 0; j < keys.length; j++) {
+				obj[keys[j].trim()] = data[i][j];
+				if (!obj._id && keys[j].trim() == 'type') {
+					obj._id = String(data[i][j]);
+				}
+				if (keys[j].trim() == "id") {
+					obj._id = String(data[i][j]);
+				}
+			}
+			results.push(obj);
+		}
+	}
+	return results;
 }
 
 function updateContactName(data) {
@@ -2263,7 +2251,7 @@ function testConnection(callback) {
 			}
 			displayOnline(offline || isOffline());
 		};
-		img.onerror = function(){
+		img.onerror = function() {
 			offline = true;
 			displayOnline(offline);
 		};
@@ -2288,10 +2276,10 @@ function checkSync() {
 
 }
 
-function displayOnline(isOffline){
-	if(isOffline){
-		$("#app-online").removeClass("online");	
-	}else{
+function displayOnline(isOffline) {
+	if (isOffline) {
+		$("#app-online").removeClass("online");
+	} else {
 		$("#app-online").addClass("online");
 	}
 }
@@ -2314,16 +2302,16 @@ function noInternetError(message, login, title) {
 	}
 
 	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-	if(title){
+	if (title) {
 		$('#alertPopup .page-name').html(title);
 	}
-	
+
 	$('#alertPopup .alert-text').html(message);
 	$('#alertPopup').off("popupafterclose").on("popupafterclose", function() {
 		// if (login) {
-			// //do nothing
+		// //do nothing
 		// } else {
-			// Page.redirect('tasks.html');
+		// Page.redirect('tasks.html');
 		// }
 
 	});
@@ -2352,15 +2340,15 @@ function executeSyncQuery() {
 	if (!isOffline()) {
 		lastSynced = performance.now();
 
-		d = db.getDbInstance();
-		d.transaction(function(tx) {
-			tx.executeSql('SELECT * FROM "sync_query" WHERE "executed"=?', [0], function(tx, results) {
-				rows = results.rows.length;
+		db.getDbInstance("sync_query").query('get_sync', function(err, results) {
+			if (results) {
+				var rows = results.total_rows;
 				if (rows > 0) {
 					_sync_data_rows = false;
 					testConnection(sync_query);
 				}
-			});
+			}
+
 		});
 	}
 }

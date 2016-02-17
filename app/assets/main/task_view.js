@@ -1,17 +1,16 @@
 var get;
 var $sigdiv;
 
-function getTask(tx) {
-    var q = 'select * from tasks WHERE "id" = "' + get.id + '"';
-    tx.executeSql(q, [], getTaskCall, db.dbErrorHandle);
+function getTask() {
+	db.getDBInstance('tasks').get(get.id, getTaskCall);
 }
 
-function getTaskCall(tx, results) {
-    if (results.rows.length == 0) {
+function getTaskCall(error, results) {
+    if (error) {
         alert('Task not found!');
         Page.redirect('tasks.html');
     } else {
-        if (results.rows.item(0).taskData == '' || results.rows.item(0).taskData == null || (results.rows.item(0).taskData).length == 0) {
+        if (results.taskData == '' || results.taskData == null || (results.taskData).length == 0) {
             if (isOffline()) {
                 alert('This task has not fetched information. Please connect to internet.');
                 Page.redirect('tasks.html');
@@ -20,25 +19,25 @@ function getTaskCall(tx, results) {
                     'client': User.client,
                     'token': User.lastToken,
                     'task_id': get.id
-                }
+                };
                 Page.apiCall('getTask', data, 'get', 'taskInfo');
             }
 
         } else {
             completedDate = '';
-            if (results.rows.item(0).completeDate != '' && results.rows.item(0).completeDate != null) {
-                completedDate = $.parseJSON(results.rows.item(0).completeDate);
+            if (results.completeDate != '' && results.completeDate != null) {
+                completedDate = $.parseJSON(results.completeDate);
             }
 
             taskData = '';
-            if (results.rows.item(0).taskData != '' && results.rows.item(0).taskData != null) {
-                taskData = $.parseJSON(results.rows.item(0).taskData)
+            if (results.taskData != '' && results.taskData != null) {
+                taskData = $.parseJSON(results.taskData)
             }
 
             var data = {
                 'tasks': {
-                    'taskName': results.rows.item(0).title,
-                    'completedBy': results.rows.item(0).completedBy,
+                    'taskName': results.title,
+                    'completedBy': results.completedBy,
                     'completeDate': completedDate,
                     'taskData': taskData
                 }
@@ -52,8 +51,7 @@ function task_viewInit() {
     if (User.isLogged()) {
         get = Page.get();
 
-        var d = db.getDbInstance();
-        d.transaction(getTask, db.dbErrorHandle);
+        getTask();
     } else {
         Page.redirect('login.html');
     }

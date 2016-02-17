@@ -10,26 +10,50 @@ function maintenanceInit() {
 	if (get.id != undefined) {
 		data['task_id'] = get.id;
 	}
-	
 	if (!isOffline()) {
 		Page.apiCall('maintenance', data, 'get', 'maintenance');
 	} else {
-		var d = db.getDbInstance();
-		d.transaction(function(tx) {
-			tx.executeSql('SELECT * from tasks WHERE "completed" = 0 and "id" = ? ORDER BY id DESC LIMIT 1', [data['task_id']], function(tx, results) {
-				if (results.rows.length > 0) {
-					var data = JSON.parse(results.rows.item(0).taskData);
-					maintenance(data);
-				}
-			});
+		db.getDbInstance('tasks').get(data['task_id'], function(error, results) {
+			if (results && !results.completed) {
+				var data = JSON.parse(results.taskData);
+				maintenance(data);
+			}
 		});
 	}
+	
+	new Swiper('.swiper-container-maintenance', {
+		calculateHeight : true,
+		releaseFormElements : true,
+		preventLinks : true,
+		simulateTouch : true,
+		keyboardControl : false,
+		noSwiping : true,
+		noSwipingClass : 'ui-slider',
+		//mousewheelControl:      true,// TODO: remove mousewheel support on production
+		onInit : function() {
+		},
+		onSlideNext : function(swiper) {
+			_t = 'next';
+		},
+
+		onSlidePrev : function(swiper) {
+			_t = 'prev';
+		},
+
+		onSlideChangeEnd : function(swiper) {
+			$('html, body').animate({
+				scrollTop : 0
+			}, 500);
+           // mySwiper.resizeFix();
+			
+
+		}
+	});
 }
 
 function maintenance(data) {
 	if (data.form_deviation) {
 		var html = HTML.formGenerate(data.form_deviation, $.t("general.save_button"));
-		console.log(data);
 		html += '<div data-role="popup" data-history="false" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.sign_button") + '</button>' + '</div>' + '</div>';
 		$('#form_maintenance').html(html);
 		$('#signature-trigger').off('click').on('click', function(e) {
@@ -117,17 +141,23 @@ function maintenance(data) {
 				if (!isOffline()) {
 					Page.apiCall('maintenance', data, 'get', 'maintenanceDone');
 				} else {
-					db.lazyQuery({
-						'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-						'data' : [['maintenance', JSON.stringify(data), get.id, 'maintenanceDone']]
-					}, 0, function(insertId) {
-						if ($.isNumeric(insertId)) {
-							$('input[name="task_id"]').val(get.id);
+
+					db.lazyQuery('sync_query', [{
+						'api' : 'maintenance',
+						'data' : JSON.stringify(data),
+						'extra' : get.id,
+						'q_type' : 'maintenanceDone'
+					}], function(result) {
+						if (result && result.length > 0) {
+							var insertId = result[0].id;
+							if ($.isNumeric(insertId)) {
+								$('input[name="task_id"]').val(get.id);
+							}
+							maintenanceDone(get.id);
 						}
-						maintenanceDone(get.id);
+						
 					});
 				}
-
 			}
 
 			return false;
@@ -137,6 +167,7 @@ function maintenance(data) {
 		$('#form_back_btn i').removeClass('hided');
 
 	}
+	realignSlideHeight('max-height-maintenance');
 }
 
 
@@ -155,15 +186,12 @@ function checkTaskId(task_id, callback) {
 	if (!callback) {
 		return false;
 	}
-	d = db.getDbInstance();
-	d.transaction(function(tx) {
-		tx.executeSql('SELECT * FROM "sync_query" WHERE "id"=? and executed=1', [task_id], function(tx, results) {
-			if (results.rows.length > 0) {
-				callback(true);
-			} else {
-				callback(false);
-			}
-		});
+	db.getDbInstance('sync_query').get(task_id, function(tx, results) {
+		if (results && results.executed) {
+			callback(true);
+		} else {
+			callback(false);
+		}
 	});
 }
 
@@ -172,32 +200,32 @@ function maintenanceDone(data) {
 		$('input[name="task_id"]').val(get.id);
 	}
 	// if (typeof $sigdiv != 'undefined') {
-		// console.log("$sigdiv", $sigdiv);
-		// var data1 = {
-			// 'client' : User.client,
-			// 'token' : User.lastToken,
-			// 'signature' : JSON.stringify({
-				// "name" : $('#sign_name').val(),
-				// "svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
-				// "parameter" : "task",
-				// "task_id" : get.id
-			// })
-		// };
-		// if (!isOffline()) {
-			// Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
-		// } else {
-			// db.lazyQuery({
-				// 'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
-				// 'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
-			// }, 0);
-		// }
+	// console.log("$sigdiv", $sigdiv);
+	// var data1 = {
+	// 'client' : User.client,
+	// 'token' : User.lastToken,
+	// 'signature' : JSON.stringify({
+	// "name" : $('#sign_name').val(),
+	// "svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
+	// "parameter" : "task",
+	// "task_id" : get.id
+	// })
+	// };
+	// if (!isOffline()) {
+	// Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+	// } else {
+	// db.lazyQuery({
+	// 'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
+	// 'data' : [['documentSignature', JSON.stringify(data1), data, 'documentSignature']]
+	// }, 0);
 	// }
-	
+	// }
+
 	uploadMaintenancePicture();
-	db.lazyQuery({
-		'sql' : 'UPDATE "tasks" SET "completed"=? WHERE "id"=?',
-		'data' : [['1', get.id]]
-	}, 0, function() {
+	db.lazyQuery('tasks', [{
+		'_id' : String(get.id),
+		'completed' : true
+	}], function() {
 		console.log("update");
 		Page.redirect('tasks.html');
 	});
@@ -208,10 +236,15 @@ function uploadMaintenancePicture() {
 	// Get URI of picture to upload
 	var $img = $('#' + haccp_image_id);
 	var imageURI = $img.attr('src');
-	
+
 	if (imageURI) {
-		Page.uploadImage(imageURI, {"role":"fixed"}, function(data){
-	    	$img.css({'visibility': 'hidden', 'display': 'none'}).attr('src', '');
-	    });
+		Page.uploadImage(imageURI, {
+			"role" : "fixed"
+		}, function(data) {
+			$img.css({
+				'visibility' : 'hidden',
+				'display' : 'none'
+			}).attr('src', '');
+		});
 	}
 }

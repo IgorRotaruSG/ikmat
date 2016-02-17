@@ -1,13 +1,3 @@
-//navigator.connection.type = Connection.NONE;
-/**
- * Check if we have a session of a user in local database
- * @param tx
- */
-
-function checkUserSession(tx) {
-    //console.log('checkUserSession');
-    tx.executeSql('SELECT * FROM "settings" WHERE "type" IN ("token", "client", "name", "role")', [], getUserHandle, db.dbErrorHandle);
-}
 
 /**
  * Handle the results and redirects to login if we don't have
@@ -15,24 +5,24 @@ function checkUserSession(tx) {
  * @param tx
  * @param results
  */
-function getUserHandle(tx, results) {
+function getUserHandle(error, results) {
     if (results.rows.length != 4) {
         Page.redirect('login.html');
     } else {
         var token, client, user_name, role;
         for (var i=0;i<results.rows.length;i++) {
-            switch (results.rows.item(i).type) {
+            switch (results.rows[i].key) {
                 case 'token':
-                    token = results.rows.item(i).value;
+                    token = results.rows[i].value;
                     break;
                 case 'client':
-                    client = results.rows.item(i).value;
+                    client = results.rows[i].value;
                     break;
                 case 'name':
-                    user_name = results.rows.item(i).value;
+                    user_name = results.rows[i].value;
                     break;
                 case 'role':
-                    role = results.rows.item(i).value;
+                    role = results.rows[i].value;
                     break;
             }
         }
@@ -46,8 +36,12 @@ function getUserHandle(tx, results) {
  * Init Method
  */
 function indexInit() {
-    var d = db.getDbInstance();
-    d.transaction(checkUserSession, db.dbErrorHandle);
-
+	db.getDbInstance("settings").query({
+		map: function(doc, emit){
+			if(["token", "client", "name", "role"].indexOf(doc.type) != -1){
+				emit(doc.type, doc.value);
+			}
+		}
+	}, getUserHandle);
     executeSyncQuery();
 }
