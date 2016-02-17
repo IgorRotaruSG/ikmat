@@ -17,7 +17,8 @@ if [ $1 ]
 then
 BACKEND_PATH=$1
 fi
-cd $BACKEND_PATH/web/app
+cd $BACKEND_PATH
+git checkout $BACKEND_BRANCH
 git pull
 rm -rf $BACKEND_PATH/web/app
 cd $SOURCE_PATH
