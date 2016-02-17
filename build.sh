@@ -25,10 +25,12 @@ cd $SOURCE_PATH
 grunt build --target=$BACKEND_PATH/web/app --force&
 #grunt buildphone --target=$MOBILE_PATH&
 wait
+cd $BACKEND_PATH
 git commit -am 'build revision $REVISION'
 git push origin $BACKEND_BRANCH
 echo "BUILD SUCCESSFUL"
 
+cd $SOURCE_PATH
 function fso_build
 { # A somewhat more complex function.
 	ssh root@$FSO_ADDRESS "cd $FSO_PATH;git checkout HEAD web/app; git pull"
