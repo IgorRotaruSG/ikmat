@@ -12,6 +12,11 @@ SOURCE_BRANCH='scaffold'
 
 git pull
 REVISION=`git rev-parse origin/$SOURCE_BRANCH`
+
+if [ $1 ]
+then
+BACKEND_PATH=$1
+fi
 cd $BACKEND_PATH/web/app
 git pull
 rm -rf $BACKEND_PATH/web/app
