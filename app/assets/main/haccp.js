@@ -716,17 +716,23 @@ function check_haccp() {
 		poss = 4;
 	}
 	$('input[type="radio"]').change(function() {
+		var isSelected = false;
 		if ($(this).attr("name") == 'possibility') {
+			isSelected = true;
 			poss = $(this).parent().index() + 1;
 			/* selected possibility */
 			poss = 3 - poss + 2;
 			/* because the possibility table is reversed */
 		} else if ($(this).attr("name") == 'consequence') {
+			isSelected = true;
 			cons = $(this).parent().index() + 2;
 			/* selected consequence */
 		}
-		$('.swiper-slide-active .haccp_color_table').find("i").remove();
-		$('.swiper-slide-active .haccp_color_table tr:nth-child(' + poss + ') td:nth-child(' + cons + ')').html('<i class="fa fa-check" style="color:#000;"></i>');
+		
+		if(isSelected){
+			$('.swiper-slide-active .haccp_color_table').find("i").remove();
+			$('.swiper-slide-active .haccp_color_table tr:nth-child(' + poss + ') td:nth-child(' + cons + ')').html('<i class="fa fa-check" style="color:#000;"></i>');
+		}
 	});
 }
 
