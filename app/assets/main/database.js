@@ -149,14 +149,19 @@ db.prototype.createTables = function() {
 	this.database = true;
 	localStorage.setItem("app-version", settings.version);
 	this.appVersion = settings.version;
+	var that = this;
 	for (var i = 0; i < this.tables.length; i++) {
-		this.collections[this.tables[i]] = new PouchDB(this.db_name + "_" + this.tables[i], {
-			skip_setup : true
-		});
-		var designDoc = createDesignDoc('sort_index', function (doc) {
-			emit(doc.timestamp);
-		});
-		this.collections[this.tables[i]].put(designDoc);
+		var index = i;
+		(function(i){
+			that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
+				skip_setup : true
+			});
+			var designDoc = createDesignDoc('sort_index', function (doc) {
+				emit(doc.timestamp);
+			});
+			that.collections[that.tables[i]].put(designDoc);
+		})(index);
+		
 	}
 	this.createView('sync_query', 'get_sync', function(doc){
 		if(!doc.executed){

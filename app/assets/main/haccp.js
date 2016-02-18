@@ -72,7 +72,6 @@ function getHaccpCall(err, results) {
 		}
 
 		if (results.rows.length > 1) {
-			console.log("wtf");
 			mySwiper.removeSlide(0);
 			mySwiper.reInit();
 			mySwiper.resizeFix();
@@ -741,7 +740,6 @@ function check_haccp() {
 }
 
 function continueHaccp(swiper) {
-	console.log('continueHaccp', swiper);
 	confirm_action = false;
 
 	$('#confirmDevPopup').unbind("popupafterclose");
