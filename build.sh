@@ -20,12 +20,13 @@ fi
 cd $BACKEND_PATH
 git checkout $BACKEND_BRANCH
 git pull
-rm -rf $BACKEND_PATH/web/app
+rm -rf $BACKEND_PATH/web/app/*
 cd $SOURCE_PATH
 grunt build --target=$BACKEND_PATH/web/app --force&
 #grunt buildphone --target=$MOBILE_PATH&
 wait
 cd $BACKEND_PATH
+git add web/app
 git commit -am 'build revision $REVISION'
 git push origin $BACKEND_BRANCH
 echo "BUILD SUCCESSFUL"
