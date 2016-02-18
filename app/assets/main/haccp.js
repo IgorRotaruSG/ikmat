@@ -24,7 +24,7 @@ var deviationAnswers = {};
 //navigator.connection.type = Connection.NONE;
 
 function getHaccpCall(err, results) {
-	console.info("getHaccpCall", results, err);
+	console.log("getHaccpCall", results, err);
 	if ((!results || results.rows.length == 0) && isOffline() && !he_have_something) {
 		console.log('getHaccpCall 18');
 		$('#haccp_list_no_results').text($.t('haccp.no_haccp_yet'));
@@ -72,6 +72,7 @@ function getHaccpCall(err, results) {
 		}
 
 		if (results.rows.length > 1) {
+			console.log("wtf");
 			mySwiper.removeSlide(0);
 			mySwiper.reInit();
 			mySwiper.resizeFix();
@@ -176,7 +177,7 @@ function getHaccpCallPrev(tx, results) {
 }
 
 function getHaccp() {
-	console.log('getHaccp11');
+	console.log('getHaccp11', get.continue, get);
 	if (get != undefined && get.continue != undefined) {
 		db.getDbInstance('haccp_items').query('sort_index', {
 			'include_docs' : true,
@@ -309,6 +310,7 @@ function haccpInit() {
 }
 
 function insertHaccpItem() {
+	console.log('insertHaccpItem');
 	db.lazyQuery('haccp_items', castToListObject(["id", "cat", "content", "form", "response"], fq), function(err, results) {
 		db.getDbInstance('haccp_items').query('sort_index', {
 			'include_docs' : true,
@@ -418,9 +420,11 @@ function getHaccpForm(label, id, cat, response) {
 function showV(r, p, c) {
 	if (r) {
 		if (r.possibility == p && r.consequence == c) {
+			console.log('r.possibility white', r.possibility);
 			var color = '#fff';
 
 			if ((p == 2 && c == 0) || (p == 0 && c == 2) || (p == 1 && c == 1)) {
+				console.log('r.possibility black');
 				color = '#000';
 			}
 			return '<i class="fa fa-check" style="color:' + color + ';"></i>';
@@ -737,6 +741,7 @@ function check_haccp() {
 }
 
 function continueHaccp(swiper) {
+	console.log('continueHaccp', swiper);
 	confirm_action = false;
 
 	$('#confirmDevPopup').unbind("popupafterclose");
@@ -993,6 +998,7 @@ function decisionTree(swiper, step) {
 }
 
 function openConfirmDialog(message, confirm, cancel, step) {
+	console.log('openConfirmDialog', message);
 	var confirm_this;
 
 	$("input[name='critical_point']").val('');

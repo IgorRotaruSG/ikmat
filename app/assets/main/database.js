@@ -54,12 +54,12 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 	var promises = [];
 	var that = this;
 	for (var i = 0; i < docs.length; i++) {
-		docs[i].timestamp = new Date().toJSON();
 		var index = i;
 		(function(that, i) {
 			promises[i] = new Promise(function(resolve, reject) {
 				that.collections[collection].get(String(docs[i]._id), function(err, doc) {
 					if (err) {
+						 docs[i].timestamp = new Date().toJSON();
 						 resolve(false);
 					}
 					if (!err && doc && doc._rev) {

@@ -10,13 +10,13 @@ FSO_ADDRESS='10.16.43.33'
 BACKEND_BRANCH='SYNC-POUNCHDB-05022016-NOTCOMPRESS'
 SOURCE_BRANCH='scaffold'
 
-git pull
+git pull origin $SOURCE_BRANCH
 REVISION=`git rev-parse origin/$SOURCE_BRANCH`
-
 if [ $1 ]
 then
 BACKEND_PATH=$1
 fi
+
 cd $BACKEND_PATH
 git checkout $BACKEND_BRANCH
 git pull
@@ -27,7 +27,7 @@ grunt build --target=$BACKEND_PATH/web/app --force&
 wait
 cd $BACKEND_PATH
 git add web/app
-git commit -am 'build revision $REVISION'
+git commit -am "build revision $REVISION"
 git push origin $BACKEND_BRANCH
 echo "BUILD SUCCESSFUL"
 

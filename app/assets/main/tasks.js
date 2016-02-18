@@ -718,22 +718,22 @@ function getTasksUncompleted(data) {
 			checkTaskData();
 			//$('#taskList').html('');
 
-			db.getDbInstance('settings').query(function(doc, emit) {
-				if (['register_edit', 'haccp', 'role'].indexOf(doc.type) != -1) {
-					emit(doc.type, doc.value);
-				}
+			db.getDbInstance("settings").allDocs({
+				keys:['register_edit', 'haccp', 'role'],
+				include_docs: true
 			}, function(error, results) {
+				console.log('error', error, results);
 				var register_edit = true,
 				    haccp = true,
 				    role = '';
 				if (results && results.rows.length > 0) {
 					for (var i = 0; i < results.rows.length; i++) {
-						if (results.rows[i].key == 'register_edit' && results.rows[i].value)
+						if (results.rows[i].key == 'register_edit' && results.rows[i].doc.value)
 							register_edit = false;
-						if (results.rows[i].key == 'haccp' && results.rows[i].value)
+						if (results.rows[i].key == 'haccp' && results.rows[i].doc.value)
 							haccp = false;
 						if (results.rows[i].key == 'role')
-							role = results.rows[i].value;
+							role = results.rows[i].doc.value;
 					}
 				}
 
@@ -791,24 +791,21 @@ function getTasksUncompleted(data) {
 		} else {
 			var date = new Date();
 			var add = [];
-			db.getDbInstance("settings").query({
-				map : function(doc, emit) {
-					if (['register_edit', 'haccp', 'role'].indexOf(doc.type) != -1) {
-						emit(doc.type, doc.value);
-					}
-				}
+			db.getDbInstance("settings").allDocs({
+				keys:['register_edit', 'haccp', 'role'],
+				include_docs: true
 			}, function(error, results) {
 				var register_edit = true,
 				    haccp = true,
 				    role = '';
 				if (results && results.rows.length > 0) {
 					for (var i = 0; i < results.rows.length; i++) {
-						if (results.rows[i].key == 'register_edit' && results.rows[i].value)
+						if (results.rows[i].key == 'register_edit' && results.rows[i].doc.value)
 							register_edit = false;
-						if (results.rows[i].key == 'haccp' && results.rows[i].value)
+						if (results.rows[i].key == 'haccp' && results.rows[i].doc.value)
 							haccp = false;
 						if (results.rows[i].key == 'role')
-							role = results.rows[i].value;
+							role = results.rows[i].doc.value;
 					}
 				}
 

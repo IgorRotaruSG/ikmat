@@ -21,6 +21,9 @@ var mapForm = {
 //navigator.connection.type = Connection.NONE;
 var formcache = new FormCache();
 function getFormsCall(error, results) {
+	if(error){
+		db.dbErrorHandle();
+	}
 	if (results.rows.length == 0 && isOffline()) {
 		$('#no_results_forms').text($.t('forms.no_forms_connection'));
 	}

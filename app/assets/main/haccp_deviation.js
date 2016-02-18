@@ -3,6 +3,7 @@ var $sigdiv;
 var haccp_image_id;
 
 function haccp_deviationInit() {
+	console.log("haccp_deviationInit");
     if (User.isLogged()) {
         get = Page.get();
 
