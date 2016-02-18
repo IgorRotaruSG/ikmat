@@ -13,7 +13,7 @@ function db() {
 	this.data = [];
 	this.query = false;
 	this.collections = [];
-	this.tables = ['settings', 'tasks', 'suppliers', 'employees', 'haccp_category', 'haccp_items', 'forms', 'registration', 'form_item', 'sync_query', 'reports', 'flowchart'];
+	this.tables = ['settings', 'tasks', 'haccp_category', 'haccp_items', 'forms', 'registration', 'form_item', 'sync_query', 'reports', 'flowchart'];
 }
 
 db.prototype.asyncExecute = function(data, step, callback) {
@@ -193,24 +193,25 @@ db.prototype.dbDropTables = function() {
 };
 
 db.prototype.InitDB = function() {
-    var isCreateDB = false;
-    var that = this;
-    if (this.database && this.database !== undefined && this.database !== null ) {
-    	isCreateDB = false;
-    } else {
-    	isCreateDB = true;
-    }
-    if(!this.appVersion || (this.appVersion && settings.rebuild && this.appVersion.replace(/\./g, "") < settings.rebuild.replace(/\./g, ""))){
-    	isCreateDB = true;
-    }
-    if(isCreateDB){
-    	this.dbDropTables().then(function(){
-    		that.createTables();
-    		window.location.reload();
-    	});
-    }else{
-    	this.createTables();
-    }
+    // var isCreateDB = false;
+    // var that = this;
+    // if (this.database && this.database !== undefined && this.database !== null ) {
+    	// isCreateDB = false;
+    // } else {
+    	// isCreateDB = true;
+    // }
+    // if(!this.appVersion || (this.appVersion && settings.rebuild && this.appVersion.replace(/\./g, "") < settings.rebuild.replace(/\./g, ""))){
+    	// isCreateDB = true;
+    // }
+    // if(isCreateDB){
+    	// this.dbDropTables().then(function(){
+    		// that.createTables();
+    		// window.location.reload();
+    	// });
+    // }else{
+    	// this.createTables();
+    // }
+    this.createTables();
 	
 };
 

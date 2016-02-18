@@ -6,7 +6,7 @@
  * @param results
  */
 function getUserHandle(error, results) {
-    if (results.rows.length != 4) {
+    if (error || (results && results.rows.length != 4)) {
         Page.redirect('login.html');
     } else {
         var token, client, user_name, role;
