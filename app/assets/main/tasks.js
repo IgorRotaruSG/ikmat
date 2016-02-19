@@ -810,7 +810,7 @@ function getTasksUncompleted(data) {
 				}
 
 				if (tasks_page == 1) {
-					db.execute('DELETE FROM "tasks"');
+					//db.execute('DELETE FROM "tasks"');
 					//truncate TASKS table
 					if ((register_edit || haccp) && role != 'ROLE_EMPLOYEE') {
 						add.push({
