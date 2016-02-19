@@ -843,6 +843,7 @@ function getNewReport(date_start, date_end){
 
 function downloadPdf(pdf, email_data){
 	if (pdf.data) {
-		window.open(pdf.data, '_blank');
+		window.open(pdf.data, '_blank');		
 	}
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 }
