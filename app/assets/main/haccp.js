@@ -81,21 +81,23 @@ function getHaccpCall(err, results) {
 			$('#haccp_radio_possibility_' + results.rows[i].doc.id + '_' + response_possibility).trigger('click');
 			$('#haccp_radio_consequence_' + results.rows[i].doc.id + '_' + response_consequence).trigger('click');
 		}
-		console.log('before remove',mySwiper.activeIndex, mySwiper.slides);
-		if(results && results.rows.length == 1 && f_i > 3){
+		console.log('before remove',f_i);
+		if(results && results.rows.length == 1){
 			console.log("start abc");
-			if(onNextClick){
+			if(onNextClick && f_i > 2){
 				isNext = true;
 				mySwiper.removeSlide(parseInt(mySwiper.activeIndex) - 1);
-				
+				mySwiper.swipeTo(1, 0, false);
 			}else{
+				console.log("remove remove prev");
 				isNext = false;
 				mySwiper.removeSlide(parseInt(mySwiper.activeIndex) + 1);
+				mySwiper.swipeTo(1, 0, false);
 			}
-			mySwiper.swipeTo(1, 0, true);
+			
+			mySwiper.reInit();
+			mySwiper.resizeFix();
 		}
-		mySwiper.reInit();
-		mySwiper.resizeFix();
 		console.log('after remove',mySwiper.activeIndex, mySwiper.slides);
 		if (results.rows.length > 1) {
 			mySwiper.removeSlide(0);
@@ -196,7 +198,7 @@ function getHaccpCallPrev(tx, results) {
 		html += '</div>';
 		//        alert('prepend xx');
 		mySwiper.prependSlide(html, 'swiper-slide');
-		mySwiper.swipeTo(mySwiper.activeIndex + 1, 0, false)
+		mySwiper.swipeTo(mySwiper.activeIndex + 1, 0, false);
 		check_haccp();
 	}
 }
@@ -299,7 +301,7 @@ function haccpInit() {
 				onNextClick = false;
 				console.log('onSlidePrev', onNextClick);
 				console.log("getHaccpWithLimitPrev", f_i);
-				if(f_i > 3){
+				if(f_i > 2){
 					f_i = parseInt(f_i) - 3;
 					getHaccpWithLimitPrev();
 				}
@@ -491,7 +493,7 @@ function haccpComplete(data) {
 
 				Page.apiCall('deviation', data, 'get', 'haccpDeviation_s');
 			} else {
-				if(onNextClick && mySwiper.activeIndex == 2 || f_i > 3){
+				if(onNextClick && mySwiper.activeIndex == 2 || f_i > 2){
 					console.log('begin');
 					f_i = parseInt(f_i) + 1;
 					getHaccpWithLimit();

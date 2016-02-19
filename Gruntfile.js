@@ -400,10 +400,10 @@ module.exports = function(grunt) {
 		},
 		exec: {
 		  buildios: {
-		    command: 'phonegap run ios'
+		    command: 'phonegap build ios'
 		  },
 		  buildandroid: {
-		    command: 'phonegap run android'
+		    command: 'phonegap build android'
 		  }
 		},
 
