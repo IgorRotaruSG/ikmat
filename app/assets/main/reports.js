@@ -440,6 +440,14 @@ function reportsView(data) {
         Page.redirect('reports_task.html?report=' + get.id + '&task_id=' + $(this).data('id'));
     });
 
+    if (isNative() || isLinkData(data.report_number)) {
+		$('.fa-file-pdf-o').addClass('fa-envelope-o');
+    	$('.fa-envelope-o').removeClass('fa-file-pdf-o');
+	} else {
+		$('.fa-envelope-o').addClass('fa-file-pdf-o');
+    	$('.fa-file-pdf-o').removeClass('fa-envelope-o');
+	}
+
     $('#send_email').off('click').on('click', function(e){
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
         var email_data = {
@@ -710,6 +718,15 @@ function documentsCall(data) {
             return false;
         });
 
+		if (isNative() || isLinkData(data.report_number)) {
+			$('.fa-file-pdf-o').addClass('fa-envelope-o');
+	    	$('.fa-envelope-o').removeClass('fa-file-pdf-o');
+		} else {
+			$('.fa-envelope-o').addClass('fa-file-pdf-o');
+	    	$('.fa-file-pdf-o').removeClass('fa-envelope-o');
+		}
+
+
 		$('#send_email').off('click').on('click', function(e) {
             $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
             var email_data = {
@@ -843,6 +860,7 @@ function getNewReport(date_start, date_end){
 
 function downloadPdf(pdf, email_data){
 	if (pdf.data) {
-		window.open(pdf.data, '_blank');
+		window.open(pdf.data, '_blank');		
 	}
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 }
