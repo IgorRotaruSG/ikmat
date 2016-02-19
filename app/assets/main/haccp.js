@@ -18,12 +18,19 @@ var activeQuestion = 0;
 
 var confirm_action = false;
 var nextSlide = true;
+var priviousSlide = false;
 var createDeviation = false;
 var deviationAnswers = {};
+var onNextClick = false;
+var isNext = false;
+
 
 //navigator.connection.type = Connection.NONE;
 
 function getHaccpCall(err, results) {
+	if(results && results.offset < results.total_rows){
+	}
+
 	console.log("getHaccpCall", results, err);
 	if ((!results || results.rows.length == 0) && isOffline() && !he_have_something) {
 		console.log('getHaccpCall 18');
@@ -47,10 +54,14 @@ function getHaccpCall(err, results) {
 		var html = '';
 		var response;
 		for (var i = 0; i < results.rows.length; i++) {
-			//html = '<h1>' + results.rows[i].doc.id + '/' + results.rows[i].doc.cat + '</h1>';
 			html = getHaccpForm(results.rows[i].doc.content, results.rows[i].doc.id, results.rows[i].doc.cat, results.rows[i].doc.response);
-			mySwiper.appendSlide(html, 'swiper-slide');
-
+			if(!onNextClick && results.rows.length == 1){
+				console.log('prependSlide');
+				mySwiper.prependSlide(html, 'swiper-slide');
+			}else{
+				console.log('append');
+				mySwiper.appendSlide(html, 'swiper-slide');
+			}
 			if (results.rows[i].doc.response != 0) {
 				try {
 					response = JSON.parse(results.rows[i].doc.response);
@@ -70,7 +81,22 @@ function getHaccpCall(err, results) {
 			$('#haccp_radio_possibility_' + results.rows[i].doc.id + '_' + response_possibility).trigger('click');
 			$('#haccp_radio_consequence_' + results.rows[i].doc.id + '_' + response_consequence).trigger('click');
 		}
-
+		console.log('before remove',mySwiper.activeIndex, mySwiper.slides);
+		if(results && results.rows.length == 1 && f_i > 3){
+			console.log("start abc");
+			if(onNextClick){
+				isNext = true;
+				mySwiper.removeSlide(parseInt(mySwiper.activeIndex) - 1);
+				
+			}else{
+				isNext = false;
+				mySwiper.removeSlide(parseInt(mySwiper.activeIndex) + 1);
+			}
+			mySwiper.swipeTo(1, 0, true);
+		}
+		mySwiper.reInit();
+		mySwiper.resizeFix();
+		console.log('after remove',mySwiper.activeIndex, mySwiper.slides);
 		if (results.rows.length > 1) {
 			mySwiper.removeSlide(0);
 			mySwiper.reInit();
@@ -192,6 +218,7 @@ function getHaccp() {
 }
 
 function getHaccpWithLimit() {
+	console.log('f_i', f_i ,'index', mySwiper.activeIndex);
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
 		'skip' : f_i,
@@ -202,9 +229,9 @@ function getHaccpWithLimit() {
 function getHaccpWithLimitPrev() {
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
-		'skip' : activeQuestion,
+		'skip' : f_i,
 		'limit' : 1
-	}, getHaccpCallPrev);
+	}, getHaccpCall);
 }
 
 function haccpInit() {
@@ -239,6 +266,7 @@ function haccpInit() {
 				setSwiperMinHeight();
 			},
 			onSlideChangeStart : function(swiper) {
+				console.log('swiper.activeIndex', swiper.activeIndex, swiper.previousIndex);
 				if (parseInt(swiper.activeIndex) == parseInt(swiper.previousIndex)) {
 					swiper.previousIndex--;
 				}
@@ -262,14 +290,23 @@ function haccpInit() {
 
 			onSlideNext : function(swiper) {
 				_t = 'save';
-
+				onNextClick = true;
+				console.log('onSlideNext', onNextClick);
 			},
 
 			onSlidePrev : function(swiper) {
 				_t = 'edit';
+				onNextClick = false;
+				console.log('onSlidePrev', onNextClick);
+				console.log("getHaccpWithLimitPrev", f_i);
+				if(f_i > 3){
+					f_i = parseInt(f_i) - 3;
+					getHaccpWithLimitPrev();
+				}
 			},
 
 			onSlideChangeEnd : function(swiper) {
+				console.log('end swiper.activeIndex', swiper.activeIndex, swiper.previousIndex);
 				if (parseInt(swiper.activeIndex) == parseInt(swiper.previousIndex)) {
 					swiper.previousIndex--;
 				}// Verify deviation before save
@@ -319,6 +356,7 @@ function insertHaccpItem() {
 }
 
 function haccp(data) {
+	console.log('haccp', mySwiper.activeIndex);
 	if (data.success) {
 		if (data.haccp_category.length > 0) {
 			//var c = data.haccp_category;
@@ -419,11 +457,9 @@ function getHaccpForm(label, id, cat, response) {
 function showV(r, p, c) {
 	if (r) {
 		if (r.possibility == p && r.consequence == c) {
-			console.log('r.possibility white', r.possibility);
 			var color = '#fff';
 
 			if ((p == 2 && c == 0) || (p == 0 && c == 2) || (p == 1 && c == 1)) {
-				console.log('r.possibility black');
 				color = '#000';
 			}
 			return '<i class="fa fa-check" style="color:' + color + ';"></i>';
@@ -436,9 +472,9 @@ function showV(r, p, c) {
 }
 
 function haccpComplete(data) {
+	console.log('haccpComplete', mySwiper.activeIndex);
 	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	//console.log(data);
-	var d = db.getDbInstance();
 	if (data.success) {
 		if (data.haccp_response) {
 			if (data.haccp_response.deviation && data.haccp_response.task_id) {
@@ -455,8 +491,11 @@ function haccpComplete(data) {
 
 				Page.apiCall('deviation', data, 'get', 'haccpDeviation_s');
 			} else {
-				f_i = parseInt(f_i) + 1;
-				getHaccpWithLimit();
+				if(onNextClick && mySwiper.activeIndex == 2 || f_i > 3){
+					console.log('begin');
+					f_i = parseInt(f_i) + 1;
+					getHaccpWithLimit();
+				}
 				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 			}
 		} else {
@@ -740,6 +779,7 @@ function check_haccp() {
 }
 
 function continueHaccp(swiper) {
+	console.log('continueHaccp', mySwiper.activeIndex);
 	confirm_action = false;
 
 	$('#confirmDevPopup').unbind("popupafterclose");
