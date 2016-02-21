@@ -22,16 +22,27 @@ var priviousSlide = false;
 var createDeviation = false;
 var deviationAnswers = {};
 var onNextClick = false;
-var isNext = false;
+var haccp_offset = 0;
+var haccp_total = 0
+var isStart;
+var lazy_total = 3;
 
 
 //navigator.connection.type = Connection.NONE;
 
 function getHaccpCall(err, results) {
-	if(results && results.offset < results.total_rows){
+	console.log('getHaccpCall', results);
+	if(results){
+		haccp_total = results.total_rows;
 	}
-
-	console.log("getHaccpCall", results, err);
+	if(results && results.offset > results.total_rows){
+		return;
+	}
+	if(results && results.rows.length == lazy_total){
+		isStart = true;
+	}else{
+		isStart = false;
+	}
 	if ((!results || results.rows.length == 0) && isOffline() && !he_have_something) {
 		console.log('getHaccpCall 18');
 		$('#haccp_list_no_results').text($.t('haccp.no_haccp_yet'));
@@ -81,17 +92,17 @@ function getHaccpCall(err, results) {
 			$('#haccp_radio_possibility_' + results.rows[i].doc.id + '_' + response_possibility).trigger('click');
 			$('#haccp_radio_consequence_' + results.rows[i].doc.id + '_' + response_consequence).trigger('click');
 		}
-		console.log('before remove',f_i);
+		console.log('next mySwiper.activeIndex',mySwiper.activeIndex, mySwiper.slides);
 		if(results && results.rows.length == 1){
-			console.log("start abc");
+			console.log("start abc", haccp_total, haccp_offset);
 			if(onNextClick && f_i > 2){
 				isNext = true;
-				mySwiper.removeSlide(parseInt(mySwiper.activeIndex) - 1);
+				mySwiper.removeSlide(0);
 				mySwiper.swipeTo(1, 0, false);
-			}else{
+			}else if(!onNextClick) {
 				console.log("remove remove prev");
 				isNext = false;
-				mySwiper.removeSlide(parseInt(mySwiper.activeIndex) + 1);
+				mySwiper.removeSlide(parseInt(mySwiper.slides.length - 1));
 				mySwiper.swipeTo(1, 0, false);
 			}
 			
@@ -119,6 +130,8 @@ function getHaccpCall(err, results) {
 		html += '</div>';
 
 		mySwiper.appendSlide(html, 'swiper-slide');
+		mySwiper.removeSlide(0);
+		mySwiper.swipeTo(1, 0, false);
 		check_haccp();
 
 		//        $('[data-role="footer"]').hide();
@@ -131,6 +144,7 @@ function getHaccpCall(err, results) {
 			Page.redirect('index.html');
 		}, 3500);
 	}
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 }
 
 function getHaccpCallPrev(tx, results) {
@@ -204,23 +218,22 @@ function getHaccpCallPrev(tx, results) {
 }
 
 function getHaccp() {
-	console.log('getHaccp11', get.continue, get);
 	if (get != undefined && get.continue != undefined) {
 		db.getDbInstance('haccp_items').query('sort_index', {
 			'include_docs' : true,
 			'skip' : get.continue,
-			'limit' : 3
+			'limit' : lazy_total
 		}, getHaccpCall);
 	} else {
 		db.getDbInstance('haccp_items').query('sort_index', {
 			'include_docs' : true,
-			'limit' : 3
+			'limit' : lazy_total
 		}, getHaccpCall);
 	}
 }
 
 function getHaccpWithLimit() {
-	console.log('f_i', f_i ,'index', mySwiper.activeIndex);
+	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
 		'skip' : f_i,
@@ -229,6 +242,7 @@ function getHaccpWithLimit() {
 }
 
 function getHaccpWithLimitPrev() {
+	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
 		'skip' : f_i,
@@ -268,7 +282,6 @@ function haccpInit() {
 				setSwiperMinHeight();
 			},
 			onSlideChangeStart : function(swiper) {
-				console.log('swiper.activeIndex', swiper.activeIndex, swiper.previousIndex);
 				if (parseInt(swiper.activeIndex) == parseInt(swiper.previousIndex)) {
 					swiper.previousIndex--;
 				}
@@ -282,7 +295,7 @@ function haccpInit() {
 						}
 					}
 				});
-				if (deviation >= 3 && _t == 'save') {
+				if (deviation >= lazy_total && _t == 'save') {
 					decisionTree(swiper);
 				} else {
 					//continueHaccp(swiper);
@@ -292,23 +305,33 @@ function haccpInit() {
 
 			onSlideNext : function(swiper) {
 				_t = 'save';
+
 				onNextClick = true;
-				console.log('onSlideNext', onNextClick);
 			},
 
 			onSlidePrev : function(swiper) {
 				_t = 'edit';
-				onNextClick = false;
-				console.log('onSlidePrev', onNextClick);
-				console.log("getHaccpWithLimitPrev", f_i);
-				if(f_i > 2){
-					f_i = parseInt(f_i) - 3;
-					getHaccpWithLimitPrev();
+				if(!isStart){
+					if(f_i > haccp_total){
+						f_i = haccp_total;
+						return;
+					}
+					if(onNextClick){
+						f_i = parseInt(f_i) - lazy_total;
+					}else{
+						f_i = parseInt(f_i) - 1;
+					}
+
+					if(f_i >= 0){
+						getHaccpWithLimitPrev();
+					}else{
+						f_i = 0;
+					}
 				}
+				onNextClick = false;
 			},
 
 			onSlideChangeEnd : function(swiper) {
-				console.log('end swiper.activeIndex', swiper.activeIndex, swiper.previousIndex);
 				if (parseInt(swiper.activeIndex) == parseInt(swiper.previousIndex)) {
 					swiper.previousIndex--;
 				}// Verify deviation before save
@@ -321,7 +344,7 @@ function haccpInit() {
 						}
 					}
 				});
-				if (deviation >= 3 && _t == 'save') {
+				if (deviation >= lazy_total && _t == 'save') {
 					//decisionTree(swiper);
 				} else {
 					continueHaccp(swiper);
@@ -348,17 +371,15 @@ function haccpInit() {
 }
 
 function insertHaccpItem() {
-	console.log('insertHaccpItem');
 	db.lazyQuery('haccp_items', castToListObject(["id", "cat", "content", "form", "response"], fq), function(err, results) {
 		db.getDbInstance('haccp_items').query('sort_index', {
 			'include_docs' : true,
-			'limit' : 3
+			'limit' : lazy_total
 		}, getHaccpCall);
 	});
 }
 
 function haccp(data) {
-	console.log('haccp', mySwiper.activeIndex);
 	if (data.success) {
 		if (data.haccp_category.length > 0) {
 			//var c = data.haccp_category;
@@ -474,7 +495,6 @@ function showV(r, p, c) {
 }
 
 function haccpComplete(data) {
-	console.log('haccpComplete', mySwiper.activeIndex);
 	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	//console.log(data);
 	if (data.success) {
@@ -493,9 +513,17 @@ function haccpComplete(data) {
 
 				Page.apiCall('deviation', data, 'get', 'haccpDeviation_s');
 			} else {
-				if(onNextClick && mySwiper.activeIndex == 2 || f_i > 2){
-					console.log('begin');
-					f_i = parseInt(f_i) + 1;
+				if(onNextClick && mySwiper.activeIndex == 2 || f_i > lazy_total - 1){
+					if(f_i == 0){
+						console.log('reset');
+						f_i = lazy_total - 1;
+					}
+					if(!onNextClick && !isStart){
+						console.log("cong 3");
+						f_i = parseInt(f_i) + lazy_total;
+					}else{
+						f_i = parseInt(f_i) + 1;
+					}
 					getHaccpWithLimit();
 				}
 				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
@@ -751,7 +779,7 @@ function check_haccp() {
 	var poss = 0;
 	cons = checked.parent().index() + 1;
 	poss = checked.parent().parent().index();
-	poss = 3 - poss + 2;
+	poss = lazy_total - poss + 2;
 	/* because the possibility table is reversed */
 	if (cons != 1) {
 		cons = 2;
@@ -765,7 +793,7 @@ function check_haccp() {
 			isSelected = true;
 			poss = $(this).parent().index() + 1;
 			/* selected possibility */
-			poss = 3 - poss + 2;
+			poss = lazy_total - poss + 2;
 			/* because the possibility table is reversed */
 		} else if ($(this).attr("name") == 'consequence') {
 			isSelected = true;
@@ -781,7 +809,6 @@ function check_haccp() {
 }
 
 function continueHaccp(swiper) {
-	console.log('continueHaccp', mySwiper.activeIndex);
 	confirm_action = false;
 
 	$('#confirmDevPopup').unbind("popupafterclose");
@@ -868,7 +895,8 @@ function continueHaccp(swiper) {
 			if (!isOffline()) {
 				console.log('haccp 244');
 				Page.apiCall('haccp', data, 'get', 'haccpComplete');
-				/*if ( mySwiper.slides.length >= 4 && mySwiper.activeIndex >= 3) { //if we have at least 5 slides
+
+				/*if ( mySwiper.slides.length >= 4 && mySwiper.activeIndex >= lazy_total) { //if we have at least 5 slides
 				 //Remove fist slide:
 				 mySwiper.removeSlide(0);
 				 //And fix position
@@ -879,7 +907,7 @@ function continueHaccp(swiper) {
 				//                                alert('238 no internet');
 				console.log('942 no internet');
 				var sum = parseInt(dd.possibility) + parseInt(dd.consequence);
-				if (sum >= 3) {
+				if (sum >= lazy_total) {
 					db.lazyQuery('sync_query', [{
 						'api' : 'haccp',
 						'data' : JSON.stringify(data),
@@ -1093,6 +1121,7 @@ function openConfirmDialog(message, confirm, cancel, step) {
 }
 
 function goCreateDeviation(swiper) {
+	console.log('goCreateDeviation');
 	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	confirm_action = true;
 	createDeviation = true;
@@ -1102,6 +1131,7 @@ function goCreateDeviation(swiper) {
 }
 
 function goNext(swiper) {
+	console.log('goNext');
 	universal_cango = false;
 	nextSlide = true;
 	createDeviation = false;
@@ -1110,6 +1140,7 @@ function goNext(swiper) {
 }
 
 function goNextWithCriticalControl(swiper, message) {
+	console.log('goNextWithCriticalControl');
 	universal_cango = false;
 	nextSlide = true;
 	createDeviation = false;
