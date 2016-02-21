@@ -36,6 +36,9 @@ function getHaccpCall(err, results) {
 		haccp_total = results.total_rows;
 	}
 	if(results && results.offset > results.total_rows){
+		setTimeout(function() {
+			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+		}, 500);
 		return;
 	}
 	if(results && results.rows.length == lazy_total){
@@ -92,7 +95,6 @@ function getHaccpCall(err, results) {
 			$('#haccp_radio_possibility_' + results.rows[i].doc.id + '_' + response_possibility).trigger('click');
 			$('#haccp_radio_consequence_' + results.rows[i].doc.id + '_' + response_consequence).trigger('click');
 		}
-		console.log('next mySwiper.activeIndex',mySwiper.activeIndex, mySwiper.slides);
 		if(results && results.rows.length == 1){
 			console.log("start abc", haccp_total, haccp_offset);
 			if(onNextClick && f_i > 2){
@@ -119,7 +121,6 @@ function getHaccpCall(err, results) {
 		}
 		//console.log($.mobile.activePage.attr('id'));
 		$('#' + $.mobile.activePage.attr('id')).trigger('create');
-		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 		//setTimeout(function(){
 		//}, 1000);
 	} else if (he_have_something) {
@@ -144,7 +145,9 @@ function getHaccpCall(err, results) {
 			Page.redirect('index.html');
 		}, 3500);
 	}
-	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	setTimeout(function() {
+		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	}, 500);
 }
 
 function getHaccpCallPrev(tx, results) {
@@ -233,7 +236,6 @@ function getHaccp() {
 }
 
 function getHaccpWithLimit() {
-	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
 		'skip' : f_i,
@@ -242,7 +244,6 @@ function getHaccpWithLimit() {
 }
 
 function getHaccpWithLimitPrev() {
-	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
 		'skip' : f_i,
@@ -282,6 +283,7 @@ function haccpInit() {
 				setSwiperMinHeight();
 			},
 			onSlideChangeStart : function(swiper) {
+				$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 				if (parseInt(swiper.activeIndex) == parseInt(swiper.previousIndex)) {
 					swiper.previousIndex--;
 				}
@@ -305,7 +307,6 @@ function haccpInit() {
 
 			onSlideNext : function(swiper) {
 				_t = 'save';
-
 				onNextClick = true;
 			},
 
@@ -314,6 +315,7 @@ function haccpInit() {
 				if(!isStart){
 					if(f_i > haccp_total){
 						f_i = haccp_total;
+						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 						return;
 					}
 					if(onNextClick){
@@ -326,6 +328,7 @@ function haccpInit() {
 						getHaccpWithLimitPrev();
 					}else{
 						f_i = 0;
+						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 					}
 				}
 				onNextClick = false;
@@ -352,7 +355,7 @@ function haccpInit() {
 				swiper.resizeFix();
 				var $n = $(swiper.getSlide(swiper.activeIndex));
 
-				if ($n.find('div.no_results').length > 0) {
+				if ($n.find('div.no_results').length > 0 || f_i == 0) {
 					$('#footer').hide();
 					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 					return;
@@ -495,7 +498,7 @@ function showV(r, p, c) {
 }
 
 function haccpComplete(data) {
-	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+	//$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	//console.log(data);
 	if (data.success) {
 		if (data.haccp_response) {
@@ -519,14 +522,14 @@ function haccpComplete(data) {
 						f_i = lazy_total - 1;
 					}
 					if(!onNextClick && !isStart){
-						console.log("cong 3");
 						f_i = parseInt(f_i) + lazy_total;
 					}else{
 						f_i = parseInt(f_i) + 1;
 					}
 					getHaccpWithLimit();
+				}else{
+					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 				}
-				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 			}
 		} else {
 
