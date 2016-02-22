@@ -22,7 +22,6 @@ var priviousSlide = false;
 var createDeviation = false;
 var deviationAnswers = {};
 var onNextClick = false;
-var haccp_offset = 0;
 var haccp_total = 0;
 var isStart = true;
 var lazy_total = 3;
@@ -31,7 +30,6 @@ var isValid = false;
 //navigator.connection.type = Connection.NONE;
 
 function getHaccpCall(err, results) {
-	console.log('getHaccpCall', results);
 	if (results) {
 		haccp_total = results.total_rows;
 	}
@@ -47,7 +45,6 @@ function getHaccpCall(err, results) {
 		isStart = false;
 	}
 	if ((!results || results.rows.length == 0) && isOffline() && !he_have_something) {
-		console.log('getHaccpCall 18');
 		$('#haccp_list_no_results').text($.t('haccp.no_haccp_yet'));
 		setTimeout(function() {
 			Page.redirect('index.html');
@@ -61,7 +58,6 @@ function getHaccpCall(err, results) {
 		console.log('26 haccp.js');
 		Page.apiCall('haccp', data, 'post', 'haccp');
 	} else if (results.rows.length > 0) {
-		console.log('din local');
 		he_have_something = true;
 		//        $('#haccp_list_no_results').show();
 
@@ -70,10 +66,8 @@ function getHaccpCall(err, results) {
 		for (var i = 0; i < results.rows.length; i++) {
 			html = getHaccpForm(results.rows[i].doc.content, results.rows[i].doc.id, results.rows[i].doc.cat, results.rows[i].doc.response);
 			if (!onNextClick && results.rows.length == 1) {
-				console.log('prependSlide');
 				mySwiper.prependSlide(html, 'swiper-slide');
 			} else {
-				console.log('append');
 				mySwiper.appendSlide(html, 'swiper-slide');
 			}
 			if (results.rows[i].doc.response != 0) {
@@ -96,14 +90,10 @@ function getHaccpCall(err, results) {
 		}
 		
 		if (results && results.rows.length == 1) {
-			console.log("start abc", haccp_total, haccp_offset);
 			if (onNextClick && f_i > 2) {
-				isNext = true;
 				mySwiper.removeSlide(0);
 				mySwiper.swipeTo(1, 0, false);
 			} else if (!onNextClick) {
-				console.log("remove remove prev");
-				isNext = false;
 				mySwiper.removeSlide(parseInt(mySwiper.slides.length - 1));
 				mySwiper.swipeTo(1, 0, false);
 			}
@@ -139,7 +129,6 @@ function getHaccpCall(err, results) {
 	} else {
 		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 		$('#haccp_list_no_results').html($.t('haccp.no_haccp'));
-		console.log("3");
 		$('[data-role="footer"]').hide();
 		//alert('100');return;
 		setTimeout(function() {
