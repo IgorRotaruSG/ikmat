@@ -639,11 +639,6 @@ function documentsCall(data) {
         displayDocumnetList(true);
 
         $('h1.ui-title').html('Selskapsdokument');
-        var docsContentList = '';
-        $(data.html).find("h2.heading").each(function(index, value){
-           docsContentList += '<dt><a data-rel="close" class="anchor-item" data-transition="slide" href="' + index + '" class="email_flowcharts">' + (index + 1) + ". "+value.innerText + '</a></dt>';
-		});
-		$('#doc-list-contents').html('').html(docsContentList);
 		$('#document-list .ui-panel-inner').css({
 			"overflow-y" : "scroll",
 			"height" : $(window).height()
@@ -663,6 +658,14 @@ function documentsCall(data) {
         $('#documents_container').html(html);
 
         $('#' + $.mobile.activePage.attr('id')).trigger('create');
+        
+        var docsContentList = '';
+        $('#page-wrap').find("h2.heading").each(function(index, value){
+        	var text = value.innerText || $(value).text();
+           docsContentList += '<dt><a data-rel="close" class="anchor-item" data-transition="slide" href="' + index + '" class="email_flowcharts">' + (index + 1) + ". "+ text + '</a></dt>';
+		});
+		
+		$('#doc-list-contents').html('').html(docsContentList);
 
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
