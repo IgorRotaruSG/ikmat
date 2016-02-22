@@ -710,11 +710,13 @@ function getTasksUncompleted(data) {
 				}
 			}
 			if (tasks_page == 1) {
-				db.clearCollection('tasks');
+				db.clearCollection('tasks', function(){
+					db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data), function(results){						
+					});
+				});
+			}else{
+				db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data));
 			}
-			//db.execute('DELETE FROM "tasks"');
-;			db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data));
-
 			checkTaskData();
 			//$('#taskList').html('');
 
@@ -776,13 +778,16 @@ function getTasksUncompleted(data) {
 			});
 			
 			if (tasksNr < per_page) {
+				console.log('1');
 				$('#load_more_tasks').attr('disabled', true);
 				$('#load_more_tasks').parent().hide();
 			} else {
 				if (data.tasks_total_nr <= per_page) {
+					console.log('2');
 					$('#load_more_tasks').attr('disabled', true);
 					$('#load_more_tasks').parent().hide();
 				} else {
+					console.log('3');
 					$('#load_more_tasks').removeAttr('disabled');
 					$('#load_more_tasks').parent().show();
 					$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
@@ -889,11 +894,11 @@ function updateTaskData(data, task_id) {
 				_id : data.form.task_id.value,
 				taskData : JSON.stringify(data)
 			}], function() {
-				if (emptytaskdata.length == 0) {
-					$('#load_more_tasks').removeAttr('disabled');
-					$('#load_more_tasks').parent().show();
-					$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
-				}
+				// if (emptytaskdata.length == 0) {
+					// $('#load_more_tasks').removeAttr('disabled');
+					// $('#load_more_tasks').parent().show();
+					// $('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
+				// }
 			});
 		}
 	}
@@ -904,7 +909,7 @@ function getTasksFromLocal(results) {
 	var groups = [];
 	var c;
 	var add_data;
-
+	console.log('show', results);
 	$('#load_more_tasks').removeAttr('disabled');
 	$('#load_more_tasks').parent().show();
 	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
@@ -917,7 +922,7 @@ function getTasksFromLocal(results) {
 		$('#load_more_tasks').parent().hide();
 		checkTasksList();
 		return;
-	} else if (results.total_rows <= per_page && isOffline()) {
+	} else if (results.total_rows <= per_page) {
 		$('#load_more_tasks').attr('disabled', true);
 		//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
 		$('#load_more_tasks').parent().hide();

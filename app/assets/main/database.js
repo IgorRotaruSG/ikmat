@@ -57,7 +57,7 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 		var index = i;
 		(function(that, i) {
 			promises[i] = new Promise(function(resolve, reject) {
-				that.collections[collection].get(String(docs[i]._id), function(err, doc) {
+				that.collections[collection].get(String(docs[i]._id || docs[i].id), function(err, doc) {
 					if (err) {
 						 docs[i].timestamp = new Date().toJSON();
 						 resolve(false);
@@ -65,6 +65,10 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 					if (!err && doc && doc._rev) {
 						docs[i] = jQuery.extend(doc, docs[i]);
 						docs[i]._id = String(docs[i]._id);
+						if(params && params._deleted){
+							console.log("deleted");
+							docs[i]._deleted = true;
+						}
 						resolve(true);
 					}else{
 						resolve(false);
@@ -250,6 +254,13 @@ db.prototype.getDbInstance = function(name) {
 	return false;
 };
 
-db.prototype.clearCollection = function(name) {
-	this.collections[name].allDocs({include_docs: true, deleted: true});
+db.prototype.clearCollection = function(name, callback) {
+	var that = this;
+	this.collections[name].query('sort_index', function (error, results) {
+	  	that.bulkDocs(name, results.rows, function(){
+	  		if(callback){
+	  			callback();
+	  		}
+	  	}, {_deleted:true});
+	});
 };

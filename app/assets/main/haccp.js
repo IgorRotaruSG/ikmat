@@ -23,8 +23,8 @@ var createDeviation = false;
 var deviationAnswers = {};
 var onNextClick = false;
 var haccp_offset = 0;
-var haccp_total = 0
-var isStart;
+var haccp_total = 0;
+var isStart = true;
 var lazy_total = 3;
 
 
@@ -111,7 +111,6 @@ function getHaccpCall(err, results) {
 			mySwiper.reInit();
 			mySwiper.resizeFix();
 		}
-		console.log('after remove',mySwiper.activeIndex, mySwiper.slides);
 		if (results.rows.length > 1) {
 			mySwiper.removeSlide(0);
 			mySwiper.reInit();
@@ -139,15 +138,14 @@ function getHaccpCall(err, results) {
 	} else {
 		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 		$('#haccp_list_no_results').html($.t('haccp.no_haccp'));
+		console.log("3");
 		$('[data-role="footer"]').hide();
 		//alert('100');return;
 		setTimeout(function() {
 			Page.redirect('index.html');
 		}, 3500);
 	}
-	setTimeout(function() {
-		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-	}, 500);
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 }
 
 function getHaccpCallPrev(tx, results) {
@@ -236,6 +234,7 @@ function getHaccp() {
 }
 
 function getHaccpWithLimit() {
+	console.log('getHaccpWithLimit');
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
 		'skip' : f_i,
@@ -315,7 +314,6 @@ function haccpInit() {
 				if(!isStart){
 					if(f_i > haccp_total){
 						f_i = haccp_total;
-						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 						return;
 					}
 					if(onNextClick){
@@ -328,7 +326,6 @@ function haccpInit() {
 						getHaccpWithLimitPrev();
 					}else{
 						f_i = 0;
-						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 					}
 				}
 				onNextClick = false;
@@ -355,13 +352,14 @@ function haccpInit() {
 				swiper.resizeFix();
 				var $n = $(swiper.getSlide(swiper.activeIndex));
 
-				if ($n.find('div.no_results').length > 0 || f_i == 0) {
+				if ($n.find('div.no_results').length > 0) {
 					$('#footer').hide();
 					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 					return;
 				} else {
 					$('#footer').show();
 				}
+				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 			}
 		});
 
@@ -407,6 +405,7 @@ function haccp(data) {
 			}
 			insertHaccpItem();
 		} else {
+			console.log("1");
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 			$('#haccp_list_no_results').html($.t('error.no_haccps'));
 			$('[data-role="footer"]').hide();
@@ -820,7 +819,7 @@ function continueHaccp(swiper) {
 	//unbind popup function so it won't call twice
 	$('#confirmDevPopup').popup('close');
 	if (_t == 'save' && !universal_cango) {
-		$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+		// $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 		var dd = {};
 		//console.log('swiper.previousIndex',swiper.previousIndex);
 		if (isNaN(swiper.previousIndex)) {
@@ -875,6 +874,7 @@ function continueHaccp(swiper) {
 			var $n = $(swiper.getSlide(swiper.activeIndex));
 			//console.log($n.find('div.no_results').length);
 			if ($n.find('div.no_results').length > 0) {
+				console.log("2");
 				$('[data-role="footer"]').hide();
 			}
 
@@ -1125,7 +1125,7 @@ function openConfirmDialog(message, confirm, cancel, step) {
 
 function goCreateDeviation(swiper) {
 	console.log('goCreateDeviation');
-	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+	// $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	confirm_action = true;
 	createDeviation = true;
 	universal_cango = false;
