@@ -20,35 +20,6 @@ function maintenanceInit() {
 			}
 		});
 	}
-	
-	new Swiper('.swiper-container-maintenance', {
-		calculateHeight : true,
-		releaseFormElements : true,
-		preventLinks : true,
-		simulateTouch : true,
-		keyboardControl : false,
-		noSwiping : true,
-		noSwipingClass : 'ui-slider',
-		//mousewheelControl:      true,// TODO: remove mousewheel support on production
-		onInit : function() {
-		},
-		onSlideNext : function(swiper) {
-			_t = 'next';
-		},
-
-		onSlidePrev : function(swiper) {
-			_t = 'prev';
-		},
-
-		onSlideChangeEnd : function(swiper) {
-			$('html, body').animate({
-				scrollTop : 0
-			}, 500);
-           // mySwiper.resizeFix();
-			
-
-		}
-	});
 }
 
 function maintenance(data) {
@@ -167,9 +138,16 @@ function maintenance(data) {
 		$('#form_back_btn i').removeClass('hided');
 
 	}
-	realignSlideHeight('max-height-maintenance');
+	calcHeight('form_maintenance');
 }
 
+function calcHeight(el){
+	$('#' + el).parent().css('overflow-y', 'scroll');
+	$('#' + el).parent().css('overflow-x', 'hidden');
+	$('#' + el).parent().css('position', 'relative');
+	$('#' + el).parent().css('height', document.body.clientHeight - 80 + 'px');
+	$('#' + el).parent().css('-webkit-overflow-scrolling', 'touch');
+}
 
 $(document).on('click', '#form_back_btn', function(e) {
 	e.preventDefault();
