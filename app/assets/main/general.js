@@ -1718,7 +1718,10 @@ Form.prototype.radioListV = function(name, label, value, checkboxes, name2, useS
 	return html;
 };
 
-Form.prototype.radioListHACCP = function(name, label, checkboxes, r) {
+Form.prototype.radioListHACCP = function(name, label, checkboxes, r, selectedIndex) {
+	if(!selectedIndex){
+		selectedIndex = false;
+	}
 	var color = {
 		0 : '#6ca604',
 		1 : '#ffa800',
@@ -1730,13 +1733,22 @@ Form.prototype.radioListHACCP = function(name, label, checkboxes, r) {
 
 	for (var i in checkboxes) {
 		if (checkboxes.hasOwnProperty(i)) {
-			if (r !== false) {
-				html += '<input name="' + name + '" type="radio" value="' + i + '" id="haccp_radio_' + name + '_' + r + '_' + i + '">';
-				html += '<label for="haccp_radio_' + name + '_' + r + '_' + i + '"><i class="fa fa-square" style="color:' + color[i] + ';"></i> ' + checkboxes[i] + '</label>';
-			} else {
-				html += '<input name="' + name + '" id="' + md5(name + i) + '" type="radio" value="' + i + '">';
-				html += '<label for="' + md5(name + i) + '"><i class="fa fa-square" style="color:' + color[i] + ';"></i> ' + checkboxes[i] + '</label>';
-			}
+			var isSelected = false;
+			var index = i;
+			(function(i){
+				if (r !== false) {
+					if(i == selectedIndex){
+						html += '<input name="' + name + '" type="radio" value="' + i + '" checked="checked" id="haccp_radio_' + name + '_' + r + '_' + i + '">';
+					}else{
+						html += '<input name="' + name + '" type="radio" value="' + i + '" id="haccp_radio_' + name + '_' + r + '_' + i + '">';
+					}
+					html += '<label for="haccp_radio_' + name + '_' + r + '_' + i + '"><i class="fa fa-square" style="color:' + color[i] + ';"></i> ' + checkboxes[i] + '</label>';
+				} else {
+					html += '<input name="' + name + '" id="' + md5(name + i) + '" type="radio" value="' + i + '">';
+					html += '<label for="' + md5(name + i) + '"><i class="fa fa-square" style="color:' + color[i] + ';"></i> ' + checkboxes[i] + '</label>';
+				}
+			})(index);
+			
 		}
 	}
 

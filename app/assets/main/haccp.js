@@ -28,23 +28,22 @@ var isStart = true;
 var lazy_total = 3;
 var isValid = false;
 
-
 //navigator.connection.type = Connection.NONE;
 
 function getHaccpCall(err, results) {
 	console.log('getHaccpCall', results);
-	if(results){
+	if (results) {
 		haccp_total = results.total_rows;
 	}
-	if(results && results.offset > results.total_rows){
+	if (results && results.offset > results.total_rows) {
 		setTimeout(function() {
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 		}, 500);
 		return;
 	}
-	if(results && results.rows.length == lazy_total){
+	if (results && results.rows.length == lazy_total) {
 		isStart = true;
-	}else{
+	} else {
 		isStart = false;
 	}
 	if ((!results || results.rows.length == 0) && isOffline() && !he_have_something) {
@@ -70,10 +69,10 @@ function getHaccpCall(err, results) {
 		var response;
 		for (var i = 0; i < results.rows.length; i++) {
 			html = getHaccpForm(results.rows[i].doc.content, results.rows[i].doc.id, results.rows[i].doc.cat, results.rows[i].doc.response);
-			if(!onNextClick && results.rows.length == 1){
+			if (!onNextClick && results.rows.length == 1) {
 				console.log('prependSlide');
 				mySwiper.prependSlide(html, 'swiper-slide');
-			}else{
+			} else {
 				console.log('append');
 				mySwiper.appendSlide(html, 'swiper-slide');
 			}
@@ -92,26 +91,27 @@ function getHaccpCall(err, results) {
 				var response_consequence = -1;
 				response = false;
 			}
-
-			$('#haccp_radio_possibility_' + results.rows[i].doc.id + '_' + response_possibility).trigger('click');
-			$('#haccp_radio_consequence_' + results.rows[i].doc.id + '_' + response_consequence).trigger('click');
+			// $('#haccp_radio_possibility_' + results.rows[i].doc.id + '_' + response_possibility).trigger('click');
+			// $('#haccp_radio_consequence_' + results.rows[i].doc.id + '_' + response_consequence).trigger('click');
 		}
-		if(results && results.rows.length == 1){
+		
+		if (results && results.rows.length == 1) {
 			console.log("start abc", haccp_total, haccp_offset);
-			if(onNextClick && f_i > 2){
+			if (onNextClick && f_i > 2) {
 				isNext = true;
 				mySwiper.removeSlide(0);
 				mySwiper.swipeTo(1, 0, false);
-			}else if(!onNextClick) {
+			} else if (!onNextClick) {
 				console.log("remove remove prev");
 				isNext = false;
 				mySwiper.removeSlide(parseInt(mySwiper.slides.length - 1));
 				mySwiper.swipeTo(1, 0, false);
 			}
-			
+
 			mySwiper.reInit();
 			mySwiper.resizeFix();
 		}
+
 		if (results.rows.length > 1) {
 			mySwiper.removeSlide(0);
 			mySwiper.reInit();
@@ -313,24 +313,24 @@ function haccpInit() {
 			onSlidePrev : function(swiper) {
 				_t = 'edit';
 				console.log('isValid', isValid);
-				if(onNextClick && !isValid){
+				if (onNextClick && !isValid) {
 					isValid = true;
 					return;
 				}
-				if(!isStart){
-					if(f_i > haccp_total){
+				if (!isStart) {
+					if (f_i > haccp_total) {
 						f_i = haccp_total;
 						return;
 					}
-					if(onNextClick){
+					if (onNextClick) {
 						f_i = parseInt(f_i) - lazy_total;
-					}else{
+					} else {
 						f_i = parseInt(f_i) - 1;
 					}
 
-					if(f_i >= 0){
+					if (f_i >= 0) {
 						getHaccpWithLimitPrev();
-					}else{
+					} else {
 						f_i = 0;
 					}
 				}
@@ -420,6 +420,7 @@ function haccp(data) {
 }
 
 function getHaccpForm(label, id, cat, response) {
+	console.log('getHaccpForm', label, id, cat, response);
 	if (response != 0) {
 		try {
 			response = JSON.parse(response);
@@ -443,9 +444,9 @@ function getHaccpForm(label, id, cat, response) {
 
 	var html = '<div style="padding:5px 10px;overflow:auto;height: ' + zh_h + 'px;" class="scrollTop"><form>';
 
-	html += Form.radioListHACCP('possibility', label, [$.t("haccp.small_answer"), $.t("haccp.medium_answer"), $.t("haccp.big_answer")], id);
+	html += Form.radioListHACCP('possibility', label, [$.t("haccp.small_answer"), $.t("haccp.medium_answer"), $.t("haccp.big_answer")], id, response_possibility);
 	html += '<div style="height:20px;"></div>';
-	html += Form.radioListHACCP('consequence', $.t("haccp.consequence_question"), [$.t("haccp.small_answer_cons"), $.t("haccp.medium_answer_cons"), $.t("haccp.big_answer_cons")], id);
+	html += Form.radioListHACCP('consequence', $.t("haccp.consequence_question"), [$.t("haccp.small_answer_cons"), $.t("haccp.medium_answer_cons"), $.t("haccp.big_answer_cons")], id, response_consequence);
 	html += Form.inputHidden('subcategory', id);
 	html += Form.inputHidden('category', cat);
 
@@ -504,7 +505,7 @@ function showV(r, p, c) {
 
 function haccpComplete(data) {
 	//$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-	//console.log(data);
+	console.log('haccpComplete', data);
 	if (data.success) {
 		if (data.haccp_response) {
 			if (data.haccp_response.deviation && data.haccp_response.task_id) {
@@ -521,18 +522,18 @@ function haccpComplete(data) {
 
 				Page.apiCall('deviation', data, 'get', 'haccpDeviation_s');
 			} else {
-				if(onNextClick && mySwiper.activeIndex == 2 || f_i > lazy_total - 1){
-					if(f_i == 0){
+				if (onNextClick && mySwiper.activeIndex == 2 || f_i > lazy_total - 1) {
+					if (f_i == 0) {
 						console.log('reset');
 						f_i = lazy_total - 1;
 					}
-					if(!onNextClick && !isStart){
+					if (!onNextClick && !isStart) {
 						f_i = parseInt(f_i) + lazy_total;
-					}else{
+					} else {
 						f_i = parseInt(f_i) + 1;
 					}
 					getHaccpWithLimit();
-				}else{
+				} else {
 					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 				}
 			}
@@ -787,7 +788,7 @@ function check_haccp() {
 	var poss = 0;
 	cons = checked.parent().index() + 1;
 	poss = checked.parent().parent().index();
-	poss = lazy_total - poss + 2;
+	poss = 3 - poss + 2;
 	/* because the possibility table is reversed */
 	if (cons != 1) {
 		cons = 2;
@@ -795,21 +796,22 @@ function check_haccp() {
 	if (poss != 1) {
 		poss = 4;
 	}
+	console.log('check_haccp', poss, cons);
 	$('input[type="radio"]').change(function() {
 		var isSelected = false;
 		if ($(this).attr("name") == 'possibility') {
 			isSelected = true;
 			poss = $(this).parent().index() + 1;
 			/* selected possibility */
-			poss = lazy_total - poss + 2;
+			poss = 3 - poss + 2;
 			/* because the possibility table is reversed */
 		} else if ($(this).attr("name") == 'consequence') {
 			isSelected = true;
 			cons = $(this).parent().index() + 2;
 			/* selected consequence */
 		}
-		
-		if(isSelected){
+
+		if (isSelected) {
 			$('.swiper-slide-active .haccp_color_table').find("i").remove();
 			$('.swiper-slide-active .haccp_color_table tr:nth-child(' + poss + ') td:nth-child(' + cons + ')').html('<i class="fa fa-check" style="color:#000;"></i>');
 		}
