@@ -1720,7 +1720,7 @@ Form.prototype.radioListV = function(name, label, value, checkboxes, name2, useS
 
 Form.prototype.radioListHACCP = function(name, label, checkboxes, r, selectedIndex) {
 	if(!selectedIndex){
-		selectedIndex = false;
+		selectedIndex = -1;
 	}
 	var color = {
 		0 : '#6ca604',

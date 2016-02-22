@@ -34,7 +34,7 @@ echo "BUILD SUCCESSFUL"
 cd $SOURCE_PATH
 function fso_build
 { # A somewhat more complex function.
-	ssh root@$FSO_ADDRESS "cd $FSO_PATH;git checkout HEAD web/app; git pull; rm -rf $FSO_PATH/app/cache"
+	ssh root@$FSO_ADDRESS "cd $FSO_PATH;git checkout $BACKEND_BRANCH; git checkout HEAD web/app; git pull; rm -rf $FSO_PATH/app/cache"
 	echo "DEPLOYE SUCCESSFUL TO FSO SERVER"
 }
 

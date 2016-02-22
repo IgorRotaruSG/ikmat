@@ -30,6 +30,7 @@ var isValid = false;
 //navigator.connection.type = Connection.NONE;
 
 function getHaccpCall(err, results) {
+	console.log('getHaccpCall', results);
 	if (results) {
 		haccp_total = results.total_rows;
 	}
@@ -224,7 +225,6 @@ function getHaccp() {
 }
 
 function getHaccpWithLimit() {
-	console.log('getHaccpWithLimit');
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
 		'skip' : f_i,
@@ -296,6 +296,9 @@ function haccpInit() {
 
 			onSlideNext : function(swiper) {
 				_t = 'save';
+				if (!onNextClick && !isStart) {
+					f_i = parseInt(f_i) + lazy_total - 1;
+				}
 				onNextClick = true;
 			},
 
@@ -400,7 +403,6 @@ function haccp(data) {
 			}
 			insertHaccpItem();
 		} else {
-			console.log("1");
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 			$('#haccp_list_no_results').html($.t('error.no_haccps'));
 			$('[data-role="footer"]').hide();
@@ -409,7 +411,6 @@ function haccp(data) {
 }
 
 function getHaccpForm(label, id, cat, response) {
-	console.log('getHaccpForm', label, id, cat, response);
 	if (response != 0) {
 		try {
 			response = JSON.parse(response);
@@ -493,8 +494,6 @@ function showV(r, p, c) {
 }
 
 function haccpComplete(data) {
-	//$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-	console.log('haccpComplete', data);
 	if (data.success) {
 		if (data.haccp_response) {
 			if (data.haccp_response.deviation && data.haccp_response.task_id) {
@@ -513,14 +512,9 @@ function haccpComplete(data) {
 			} else {
 				if (onNextClick && mySwiper.activeIndex == 2 || f_i > lazy_total - 1) {
 					if (f_i == 0) {
-						console.log('reset');
 						f_i = lazy_total - 1;
 					}
-					if (!onNextClick && !isStart) {
-						f_i = parseInt(f_i) + lazy_total;
-					} else {
-						f_i = parseInt(f_i) + 1;
-					}
+					f_i = parseInt(f_i) + 1;
 					getHaccpWithLimit();
 				} else {
 					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
@@ -883,7 +877,6 @@ function continueHaccp(swiper) {
 				'haccp_category' : dd.category,
 				'response' : JSON.stringify(dd)
 			};
-
 			db.lazyQuery('haccp_items', [{
 				'_id' : dd.subcategory,
 				'response' : JSON.stringify(dd)
