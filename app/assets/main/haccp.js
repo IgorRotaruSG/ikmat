@@ -26,6 +26,7 @@ var haccp_offset = 0;
 var haccp_total = 0;
 var isStart = true;
 var lazy_total = 3;
+var isValid = false;
 
 
 //navigator.connection.type = Connection.NONE;
@@ -149,7 +150,7 @@ function getHaccpCall(err, results) {
 }
 
 function getHaccpCallPrev(tx, results) {
-	//alert('getHaccpCallPrev');
+	alert('getHaccpCallPrev');
 	if (results.rows.length == 0 && isOffline() && !he_have_something) {
 		console.log('getHaccpCall 18');
 		$('#haccp_list_no_results').text($.t('haccp.no_haccp_yet'));
@@ -311,6 +312,11 @@ function haccpInit() {
 
 			onSlidePrev : function(swiper) {
 				_t = 'edit';
+				console.log('isValid', isValid);
+				if(onNextClick && !isValid){
+					isValid = true;
+					return;
+				}
 				if(!isStart){
 					if(f_i > haccp_total){
 						f_i = haccp_total;
@@ -344,7 +350,7 @@ function haccpInit() {
 						}
 					}
 				});
-				if (deviation >= lazy_total && _t == 'save') {
+				if (deviation >= 3 && _t == 'save') {
 					//decisionTree(swiper);
 				} else {
 					continueHaccp(swiper);
@@ -841,11 +847,13 @@ function continueHaccp(swiper) {
 		});
 
 		var cango = true;
+		isValid = true;
 		for (i in dd) {
 			if (dd.hasOwnProperty(i)) {
 				if (i != 'subcategory' && i != 'category') {
 					if (dd[i] == -1) {
 						cango = false;
+						isValid = false;
 						$f.find('input[name="' + i + '"]').first().parent().parent().parent().find('p').remove();
 						$f.find('input[name="' + i + '"]').first().parent().parent().parent().append($('<p style="color:red;">' + $.t("haccp.this_is_required") + '</p>'));
 					} else {
