@@ -528,7 +528,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Dieu Vu (94BA8AF3QL)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -552,7 +552,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = hygiene.app.automagi;
 				PRODUCT_NAME = "IK-Mat";
-				PROVISIONING_PROFILE = "6ef2cc36-a45b-45fa-b2d6-437281830c5b";
+				PROVISIONING_PROFILE = "25165728-dfcb-4d24-b825-ffad23b7c83d";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -585,7 +585,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = hygiene.app.automagi;
 				PRODUCT_NAME = "IK-Mat";
-				PROVISIONING_PROFILE = "bda114b8-41b0-4e2c-a2cf-afdb594130b8";
+				PROVISIONING_PROFILE = "25165728-dfcb-4d24-b825-ffad23b7c83d";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
