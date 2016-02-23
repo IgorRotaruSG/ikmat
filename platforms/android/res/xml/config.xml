@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="hygiene.app.automagi" version="2.0.73" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="hygiene.app.automagi" version="2.0.74" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
     <preference name="loglevel" value="DEBUG" />
     <feature name="Device">
         <param name="android-package" value="org.apache.cordova.device.Device" />
@@ -42,7 +42,7 @@
     </feature>
     <preference name="orientation" value="Default" />
     <feature name="SQLitePlugin">
-        <param name="android-package" value="io.sqlc.SQLitePlugin" />
+        <param name="android-package" value="org.pgsqlite.SQLitePlugin" />
     </feature>
     <allow-intent href="market:*" />
     <name>IK-Mat</name>

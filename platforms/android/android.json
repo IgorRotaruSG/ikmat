@@ -179,7 +179,7 @@
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "cordova-sqlite-storage": {
-            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+            "PACKAGE_NAME": "hygiene.app.automagi"
         }
     },
     "dependent_plugins": {},
