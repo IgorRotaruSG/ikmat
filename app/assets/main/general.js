@@ -644,6 +644,7 @@ User.prototype.logout = function() {
 
 function logout() {
 	logout_flag = true;
+	localStorage.setItem('user_name', '');
 	db.dbDropTables().then(function() {
 		User.database = false;
 		User.client = false;
