@@ -5,6 +5,7 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		0614DC799D414F4F9D061CD0 /* CDVConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F6D631785584F29B3F3A487 /* CDVConnection.m */; };
 		11ED6F06ECA84452843F54EA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1516F25B7A64D8799E8DB87 /* CoreLocation.framework */; };
@@ -551,7 +552,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = hygiene.app.automagi;
 				PRODUCT_NAME = "IK-Mat";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "6ef2cc36-a45b-45fa-b2d6-437281830c5b";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -561,7 +562,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: AutoMagi Ltd (2ZDPCXEHU3)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: AutoMagi Ltd (2ZDPCXEHU3)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -584,7 +585,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = hygiene.app.automagi;
 				PRODUCT_NAME = "IK-Mat";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "bda114b8-41b0-4e2c-a2cf-afdb594130b8";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -599,7 +600,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Dieu Vu (94BA8AF3QL)";
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_THUMB_SUPPORT = NO;
@@ -628,6 +629,7 @@
 					"-weak-lSystem",
 					"-ObjC",
 				);
+				PROVISIONING_PROFILE = "6ef2cc36-a45b-45fa-b2d6-437281830c5b";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -644,7 +646,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: AutoMagi Ltd (2ZDPCXEHU3)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
@@ -672,6 +674,7 @@
 					"-weak-lSystem",
 					"-ObjC",
 				);
+				PROVISIONING_PROFILE = "bda114b8-41b0-4e2c-a2cf-afdb594130b8";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				USER_HEADER_SEARCH_PATHS = "";

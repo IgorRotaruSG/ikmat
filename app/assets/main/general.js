@@ -2182,7 +2182,7 @@ function bind_menuClick(t, n) {
 	} else {
 		contactName.html(localStorage.getItem('contact_name'));
 	}
-	$(t).find('#app-version').html("IK-mat 2.0.9");
+	$(t).find('#app-version').html("IK-mat 2.0.10");
 	displayOnline(isOffline());
 }
 
