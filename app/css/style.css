@@ -103,3 +103,5 @@ body{
 }
 
 input[type=number] {-moz-appearance: textfield;}
+
+.ui-block-b-border { margin-left: 1px!important; border-left: 1px solid #ccc !important; }
