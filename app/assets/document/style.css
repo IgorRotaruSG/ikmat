@@ -18,6 +18,10 @@ h3 {
    text-indent: 20px;
 }
 
+h2 {
+   text-indent: 20px!important;
+   word-break: break-word!important;
+}
 .semi-title {
     border-radius: 6px;
     -webkit-border-radius: 6px;
