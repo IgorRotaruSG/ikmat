@@ -1,1 +1,0 @@
-function tosInit(){var a=$.t("tos.text");$("#tos_back_button").html($.t("tos.back")),$("#tos_back_button").siblings(".ui-btn-inner").find("span.ui-btn-text").html($.t("tos.back")),$("#tos_container").html(a)}

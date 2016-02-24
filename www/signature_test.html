@@ -1,4 +1,8 @@
-<!DOCTYPE html> <html> <head> <script type="text/javascript">if (window.Page == undefined) {
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript">
+        if (window.Page == undefined) {
             window.location.href = 'index.html';
         }
 
@@ -12,4 +16,43 @@
 
         function deviceReady() {
             Page.isReady();
-        }</script> </head> <body> <div data-role="page" data-theme="a" id="signature_test" data-head-title="Signature Test"> <!-- header --> <div data-role="header" id="global_header"> <!-- data will be added here with ajax --> </div> <!-- end header --> <!-- content --> <div data-role="content" data-theme="a"> <div id="signature-holder"> <div id="signature" data-role="none"></div> </div> <span id="signature-status-message">Sign in landscape mode for better accuracy</span> <button id="signature-reset">Reset</button> <button id="signature-show">Show</button> <div id="signature-container"></div> </div> <!-- end content --> <!-- footer --> <div data-role="footer" data-theme="c" data-position="fixed" id="global_footer"> <!-- data will be added here with ajax --> </div> <!-- end footer --> <!-- panel --> <div data-role="panel" id="menu_panel" data-position="left" data-theme="d"> <!-- data will be added here with ajax --> </div> <!-- end panel --> </div> </body> </html>
+        }
+    </script>
+</head>
+<body>
+<div data-role="page" data-theme="a" id="signature_test" data-head-title="Signature Test">
+
+    <!-- header -->
+    <div data-role="header" id="global_header">
+        <!-- data will be added here with ajax -->
+    </div>
+    <!-- end header -->
+
+    <!-- content -->
+    <div data-role="content" data-theme="a">
+        <div id="signature-holder">
+            <div id="signature" data-role="none"></div>
+        </div>
+        <span id="signature-status-message">Sign in landscape mode for better accuracy</span>
+
+        <button id="signature-reset">Reset</button>
+        <button id="signature-show">Show</button>
+
+        <div id="signature-container"></div>
+    </div>
+    <!-- end content -->
+
+    <!-- footer -->
+    <div data-role="footer" data-theme="c" data-position="fixed" id="global_footer">
+        <!-- data will be added here with ajax -->
+    </div>
+    <!-- end footer -->
+
+    <!-- panel -->
+    <div data-role="panel" id="menu_panel" data-position="left" data-theme="d">
+        <!-- data will be added here with ajax -->
+    </div>
+    <!-- end panel -->
+</div>
+</body>
+</html>

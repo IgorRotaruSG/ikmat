@@ -1,1 +1,77 @@
-function add_employeeInit(){if(isOffline()){$("#add_employee_container_error").hide();var a={client:User.client,token:User.lastToken};Page.apiCall("registerEmployee",a,"get","registerEmployee")}else $("#add_employee_container_error").text("Ingen skjema for å vise. Vennligst koble til internett for å synkronisere.")}function registerEmployee(a){if(a.success){var b="";b='<form id="registerEmployeeForm">',b+=HTML.formGenerate(a.form_register_employee,$.t("nav.add_employee")),b+='<input type="hidden" name="edit" value="false">',b+="</form",$("#add_employee_container").html(b),$("#"+$.mobile.activePage.attr("id")).trigger("create"),$(".overflow-wrapper").addClass("overflow-wrapper-hide"),$("#registerEmployeeForm").submit(function(a){a.preventDefault();var b=HTML.validate($(this));if(b){var c=HTML.getFormValues($(this).parent()),d={client:User.client,token:User.lastToken,data:JSON.stringify(c)};$(".overflow-wrapper").removeClass("overflow-wrapper-hide"),$("#form_back_btn i").addClass("hided"),Page.apiCall("registerEmployee",d,"get","registerEmployeeSucess")}return!1})}}function registerEmployeeSucess(a){void 0!=a.registration_steps&&void 0!=a.registration_steps.error?($("#alertPopup .alert-text").html($.t("error.duplicate_employee")),$("#alertPopup").off("popupafterclose").on("popupafterclose",function(){$(".overflow-wrapper").addClass("overflow-wrapper-hide")}),$("#alertPopup").popup("open",{positionTo:"window"})):($("#alertPopup .alert-text").html($.t("error.duplicate_employee")),$("#alertPopup").off("popupafterclose").on("popupafterclose",function(){$(".overflow-wrapper").removeClass("overflow-wrapper-hide"),add_employeeInit()}))}
+function add_employeeInit() {
+//    if (navigator.connection.type == Connection.NONE) {
+    if (!isOffline() ) {
+//        $('#add_employee_container_error').text('No form to show. Please connect to internet to sync.');
+        $('#add_employee_container_error').text('Ingen skjema for å vise. Vennligst koble til internett for å synkronisere.');
+    }
+    else {
+        $('#add_employee_container_error').hide();
+        var data = {
+            'client': User.client,
+            'token': User.lastToken
+        };
+
+        Page.apiCall('registerEmployee', data, 'get', 'registerEmployee');
+    }
+}
+
+function registerEmployee(data) {
+    if (data.success) {
+        var html = '';
+
+        html = '<form id="registerEmployeeForm">';
+        html += HTML.formGenerate(data.form_register_employee, $.t('nav.add_employee'));
+        html += '<input type="hidden" name="edit" value="false">';
+        html += '</form';
+
+        $('#add_employee_container').html(html);
+        $('#' + $.mobile.activePage.attr('id')).trigger('create');
+
+        $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
+        $('#registerEmployeeForm').submit(function(e){
+            e.preventDefault();
+
+            var cango = HTML.validate($(this));
+
+            if (cango) {
+                var v = HTML.getFormValues($(this).parent());
+
+                var data = {
+                    'client': User.client,
+                    'token': User.lastToken,
+                    'data': JSON.stringify(v)
+                };
+
+                /*console.log(JSON.stringify(data));*/
+
+                $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+                $('#form_back_btn i').addClass('hided');
+                Page.apiCall('registerEmployee', data, 'get', 'registerEmployeeSucess');
+            }
+
+            return false;
+        });
+    }
+}
+
+function registerEmployeeSucess(data) {
+    if (data.registration_steps != undefined && data.registration_steps.error != undefined) {
+        //alert($.t('error.duplicate_employee'));
+        //$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+        $('#alertPopup .alert-text').html($.t("error.duplicate_employee"));
+        $('#alertPopup').off("popupafterclose").on("popupafterclose",function(){
+            $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+        });
+        $('#alertPopup').popup( "open", {positionTo: 'window'});
+    } else {
+        //alert($.t('success.added_employee'));
+        //$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+        //add_employeeInit();
+        $('#alertPopup .alert-text').html($.t("error.duplicate_employee"));
+        $('#alertPopup').off("popupafterclose").on("popupafterclose",function(){
+            $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+            add_employeeInit();
+        });
+    }
+}

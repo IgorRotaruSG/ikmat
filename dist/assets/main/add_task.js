@@ -1,1 +1,3 @@
-function add_taskInit(){}
+function add_taskInit() {
+
+}
