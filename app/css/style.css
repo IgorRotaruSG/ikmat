@@ -102,6 +102,9 @@ body{
 	border: 1px solid #ccc;
 }
 
+/* Fix arrow icon in number text field on FF */
 input[type=number] {-moz-appearance: textfield;}
 
+/* Fix border left for next button on footer */
 .ui-block-b-border { margin-left: 1px!important; border-left: 1px solid #ccc !important; }
+#global_footer { background-color: #FFF!important; }
