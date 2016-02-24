@@ -24,6 +24,8 @@ var per_page = 20;
 //navigator.connection.type = Connection.NONE;
 
 var devId = 0;
+var tasks_total_nr = 0;
+var local_tasks_total = 0;
 //for deviation completed
 
 function getTasksCall(err, results) {
@@ -646,6 +648,7 @@ function getTasksUncompleted(data) {
 	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.loading"));
 	//disable LoadMore button until tastdata gets updated
 	if (data.success) {
+		tasks_total_nr = data.tasks_total_nr;
 		if (data.tasks) {
 			var add = [];
 			var date = new Date();
@@ -710,11 +713,13 @@ function getTasksUncompleted(data) {
 				}
 			}
 			if (tasks_page == 1) {
+				local_tasks_total = tasksNr;
 				db.clearCollection('tasks', function(){
 					db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data), function(results){						
 					});
 				});
 			}else{
+				local_tasks_total += tasksNr;
 				db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data));
 			}
 			checkTaskData();
@@ -724,7 +729,6 @@ function getTasksUncompleted(data) {
 				keys:['register_edit', 'haccp', 'role'],
 				include_docs: true
 			}, function(error, results) {
-				console.log('error', error, results);
 				var register_edit = true,
 				    haccp = true,
 				    role = '';
@@ -778,16 +782,13 @@ function getTasksUncompleted(data) {
 			});
 			
 			if (tasksNr < per_page) {
-				console.log('1');
 				$('#load_more_tasks').attr('disabled', true);
 				$('#load_more_tasks').parent().hide();
 			} else {
 				if (data.tasks_total_nr <= per_page) {
-					console.log('2');
 					$('#load_more_tasks').attr('disabled', true);
 					$('#load_more_tasks').parent().hide();
 				} else {
-					console.log('3');
 					$('#load_more_tasks').removeAttr('disabled');
 					$('#load_more_tasks').parent().show();
 					$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
@@ -909,7 +910,10 @@ function getTasksFromLocal(results) {
 	var groups = [];
 	var c;
 	var add_data;
-	console.log('show', results);
+	if(local_tasks_total != 0 && local_tasks_total > results.total_rows){
+		tasks_total_nr = tasks_total_nr - (local_tasks_total - results.total_rows);
+	}
+	local_tasks_total = results.total_rows;
 	$('#load_more_tasks').removeAttr('disabled');
 	$('#load_more_tasks').parent().show();
 	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
@@ -922,7 +926,7 @@ function getTasksFromLocal(results) {
 		$('#load_more_tasks').parent().hide();
 		checkTasksList();
 		return;
-	} else if (results.total_rows <= per_page) {
+	} else if (tasks_total_nr <= per_page) {
 		$('#load_more_tasks').attr('disabled', true);
 		//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
 		$('#load_more_tasks').parent().hide();
