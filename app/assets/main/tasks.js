@@ -307,7 +307,7 @@ function getTaskData(data) {
 									'completed' : true
 								}]);
 							} else {
-								
+
 								db.lazyQuery('sync_query', [{
 									'api' : 'formDeviationStart',
 									'data' : JSON.stringify(dev_data),
@@ -342,11 +342,11 @@ function getTaskData(data) {
 													});
 												});
 											}
-											
+
 
 										});
 									}
-								}); 
+								});
 
 							}
 						}
@@ -363,7 +363,7 @@ function getTaskData(data) {
 							'completed' : true
 						}]);
 					} else {
-						
+
 						db.lazyQuery('tasks', [{
 							'_id' : String(document.task_id),
 							'completed' : true
@@ -535,7 +535,7 @@ function getDeviationForm(data, devStep) {
 				if (document.task_id > 0) {
 					api = 'deviation';
 				}
-				
+
 				db.lazyQuery('sync_query', [{
 					'api' : api,
 					'data' : JSON.stringify(offline_data),
@@ -555,7 +555,7 @@ function getDeviationForm(data, devStep) {
 							id : insertId
 						});
 					}
-				}); 
+				});
 			}
 		}
 
@@ -600,13 +600,13 @@ function taskDeviationSave(data) {
 		if (!isOffline()) {
 			Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
 		} else {
-			
+
 			db.lazyQuery('sync_query', [{
 				'api' : 'documentSignature',
 				'data' : JSON.stringify(data1),
 				'extra' : data,
 				'q_type' : 'documentSignature'
-			}]); 
+			}]);
 		}
 	}
 	uploadHACCPPicture({
@@ -619,6 +619,49 @@ function taskDeviationSave(data) {
 	realignSlideHeight('max-height-task');
 	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 	redirectToTasks();
+}
+
+function taskDeviationFixSave(data) {
+    $('#taskList').empty();
+    tasks_page = 1;
+    // reset page
+    if ($.isNumeric(data)) {
+        $('input[name="task_id"]').val(data);
+    }
+    if ( typeof $sigdiv != 'undefined') {
+        var data1 = {
+            'client' : User.client,
+            'token' : User.lastToken,
+            'signature' : JSON.stringify({
+                "name" : $('#sign_name').val(),
+                "svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
+                "parameter" : "task",
+                "task_id" : data
+            })
+        };
+        if (!isOffline()) {
+            Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+        } else {
+
+            db.lazyQuery('sync_query', [{
+                'api' : 'documentSignature',
+                'data' : JSON.stringify(data1),
+                'extra' : data,
+                'q_type' : 'documentSignature'
+            }]);
+        }
+    }
+    uploadHACCPPicture({
+        task_id : data,
+        role: "fixed"
+    });
+    mySwiper.swipeTo(0, 300, false);
+    mySwiper.removeSlide(1);
+    mySwiper.removeSlide(1);
+    mySwiper.resizeFix();
+    realignSlideHeight('max-height-task');
+    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+    redirectToTasks();
 }
 
 function selectHACCPPicture(id) {
@@ -715,7 +758,7 @@ function getTasksUncompleted(data) {
 			if (tasks_page == 1) {
 				local_tasks_total = tasksNr;
 				db.clearCollection('tasks', function(){
-					db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data), function(results){						
+					db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data), function(results){
 					});
 				});
 			}else{
@@ -780,7 +823,7 @@ function getTasksUncompleted(data) {
 				mySwiper.reInit();
 				mySwiper.resizeFix();
 			});
-			
+
 			if (tasksNr < per_page) {
 				$('#load_more_tasks').attr('disabled', true);
 				$('#load_more_tasks').parent().hide();
@@ -1129,7 +1172,7 @@ function haccpDeviationFix(data) {
 						'form' : JSON.stringify(dd)
 					};
 
-					Page.apiCall('deviation', data, 'get', 'taskDeviationSave');
+					Page.apiCall('deviation', data, 'get', 'taskDeviationFixSave');
 
 					db.lazyQuery('tasks',[{
 						'_id': String(devId),
@@ -1153,7 +1196,7 @@ function haccpDeviationFix(data) {
 								'_id': String(devId),
 								'completed': true
 							}], function() {
-								taskDeviationSave(devId);
+								taskDeviationFixSave(devId);
 							});
 						}
 					});

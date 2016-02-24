@@ -126,7 +126,7 @@ function maintenance(data) {
 							}
 							maintenanceDone(get.id);
 						}
-						
+
 					});
 				}
 			}
@@ -214,11 +214,13 @@ function uploadMaintenancePicture() {
 	// Get URI of picture to upload
 	var $img = $('#' + haccp_image_id);
 	var imageURI = $img.attr('src');
+    var agrs = { "role" : "fixed" };
+
+    if ($.isNumeric(get.id))
+        agrs.task_id = get.id;
 
 	if (imageURI) {
-		Page.uploadImage(imageURI, {
-			"role" : "fixed"
-		}, function(data) {
+		Page.uploadImage(imageURI, agrs, function(data) {
 			$img.css({
 				'visibility' : 'hidden',
 				'display' : 'none'
