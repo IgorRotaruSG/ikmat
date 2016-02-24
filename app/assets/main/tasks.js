@@ -9,7 +9,7 @@ var offline_signature;
 
 var emptytaskdata = [];
 
-var last_update = new Date();
+var last_update;
 
 var res;
 var updated = 0;
@@ -26,6 +26,7 @@ var per_page = 20;
 var devId = 0;
 var tasks_total_nr = 0;
 var local_tasks_total = 0;
+var isSync = false;
 //for deviation completed
 
 function getTasksCall(err, results) {
@@ -48,9 +49,11 @@ function getTasksCall(err, results) {
 		$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 		var data = {
 			'client' : User.client,
-			'token' : User.lastToken,
-			'last_update' : last_update.getTime()
+			'token' : User.lastToken
 		};
+        if(last_update){
+            data.last_update = last_update.getTime();
+        }
 		res = results;
 		Page.apiCall('getTasksUpdated', data, 'get', 'updateTasks');
 
@@ -131,14 +134,31 @@ function getReportsList(data) {
 	}
 }
 
+function dateFromString(datetime){
+    var a = datetime.split(/[^0-9]/);
+    //for (i=0;i<a.length;i++) { alert(a[i]); }
+    return new Date (a[0],a[1]-1,a[2],a[3],a[4],a[5] );
+}
+
 function updateTasks(data) {
 	if (data.success) {
-		last_update = new Date(data.currentTime.date);
+        if(typeof last_update === 'object'){
+            var lastUpdate = last_update.setHours(0,0,0,0);
+            var dateNow = new Date(dateFromString(data.currentTime.date)).setHours(0,0,0,0);
+            var diff = Math.abs(dateNow - lastUpdate);
+            if(diff > 0){
+                isSync = true;
+            }
+        }
 	} else if (data.error != '') {
 		User.logout();
 	}
-	if ((data.success && data.tasks_nr > 0 ) || (data.success && updated == 0 )) {//todo not sure about that
-		last_update = new Date((data.currentTime.date));
+    
+    if(data.success && data.tasks_nr > 0){
+        last_update = new Date(dateFromString(data.currentTime.date));
+    }
+    
+	if ((data.success && data.tasks_nr > 0 ) || (data.success && updated == 0 ) || isSync) {//todo not sure about that
 		updated = 1;
 		var data = {
 			'client' : User.client,
@@ -224,6 +244,12 @@ function tasksInit() {
 	} else {
 		Page.redirect('login.html');
 	}
+    document.addEventListener('resume', function(){
+        var activePage = $.mobile.activePage.attr("id");
+                              if(activePage == 'tasks'){
+                              getTasks();
+                              }
+    }, false);
 }
 
 function getTaskData(data) {
@@ -644,10 +670,12 @@ function uploadHACCPPicture(obj) {
 }
 
 function getTasksUncompleted(data) {
+    isSync = false;
 	$('#load_more_tasks').attr('disabled', 'disabled');
 	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.loading"));
 	//disable LoadMore button until tastdata gets updated
 	if (data.success) {
+        last_update = new Date(dateFromString(data.currentTime.date));
 		tasks_total_nr = data.tasks_total_nr;
 		if (data.tasks) {
 			var add = [];
