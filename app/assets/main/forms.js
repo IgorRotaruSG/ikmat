@@ -885,7 +885,7 @@ function formItemData(data) {
 				return false;
 			});
 			// mySwiper.resizeFix();
-			mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+			mySwiper.swipeTo(mySwiper.activeIndex, 300, true);
 			console.log("mySwiper.activeIndex", mySwiper.activeIndex);
 		} else {
 			console.log('forms.js 482', f);
