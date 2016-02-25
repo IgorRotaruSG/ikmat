@@ -1476,14 +1476,8 @@ $(window).on("orientationchange", function(event) {
 });
 
 function form2_save_dev_start_save() {
-	console.log('am ajuns pe save');
-	getForms();
-
-	mySwiper.swipeTo(0, 300, false);
-	mySwiper.removeSlide(1);
-	mySwiper.removeSlide(1);
-	mySwiper.removeSlide(1);
 	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	Page.redirect('tasks.html');
 }
 
 function takeHACCPPicture(id) {

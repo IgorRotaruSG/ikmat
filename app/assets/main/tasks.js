@@ -164,7 +164,8 @@ function dateFromString(datetime) {
 function updateTasks(data) {
 	if (data.success) {
 		if ( typeof last_update === 'object') {
-			var lastUpdate = last_update.setHours(0, 0, 0, 0);
+			var lastUpdate = last_update;
+			lastUpdate = lastUpdate.setHours(0, 0, 0, 0);
 			var dateNow = new Date(dateFromString(data.currentTime.date)).setHours(0, 0, 0, 0);
 			var diff = Math.abs(dateNow - lastUpdate);
 			if (diff > 0) {
@@ -174,10 +175,8 @@ function updateTasks(data) {
 	} else if (data.error != '') {
 		User.logout();
 	}
-
-	if (data.success && data.tasks_nr > 0) {
-		last_update = new Date(dateFromString(data.currentTime.date));
-	}
+	last_update = new Date(dateFromString(data.currentTime.date));
+	console.log('set last_update', last_update, last_update.getTime());
 
 	if ((data.success && data.tasks_nr > 0 ) || (data.success && updated == 0 ) || isSync) {//todo not sure about that
 		updated = 1;
