@@ -51,9 +51,9 @@ function getTasksCall(err, results) {
 			'client' : User.client,
 			'token' : User.lastToken
 		};
-        if(last_update){
-            data.last_update = last_update.getTime();
-        }
+		if (last_update) {
+			data.last_update = last_update.getTime();
+		}
 		res = results;
 		Page.apiCall('getTasksUpdated', data, 'get', 'updateTasks');
 
@@ -65,8 +65,29 @@ function getTasksCall(err, results) {
 	} else if (results && results.rows.length > 0) {
 		getTasksFromLocal(results);
 	} else {
-		$('#load_more_tasks').parent().hide();
-		checkTasksList();
+		db.getDbInstance("settings").allDocs({
+			keys : ['register_edit', 'haccp', 'role'],
+			include_docs : true
+		}, function(error, setting) {
+			var register_edit = true,
+			    haccp = true,
+			    role = '';
+			if (setting && setting.rows.length > 0) {
+				for (var i = 0; i < setting.rows.length; i++) {
+					if (setting.rows[i].key == 'register_edit' && setting.rows[i].doc.value)
+						register_edit = false;
+					if (setting.rows[i].key == 'haccp' && setting.rows[i].doc.value)
+						haccp = false;
+				}
+			}
+			if (haccp) {
+				getTasksFromLocal(results);
+			} else {
+				$('#load_more_tasks').parent().hide();
+				checkTasksList();
+			}
+
+		});
 	}
 }
 
@@ -105,7 +126,7 @@ function getFormsList(data) {
 
 		/* INSERT SECTION */
 		if (db_data.length > 0) {
-			db.lazyQuery('forms', castToListObject(["type","label","alias"], db_data));
+			db.lazyQuery('forms', castToListObject(["type", "label", "alias"], db_data));
 		}
 	}
 }
@@ -129,35 +150,35 @@ function getReportsList(data) {
 		});
 
 		if (tuples.length > 0) {
-			db.lazyQuery('reports', castToListObject(["id","name"], tuples));
+			db.lazyQuery('reports', castToListObject(["id", "name"], tuples));
 		}
 	}
 }
 
-function dateFromString(datetime){
-    var a = datetime.split(/[^0-9]/);
-    //for (i=0;i<a.length;i++) { alert(a[i]); }
-    return new Date (a[0],a[1]-1,a[2],a[3],a[4],a[5] );
+function dateFromString(datetime) {
+	var a = datetime.split(/[^0-9]/);
+	//for (i=0;i<a.length;i++) { alert(a[i]); }
+	return new Date(a[0], a[1] - 1, a[2], a[3], a[4], a[5]);
 }
 
 function updateTasks(data) {
 	if (data.success) {
-        if(typeof last_update === 'object'){
-            var lastUpdate = last_update.setHours(0,0,0,0);
-            var dateNow = new Date(dateFromString(data.currentTime.date)).setHours(0,0,0,0);
-            var diff = Math.abs(dateNow - lastUpdate);
-            if(diff > 0){
-                isSync = true;
-            }
-        }
+		if ( typeof last_update === 'object') {
+			var lastUpdate = last_update.setHours(0, 0, 0, 0);
+			var dateNow = new Date(dateFromString(data.currentTime.date)).setHours(0, 0, 0, 0);
+			var diff = Math.abs(dateNow - lastUpdate);
+			if (diff > 0) {
+				isSync = true;
+			}
+		}
 	} else if (data.error != '') {
 		User.logout();
 	}
-    
-    if(data.success && data.tasks_nr > 0){
-        last_update = new Date(dateFromString(data.currentTime.date));
-    }
-    
+
+	if (data.success && data.tasks_nr > 0) {
+		last_update = new Date(dateFromString(data.currentTime.date));
+	}
+
 	if ((data.success && data.tasks_nr > 0 ) || (data.success && updated == 0 ) || isSync) {//todo not sure about that
 		updated = 1;
 		var data = {
@@ -186,8 +207,8 @@ function tasksInit() {
 	testInternetConnection();
 
 	if (User.isLogged()) {
-		db.createView('tasks', 'tasks_uncompleted', function(doc){
-			if(!doc.completed){
+		db.createView('tasks', 'tasks_uncompleted', function(doc) {
+			if (!doc.completed) {
 				emit(JSON.parse(doc.dueDate).date);
 			}
 		});
@@ -244,12 +265,12 @@ function tasksInit() {
 	} else {
 		Page.redirect('login.html');
 	}
-    document.addEventListener('resume', function(){
-        var activePage = $.mobile.activePage.attr("id");
-                              if(activePage == 'tasks'){
-                              getTasks();
-                              }
-    }, false);
+	document.addEventListener('resume', function() {
+		var activePage = $.mobile.activePage.attr("id");
+		if (activePage == 'tasks') {
+			getTasks();
+		}
+	}, false);
 }
 
 function getTaskData(data) {
@@ -345,7 +366,7 @@ function getTaskData(data) {
 											'_id' : String(devId),
 											'completed' : true
 										}], function(results) {
-											if(results && results.length > 0){
+											if (results && results.length > 0) {
 												var insertId = results[0].id;
 												db.lazyQuery('tasks', [{
 													'_id' : String(document.task_id),
@@ -368,7 +389,6 @@ function getTaskData(data) {
 													});
 												});
 											}
-
 
 										});
 									}
@@ -648,46 +668,46 @@ function taskDeviationSave(data) {
 }
 
 function taskDeviationFixSave(data) {
-    $('#taskList').empty();
-    tasks_page = 1;
-    // reset page
-    if ($.isNumeric(data)) {
-        $('input[name="task_id"]').val(data);
-    }
-    if ( typeof $sigdiv != 'undefined') {
-        var data1 = {
-            'client' : User.client,
-            'token' : User.lastToken,
-            'signature' : JSON.stringify({
-                "name" : $('#sign_name').val(),
-                "svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
-                "parameter" : "task",
-                "task_id" : data
-            })
-        };
-        if (!isOffline()) {
-            Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
-        } else {
+	$('#taskList').empty();
+	tasks_page = 1;
+	// reset page
+	if ($.isNumeric(data)) {
+		$('input[name="task_id"]').val(data);
+	}
+	if ( typeof $sigdiv != 'undefined') {
+		var data1 = {
+			'client' : User.client,
+			'token' : User.lastToken,
+			'signature' : JSON.stringify({
+				"name" : $('#sign_name').val(),
+				"svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
+				"parameter" : "task",
+				"task_id" : data
+			})
+		};
+		if (!isOffline()) {
+			Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+		} else {
 
-            db.lazyQuery('sync_query', [{
-                'api' : 'documentSignature',
-                'data' : JSON.stringify(data1),
-                'extra' : data,
-                'q_type' : 'documentSignature'
-            }]);
-        }
-    }
-    uploadHACCPPicture({
-        task_id : data,
-        role: "fixed"
-    });
-    mySwiper.swipeTo(0, 300, false);
-    mySwiper.removeSlide(1);
-    mySwiper.removeSlide(1);
-    mySwiper.resizeFix();
-    realignSlideHeight('max-height-task');
-    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-    redirectToTasks();
+			db.lazyQuery('sync_query', [{
+				'api' : 'documentSignature',
+				'data' : JSON.stringify(data1),
+				'extra' : data,
+				'q_type' : 'documentSignature'
+			}]);
+		}
+	}
+	uploadHACCPPicture({
+		task_id : data,
+		role : "fixed"
+	});
+	mySwiper.swipeTo(0, 300, false);
+	mySwiper.removeSlide(1);
+	mySwiper.removeSlide(1);
+	mySwiper.resizeFix();
+	realignSlideHeight('max-height-task');
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	redirectToTasks();
 }
 
 function selectHACCPPicture(id) {
@@ -713,12 +733,12 @@ function uploadHACCPPicture(obj) {
 }
 
 function getTasksUncompleted(data) {
-    isSync = false;
+	isSync = false;
 	$('#load_more_tasks').attr('disabled', 'disabled');
 	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.loading"));
 	//disable LoadMore button until tastdata gets updated
 	if (data.success) {
-        last_update = new Date(dateFromString(data.currentTime.date));
+		last_update = new Date(dateFromString(data.currentTime.date));
 		tasks_total_nr = data.tasks_total_nr;
 		if (data.tasks) {
 			var add = [];
@@ -785,11 +805,11 @@ function getTasksUncompleted(data) {
 			}
 			if (tasks_page == 1) {
 				local_tasks_total = tasksNr;
-				db.clearCollection('tasks', function(){
-					db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data), function(results){
+				db.clearCollection('tasks', function() {
+					db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data), function(results) {
 					});
 				});
-			}else{
+			} else {
 				local_tasks_total += tasksNr;
 				db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data));
 			}
@@ -797,8 +817,8 @@ function getTasksUncompleted(data) {
 			//$('#taskList').html('');
 
 			db.getDbInstance("settings").allDocs({
-				keys:['register_edit', 'haccp', 'role'],
-				include_docs: true
+				keys : ['register_edit', 'haccp', 'role'],
+				include_docs : true
 			}, function(error, results) {
 				var register_edit = true,
 				    haccp = true,
@@ -869,8 +889,8 @@ function getTasksUncompleted(data) {
 			var date = new Date();
 			var add = [];
 			db.getDbInstance("settings").allDocs({
-				keys:['register_edit', 'haccp', 'role'],
-				include_docs: true
+				keys : ['register_edit', 'haccp', 'role'],
+				include_docs : true
 			}, function(error, results) {
 				var register_edit = true,
 				    haccp = true,
@@ -967,9 +987,9 @@ function updateTaskData(data, task_id) {
 				taskData : JSON.stringify(data)
 			}], function() {
 				// if (emptytaskdata.length == 0) {
-					// $('#load_more_tasks').removeAttr('disabled');
-					// $('#load_more_tasks').parent().show();
-					// $('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
+				// $('#load_more_tasks').removeAttr('disabled');
+				// $('#load_more_tasks').parent().show();
+				// $('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
 				// }
 			});
 		}
@@ -981,14 +1001,14 @@ function getTasksFromLocal(results) {
 	var groups = [];
 	var c;
 	var add_data;
-	if(local_tasks_total != 0 && local_tasks_total > results.total_rows){
+	if (local_tasks_total != 0 && local_tasks_total > results.total_rows) {
 		tasks_total_nr = tasks_total_nr - (local_tasks_total - results.total_rows);
 	}
 	local_tasks_total = results.total_rows;
 	$('#load_more_tasks').removeAttr('disabled');
 	$('#load_more_tasks').parent().show();
 	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
-
+	console.log('results', results);
 	if (!results) {
 		//$('#taskList').parent().html('<div class="no_results">' + $.t('error.no_tasks') + '</div>');
 		//$('#load_more_tasks').removeAttr('disabled');
@@ -1048,15 +1068,62 @@ function getTasksFromLocal(results) {
 			});
 		}
 	}
-	_append('#taskList', data);
 
-	mySwiper.reInit();
-	mySwiper.resizeFix();
-	realignSlideHeight('max-height-task');
+	db.getDbInstance("settings").allDocs({
+		keys : ['register_edit', 'haccp', 'role'],
+		include_docs : true
+	}, function(error, results) {
+		var register_edit = true,
+		    haccp = true,
+		    role = '';
+		if (results && results.rows.length > 0) {
+			for (var i = 0; i < results.rows.length; i++) {
+				if (results.rows[i].key == 'register_edit' && results.rows[i].doc.value)
+					register_edit = false;
+				if (results.rows[i].key == 'haccp' && results.rows[i].doc.value)
+					haccp = false;
+				if (results.rows[i].key == 'role')
+					role = results.rows[i].doc.value;
+			}
+		}
 
-	bindOpenTask();
+		if (tasks_page == 1) {
+			if ((register_edit || haccp) && role != 'ROLE_EMPLOYEE') {
+				data.push({
+					'id' : 9999,
+					'data' : $.t('tasks.registration_steps'),
+					'extra' : 'data-role="list-divider"'
+				});
+			}
 
-	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+			if (register_edit && role != 'ROLE_EMPLOYEE') {
+				data.push({
+					'id' : 9998,
+					'data' : '<a href="register_edit.html" data-transition="slide">' + $.t('tasks.complete_profile') + '</a>',
+					'extra' : 'data-icon="false"'
+				});
+			}
+			if (haccp && role != 'ROLE_EMPLOYEE') {
+				data.push({
+					'id' : 9997,
+					'data' : '<a href="haccp.html" data-transition="slide">' + $.t('tasks.complete_haccp') + '</a>',
+					'extra' : 'data-icon="false"'
+				});
+			}
+		}
+
+		// moved all the login here
+		_append('#taskList', data);
+
+		mySwiper.reInit();
+		mySwiper.resizeFix();
+		realignSlideHeight('max-height-task');
+
+		bindOpenTask();
+
+		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	});
+
 }
 
 function bindLoadMoreFunction() {
@@ -1202,9 +1269,9 @@ function haccpDeviationFix(data) {
 
 					Page.apiCall('deviation', data, 'get', 'taskDeviationFixSave');
 
-					db.lazyQuery('tasks',[{
-						'_id': String(devId),
-						'completed': true
+					db.lazyQuery('tasks', [{
+						'_id' : String(devId),
+						'completed' : true
 					}]);
 				} else {
 					var data_off = {
@@ -1214,15 +1281,15 @@ function haccpDeviationFix(data) {
 						'form' : JSON.stringify(dd)
 					};
 					db.lazyQuery('sync_query', [{
-						"api": "deviation",
-						"data": JSON.stringify(data_off),
-						"extra": devId,
-						"q_type": 'deviation_saved'
+						"api" : "deviation",
+						"data" : JSON.stringify(data_off),
+						"extra" : devId,
+						"q_type" : 'deviation_saved'
 					}], function(data) {
 						if (data) {
-							db.lazyQuery('tasks',[{
-								'_id': String(devId),
-								'completed': true
+							db.lazyQuery('tasks', [{
+								'_id' : String(devId),
+								'completed' : true
 							}], function() {
 								taskDeviationFixSave(devId);
 							});

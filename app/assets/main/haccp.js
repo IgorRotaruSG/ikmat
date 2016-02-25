@@ -47,6 +47,8 @@ function getHaccpCall(err, results) {
 	}
 	if ((!results || results.rows.length == 0) && isOffline() && !he_have_something) {
 		$('#haccp_list_no_results').text($.t('haccp.no_haccp_yet'));
+		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+		$('[data-role="footer"]').hide();
 		setTimeout(function() {
 			Page.redirect('index.html');
 		}, 3500);
