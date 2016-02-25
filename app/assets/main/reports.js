@@ -544,7 +544,7 @@ function reportsView(data) {
         getNewReport(date_start,date_end);
     });
 
-    if ( document.form_cat == '12'|| document.form_cat == '1' || document.form_cat == '3' || document.form_cat == '15') {
+    if ( document.form_cat == '12'|| document.form_cat == '1' || document.form_cat == '3' || document.form_cat == '15' || document.form_cat == '11') {
         $('.report-date-selector-container').hide();
         $('.semi-title-blue').css('margin-top','10px');
     } else{
@@ -578,7 +578,7 @@ function openNativeEmail(pdf, email_data){
     	}else{
     		mailObject.body = "Trykk på lenken nedenfor for å se rapporter: " + pdf.data;
     	}
-       
+
     }
     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
     /* Open native mail on mobile */
@@ -658,13 +658,13 @@ function documentsCall(data) {
         $('#documents_container').html(html);
 
         $('#' + $.mobile.activePage.attr('id')).trigger('create');
-        
+
         var docsContentList = '';
         $('#page-wrap').find("h2.heading").each(function(index, value){
         	var text = value.innerText || $(value).text();
            docsContentList += '<dt><a data-rel="close" class="anchor-item" data-transition="slide" href="' + index + '" class="email_flowcharts">' + (index + 1) + ". "+ text + '</a></dt>';
 		});
-		
+
 		$('#doc-list-contents').html('').html(docsContentList);
 
         $('.overflow-wrapper').addClass('overflow-wrapper-hide');
@@ -863,7 +863,7 @@ function getNewReport(date_start, date_end){
 
 function downloadPdf(pdf, email_data){
 	if (pdf.data) {
-		window.open(pdf.data, '_blank');		
+		window.open(pdf.data, '_blank');
 	}
 	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 }
