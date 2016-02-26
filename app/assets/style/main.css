@@ -259,6 +259,7 @@ div.ui-input-text textarea.ui-input-text,
 }
 .swiper-slide {
     height: 100% !important;
+    -ms-overflow-style: none !important;
 }
 .swiper-wrapper {
     height: 100% !important;
