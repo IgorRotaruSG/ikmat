@@ -1065,6 +1065,7 @@ function maintenanceSignDone(data) {
 		$('input[name="task_id"]').val(data);
 	}
 	if ( typeof $sigdiv != 'undefined') {
+		$sigdiv.jSignature("reset");
 		var data1 = {
 			'client' : User.client,
 			'token' : User.lastToken,
