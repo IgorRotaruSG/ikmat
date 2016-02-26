@@ -505,12 +505,14 @@ function reportsView(data) {
         $('#report-month-wrap').show();
     });
 
-    $('#report-year').off('click').on('click',function(e){
-        $('#report-year').closest('.report-date-selector').on("click").on("click",function(){
+    $('#report-year').off('change').on('change',function(e){
+        $('#report-year').closest('.report-date-selector').off("click").on("click",function(){
             e.preventDefault();
+			var month = $('#report-month');
             var date = new Date($('#report-year').val());
-            var date_start =  (date.getFullYear()) + '-01-01';
-            var date_end =  (date.getFullYear()) + '-12-31';
+			var date_start =  (date.getFullYear()) + '-' + month.val() + '-01';
+			var last_day = new Date((date.getFullYear()), month.val(), 0);
+			var date_end =  (date.getFullYear()) + '-' + month.val() + '-' +last_day.getDate();
             $('#current-year').html($(this).find('option:selected').html());
             $('#current-year').parent().children('span.ui-btn-inner').html($(this).find('option:selected').html());
 
