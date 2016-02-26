@@ -558,9 +558,9 @@ function reportsView(data) {
 }
 
 function isLinkData(reportId){
-	if(reportId == 15){
-		return true;
-	}
+	//if(reportId == 15){
+	//	return true;
+	//}
 	return false;
 }
 
