@@ -176,7 +176,6 @@ function updateTasks(data) {
 		User.logout();
 	}
 	last_update = new Date(dateFromString(data.currentTime.date));
-	console.log('set last_update', last_update, last_update.getTime());
 
 	if ((data.success && data.tasks_nr > 0 ) || (data.success && updated == 0 ) || isSync) {//todo not sure about that
 		updated = 1;
@@ -942,11 +941,13 @@ function getTasksUncompleted(data) {
 				mySwiper.resizeFix();
 				realignSlideHeight('max-height-task');
 				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+				if(add.length == 0){
+					checkTasksList();
+				}
 			});
 		}
 		mySwiper.resizeFix();
 		realignSlideHeight('max-height-task');
-		// checkTasksList();
 	}
 }
 
@@ -1008,7 +1009,7 @@ function getTasksFromLocal(results) {
 	$('#load_more_tasks').parent().show();
 	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
 	console.log('results', results);
-	if (!results) {
+	if (!results || local_tasks_total == 0) {
 		//$('#taskList').parent().html('<div class="no_results">' + $.t('error.no_tasks') + '</div>');
 		//$('#load_more_tasks').removeAttr('disabled');
 		//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
@@ -1165,9 +1166,9 @@ function checkTasksList() {
 	setTimeout(function() {
 		var content = $('#taskList').html();
 		if (content == "") {
-			$('#taskList').parent().html('<div class="no_results" style="width: ' + ($(window).width() - 80) + 'px">' + $.t('error.no_tasks') + '</div>');
+			$('#taskList').parent().html('<div class="no_results" style="width: 90%; margin:auto; text-align:center">' + $.t('error.no_tasks') + '</div>');
 		}
-	}, 2000);
+	}, 1000);
 	return true;
 }
 

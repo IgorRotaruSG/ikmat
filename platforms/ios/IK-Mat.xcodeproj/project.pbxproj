@@ -552,7 +552,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = hygiene.app.automagi;
 				PRODUCT_NAME = "IK-Mat";
-				PROVISIONING_PROFILE = "25165728-dfcb-4d24-b825-ffad23b7c83d";
+				PROVISIONING_PROFILE = "c147485d-06c8-40a5-aa7f-ab79639baf2a";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -562,7 +562,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: AutoMagi Ltd (2ZDPCXEHU3)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: AutoMagi Ltd (2ZDPCXEHU3)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -585,7 +585,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = hygiene.app.automagi;
 				PRODUCT_NAME = "IK-Mat";
-				PROVISIONING_PROFILE = "25165728-dfcb-4d24-b825-ffad23b7c83d";
+				PROVISIONING_PROFILE = "c147485d-06c8-40a5-aa7f-ab79639baf2a";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
