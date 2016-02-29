@@ -1355,7 +1355,7 @@ function form2_save_dev_start(data) {
 	console.log(data);
 
 	var html = '<div style="padding:10px;"><form id="form_deviation_save">';
-	html += HTML.formGenerate(data.form_deviation, $.t("general.save_button"));
+	html += HTML.formGenerate(data.form_deviation, $.t("general.save_button"), '+1 month');
 	html += '</form>' + '<div data-role="popup" id="signature_pop"   data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.save_button") + '</button>' + '</div>' + '</div>';
 
 	sss_temp = data.form_deviation.task_id.value;
