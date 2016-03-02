@@ -630,7 +630,7 @@ function taskDeviationSave(data) {
 	if ($.isNumeric(data)) {
 		$('input[name="task_id"]').val(data);
 	}
-	if ( typeof $sigdiv != 'undefined') {
+	if (window['$sigdiv'] && typeof window['$sigdiv'] != 'undefined') {
 		var data1 = {
 			'client' : User.client,
 			'token' : User.lastToken,
@@ -672,8 +672,7 @@ function taskDeviationFixSave(data) {
 	if ($.isNumeric(data)) {
 		$('input[name="task_id"]').val(data);
 	}
-	console.log('typeof $sigdiv', $sigdiv);
-	if ( $sigdiv && typeof $sigdiv != 'undefined') {
+	if (window['$sigdiv'] && typeof window['$sigdiv'] != 'undefined') {
 		var data1 = {
 			'client' : User.client,
 			'token' : User.lastToken,
