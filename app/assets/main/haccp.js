@@ -359,7 +359,9 @@ function haccpInit() {
 				} else {
 					$('#footer').show();
 				}
-				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+				setTimeout(function() {
+					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+				}, 1000);
 			}
 		});
 

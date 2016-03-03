@@ -1,9 +1,9 @@
 var settings = {
 	//'apiDomain':        'http://haccpy11.bywmds.us/api/',
-	'apiDomain' : 'http://ikmatapp.no/api/',
-	'apiPath' : 'http://ikmatapp.no',
-	//'apiDomain':        'https://automagi.fsoft.com.vn/api/',
-	//'apiPath':        'https://automagi.fsoft.com.vn',
+	// 'apiDomain' : 'http://ikmatapp.no/api/',
+	// 'apiPath' : 'http://ikmatapp.no',
+	'apiDomain':        'https://automagi.fsoft.com.vn/api/',
+	'apiPath':        'https://automagi.fsoft.com.vn',
 	'apiUploadPath' : 'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -15,8 +15,8 @@ var settings = {
 	},
 	'requestTimeout' : 25000,
 	'excludeOffline' : ["haccp.html", "flowchart.html"],
-	'version' : "2.0.76",
-	'rebuild' : "2.0.76"
+	'version' : "2.0.77",
+	'rebuild' : "2.0.77"
 };
 
 var performance = window.performance;
@@ -456,6 +456,17 @@ Page.prototype.uploadImage = function() {
 	}
 
 };
+
+function dateFromString(datetime) {
+	function validate(number){
+		if(number){
+			return parseInt(number);
+		}
+		return 0;
+	}
+	var a = datetime.split(/[^0-9]/);
+	return new Date(validate(a[0]), validate(a[1]) - 1, validate(a[2]), validate(a[3]), validate(a[4]), validate(a[5]));
+}
 
 function cacheImage(request, callback) {
 	if (request && request.imageURI && request.task_id) {

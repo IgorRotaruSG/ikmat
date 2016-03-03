@@ -1,4 +1,8 @@
-<!DOCTYPE html> <html> <head> <script type="text/javascript">if (window.Page == undefined) {
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript">
+        if (window.Page == undefined) {
             window.location.href = 'index.html';
         }
 
@@ -12,4 +16,66 @@
 
         function deviceReady() {
             Page.isReady();
-        }</script> </head> <body> <div data-role="page" data-theme="a" id="add_task" data-head-title="Add Task"> <!-- header --> <div data-role="header" id="global_header"> <!-- data will be added here with ajax --> </div> <!-- end header --> <!-- content --> <div data-role="content" data-theme="a"> <ul data-role="listview" data-inset="true" data-divider-theme="b"> <li> <label for="text-basic">Title:</label> <input type="text" name="text-basic" id="text-basic" value=""> </li> <li> <label for="textarea">Description:</label> <textarea cols="40" rows="8" name="textarea" id="textarea"></textarea> </li> <li> <div data-role="fieldcontain"> <label for="select-native-fc">Frequency:</label> <select name="select-native-fc" id="select-native-fc"> <option value="small">One</option> <option value="medium">Two</option> <option value="large">Three</option> </select> </div> </li> <li> <label for="start-date">Start Date:</label> <input type="date" name="start-date" id="start-date" value=""> </li> <li> <label for="end-date">End Date:</label> <input type="date" name="end-date" id="end-date" value=""> </li> </ul> <div class="mark"> <i class="fa fa-check"></i> Create task </div> </div> <!-- end content --> <!-- footer --> <div data-role="footer" data-theme="c" data-position="fixed" id="global_footer"> <!-- data will be added here with ajax --> </div> <!-- end footer --> <!-- panel --> <div data-role="panel" id="menu_panel" data-position="left" data-theme="d"> <!-- data will be added here with ajax --> </div> <!-- end panel --> </div> </body> </html>
+        }
+    </script>
+</head>
+<body>
+<div data-role="page" data-theme="a" id="add_task" data-head-title="Add Task">
+
+    <!-- header -->
+    <div data-role="header" id="global_header">
+        <!-- data will be added here with ajax -->
+    </div>
+    <!-- end header -->
+
+    <!-- content -->
+    <div data-role="content" data-theme="a">
+        <ul data-role="listview" data-inset="true" data-divider-theme="b">
+            <li>
+                <label for="text-basic">Title:</label>
+                <input type="text" name="text-basic" id="text-basic" value="">
+            </li>
+            <li>
+                <label for="textarea">Description:</label>
+                <textarea cols="40" rows="8" name="textarea" id="textarea"></textarea>
+            </li>
+            <li>
+                <div data-role="fieldcontain">
+                    <label for="select-native-fc">Frequency:</label>
+                    <select name="select-native-fc" id="select-native-fc">
+                        <option value="small">One</option>
+                        <option value="medium">Two</option>
+                        <option value="large">Three</option>
+                    </select>
+                </div>
+            </li>
+            <li>
+                <label for="start-date">Start Date:</label>
+                <input type="date" name="start-date" id="start-date" value="">
+            </li>
+            <li>
+                <label for="end-date">End Date:</label>
+                <input type="date" name="end-date" id="end-date" value="">
+            </li>
+        </ul>
+        <div class="mark">
+            <i class="fa fa-check"></i> Create task
+        </div>
+    </div>
+    <!-- end content -->
+
+    <!-- footer -->
+    <div data-role="footer" data-theme="c" data-position="fixed" id="global_footer">
+        <!-- data will be added here with ajax -->
+    </div>
+    <!-- end footer -->
+
+    <!-- panel -->
+    <div data-role="panel" id="menu_panel" data-position="left" data-theme="d">
+        <!-- data will be added here with ajax -->
+    </div>
+    <!-- end panel -->
+</div>
+</body>
+</html>
+
