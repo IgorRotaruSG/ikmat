@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="hygiene.app.automagi" version="2.0.73" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="hygiene.app.automagi" version="2.0.77" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
     <preference name="loglevel" value="DEBUG" />
+    <preference name="AndroidPersistentFileLocation" value="Internal" />
     <feature name="Device">
         <param name="android-package" value="org.apache.cordova.device.Device" />
     </feature>
@@ -27,12 +28,9 @@
         <param name="android-package" value="org.apache.cordova.statusbar.StatusBar" />
         <param name="onload" value="true" />
     </feature>
-    <preference name="orientation" value="res/screen/ios/Default" />
-    <preference name="StatusBarStyle" value="res/screen/ios/Default" />
     <feature name="FileTransfer">
         <param name="android-package" value="org.apache.cordova.filetransfer.FileTransfer" />
     </feature>
-    <preference name="AndroidPersistentFileLocation" value="Internal" />
     <feature name="File">
         <param name="android-package" value="org.apache.cordova.file.FileUtils" />
         <param name="onload" value="true" />
@@ -40,9 +38,8 @@
     <feature name="EmailComposer">
         <param name="android-package" value="de.martinreinhardt.cordova.plugins.email.EmailComposer" />
     </feature>
-    <preference name="orientation" value="Default" />
     <feature name="SQLitePlugin">
-        <param name="android-package" value="io.sqlc.SQLitePlugin" />
+        <param name="android-package" value="org.pgsqlite.SQLitePlugin" />
     </feature>
     <allow-intent href="market:*" />
     <name>IK-Mat</name>

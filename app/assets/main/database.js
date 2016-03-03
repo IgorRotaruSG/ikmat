@@ -148,7 +148,7 @@ db.prototype.createView = function(collection, name, mapFunction){
 	this.collections[collection].put(designDoc);
 };
 
-db.prototype.createTables = function() {
+db.prototype.createTables = function(isReload) {
 	localStorage.setItem('database', true);
 	this.database = true;
 	localStorage.setItem("app-version", settings.version);
@@ -172,6 +172,10 @@ db.prototype.createTables = function() {
 			emit(doc.timestamp);
 		}
 	});
+	
+	if(isReload){
+		window.location.reload();
+	}
 };
 
 db.prototype.dropDb = function() {
@@ -190,11 +194,17 @@ db.prototype.dbDropTables = function() {
 	var promises = [];
 	for (var i = 0; i < this.tables.length; i++) {
 		var collection = this.collections[this.tables[i]];
+		if(!collection){
+			collection = new PouchDB(this.db_name + "_" + this.tables[i], {
+				skip_setup : true
+			});
+		}
 		promises[i] = new Promise(function(resolve, reject) {
 			if(collection){
 				collection.destroy(resolve);
 			}else{
-				resolve(true);
+				
+				collection.destroy(resolve);
 			}
 		});
 	}
@@ -202,25 +212,26 @@ db.prototype.dbDropTables = function() {
 };
 
 db.prototype.InitDB = function() {
-    // var isCreateDB = false;
-    // var that = this;
-    // if (this.database && this.database !== undefined && this.database !== null ) {
-    	// isCreateDB = false;
-    // } else {
-    	// isCreateDB = true;
-    // }
-    // if(!this.appVersion || (this.appVersion && settings.rebuild && this.appVersion.replace(/\./g, "") < settings.rebuild.replace(/\./g, ""))){
-    	// isCreateDB = true;
-    // }
-    // if(isCreateDB){
-    	// this.dbDropTables().then(function(){
-    		// that.createTables();
-    		// window.location.reload();
-    	// });
-    // }else{
-    	// this.createTables();
-    // }
-    this.createTables();
+    var isCreateDB = false;
+    var that = this;
+    if (this.database && this.database !== undefined && this.database !== null ) {
+    	isCreateDB = false;
+    } else {
+    	isCreateDB = true;
+    }
+    if(!this.appVersion || (this.appVersion && settings.rebuild && this.appVersion.replace(/\./g, "") < settings.rebuild.replace(/\./g, ""))){
+    	isCreateDB = true;
+    }
+    if(isCreateDB){
+    	console.log('isCreateDB');
+    	this.dbDropTables().then(function(results){
+    		console.log('results isCreateDB', results);
+    		that.createTables(true);
+    	});
+    }else{
+    	this.createTables();
+    }
+    // this.createTables();
 	
 };
 

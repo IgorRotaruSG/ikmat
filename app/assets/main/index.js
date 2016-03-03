@@ -44,4 +44,10 @@ function indexInit() {
 		}
 	}, getUserHandle);
     executeSyncQuery();
+    document.addEventListener('resume', function() {
+		var activePage = $.mobile.activePage.attr("id");
+		if (activePage == 'tasks') {
+			getTasks();
+		}
+	}, false);
 }
