@@ -2374,23 +2374,39 @@ function printPage() {
 			// resp now should contain your CSS file content.
 			var css = '<style>' + resp + '</style>';
 			$('#page-wrap').prepend(css);
-			var page = document.getElementById('page-wrap');
 
+			if(isNative() && cordova.plugins && cordova.plugins.printer) {
+				var page = document.getElementById('page-wrap');
+				cordova.plugins.printer.print(page, {
+					name : 'Document.html',
+					landscape : true
+				}, function() {
+					//alert('printing finished or canceled')
+				});
+			} else {
+				var page = $('#page-wrap').html();
+				w=window.open();
+				w.document.write(page);
+				w.print();
+				w.close();
+			}
+		});
+	} else {
+		if(isNative() && cordova.plugins && cordova.plugins.printer) {
+			var page = document.getElementById('page-wrap');
 			cordova.plugins.printer.print(page, {
 				name : 'Document.html',
 				landscape : true
 			}, function() {
 				//alert('printing finished or canceled')
 			});
-		});
-	} else {
-		var page = document.getElementById('page-wrap');
-		cordova.plugins.printer.print(page, {
-			name : 'Document.html',
-			landscape : true
-		}, function() {
-			//alert('printing finished or canceled')
-		});
+		} else {
+			var page = $('#page-wrap').html();
+			w=window.open();
+			w.document.write(page);
+			w.print();
+			w.close();
+		}
 	}
 	return;
 }
