@@ -954,7 +954,6 @@ function maintenance(data) {
 				//console.log(JSON.stringify(data));
 
 				console.log('documentSignature forms.js 592');
-				//                Page.apiCall('documentSignature', data, 'get', 'documentSignature');
 				Page.apiCall('documentSignature', data, 'post', 'documentSignature');
 			});
 
@@ -1065,7 +1064,6 @@ function maintenanceSignDone(data) {
 		$('input[name="task_id"]').val(data);
 	}
 	if ( typeof $sigdiv != 'undefined') {
-		$sigdiv.jSignature("reset");
 		var data1 = {
 			'client' : User.client,
 			'token' : User.lastToken,
@@ -1077,7 +1075,7 @@ function maintenanceSignDone(data) {
 			})
 		};
 		if (!isOffline()) {
-			Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+			Page.apiCall('documentSignature', data1, 'post', 'documentSignature');
 		} else {
 			db.lazyQuery('sync_query', [{
 				'api' : 'documentSignature',
@@ -1391,8 +1389,7 @@ function form2_save_dev_start(data) {
 			};
 			//console.log(JSON.stringify(data));
 			console.log('forms.js 1256 document sign');
-			Page.apiCall('documentSignature', data, 'get', 'documentSignature');
-			//            Page.apiCall('documentSignature', data, 'post', 'documentSignature');
+			Page.apiCall('documentSignature', data, 'post', 'documentSignature');
 		});
 
 		return false;

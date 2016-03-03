@@ -715,7 +715,7 @@ function documentsCall(data) {
 //                Page.apiCall('reports', data, 'get', 'reportsSigned');
 //                Page.apiCall('reports', data, 'post', '');
 
-                Page.apiCall('documentSignature', data, 'get', 'documentSignature');
+                Page.apiCall('documentSignature', data, 'post', 'documentSignature');
             });
 
             return false;

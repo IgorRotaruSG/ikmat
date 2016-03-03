@@ -190,7 +190,7 @@ function maintenanceDone(data) {
 	// })
 	// };
 	// if (!isOffline()) {
-	// Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+	// Page.apiCall('documentSignature', data1, 'post', 'documentSignature');
 	// } else {
 	// db.lazyQuery({
 	// 'sql' : 'INSERT INTO "sync_query"("api","data","extra","q_type") VALUES(?,?,?,?)',
