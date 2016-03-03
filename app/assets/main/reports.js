@@ -506,20 +506,18 @@ function reportsView(data) {
     });
 
     $('#report-year').off('change').on('change',function(e){
-        $('#report-year').closest('.report-date-selector').off("click").on("click",function(){
-            e.preventDefault();
-			var month = $('#report-month');
-            var date = new Date($('#report-year').val());
-			var date_start =  (date.getFullYear()) + '-' + month.val() + '-01';
-			var last_day = new Date((date.getFullYear()), month.val(), 0);
-			var date_end =  (date.getFullYear()) + '-' + month.val() + '-' +last_day.getDate();
-            $('#current-year').html($(this).find('option:selected').html());
-            $('#current-year').parent().children('span.ui-btn-inner').html($(this).find('option:selected').html());
+    	var month = $('#report-month');
+        var year = $(this).find('option:selected').html();
+        console.log('report-year change', year);
+		var date_start =  (year) + '-' + month.val() + '-01';
+		var last_day = new Date((year), month.val(), 0);
+		var date_end =  (year) + '-' + month.val() + '-' +last_day.getDate();
+        $('#current-year').html($(this).find('option:selected').html());
+        $('#current-year').parent().children('span.ui-btn-inner').html($(this).find('option:selected').html());
 
-            reports_date_start = date_start;
-            reports_date_end = date_end;
-            getNewReport(date_start,date_end);
-        });
+        reports_date_start = date_start;
+        reports_date_end = date_end;
+        getNewReport(date_start,date_end);
 
     });
 
@@ -842,9 +840,9 @@ function getYears() {
         d_end = null,
         html = '',
         date_1 = d.getFullYear() + 1;
-    var report_year = new Date(reports_date_start);
+    var report_year = dateFromString(reports_date_start).getFullYear();
     for (var i = date_1; i >= parseInt(company_year) ;i--) {
-        html += '<option value="' + i + '" '+ ( i == report_year.getFullYear() ? 'selected' : '' ) +'>' + i + '</option>';
+        html += '<option value="' + i + '" '+ ( i == report_year ? 'selected' : '' ) +'>' + i + '</option>';
     }
     return html;
 }

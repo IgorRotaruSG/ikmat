@@ -1,1 +1,74 @@
-function getEmployeesCall(a,b){if(0==b.rows.length&&isOffline())$("#employee_no_results").text("No employees to show. Please connect to internet to sync.");else if(0!=b.rows.length||isOffline()){if(b.rows.length>0){for(var c="",d=0;d<b.rows.length;d++)c+='<li data-role="list-divider">'+b.rows[d].doc.first_name+" "+b.rows[d].doc.last_name+"</li>",c+="<li>"+b.rows[d].doc.email+" "+b.rows[d].doc.role+"</li>";$("#employee_no_results").hide(),$("#employee_list").html(c).listview("refresh")}}else{$("#employee_no_results").text("No employees to show, yet.");var e={client:User.client,token:User.lastToken};Page.apiCall("getEmployees",e,"get","getEmployees")}}function employeesInit(){User.isLogged()?db.getDbInstance("employees").allDocs({include_docs:!0},getEmployeesCall):Page.redirect("login.html")}function getEmployees(a){if(a.success&&(User.setToken(a.token),a.employees)){var b="",c='INSERT INTO "employees"("first_name","last_name","email", "role")',d=!1;for(var e in a.employees)"object"==typeof a.employees[e]&&(d?c+=" UNION":d=!0,c+=' SELECT "'+a.employees[e]["First Name"]+'" as "first_name", "'+a.employees[e]["Last Name"]+'" as "last_name", "'+a.employees[e].Email+'" as "email", \''+a.employees[e].Role+'\' as "role"',b+='<li data-role="list-divider">'+a.employees[e]["First Name"]+" "+a.employees[e]["Last Name"]+"</li>",b+="<li>"+a.employees[e].Email+" "+a.employees[e].Role+"</li>");db.clean(),db.execute(c),$("#employee_no_results").hide(),$("#employee_list").html(b).listview("refresh")}}
+function getEmployeesCall(error, results) {
+    if (results.rows.length == 0 && isOffline()) {
+        $('#employee_no_results').text('No employees to show. Please connect to internet to sync.');
+    }
+    else if (results.rows.length == 0 && !isOffline()) {
+        $('#employee_no_results').text('No employees to show, yet.');
+
+        var data = {
+            'client': User.client,
+            'token': User.lastToken
+        };
+
+        Page.apiCall('getEmployees', data, 'get', 'getEmployees');
+    }
+    else if (results.rows.length > 0) {
+        var html = '';
+
+        for (var i=0;i<results.rows.length;i++) {
+
+            html += '<li data-role="list-divider">' + results.rows[i].doc.first_name + ' ' + results.rows[i].doc.last_name  + '</li>';
+            html += '<li>' + results.rows[i].doc.email + ' ' + results.rows[i].doc.role + '</li>';
+        }
+
+        $('#employee_no_results').hide();
+        $('#employee_list').html(html).listview('refresh');
+    }
+}
+
+function employeesInit() {
+    if (User.isLogged()) {
+        db.getDbInstance('employees').allDocs({'include_docs': true}, getEmployeesCall);
+    } else {
+        Page.redirect('login.html');
+    }
+}
+
+
+function getEmployees(data) {
+    if (data.success) {
+        User.setToken(data.token);
+
+        if (data.employees) {
+
+            var html = '';
+            var q = 'INSERT INTO "employees"("first_name","last_name","email", "role")';
+            var h = false;
+
+            for (var i in data.employees) {
+                if (typeof data.employees[i] == 'object') {
+
+                    if (h) {
+                        q += ' UNION';
+                    } else {
+                        h = true;
+                    }
+
+                    q += ' SELECT ' +
+                        '"' + data.employees[i]['First Name'] + '" as "first_name", ' +
+                        '"' + data.employees[i]['Last Name'] + '" as "last_name", ' +
+                        '"' + data.employees[i]['Email'] + '" as "email", ' +
+                        "'" + data.employees[i]['Role'] + "'" + ' as "role"';
+
+
+                    html += '<li data-role="list-divider">' + data.employees[i]['First Name'] + ' ' + data.employees[i]['Last Name']  + '</li>';
+                    html += '<li>' + data.employees[i]['Email'] + ' ' + data.employees[i]['Role'] + '</li>';
+                }
+            }
+            db.clean();
+            db.execute(q);
+            $('#employee_no_results').hide();
+            $('#employee_list').html(html).listview('refresh');
+        }
+    }
+}

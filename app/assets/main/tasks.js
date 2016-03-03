@@ -155,12 +155,6 @@ function getReportsList(data) {
 	}
 }
 
-function dateFromString(datetime) {
-	var a = datetime.split(/[^0-9]/);
-	//for (i=0;i<a.length;i++) { alert(a[i]); }
-	return new Date(a[0], a[1] - 1, a[2], a[3], a[4], a[5]);
-}
-
 function updateTasks(data) {
 	if (data.success) {
 		if ( typeof last_update === 'object') {

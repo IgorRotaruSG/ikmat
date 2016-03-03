@@ -66,7 +66,6 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 						docs[i] = jQuery.extend(doc, docs[i]);
 						docs[i]._id = String(docs[i]._id);
 						if(params && params._deleted){
-							console.log("deleted");
 							docs[i]._deleted = true;
 						}
 						resolve(true);

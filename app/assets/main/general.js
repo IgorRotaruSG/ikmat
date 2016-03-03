@@ -457,6 +457,17 @@ Page.prototype.uploadImage = function() {
 
 };
 
+function dateFromString(datetime) {
+	function validate(number){
+		if(number){
+			return parseInt(number);
+		}
+		return 0;
+	}
+	var a = datetime.split(/[^0-9]/);
+	return new Date(validate(a[0]), validate(a[1]) - 1, validate(a[2]), validate(a[3]), validate(a[4]), validate(a[5]));
+}
+
 function cacheImage(request, callback) {
 	if (request && request.imageURI && request.task_id) {
 		if (isNative()) {
