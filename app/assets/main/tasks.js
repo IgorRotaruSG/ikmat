@@ -1244,12 +1244,12 @@ function haccpDeviationFixSave(data) {
 
 function closeButtonDisplay(callback, params) {
 	$('#form_back_btn i').removeClass('hided');
-	$('#form_back_btn').on('click', function(e) {
+	$(document).off('click', '#form_back_btn').on('click', '#form_back_btn', function(e) {
+		console.log('task list');
 		if (callback) {
 			callback.apply(this, [params]);
 		}
 		redirectToTasks();
-
 	});
 }
 

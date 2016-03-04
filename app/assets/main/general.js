@@ -221,15 +221,23 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 				'url' : this.settings.apiDomain + api_method,
 				'dataType' : 'jsonp',
 				'success' : function(data) {
-					var fn = window[callback];
-					if ( typeof fn === "function") {
+					if(callback && typeof callback == 'function'){
 						if (parameters) {
-							fn.apply(this, [data, parameters]);
+							callback(data, parameters);
 						} else {
-							fn.apply(this, [data]);
+							callback(data);
 						}
-
+					}else{
+						var fn = window[callback];
+						if ( typeof fn === "function") {
+							if (parameters) {
+								fn.apply(this, [data, parameters]);
+							} else {
+								fn.apply(this, [data]);
+							}
+						}
 					}
+					
 					if (api_method === 'reportTables' || (api_method === 'reports' && callback == 'documentsCall')) {
 						var requestData = parseQuery(this.url);
 						if (requestData.hasOwnProperty("token") && requestData.hasOwnProperty("report_number")) {

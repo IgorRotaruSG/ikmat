@@ -121,7 +121,7 @@ function checkTaskId(task_id, callback) {
 }
 
 
-$(document).on('click', '#form_back_btn', function(e) {
+$(document).off('click', '#form_back_btn').on('click', '#form_back_btn', function(e) {
 	e.preventDefault();
 	$("[href='tasks.html']").click();
 });

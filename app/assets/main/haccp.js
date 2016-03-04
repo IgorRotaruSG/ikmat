@@ -31,6 +31,7 @@ var isValid = false;
 
 function getHaccpCall(err, results) {
 	console.log('getHaccpCall', results);
+
 	if (results) {
 		haccp_total = results.total_rows;
 	}
@@ -66,54 +67,79 @@ function getHaccpCall(err, results) {
 
 		var html = '';
 		var response;
+		var promises = [];
 		for (var i = 0; i < results.rows.length; i++) {
-			html = getHaccpForm(results.rows[i].doc.content, results.rows[i].doc.id, results.rows[i].doc.cat, results.rows[i].doc.response);
-			if (!onNextClick && results.rows.length == 1) {
-				mySwiper.prependSlide(html, 'swiper-slide');
-			} else {
-				mySwiper.appendSlide(html, 'swiper-slide');
-			}
-			if (results.rows[i].doc.response != 0) {
-				try {
-					response = JSON.parse(results.rows[i].doc.response);
-					var response_possibility = response.possibility;
-					var response_consequence = response.consequence;
-				} catch(err) {
-					var response_possibility = -1;
-					var response_consequence = -1;
-					response = false;
+			var index = i;
+			(function(i) {
+				promises[i] = new Promise(function(resolve, reject) {
+					Page.apiCall('getSavedHaccp', {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'sub_id' : results.rows[i].id
+					}, 'get', function(result) {
+						console.log(result, results.rows[i]);
+						if (result && result.success) {
+							results.rows[i].doc.response = JSON.stringify(result.data);
+							resolve(true);
+						}
+					});
+				});
+			})(index);
+
+			Promise.all(promises).then(function() {
+				for (var i = 0; i < results.rows.length; i++) {
+					html = getHaccpForm(results.rows[i].doc.content, results.rows[i].doc.id, results.rows[i].doc.cat, results.rows[i].doc.response);
+					if (!onNextClick && results.rows.length == 1) {
+						mySwiper.prependSlide(html, 'swiper-slide');
+					} else {
+						mySwiper.appendSlide(html, 'swiper-slide');
+					}
+					if (results.rows[i].doc.response != 0) {
+						try {
+							response = JSON.parse(results.rows[i].doc.response);
+							var response_possibility = response.possibility;
+							var response_consequence = response.consequence;
+						} catch(err) {
+							var response_possibility = -1;
+							var response_consequence = -1;
+							response = false;
+						}
+					} else {
+						var response_possibility = -1;
+						var response_consequence = -1;
+						response = false;
+					}
+
+					// $('#haccp_radio_possibility_' + results.rows[i].doc.id + '_' + response_possibility).trigger('click');
+					// $('#haccp_radio_consequence_' + results.rows[i].doc.id + '_' + response_consequence).trigger('click');
 				}
-			} else {
-				var response_possibility = -1;
-				var response_consequence = -1;
-				response = false;
-			}
-			// $('#haccp_radio_possibility_' + results.rows[i].doc.id + '_' + response_possibility).trigger('click');
-			// $('#haccp_radio_consequence_' + results.rows[i].doc.id + '_' + response_consequence).trigger('click');
-		}
-		
-		if (results && results.rows.length == 1) {
-			if (onNextClick && f_i > 2) {
-				mySwiper.removeSlide(0);
-				mySwiper.swipeTo(1, 0, false);
-			} else if (!onNextClick) {
-				mySwiper.removeSlide(parseInt(mySwiper.slides.length - 1));
-				mySwiper.swipeTo(1, 0, false);
-			}
+				if (results && results.rows.length == 1) {
+					if (onNextClick && f_i > 2) {
+						mySwiper.removeSlide(0);
+						mySwiper.swipeTo(1, 0, false);
+					} else if (!onNextClick) {
+						mySwiper.removeSlide(parseInt(mySwiper.slides.length - 1));
+						mySwiper.swipeTo(1, 0, false);
+					}
 
-			mySwiper.reInit();
-			mySwiper.resizeFix();
+					mySwiper.reInit();
+					mySwiper.resizeFix();
+				}
+
+				if (results.rows.length > 1) {
+					mySwiper.removeSlide(0);
+					mySwiper.reInit();
+					mySwiper.resizeFix();
+				} else {
+					candelete = true;
+				}
+				//console.log($.mobile.activePage.attr('id'));
+				$('#' + $.mobile.activePage.attr('id')).trigger('create');
+				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+			});
+
 		}
 
-		if (results.rows.length > 1) {
-			mySwiper.removeSlide(0);
-			mySwiper.reInit();
-			mySwiper.resizeFix();
-		} else {
-			candelete = true;
-		}
-		//console.log($.mobile.activePage.attr('id'));
-		$('#' + $.mobile.activePage.attr('id')).trigger('create');
 		//setTimeout(function(){
 		//}, 1000);
 	} else if (he_have_something) {
@@ -154,7 +180,7 @@ function getHaccpCallPrev(tx, results) {
 		var data = {
 			'client' : User.client,
 			'token' : User.lastToken
-		}
+		};
 		console.log('112 haccp.js');
 		Page.apiCall('haccp', data, 'post', 'haccp');
 	} else if (results.rows.length > 0) {
@@ -309,6 +335,7 @@ function haccpInit() {
 				console.log('isValid', isValid);
 				if (onNextClick && !isValid) {
 					isValid = true;
+					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 					return;
 				}
 				if (!isStart) {
@@ -359,9 +386,9 @@ function haccpInit() {
 				} else {
 					$('#footer').show();
 				}
-				setTimeout(function() {
+				if(f_i == 0 || f_i == haccp_total){
 					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-				}, 1000);
+				}
 			}
 		});
 
