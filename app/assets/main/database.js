@@ -144,7 +144,7 @@ function createDesignDoc(name, mapFunction) {
 
 db.prototype.createView = function(collection, name, mapFunction){
 	var designDoc = createDesignDoc(name, mapFunction);
-	this.collections[collection].put(designDoc);
+	this.collections[collection].putIfNotExists(designDoc);
 };
 
 db.prototype.createTables = function(isReload) {
@@ -157,12 +157,17 @@ db.prototype.createTables = function(isReload) {
 		var index = i;
 		(function(i){
 			that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
-				skip_setup : true
+				skip_setup : true,
+				adapter: 'websql'
 			});
-			var designDoc = createDesignDoc('sort_index', function (doc) {
+			if (!that.collections[that.tables[i]].adapter) { // websql not supported by this browser
+			  	that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
+					skip_setup : true
+				});
+			}
+			that.createView(that.tables[i], 'sort_index', function(doc){
 				emit(doc.timestamp);
 			});
-			that.collections[that.tables[i]].put(designDoc);
 		})(index);
 		
 	}
@@ -207,7 +212,11 @@ db.prototype.dbDropTables = function() {
 			}
 		});
 	}
-	return Promise.all(promises);
+	return Promise.all(promises).then(function(result){
+		if(result.length == promises.length){
+			return result;
+		}
+	});
 };
 
 db.prototype.InitDB = function() {
@@ -247,7 +256,7 @@ db.prototype.dbErrorHandle = function(err) {
 	console.log('query: ', query);
 	var that = this;
 	this.dbDropTables().then(function(){
-		that.createTables();
+		// that.createTables();
 		window.location.reload();
 	});
 };

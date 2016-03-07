@@ -172,7 +172,8 @@ function updateTasks(data) {
 	}
 	last_update = new Date(dateFromString(data.currentTime.date));
 
-	if ((data.success && data.tasks_nr > 0 ) || (data.success && updated == 0 ) || isSync) {//todo not sure about that
+	//remove data.tasks_nr > 0 because it always = 0 with Vedlikehold
+	if ((data.success) || (data.success && updated == 0 ) || isSync) {//todo not sure about that
 		updated = 1;
 		var data = {
 			'client' : User.client,
@@ -1244,12 +1245,12 @@ function haccpDeviationFixSave(data) {
 
 function closeButtonDisplay(callback, params) {
 	$('#form_back_btn i').removeClass('hided');
-	$('#form_back_btn').on('click', function(e) {
+	$(document).off('click', '#form_back_btn').on('click', '#form_back_btn', function(e) {
+		console.log('task list');
 		if (callback) {
 			callback.apply(this, [params]);
 		}
 		redirectToTasks();
-
 	});
 }
 

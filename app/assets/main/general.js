@@ -1,9 +1,9 @@
 var settings = {
 	//'apiDomain':        'http://haccpy11.bywmds.us/api/',
-	// 'apiDomain' : 'http://ikmatapp.no/api/',
-	// 'apiPath' : 'http://ikmatapp.no',
-	'apiDomain':        'https://automagi.fsoft.com.vn/api/',
-	'apiPath':        'https://automagi.fsoft.com.vn',
+	'apiDomain' : 'http://ikmatapp.no/api/',
+	'apiPath' : 'http://ikmatapp.no',
+	// 'apiDomain':        'https://automagi.fsoft.com.vn/api/',
+	// 'apiPath':        'https://automagi.fsoft.com.vn',
 	'apiUploadPath' : 'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -15,8 +15,8 @@ var settings = {
 	},
 	'requestTimeout' : 25000,
 	'excludeOffline' : ["haccp.html", "flowchart.html"],
-	'version' : "2.0.77",
-	'rebuild' : "2.0.77"
+	'version' : "2.0.79",
+	'rebuild' : "2.0.79"
 };
 
 var performance = window.performance;
@@ -221,15 +221,23 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 				'url' : this.settings.apiDomain + api_method,
 				'dataType' : 'jsonp',
 				'success' : function(data) {
-					var fn = window[callback];
-					if ( typeof fn === "function") {
+					if(callback && typeof callback == 'function'){
 						if (parameters) {
-							fn.apply(this, [data, parameters]);
+							callback(data, parameters);
 						} else {
-							fn.apply(this, [data]);
+							callback(data);
 						}
-
+					}else{
+						var fn = window[callback];
+						if ( typeof fn === "function") {
+							if (parameters) {
+								fn.apply(this, [data, parameters]);
+							} else {
+								fn.apply(this, [data]);
+							}
+						}
 					}
+					
 					if (api_method === 'reportTables' || (api_method === 'reports' && callback == 'documentsCall')) {
 						var requestData = parseQuery(this.url);
 						if (requestData.hasOwnProperty("token") && requestData.hasOwnProperty("report_number")) {
@@ -656,7 +664,7 @@ User.prototype.logout = function() {
 function logout() {
 	logout_flag = true;
 	localStorage.setItem('user_name', '');
-	db.dbDropTables().then(function() {
+	db.dbDropTables().then(function(results) {
 		User.database = false;
 		User.client = false;
 		User.lastToken = false;
