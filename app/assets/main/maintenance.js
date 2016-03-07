@@ -1,7 +1,6 @@
 var get;
 function maintenanceInit() {
 	get = Page.get();
-
 	var data = {
 		'client' : User.client,
 		'token' : User.lastToken
@@ -20,9 +19,14 @@ function maintenanceInit() {
 			}
 		});
 	}
+	console.log($('#form_back_btn i'));
+	$('#form_back_btn i').removeClass('hided');
+	closeButtonMaintenance();
+	console.log('maintenance mySwiper', mySwiper);
 }
 
 function maintenance(data) {
+	closeButtonMaintenance();
 	if (data.form_deviation) {
 		var html = HTML.formGenerate(data.form_deviation, $.t("general.save_button"));
 		html += '<div data-role="popup" data-history="false" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.sign_button") + '</button>' + '</div>' + '</div>';
@@ -73,7 +77,6 @@ function maintenance(data) {
 
 		if (data.form_fix_deviation.deviation_photos != undefined && (data.form_fix_deviation.deviation_photos).length > 0) {
 			var p = $.parseJSON(data.form_fix_deviation.deviation_photos);
-			console.log(p);
 			for (var i in p) {
 				if (p.hasOwnProperty(i)) {
 					html += '<img width="100%" height="auto" style="margin:0 auto;" src="' + p[i] + '" />';
@@ -112,7 +115,6 @@ function maintenance(data) {
 				if (!isOffline()) {
 					Page.apiCall('maintenance', data, 'get', 'maintenanceDone');
 				} else {
-
 					db.lazyQuery('sync_query', [{
 						'api' : 'maintenance',
 						'data' : JSON.stringify(data),
@@ -135,10 +137,24 @@ function maintenance(data) {
 		});
 		$('#' + $.mobile.activePage.attr('id')).trigger('create');
 		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-		$('#form_back_btn i').removeClass('hided');
-
 	}
-	calcHeight('form_maintenance');
+}
+
+function closeButtonMaintenance() {
+	setInterval(function(){ 
+		if ($.mobile.activePage.attr('id') == 'maintenance') {
+			if ($('#form_back_btn i').hasClass('hided')) {
+				$('#form_back_btn i').removeClass('hided');
+			}
+			calcHeight('form_maintenance');
+		}
+	}, 500);
+	
+	$(document).off('click', '#form_back_btn').on('click', '#form_back_btn', function(e) {
+		console.log('maintenance');
+		$('#form_back_btn i').addClass('hided');
+		$("[href='tasks.html']").click();
+	});
 }
 
 function calcHeight(el){
@@ -148,11 +164,6 @@ function calcHeight(el){
 	$('#' + el).parent().css('height', document.body.clientHeight - 80 + 'px');
 	$('#' + el).parent().css('-webkit-overflow-scrolling', 'touch');
 }
-
-$(document).on('click', '#form_back_btn', function(e) {
-	e.preventDefault();
-	$("[href='tasks.html']").click();
-});
 
 function documentSignature(data) {
 	$('#sign_name').attr('disabled', true);

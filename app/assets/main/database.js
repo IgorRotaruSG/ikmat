@@ -207,7 +207,11 @@ db.prototype.dbDropTables = function() {
 			}
 		});
 	}
-	return Promise.all(promises);
+	return Promise.all(promises).then(function(result){
+		if(result.length == promises.length){
+			return result;
+		}
+	});
 };
 
 db.prototype.InitDB = function() {
