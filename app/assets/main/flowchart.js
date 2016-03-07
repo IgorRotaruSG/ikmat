@@ -61,7 +61,7 @@ function flowchartInit() {
 }
 
 function showFlowchart(data) {
-    if (data.success) {        
+    if (data.success) {
         var add = '';
         if ( data.flowcharts.length > 0 ) {
             for (var i in data.flowcharts) {
@@ -91,7 +91,7 @@ function showFlowchart(data) {
                 beforeOpen: function() {
                 }, // called before opening
                 afterOpen: function(){
-                	// new RTP.PinchZoom($('div .current'), {});                    
+                	// new RTP.PinchZoom($('div .current'), {});
                 }, // called after opening
                 afterClose: function() {}, // called after closing
                 loopAtEnd: true // true will return to the first image after the last image is reached
@@ -181,7 +181,7 @@ function printFlowchart(flowchartSrc, flowchartTitle){
     else {
         w=window.open();
 
-        var flowchartHtml = '<style>' +        
+        var flowchartHtml = '<style>' +
         '.image_element {' +
             'width: 96%;' +
             'height: 96%;' +
@@ -218,30 +218,36 @@ function printFlowchart(flowchartSrc, flowchartTitle){
 function emailFlowchart(flowchartId){
 	console.log("flowchartId", $('#flowchart_list').find('a[data-id='+ flowchartId +']'));
 	var flowEle = $('#flowchart_list').find('a[data-id='+ flowchartId +']');
-	var data = {
-		'image': $(flowEle).attr("href"),
-		'title': $(flowEle).attr("title")
-	};
-	openNativeEmail(data);
-    return;
+
+    $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+    var email_data = {
+        'client' : User.client,
+        'token' : User.lastToken,
+        'report_id' : 15,
+        'flowchart_id' : flowchartId,
+        'flowchart_name' : $(flowEle).attr("title")
+    };
+
+    // Open app on mobile
+    if (isNative()) {
+            Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail', email_data);
+        }
+    } else {
+        Page.apiCall('exportReportPdfForDownload', email_data, 'get', 'downloadPdf', email_data);
+    }
 }
 
-function openNativeEmail(data){
-    var subject = (data.title + " Flytskjema").toUpperCase();
+function openNativeEmail(pdf, email_data){
+    var subject = "Flytskjema " + email_data.flowchart_name;
+    subject += localStorage.getItem('company_name') ? " av " + localStorage.getItem('company_name'): "";
     var mailObject = {
         subject: subject,
         cc: localStorage.getItem("user_email") ? localStorage.getItem("user_email"): "",
     };
-
-    if(data.image.length > 0){
-    	if(isNative()){
-    		mailObject.isHtml = true;
-    		mailObject.body = '<div>Trykk på lenken nedenfor for å se flytskjema: </div>' + '<div><a href="' + encodeURI(data.image) + '"><img width="100%" alt="' + encodeURI(data.image) + '" src="' + encodeURI(data.image) + '" ></a></div>';
-    	}else{
-    		mailObject.body = 'Trykk på lenken nedenfor for å se flytskjema: \n' + encodeURI(data.image);
-    	}
-            
+    if(pdf){
+        mailObject.attachments = "base64:" + pdf.name + "//" + pdf.data;
     }
+    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
     /* Open native mail on mobile */
     if(isNative() && cordova.plugins && cordova.plugins.email) {
         cordova.plugins.email.isAvailable(
@@ -249,12 +255,15 @@ function openNativeEmail(data){
                 cordova.plugins.email.open(mailObject);
             }
         );
-    } else { /* Open native mail on web */
-        var mailto_link = 'mailto:?subject='+mailObject.subject;
-        if (mailObject.cc) mailto_link += '&cc='+mailObject.cc;
-        if (mailObject.body) mailto_link += '&body='+mailObject.body;
-        location.href = mailto_link;
     }
+}
+
+//Same as downloadPdf function in reports.js
+function downloadPdf(pdf, email_data){
+    if (pdf.data) {
+        window.open(pdf.data, '_blank');
+    }
+    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 }
 
 function removeFlowchart (data){
