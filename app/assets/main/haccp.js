@@ -78,10 +78,11 @@ function getHaccpCall(err, results) {
 						'sub_id' : results.rows[i].id
 					}, 'get', function(result) {
 						console.log(result, results.rows[i]);
-						if (result && result.success) {
+						if (result && result.success && result.data) {
+							console.log('results.rows[i]', results.rows[i]);
 							results.rows[i].doc.response = JSON.stringify(result.data);
-							resolve(true);
 						}
+						resolve(true);
 					});
 				});
 			})(index);
@@ -322,7 +323,7 @@ function haccpInit() {
 				if (deviation >= 3 && _t == 'save') {
 					decisionTree(swiper);
 				} else {
-					continueHaccp(swiper);
+					// continueHaccp(swiper);
 				}
 				check_haccp();
 			},
@@ -393,9 +394,10 @@ function haccpInit() {
 				} else {
 					$('#footer').show();
 				}
-				if (f_i == 0 || f_i == haccp_total) {
-					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-				}
+				// if (f_i == 0 || f_i == haccp_total) {
+					// $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+				// }
+				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 			}
 		});
 
