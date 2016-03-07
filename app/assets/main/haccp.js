@@ -30,8 +30,6 @@ var isValid = false;
 //navigator.connection.type = Connection.NONE;
 
 function getHaccpCall(err, results) {
-	console.log('getHaccpCall', results);
-
 	if (results) {
 		haccp_total = results.total_rows;
 	}
@@ -77,7 +75,6 @@ function getHaccpCall(err, results) {
 						'token' : User.lastToken,
 						'sub_id' : results.rows[i].id
 					}, 'get', function(result) {
-						console.log(result, results.rows[i]);
 						if (result && result.success && result.data) {
 							console.log('results.rows[i]', results.rows[i]);
 							results.rows[i].doc.response = JSON.stringify(result.data);
@@ -850,7 +847,6 @@ function continueHaccp(swiper) {
 	//unbind popup function so it won't call twice
 	$('#confirmDevPopup').popup('close');
 	if (_t == 'save' && !universal_cango) {
-		console.log('aaaaa', universal_cango);
 		// $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 		var dd = {};
 		//console.log('swiper.previousIndex',swiper.previousIndex);
@@ -970,7 +966,6 @@ function continueHaccp(swiper) {
 			mySwiper.swipePrev();
 		}
 	} else {
-		console.log('universal_cango false');
 		universal_cango = false;
 		//console.info('1266'+activeQuestion);
 		if (activeQuestion <= 0) {

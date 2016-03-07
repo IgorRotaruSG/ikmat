@@ -157,8 +157,14 @@ db.prototype.createTables = function(isReload) {
 		var index = i;
 		(function(i){
 			that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
-				skip_setup : true
+				skip_setup : true,
+				adapter: 'websql'
 			});
+			if (!that.collections[that.tables[i]].adapter) { // websql not supported by this browser
+			  	that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
+					skip_setup : true
+				});
+			}
 			var designDoc = createDesignDoc('sort_index', function (doc) {
 				emit(doc.timestamp);
 			});
