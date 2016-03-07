@@ -161,7 +161,6 @@ db.prototype.createTables = function(isReload) {
 				adapter: 'websql'
 			});
 			if (!that.collections[that.tables[i]].adapter) { // websql not supported by this browser
-				console.log('test');
 			  	that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
 					skip_setup : true
 				});
@@ -257,7 +256,7 @@ db.prototype.dbErrorHandle = function(err) {
 	console.log('query: ', query);
 	var that = this;
 	this.dbDropTables().then(function(){
-		that.createTables();
+		// that.createTables();
 		window.location.reload();
 	});
 };

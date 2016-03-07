@@ -19,10 +19,8 @@ function maintenanceInit() {
 			}
 		});
 	}
-	console.log($('#form_back_btn i'));
 	$('#form_back_btn i').removeClass('hided');
 	closeButtonMaintenance();
-	console.log('maintenance mySwiper', mySwiper);
 }
 
 function maintenance(data) {
@@ -151,7 +149,6 @@ function closeButtonMaintenance() {
 	}, 500);
 	
 	$(document).off('click', '#form_back_btn').on('click', '#form_back_btn', function(e) {
-		console.log('maintenance');
 		$('#form_back_btn i').addClass('hided');
 		$("[href='tasks.html']").click();
 	});
@@ -215,7 +212,6 @@ function maintenanceDone(data) {
 		'_id' : String(get.id),
 		'completed' : true
 	}], function() {
-		console.log("update");
 		Page.redirect('tasks.html');
 	});
 }

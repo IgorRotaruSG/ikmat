@@ -76,7 +76,6 @@ function getHaccpCall(err, results) {
 						'sub_id' : results.rows[i].id
 					}, 'get', function(result) {
 						if (result && result.success && result.data) {
-							console.log('results.rows[i]', results.rows[i]);
 							results.rows[i].doc.response = JSON.stringify(result.data);
 						}
 						resolve(true);
@@ -338,8 +337,6 @@ function haccpInit() {
 				_t = 'edit';
 				console.log('isValid', isValid);
 				if (onNextClick && !isValid) {
-					isValid = true;
-					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 					return;
 				}
 				if (!isStart) {
@@ -378,7 +375,6 @@ function haccpInit() {
 				if (deviation >= 3 && _t == 'save') {
 					//decisionTree(swiper);
 				} else {
-					console.log('continueHaccp 1');
 					continueHaccp(swiper);
 				}
 				swiper.resizeFix();
@@ -391,10 +387,13 @@ function haccpInit() {
 				} else {
 					$('#footer').show();
 				}
-				// if (f_i == 0 || f_i == haccp_total) {
-					// $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-				// }
-				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+				if (f_i == 0 || f_i == haccp_total || isStart) {
+					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+				}
+				if (onNextClick && !isValid) {
+					isValid = true;
+					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+				}
 			}
 		});
 
