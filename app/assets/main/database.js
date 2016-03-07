@@ -144,7 +144,7 @@ function createDesignDoc(name, mapFunction) {
 
 db.prototype.createView = function(collection, name, mapFunction){
 	var designDoc = createDesignDoc(name, mapFunction);
-	this.collections[collection].put(designDoc);
+	this.collections[collection].putIfNotExists(designDoc);
 };
 
 db.prototype.createTables = function(isReload) {
@@ -161,14 +161,14 @@ db.prototype.createTables = function(isReload) {
 				adapter: 'websql'
 			});
 			if (!that.collections[that.tables[i]].adapter) { // websql not supported by this browser
+				console.log('test');
 			  	that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
 					skip_setup : true
 				});
 			}
-			var designDoc = createDesignDoc('sort_index', function (doc) {
+			that.createView(that.tables[i], 'sort_index', function(doc){
 				emit(doc.timestamp);
 			});
-			that.collections[that.tables[i]].put(designDoc);
 		})(index);
 		
 	}
