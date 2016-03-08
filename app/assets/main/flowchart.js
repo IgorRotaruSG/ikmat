@@ -231,7 +231,6 @@ function emailFlowchart(flowchartId){
     // Open app on mobile
     if (isNative()) {
             Page.apiCall('exportBase64ReportPdf', email_data, 'get', 'openNativeEmail', email_data);
-        }
     } else {
         Page.apiCall('exportReportPdfForDownload', email_data, 'get', 'downloadPdf', email_data);
     }
