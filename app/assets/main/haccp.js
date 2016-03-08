@@ -85,7 +85,7 @@ function getHaccpCall(err, results) {
 
 			Promise.all(promises).then(function(result) {
 				if (result.length == results.rows.length) {
-					
+
 					for (var i = 0; i < results.rows.length; i++) {
 						html = getHaccpForm(results.rows[i].doc.content, results.rows[i].doc.id, results.rows[i].doc.cat, results.rows[i].doc.response);
 						if (!onNextClick && results.rows.length == 1) {
@@ -268,6 +268,9 @@ function getHaccpWithLimitPrev() {
 }
 
 function haccpInit() {
+//	debugger;
+	console.log("");
+
 	if (User.isLogged()) {
 		executeSyncQuery();
 		get = {};
@@ -414,6 +417,9 @@ function insertHaccpItem() {
 }
 
 function haccp(data) {
+
+	//debugger;
+
 	if (data.success) {
 		if (data.haccp_category.length > 0) {
 			//var c = data.haccp_category;
@@ -439,7 +445,9 @@ function haccp(data) {
 			insertHaccpItem();
 		} else {
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-			$('#haccp_list_no_results').html($.t('error.no_haccps'));
+			$('.swiper-slide').css('min-height', 'inherit');
+			$('#haccp_list_no_results').html($.t('error.no_haccps')); //-- hoadd1
+
 			$('[data-role="footer"]').hide();
 		}
 	}
@@ -1184,17 +1192,17 @@ function deviationTreeBackStep() {
 		if (prevAns == 1) {
 			$('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
 			$('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-			$('#deviation_yes').trigger('click');
+			$('#deviation_yes').prop('checked', true);
 		} else {
 			$('#deviation_yes').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
 			$('#deviation_no').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-			$('#deviation_no').trigger('click');
+			$('#deviation_no').prop('checked', true);
 		}
 		delete deviationAnswers[prevStep];
 	} else {
 		$('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
 		$('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-		$('#deviation_yes').trigger('click');
+		$('#deviation_yes').prop('checked', true);
 		mySwiper.swipePrev();
 	}
 }

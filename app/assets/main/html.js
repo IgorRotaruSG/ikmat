@@ -1,4 +1,5 @@
 var haccp_image_id = '';
+var oldValStartDate = '';
 
 function HTML() {
 }
@@ -108,7 +109,8 @@ HTML.prototype.formGenerate = function(form_data, s, d) {
                     html += this.radioList(i, form_data[i].label, form_data[i].list, form_data[i].value, form_data[i].validation);
                     break;
                 case 'date':
-                    html += this.inputDate(i, form_data[i].label, form_data[i].placeholder, form_data[i].value, d);
+                    $oldValStartDate = form_data[i].value;
+                    html += this.inputDate(i, form_data[i].label, form_data[i].placeholder, form_data[i].value, d, 'valid_date');
                     break;
                 case 'multiple_text_fridges':
                     html += this.inputFridge(i, form_data[i].label, form_data[i].placeholder, form_data[i].fields, form_data[i].value);
@@ -765,7 +767,7 @@ HTML.prototype.inputDate = function(name, label, placeholder, value, dv, validat
 			v = yyyy+'-'+mm+'-'+ dd;
  	}
 
-    html += '<input name="' + name + '" placeholder="' + placeholder + '" id="frm_label_' + md5(name+label) + '" type="date" value="' + v + '" ' + this.generateValidation(validation) + ' />';
+    html += '<input name="' + name + '" placeholder="' + placeholder + '" id="frm_label_' + md5(name+label) + '" type="date" value="' + v + '" data-validation="' + validation + '"/>';
 
     return html;
 };
@@ -1252,6 +1254,19 @@ function validateEmail(email) {
     return re.test(email);
 }
 
+function validDate(newVal) {
+    var now = new Date();
+    var day = now.getDate() < 10 ? '0'+now.getDate() : now.getDate();
+    var month = now.getMonth() < 9 ? '0'+ ( now.getMonth() + 1)  : now.getMonth() + 1;
+    var curDate = now.getFullYear() + '-' +month + '-' + day;
+    console.log("cur Date: ", curDate);
+    console.log("old Date: ", $oldValStartDate);
+    console.log("new Date: ", newVal);
+    if (newVal != $oldValStartDate && newVal < curDate)
+        return false;
+    return true;
+}
+
 jQuery.fn.extend({
     matchValidateRules: function(ex) {
         var valid = true;
@@ -1261,6 +1276,7 @@ jQuery.fn.extend({
         var errorNumber = false;
         var errorChar = false;
         var errorName = false;
+        var errorDate = false;
         var err;
 
         this.each(function() {
@@ -1384,6 +1400,12 @@ jQuery.fn.extend({
                             }
                         }
                         break;
+                    case 'valid_date':
+                        if (!validDate($(this).val())) {
+                            stepValid = false;
+                            errorDate = true;
+                        }
+                        break;
                 }
             }
             if (typeof ex === "undefined") {
@@ -1402,6 +1424,9 @@ jQuery.fn.extend({
                     } else if (errorName) {
                       errorName = false;
                       err = $.t("Dette navnet er allerede i bruk. Alle navn må være unike.");
+                    } else if (errorDate) {
+                      errorDate = false;
+                      err = $.t("error.validation_date");
                     } else {
                       err = $.t("error.validation");
                     }
@@ -1411,13 +1436,15 @@ jQuery.fn.extend({
                     else if ($(this).is("input")) {
                         if ($(this).attr('type') == 'radio') {
                             $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">' + err + '</label>').insertAfter($rgfg.last().parent());
-                        } else {
+                        }
+                        else {
                             $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">' + err + '</label>').insertAfter($(this).parent());
                         }
                     }
                     else if ($(this).is("textarea")) {
                         $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">' + err + '</label>').insertAfter($(this));
-                    } else {
+                    }
+                    else {
                         $(this).css('border', '1px solid red;');
                     }
                 }
