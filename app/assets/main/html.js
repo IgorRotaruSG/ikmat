@@ -1,4 +1,5 @@
 var haccp_image_id = '';
+var oldValStartDate = '';
 
 function HTML() {
 }
