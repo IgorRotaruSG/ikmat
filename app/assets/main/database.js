@@ -14,6 +14,7 @@ function db() {
 	this.query = false;
 	this.collections = [];
 	this.tables = ['settings', 'tasks', 'haccp_category', 'haccp_items', 'forms', 'registration', 'form_item', 'sync_query', 'reports', 'flowchart'];
+	PouchDB.plugin(Erase);
 }
 
 db.prototype.asyncExecute = function(data, step, callback) {
@@ -275,11 +276,5 @@ db.prototype.getDbInstance = function(name) {
 
 db.prototype.clearCollection = function(name, callback) {
 	var that = this;
-	this.collections[name].query('sort_index', function (error, results) {
-	  	that.bulkDocs(name, results.rows, function(){
-	  		if(callback){
-	  			callback();
-	  		}
-	  	}, {_deleted:true});
-	});
+	this.collections[name].erase({}, callback);
 };

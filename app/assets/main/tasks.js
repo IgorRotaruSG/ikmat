@@ -848,44 +848,12 @@ function getTasksUncompleted(data) {
 			if (tasks_page == 1) {
 				local_tasks_total = tasksNr;
 				db.clearCollection('tasks', function() {
-					db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data), function(results) {
-					});
+					displayTasks(tasksNr, db_data, add);
 				});
 			} else {
 				local_tasks_total += tasksNr;
-				db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data));
+				displayTasks(tasksNr, db_data, add);
 			}
-			checkTaskData();
-
-			checkIsHaccp(add, function(isAdd) {
-				_append('#taskList', add);
-
-				mySwiper.reInit();
-				mySwiper.resizeFix();
-				realignSlideHeight('max-height-task');
-				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-
-				bindOpenTask();
-
-				mySwiper.reInit();
-				mySwiper.resizeFix();
-				if (tasksNr < per_page) {
-					$('#load_more_tasks').attr('disabled', true);
-					$('#load_more_tasks').parent().hide();
-				} else {
-					if (data.tasks_total_nr <= per_page) {
-						$('#load_more_tasks').attr('disabled', true);
-						$('#load_more_tasks').parent().hide();
-					} else {
-						$('#load_more_tasks').removeAttr('disabled');
-						$('#load_more_tasks').parent().show();
-						$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
-					}
-				}
-				if (!isAdd) {
-					checkTasksList();
-				}
-			});
 
 		} else {
 			var date = new Date();
@@ -923,6 +891,42 @@ function getTasksUncompleted(data) {
 		mySwiper.resizeFix();
 		realignSlideHeight('max-height-task');
 	}
+}
+
+function displayTasks(tasksNr, db_data, add) {
+	db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data), function(results) {
+		checkTaskData();
+
+		checkIsHaccp(add, function(isAdd) {
+			_append('#taskList', add);
+
+			mySwiper.reInit();
+			mySwiper.resizeFix();
+			realignSlideHeight('max-height-task');
+			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
+			bindOpenTask();
+
+			mySwiper.reInit();
+			mySwiper.resizeFix();
+			if (tasksNr < per_page) {
+				$('#load_more_tasks').attr('disabled', true);
+				$('#load_more_tasks').parent().hide();
+			} else {
+				if (tasks_total_nr <= per_page) {
+					$('#load_more_tasks').attr('disabled', true);
+					$('#load_more_tasks').parent().hide();
+				} else {
+					$('#load_more_tasks').removeAttr('disabled');
+					$('#load_more_tasks').parent().show();
+					$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
+				}
+			}
+			if (!isAdd) {
+				checkTasksList();
+			}
+		});
+	});
 }
 
 function takeHACCPPicture(id) {
@@ -1036,7 +1040,7 @@ function getTasksFromLocal(results) {
 
 		mySwiper.reInit();
 		mySwiper.resizeFix();
-		
+
 		$('#load_more_tasks').removeAttr('disabled');
 		$('#load_more_tasks').parent().show();
 		$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
