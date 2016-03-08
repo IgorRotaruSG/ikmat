@@ -80,7 +80,7 @@ function getTasksCall(err, results) {
 						haccp = false;
 				}
 			}
-			if (haccp) {
+			if (haccp || register_edit) {
 				getTasksFromLocal(results);
 			} else {
 				$('#load_more_tasks').parent().hide();
@@ -155,12 +155,6 @@ function getReportsList(data) {
 	}
 }
 
-function dateFromString(datetime) {
-	var a = datetime.split(/[^0-9]/);
-	//for (i=0;i<a.length;i++) { alert(a[i]); }
-	return new Date(a[0], a[1] - 1, a[2], a[3], a[4], a[5]);
-}
-
 function updateTasks(data) {
 	if (data.success) {
 		if ( typeof last_update === 'object') {
@@ -170,6 +164,7 @@ function updateTasks(data) {
 			var diff = Math.abs(dateNow - lastUpdate);
 			if (diff > 0) {
 				isSync = true;
+				tasks_page = 1;
 			}
 		}
 	} else if (data.error != '') {
@@ -177,7 +172,8 @@ function updateTasks(data) {
 	}
 	last_update = new Date(dateFromString(data.currentTime.date));
 
-	if ((data.success && data.tasks_nr > 0 ) || (data.success && updated == 0 ) || isSync) {//todo not sure about that
+	//remove data.tasks_nr > 0 because it always = 0 with Vedlikehold
+	if ((data.success) || (data.success && updated == 0 ) || isSync) {//todo not sure about that
 		updated = 1;
 		var data = {
 			'client' : User.client,
@@ -263,12 +259,6 @@ function tasksInit() {
 	} else {
 		Page.redirect('login.html');
 	}
-	document.addEventListener('resume', function() {
-		var activePage = $.mobile.activePage.attr("id");
-		if (activePage == 'tasks') {
-			getTasks();
-		}
-	}, false);
 }
 
 function getTaskData(data) {
@@ -642,7 +632,7 @@ function taskDeviationSave(data) {
 			})
 		};
 		if (!isOffline()) {
-			Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+			Page.apiCall('documentSignature', data1, 'post', 'documentSignature');
 		} else {
 
 			db.lazyQuery('sync_query', [{
@@ -684,7 +674,7 @@ function taskDeviationFixSave(data) {
 			})
 		};
 		if (!isOffline()) {
-			Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+			Page.apiCall('documentSignature', data1, 'post', 'documentSignature');
 		} else {
 
 			db.lazyQuery('sync_query', [{
@@ -730,11 +720,66 @@ function uploadHACCPPicture(obj) {
 	});
 }
 
+function checkIsHaccp(data, callback) {
+	db.getDbInstance("settings").allDocs({
+		keys : ['register_edit', 'haccp', 'role'],
+		include_docs : true
+	}, function(error, results) {
+		var register_edit = true,
+		    haccp = true,
+		    role = '';
+		if (results && results.rows.length > 0) {
+			for (var i = 0; i < results.rows.length; i++) {
+				if (results.rows[i].key == 'register_edit' && results.rows[i].doc.value)
+					register_edit = false;
+				if (results.rows[i].key == 'haccp' && results.rows[i].doc.value)
+					haccp = false;
+				if (results.rows[i].key == 'role')
+					role = results.rows[i].doc.value;
+			}
+		}
+
+		if (tasks_page == 1) {
+			if ((register_edit || haccp) && role != 'ROLE_EMPLOYEE' && !$('#taskList').find("li[data-id='" + 9999 + "']")[0]) {
+				data.push({
+					'id' : 9999,
+					'data' : $.t('tasks.registration_steps'),
+					'extra' : 'data-role="list-divider"'
+				});
+			}
+
+			if (register_edit && role != 'ROLE_EMPLOYEE' && !$('#taskList').find("li[data-id='" + 9998 + "']")[0]) {
+				data.push({
+					'id' : 9998,
+					'data' : '<a href="register_edit.html" data-transition="slide">' + $.t('tasks.complete_profile') + '</a>',
+					'extra' : 'data-icon="false"'
+				});
+			}
+			if (haccp && role != 'ROLE_EMPLOYEE' && !$('#taskList').find("li[data-id='" + 9997 + "']")[0]) {
+				data.push({
+					'id' : 9997,
+					'data' : '<a href="haccp.html" data-transition="slide">' + $.t('tasks.complete_haccp') + '</a>',
+					'extra' : 'data-icon="false"'
+				});
+			}
+		}
+
+		if (callback) {
+			var isAdded = false;
+			if (haccp || register_edit || data.length > 0) {
+				isAdded = true;
+			}
+			callback(isAdded);
+		}
+	});
+}
+
 function getTasksUncompleted(data) {
 	isSync = false;
 	$('#load_more_tasks').attr('disabled', 'disabled');
 	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.loading"));
 	//disable LoadMore button until tastdata gets updated
+	var tasksNr = 0;
 	if (data.success) {
 		last_update = new Date(dateFromString(data.currentTime.date));
 		tasks_total_nr = data.tasks_total_nr;
@@ -744,7 +789,6 @@ function getTasksUncompleted(data) {
 
 			var add_data = '';
 			var db_data = [];
-			var tasksNr = 0;
 			for (var i in data.tasks) {
 				date = new Date(i);
 
@@ -804,59 +848,17 @@ function getTasksUncompleted(data) {
 			if (tasks_page == 1) {
 				local_tasks_total = tasksNr;
 				db.clearCollection('tasks', function() {
-					db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data), function(results) {
-					});
+					displayTasks(tasksNr, db_data, add);
 				});
 			} else {
 				local_tasks_total += tasksNr;
-				db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data));
+				displayTasks(tasksNr, db_data, add);
 			}
-			checkTaskData();
-			//$('#taskList').html('');
 
-			db.getDbInstance("settings").allDocs({
-				keys : ['register_edit', 'haccp', 'role'],
-				include_docs : true
-			}, function(error, results) {
-				var register_edit = true,
-				    haccp = true,
-				    role = '';
-				if (results && results.rows.length > 0) {
-					for (var i = 0; i < results.rows.length; i++) {
-						if (results.rows[i].key == 'register_edit' && results.rows[i].doc.value)
-							register_edit = false;
-						if (results.rows[i].key == 'haccp' && results.rows[i].doc.value)
-							haccp = false;
-						if (results.rows[i].key == 'role')
-							role = results.rows[i].doc.value;
-					}
-				}
-
-				if (tasks_page == 1) {
-					if ((register_edit || haccp) && role != 'ROLE_EMPLOYEE') {
-						add.push({
-							'id' : 9999,
-							'data' : $.t('tasks.registration_steps'),
-							'extra' : 'data-role="list-divider"'
-						});
-					}
-
-					if (register_edit && role != 'ROLE_EMPLOYEE') {
-						add.push({
-							'id' : 9998,
-							'data' : '<a href="register_edit.html" data-transition="slide">' + $.t('tasks.complete_profile') + '</a>',
-							'extra' : 'data-icon="false"'
-						});
-					}
-					if (haccp && role != 'ROLE_EMPLOYEE') {
-						add.push({
-							'id' : 9997,
-							'data' : '<a href="haccp.html" data-transition="slide">' + $.t('tasks.complete_haccp') + '</a>',
-							'extra' : 'data-icon="false"'
-						});
-					}
-				}
-				// moved all the login here
+		} else {
+			var date = new Date();
+			var add = [];
+			checkIsHaccp(add, function(isAdd) {
 				_append('#taskList', add);
 
 				mySwiper.reInit();
@@ -868,13 +870,50 @@ function getTasksUncompleted(data) {
 
 				mySwiper.reInit();
 				mySwiper.resizeFix();
+				if (tasksNr < per_page) {
+					$('#load_more_tasks').attr('disabled', true);
+					$('#load_more_tasks').parent().hide();
+				} else {
+					if (data.tasks_total_nr <= per_page) {
+						$('#load_more_tasks').attr('disabled', true);
+						$('#load_more_tasks').parent().hide();
+					} else {
+						$('#load_more_tasks').removeAttr('disabled');
+						$('#load_more_tasks').parent().show();
+						$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
+					}
+				}
+				if (!isAdd) {
+					checkTasksList();
+				}
 			});
+		}
+		mySwiper.resizeFix();
+		realignSlideHeight('max-height-task');
+	}
+}
 
+function displayTasks(tasksNr, db_data, add) {
+	db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data), function(results) {
+		checkTaskData();
+
+		checkIsHaccp(add, function(isAdd) {
+			_append('#taskList', add);
+
+			mySwiper.reInit();
+			mySwiper.resizeFix();
+			realignSlideHeight('max-height-task');
+			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
+			bindOpenTask();
+
+			mySwiper.reInit();
+			mySwiper.resizeFix();
 			if (tasksNr < per_page) {
 				$('#load_more_tasks').attr('disabled', true);
 				$('#load_more_tasks').parent().hide();
 			} else {
-				if (data.tasks_total_nr <= per_page) {
+				if (tasks_total_nr <= per_page) {
 					$('#load_more_tasks').attr('disabled', true);
 					$('#load_more_tasks').parent().hide();
 				} else {
@@ -883,72 +922,11 @@ function getTasksUncompleted(data) {
 					$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
 				}
 			}
-		} else {
-			var date = new Date();
-			var add = [];
-			db.getDbInstance("settings").allDocs({
-				keys : ['register_edit', 'haccp', 'role'],
-				include_docs : true
-			}, function(error, results) {
-				var register_edit = true,
-				    haccp = true,
-				    role = '';
-				if (results && results.rows.length > 0) {
-					for (var i = 0; i < results.rows.length; i++) {
-						if (results.rows[i].key == 'register_edit' && results.rows[i].doc.value)
-							register_edit = false;
-						if (results.rows[i].key == 'haccp' && results.rows[i].doc.value)
-							haccp = false;
-						if (results.rows[i].key == 'role')
-							role = results.rows[i].doc.value;
-					}
-				}
-
-				if (tasks_page == 1) {
-					//db.execute('DELETE FROM "tasks"');
-					//truncate TASKS table
-					if ((register_edit || haccp) && role != 'ROLE_EMPLOYEE') {
-						add.push({
-							'id' : 9999,
-							'data' : $.t('tasks.registration_steps'),
-							'extra' : 'data-role="list-divider"'
-						});
-					} else {
-						//$('#taskList').parent().html('<div class="no_results">' + $.t('error.no_tasks') + '</div>');
-						//$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-						$('#load_more_tasks').attr('disabled', 'disabled');
-						//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
-						$('#load_more_tasks').parent().hide();
-					}
-
-					if (register_edit && role != 'ROLE_EMPLOYEE') {
-						add.push({
-							'id' : 9998,
-							'data' : '<a href="register_edit.html" data-transition="slide">' + $.t('tasks.complete_profile') + '</a>',
-							'extra' : 'data-icon="false"'
-						});
-					}
-					if (haccp && role != 'ROLE_EMPLOYEE') {
-						add.push({
-							'id' : 9997,
-							'data' : '<a href="haccp.html" data-transition="slide">' + $.t('tasks.complete_haccp') + '</a>',
-							'extra' : 'data-icon="false"'
-						});
-					}
-				}
-				_append('#taskList', add);
-				mySwiper.reInit();
-				mySwiper.resizeFix();
-				realignSlideHeight('max-height-task');
-				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-				if(add.length == 0){
-					checkTasksList();
-				}
-			});
-		}
-		mySwiper.resizeFix();
-		realignSlideHeight('max-height-task');
-	}
+			if (!isAdd) {
+				checkTasksList();
+			}
+		});
+	});
 }
 
 function takeHACCPPicture(id) {
@@ -1005,24 +983,6 @@ function getTasksFromLocal(results) {
 		tasks_total_nr = tasks_total_nr - (local_tasks_total - results.total_rows);
 	}
 	local_tasks_total = results.total_rows;
-	$('#load_more_tasks').removeAttr('disabled');
-	$('#load_more_tasks').parent().show();
-	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
-	console.log('results', results);
-	if (!results || local_tasks_total == 0) {
-		//$('#taskList').parent().html('<div class="no_results">' + $.t('error.no_tasks') + '</div>');
-		//$('#load_more_tasks').removeAttr('disabled');
-		//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
-		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-		$('#load_more_tasks').parent().hide();
-		checkTasksList();
-		return;
-	} else if (tasks_total_nr <= per_page) {
-		$('#load_more_tasks').attr('disabled', true);
-		//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
-		$('#load_more_tasks').parent().hide();
-	}
-
 	for (var i = 0; i < results.rows.length; i++) {
 		var isExist = $('#taskList').find("a[data-id='" + results.rows[i].doc.id + "']")[0];
 		if (isExist) {
@@ -1068,62 +1028,31 @@ function getTasksFromLocal(results) {
 			});
 		}
 	}
-
-	db.getDbInstance("settings").allDocs({
-		keys : ['register_edit', 'haccp', 'role'],
-		include_docs : true
-	}, function(error, results) {
-		var register_edit = true,
-		    haccp = true,
-		    role = '';
-		if (results && results.rows.length > 0) {
-			for (var i = 0; i < results.rows.length; i++) {
-				if (results.rows[i].key == 'register_edit' && results.rows[i].doc.value)
-					register_edit = false;
-				if (results.rows[i].key == 'haccp' && results.rows[i].doc.value)
-					haccp = false;
-				if (results.rows[i].key == 'role')
-					role = results.rows[i].doc.value;
-			}
-		}
-
-		if (tasks_page == 1) {
-			if ((register_edit || haccp) && role != 'ROLE_EMPLOYEE') {
-				data.push({
-					'id' : 9999,
-					'data' : $.t('tasks.registration_steps'),
-					'extra' : 'data-role="list-divider"'
-				});
-			}
-
-			if (register_edit && role != 'ROLE_EMPLOYEE') {
-				data.push({
-					'id' : 9998,
-					'data' : '<a href="register_edit.html" data-transition="slide">' + $.t('tasks.complete_profile') + '</a>',
-					'extra' : 'data-icon="false"'
-				});
-			}
-			if (haccp && role != 'ROLE_EMPLOYEE') {
-				data.push({
-					'id' : 9997,
-					'data' : '<a href="haccp.html" data-transition="slide">' + $.t('tasks.complete_haccp') + '</a>',
-					'extra' : 'data-icon="false"'
-				});
-			}
-		}
-
-		// moved all the login here
+	checkIsHaccp(data, function(isAdd) {
 		_append('#taskList', data);
 
 		mySwiper.reInit();
 		mySwiper.resizeFix();
 		realignSlideHeight('max-height-task');
+		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
 		bindOpenTask();
 
-		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-	});
+		mySwiper.reInit();
+		mySwiper.resizeFix();
 
+		$('#load_more_tasks').removeAttr('disabled');
+		$('#load_more_tasks').parent().show();
+		$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
+		if (tasks_total_nr <= per_page) {
+			$('#load_more_tasks').attr('disabled', true);
+			//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
+			$('#load_more_tasks').parent().hide();
+		}
+		if (!isAdd) {
+			checkTasksList();
+		}
+	});
 }
 
 function bindLoadMoreFunction() {
@@ -1320,12 +1249,12 @@ function haccpDeviationFixSave(data) {
 
 function closeButtonDisplay(callback, params) {
 	$('#form_back_btn i').removeClass('hided');
-	$('#form_back_btn').on('click', function(e) {
+	$(document).off('click', '#form_back_btn').on('click', '#form_back_btn', function(e) {
+		console.log('task list');
 		if (callback) {
 			callback.apply(this, [params]);
 		}
 		redirectToTasks();
-
 	});
 }
 

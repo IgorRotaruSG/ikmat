@@ -109,8 +109,7 @@ function haccpDeviation(data) {
                 };
                 //console.log(JSON.stringify(data));
 
-                Page.apiCall('documentSignature', data, 'get', 'documentSignature');
-//                Page.apiCall('documentSignature', data, 'post', 'documentSignature');
+                Page.apiCall('documentSignature', data, 'post', 'documentSignature');
             });
 
             return false;

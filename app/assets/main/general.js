@@ -1,9 +1,9 @@
 var settings = {
 	//'apiDomain':        'http://haccpy11.bywmds.us/api/',
-	// 'apiDomain' : 'http://ikmatapp.no/api/',
-	// 'apiPath' : 'http://ikmatapp.no',
-	'apiDomain':        'https://automagi.fsoft.com.vn/api/',
-	'apiPath':        'https://automagi.fsoft.com.vn',
+	'apiDomain' : 'http://ikmatapp.no/api/',
+	'apiPath' : 'http://ikmatapp.no',
+	// 'apiDomain':        'https://automagi.fsoft.com.vn/api/',
+	// 'apiPath':        'https://automagi.fsoft.com.vn',
 	'apiUploadPath' : 'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -15,8 +15,8 @@ var settings = {
 	},
 	'requestTimeout' : 25000,
 	'excludeOffline' : ["haccp.html", "flowchart.html"],
-	'version' : "2.0.77",
-	'rebuild' : "2.0.77"
+	'version' : "2.0.79",
+	'rebuild' : "2.0.79"
 };
 
 var performance = window.performance;
@@ -221,15 +221,23 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 				'url' : this.settings.apiDomain + api_method,
 				'dataType' : 'jsonp',
 				'success' : function(data) {
-					var fn = window[callback];
-					if ( typeof fn === "function") {
+					if(callback && typeof callback == 'function'){
 						if (parameters) {
-							fn.apply(this, [data, parameters]);
+							callback(data, parameters);
 						} else {
-							fn.apply(this, [data]);
+							callback(data);
 						}
-
+					}else{
+						var fn = window[callback];
+						if ( typeof fn === "function") {
+							if (parameters) {
+								fn.apply(this, [data, parameters]);
+							} else {
+								fn.apply(this, [data]);
+							}
+						}
 					}
+					
 					if (api_method === 'reportTables' || (api_method === 'reports' && callback == 'documentsCall')) {
 						var requestData = parseQuery(this.url);
 						if (requestData.hasOwnProperty("token") && requestData.hasOwnProperty("report_number")) {
@@ -457,6 +465,17 @@ Page.prototype.uploadImage = function() {
 
 };
 
+function dateFromString(datetime) {
+	function validate(number){
+		if(number){
+			return parseInt(number);
+		}
+		return 0;
+	}
+	var a = datetime.split(/[^0-9]/);
+	return new Date(validate(a[0]), validate(a[1]) - 1, validate(a[2]), validate(a[3]), validate(a[4]), validate(a[5]));
+}
+
 function cacheImage(request, callback) {
 	if (request && request.imageURI && request.task_id) {
 		if (isNative()) {
@@ -645,7 +664,7 @@ User.prototype.logout = function() {
 function logout() {
 	logout_flag = true;
 	localStorage.setItem('user_name', '');
-	db.dbDropTables().then(function() {
+	db.dbDropTables().then(function(results) {
 		User.database = false;
 		User.client = false;
 		User.lastToken = false;
@@ -2374,23 +2393,39 @@ function printPage() {
 			// resp now should contain your CSS file content.
 			var css = '<style>' + resp + '</style>';
 			$('#page-wrap').prepend(css);
-			var page = document.getElementById('page-wrap');
 
+			if(isNative() && cordova.plugins && cordova.plugins.printer) {
+				var page = document.getElementById('page-wrap');
+				cordova.plugins.printer.print(page, {
+					name : 'Document.html',
+					landscape : true
+				}, function() {
+					//alert('printing finished or canceled')
+				});
+			} else {
+				var page = $('#page-wrap').html();
+				w=window.open();
+				w.document.write(page);
+				w.print();
+				w.close();
+			}
+		});
+	} else {
+		if(isNative() && cordova.plugins && cordova.plugins.printer) {
+			var page = document.getElementById('page-wrap');
 			cordova.plugins.printer.print(page, {
 				name : 'Document.html',
 				landscape : true
 			}, function() {
 				//alert('printing finished or canceled')
 			});
-		});
-	} else {
-		var page = document.getElementById('page-wrap');
-		cordova.plugins.printer.print(page, {
-			name : 'Document.html',
-			landscape : true
-		}, function() {
-			//alert('printing finished or canceled')
-		});
+		} else {
+			var page = $('#page-wrap').html();
+			w=window.open();
+			w.document.write(page);
+			w.print();
+			w.close();
+		}
 	}
 	return;
 }
