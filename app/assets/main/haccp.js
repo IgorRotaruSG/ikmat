@@ -75,7 +75,8 @@ function getHaccpCall(err, results) {
 						'token' : User.lastToken,
 						'sub_id' : results.rows[i].id
 					}, 'get', function(result) {
-						if (result && result.success && result.data) {
+						console.log('results.rows[i]', results.rows[i]);
+						if (result && result.success && result.data && results.rows[i].doc) {
 							results.rows[i].doc.response = JSON.stringify(result.data);
 						}
 						resolve(true);
