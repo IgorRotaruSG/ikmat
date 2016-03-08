@@ -75,7 +75,8 @@ function getHaccpCall(err, results) {
 						'token' : User.lastToken,
 						'sub_id' : results.rows[i].id
 					}, 'get', function(result) {
-						if (result && result.success && result.data) {
+						console.log('results.rows[i]', results.rows[i]);
+						if (result && result.success && result.data && results.rows[i].doc) {
 							results.rows[i].doc.response = JSON.stringify(result.data);
 						}
 						resolve(true);
@@ -271,6 +272,9 @@ function getHaccpWithLimitPrev() {
 }
 
 function haccpInit() {
+//	debugger;
+	console.log("");
+	
 	if (User.isLogged()) {
 		executeSyncQuery();
 		get = {};
@@ -415,6 +419,9 @@ function insertHaccpItem() {
 }
 
 function haccp(data) {
+	
+	//debugger;
+	
 	if (data.success) {
 		if (data.haccp_category.length > 0) {
 			//var c = data.haccp_category;
@@ -440,7 +447,9 @@ function haccp(data) {
 			insertHaccpItem();
 		} else {
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-			$('#haccp_list_no_results').html($.t('error.no_haccps'));
+			$('.swiper-slide').css('min-height', 'inherit');
+			$('#haccp_list_no_results').html($.t('error.no_haccps')); //-- hoadd1
+			
 			$('[data-role="footer"]').hide();
 		}
 	}
