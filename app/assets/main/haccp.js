@@ -243,6 +243,9 @@ function getHaccpWithLimitPrev() {
 }
 
 function haccpInit() {
+//	debugger;
+	console.log("");
+	
 	if (User.isLogged()) {
 		executeSyncQuery();
 		get = {};
@@ -383,6 +386,9 @@ function insertHaccpItem() {
 }
 
 function haccp(data) {
+	
+	//debugger;
+	
 	if (data.success) {
 		if (data.haccp_category.length > 0) {
 			//var c = data.haccp_category;
@@ -408,7 +414,9 @@ function haccp(data) {
 			insertHaccpItem();
 		} else {
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-			$('#haccp_list_no_results').html($.t('error.no_haccps'));
+			$('.swiper-slide').css('min-height', 'inherit');
+			$('#haccp_list_no_results').html($.t('error.no_haccps')); //-- hoadd1
+			
 			$('[data-role="footer"]').hide();
 		}
 	}
