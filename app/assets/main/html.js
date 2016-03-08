@@ -1,5 +1,4 @@
 var haccp_image_id = '';
-var oldValStartDate = '';
 
 function HTML() {
 }
@@ -109,7 +108,6 @@ HTML.prototype.formGenerate = function(form_data, s, d) {
                     html += this.radioList(i, form_data[i].label, form_data[i].list, form_data[i].value, form_data[i].validation);
                     break;
                 case 'date':
-                    $oldValStartDate = form_data[i].value;
                     html += this.inputDate(i, form_data[i].label, form_data[i].placeholder, form_data[i].value, d, 'valid_date');
                     break;
                 case 'multiple_text_fridges':
@@ -767,7 +765,7 @@ HTML.prototype.inputDate = function(name, label, placeholder, value, dv, validat
 			v = yyyy+'-'+mm+'-'+ dd;
  	}
 
-    html += '<input name="' + name + '" placeholder="' + placeholder + '" id="frm_label_' + md5(name+label) + '" type="date" value="' + v + '" data-validation="' + validation + '"/>';
+    html += '<input name="' + name + '" placeholder="' + placeholder + '" id="frm_label_' + md5(name+label) + '" type="date" value="' + v + '" data-original="'+ v +'" data-validation="' + validation + '"/>';
 
     return html;
 };
@@ -1254,15 +1252,16 @@ function validateEmail(email) {
     return re.test(email);
 }
 
-function validDate(newVal) {
+function validDate(dtObj) {
     var now = new Date();
     var day = now.getDate() < 10 ? '0'+now.getDate() : now.getDate();
     var month = now.getMonth() < 9 ? '0'+ ( now.getMonth() + 1)  : now.getMonth() + 1;
+
     var curDate = now.getFullYear() + '-' +month + '-' + day;
-    console.log("cur Date: ", curDate);
-    console.log("old Date: ", $oldValStartDate);
-    console.log("new Date: ", newVal);
-    if (newVal != $oldValStartDate && newVal < curDate)
+    var originalDate = dtObj.attr("data-original");
+    var newDate = dtObj.val();
+
+    if (newDate != originalDate && newDate < curDate)
         return false;
     return true;
 }
@@ -1401,7 +1400,7 @@ jQuery.fn.extend({
                         }
                         break;
                     case 'valid_date':
-                        if (!validDate($(this).val())) {
+                        if (!validDate($(this))) {
                             stepValid = false;
                             errorDate = true;
                         }
