@@ -552,7 +552,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = hygiene.app.automagi;
 				PRODUCT_NAME = "IK-Mat";
-				PROVISIONING_PROFILE = "002f3108-35a0-44b7-a1eb-90809a5882af";
+				PROVISIONING_PROFILE = "cedb78ea-bda6-481a-b8db-f30d6034d9e5";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;

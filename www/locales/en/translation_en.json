@@ -48,6 +48,8 @@
     "error": {
         "validation": "This field is required.",
         "validation_number": "Please insert numeric value.",
+        "validation_date": "Du kan bare velge i dag eller fremtidige datoer som startdato. Datoer som allerede har vært kan ikke velges.",
+		"validation_duplicate": "Dette navnet er allerede i bruk. Alle navn må være unike.",
         "validation_email": "Please insert valid email address",
         "duplicate_email": "This email address already exists",
         "no_internet_for_sync": "No internet connection detected. Please connect to internet for sync.",

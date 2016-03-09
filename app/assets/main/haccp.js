@@ -26,6 +26,7 @@ var haccp_total = 0;
 var isStart = true;
 var lazy_total = 3;
 var isValid = false;
+var oneClickDone;
 
 //navigator.connection.type = Connection.NONE;
 
@@ -52,7 +53,6 @@ function getHaccpCall(err, results) {
 			Page.redirect('index.html');
 		}, 3500);
 	} else if ((!results || results.rows.length == 0) && !isOffline() && !he_have_something && get.continue == undefined) {
-		console.log('getHaccpCall from API');
 		var data = {
 			'client' : User.client,
 			'token' : User.lastToken
@@ -121,8 +121,8 @@ function getHaccpCall(err, results) {
 							mySwiper.swipeTo(1, 0, false);
 						}
 
-						mySwiper.reInit();
-						mySwiper.resizeFix();
+						// mySwiper.reInit();
+						// mySwiper.resizeFix();
 					}
 
 					if (results.rows.length > 1) {
@@ -133,6 +133,9 @@ function getHaccpCall(err, results) {
 						candelete = true;
 					}
 					$('#' + $.mobile.activePage.attr('id')).trigger('create');
+					setTimeout(function() {
+						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+					}, 500);
 				}
 
 			});
@@ -268,9 +271,6 @@ function getHaccpWithLimitPrev() {
 }
 
 function haccpInit() {
-//	debugger;
-	console.log("");
-
 	if (User.isLogged()) {
 		executeSyncQuery();
 		get = {};
@@ -325,17 +325,12 @@ function haccpInit() {
 			},
 
 			onSlideNext : function(swiper) {
-				console.log('next');
 				_t = 'save';
-				if (!onNextClick && !isStart) {
-					f_i = parseInt(f_i) + lazy_total - 1;
-				}
 				onNextClick = true;
+				oneClickDone = false;
 			},
-
 			onSlidePrev : function(swiper) {
 				_t = 'edit';
-				console.log('isValid', isValid);
 				if (onNextClick && !isValid) {
 					return;
 				}
@@ -357,6 +352,7 @@ function haccpInit() {
 					}
 				}
 				onNextClick = false;
+				oneClickDone = false;
 			},
 
 			onSlideChangeEnd : function(swiper) {
@@ -375,7 +371,11 @@ function haccpInit() {
 				if (deviation >= 3 && _t == 'save') {
 					//decisionTree(swiper);
 				} else {
-					continueHaccp(swiper);
+					if(!oneClickDone){
+						oneClickDone = true;
+						continueHaccp(swiper);
+					}
+					
 				}
 				swiper.resizeFix();
 				var $n = $(swiper.getSlide(swiper.activeIndex));
@@ -385,22 +385,20 @@ function haccpInit() {
 				} else {
 					$('#footer').show();
 				}
-				// if (f_i == 0 || f_i == haccp_total || isStart) {
-					// $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-				// }
-				// if (onNextClick && !isValid) {
-					// isValid = true;
-					// $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-				// }
-				setTimeout(function() {
+				if (f_i == 0 || f_i == haccp_total || (isStart && mySwiper.activeIndex == 1)) {
+					setTimeout(function() {
+						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+					}, 500);
+				}
+				if (onNextClick && !isValid) {
+					isValid = true;
 					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-				}, 500);
+				}
 			}
 		});
 
 		mySwiper.reInit();
 		mySwiper.resizeFix();
-		// $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
 	} else {
 		Page.redirect('login.html');
@@ -553,12 +551,15 @@ function haccpComplete(data) {
 
 				Page.apiCall('deviation', data, 'get', 'haccpDeviation_s');
 			} else {
-				if (onNextClick && mySwiper.activeIndex == 2 || f_i > lazy_total - 1) {
-					if (f_i == 0) {
-						f_i = lazy_total - 1;
+				if (onNextClick) {
+					if(!isStart || (isStart && mySwiper.activeIndex == 2)){
+						if (f_i == 0) {
+							f_i = parseInt(f_i) + lazy_total - 1;
+						}else{
+							f_i = parseInt(f_i) + 1;
+							getHaccpWithLimit();
+						}
 					}
-					f_i = parseInt(f_i) + 1;
-					getHaccpWithLimit();
 				}
 			}
 		} else {
@@ -1082,8 +1083,7 @@ step1 = {
 };
 
 function decisionTree(swiper, step) {
-	console.log('step', step);
-	console.log('decisionTree');
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 	move_on = false;
 	//reset accept variable to go to next step
 
@@ -1166,6 +1166,7 @@ function goNext(swiper) {
 	nextSlide = true;
 	createDeviation = false;
 	$("input[name='critical_point']").val('');
+	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	continueHaccp(swiper);
 }
 
@@ -1179,7 +1180,6 @@ function goNextWithCriticalControl(swiper, message) {
 }
 
 function deviationTreeBackStep() {
-	console.log("deviationTreeBackStep");
 	console.log(deviationAnswers);
 	$("input[name='critical_point']").val('');
 	if (!isEmpty(deviationAnswers)) {
