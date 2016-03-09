@@ -663,12 +663,19 @@ function taskDeviationFixSave(data) {
 		$('input[name="task_id"]').val(data);
 	}
 	if (window['$sigdiv'] && typeof window['$sigdiv'] != 'undefined') {
+		var svgData = null;
+		try {
+			svgData = $sigdiv.jSignature("getData", "svgbase64")[1];
+		}
+		catch (e) {
+			// do nothing
+		}
 		var data1 = {
 			'client' : User.client,
 			'token' : User.lastToken,
 			'signature' : JSON.stringify({
 				"name" : $('#sign_name').val(),
-				"svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
+				"svg" : svgData,
 				"parameter" : "task",
 				"task_id" : data
 			})
