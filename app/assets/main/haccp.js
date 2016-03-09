@@ -121,8 +121,8 @@ function getHaccpCall(err, results) {
 							mySwiper.swipeTo(1, 0, false);
 						}
 
-						mySwiper.reInit();
-						mySwiper.resizeFix();
+						// mySwiper.reInit();
+						// mySwiper.resizeFix();
 					}
 
 					if (results.rows.length > 1) {
@@ -326,15 +326,11 @@ function haccpInit() {
 
 			onSlideNext : function(swiper) {
 				_t = 'save';
-				if (!onNextClick && !isStart) {
-					f_i = parseInt(f_i) + lazy_total - 1;
-				}
 				onNextClick = true;
 				oneClickDone = false;
 			},
 			onSlidePrev : function(swiper) {
 				_t = 'edit';
-				console.log('isValid', isValid);
 				if (onNextClick && !isValid) {
 					return;
 				}
@@ -389,8 +385,10 @@ function haccpInit() {
 				} else {
 					$('#footer').show();
 				}
-				if (f_i == 0 || f_i == haccp_total || isStart) {
-					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+				if (f_i == 0 || f_i == haccp_total || (isStart && mySwiper.activeIndex == 1)) {
+					setTimeout(function() {
+						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+					}, 500);
 				}
 				if (onNextClick && !isValid) {
 					isValid = true;
@@ -553,12 +551,15 @@ function haccpComplete(data) {
 
 				Page.apiCall('deviation', data, 'get', 'haccpDeviation_s');
 			} else {
-				if (onNextClick && mySwiper.activeIndex == 2 || f_i > lazy_total - 1) {
-					if (f_i == 0) {
-						f_i = lazy_total - 1;
+				if (onNextClick) {
+					if(!isStart || (isStart && mySwiper.activeIndex == 2)){
+						if (f_i == 0) {
+							f_i = parseInt(f_i) + lazy_total - 1;
+						}else{
+							f_i = parseInt(f_i) + 1;
+							getHaccpWithLimit();
+						}
 					}
-					f_i = parseInt(f_i) + 1;
-					getHaccpWithLimit();
 				}
 			}
 		} else {
