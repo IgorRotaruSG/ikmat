@@ -249,6 +249,18 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 				'timeout' : this.settings.requestTimeout
 			});
 			req.error(function(jqXHR, textStatus, errorThrown) {
+				if (textStatus == 'timeout') {
+					// check if generating report
+					if (api_method == 'exportReportPdfForDownload') {
+						// request to /send-report-by-email
+						Page.apiCall('send-report-by-email', parameters, 'get', 'sendEmail');
+						// TODO: show message about sending report using email
+						
+						return ;
+					}
+					
+				}
+				
 				$('#alertPopup .alert-text').html($.t("error.unexpected"));
 
 				$('#alertPopup').off("popupafterclose").on("popupafterclose", function() {
