@@ -1082,8 +1082,7 @@ step1 = {
 };
 
 function decisionTree(swiper, step) {
-	console.log('step', step);
-	console.log('decisionTree');
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 	move_on = false;
 	//reset accept variable to go to next step
 
