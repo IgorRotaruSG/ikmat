@@ -1275,12 +1275,13 @@ function validDate(dtObj) {
     return true;
 }
 
-function validateUnique() {
-    var taskNameTextsObj = $('.register-name');
+function validateUnique(txtObj) {
+    var taskNameTextsObj = txtObj.parents('.swiper-slide').find('.register-name');
     for(i=0;i<taskNameTextsObj.length;i++) {
-        for(j=i+1;j<taskNameTextsObj.length-1;j++) {
+        for(j=i+1;j<taskNameTextsObj.length;j++) {
             if($.trim(taskNameTextsObj[i].value) == $.trim(taskNameTextsObj[j].value))
                 return taskNameTextsObj[j].id;
+            if(j==taskNameTextsObj.length-1) break;
         }
     }
     return '';
@@ -1421,8 +1422,8 @@ jQuery.fn.extend({
                             }
                         }
                         break;
-					case 'valid_task_name':
-                        taskNameDuplicated = validateUnique();
+					case 'valid_task_name':                        
+                        taskNameDuplicated = validateUnique($(this));
                         if (taskNameDuplicated!='') {
                             stepValid = false;
                             errorDuplicate = true;
