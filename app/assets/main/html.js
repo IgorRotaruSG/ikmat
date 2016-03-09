@@ -53,7 +53,7 @@ HTML.prototype.formGenerate = function(form_data, s, d) {
                                     isRequired = true;
                                 break;
                             }
-                        }
+                        }                        
                         if(isRequired){
                             html += this.inputText(form_data[i].type, i, form_data[i].label + "<i class=\"requiredicon\"> *</i>", form_data[i].placeholder, form_data[i].validation, form_data[i].value);
                         } else {
@@ -266,7 +266,7 @@ HTML.prototype.formGenerateWill = function(form) {
             if (form_data.frequency_id.value == null || form_data.frequency_id.value == 'null') {
                 as = true
             }
-            console.log(form_data[i]);
+            //console.log(form_data[i]);
             if(form_data[i].label_tmp == '' || form_data[i].label_tmp == null)
                 form_data[i].label_tmp = form_data[i].label;
             html += HTML.formSwitch(form_data[i].label_tmp, id, as);
@@ -1104,22 +1104,22 @@ HTML.prototype.inputText = function(type, name, label, placeholder, validation, 
     }
     if(type == 'number') {type ='tel'};
 
-	var dataValidate = '';
-	if (name.indexOf('fridges') > -1 || name.indexOf('dishwasher') > -1) {
-		dataValidate = 'data-validation="valid_duplicate"';
-	}
+    //Check duplicate tasks name for Fridges, Dishwashers
+    taskNameClass = '';
+    taskNameValidation = '';
+    if(name.startsWith('fridges[name]') || name.startsWith('dishwasher[name]')) {
+        taskNameClass = ' class="register-name" ';
+        taskNameValidation = ' data-validation="valid_task_name" ';
+    }    
 
-	var classInput = '';
-	if (name.indexOf('fridges') > -1 || name.indexOf('dishwasher') > -1) {
-		classInput = 'class="check-duplicate"';
-	}
-
-	html += '<input tabindex="-1" type="' + type + '" ' + classInput + dataValidate + 
+	html += '<input tabindex="-1" type="' + type + '" ' +
         'name="' + name + '" ' +
         'value="' + value + '" ' +
         'placeholder="' + placeholder + '" ' +
         'id="frm_label_' + md5(name+label) + '" ' +
-        this.generateValidation(validation) + '/>';
+        this.generateValidation(validation) +
+        taskNameClass + 
+        taskNameValidation + '/>';
 
     return html;
 };
@@ -1275,18 +1275,15 @@ function validDate(dtObj) {
     return true;
 }
 
-function validateUnique(arr) {
-	var map = {}, i, size;
-
-	for (i = 0, size = arr.length; i < size; i++) {
-		if (map[arr[i]]) {
-			return false;
-		}
-
-		map[arr[i]] = true;
-	}
-
-	return true;
+function validateUnique() {
+    var taskNameTextsObj = $('.register-name');
+    for(i=0;i<taskNameTextsObj.length;i++) {
+        for(j=i+1;j<taskNameTextsObj.length-1;j++) {
+            if($.trim(taskNameTextsObj[i].value) == $.trim(taskNameTextsObj[j].value))
+                return taskNameTextsObj[j].id;
+        }
+    }
+    return '';
 }
 
 jQuery.fn.extend({
@@ -1301,6 +1298,7 @@ jQuery.fn.extend({
         var errorDate = false;
         var errorDuplicate = false;
         var err;
+        var taskNameDuplicated = '';
 
         this.each(function() {
             r = ($(this).data('validation')).split(' ');
@@ -1423,23 +1421,13 @@ jQuery.fn.extend({
                             }
                         }
                         break;
-						case 'valid_duplicate' :
-							var formStep = $('.swiper-slide-active .registration-step-form');
-
-							if(formStep.find('input.check-duplicate').length) {
-								var inputValue = [];
-								formStep.find('input.check-duplicate').each(function(i) {
-									if($(this).val) {
-										inputValue[i] = $(this).val().trim();
-									}
-								});
-
-								if(!validateUnique(inputValue)) {
-									stepValid = false;
-									errorDuplicate = true;
-								}
-							}
-							break;
+					case 'valid_task_name':
+                        taskNameDuplicated = validateUnique();
+                        if (taskNameDuplicated!='') {
+                            stepValid = false;
+                            errorDuplicate = true;
+                        }
+						break;
                     case 'valid_date':
                         if (!validDate($(this))) {
                             stepValid = false;
@@ -1468,8 +1456,8 @@ jQuery.fn.extend({
                       errorDate = false;
                       err = $.t("error.validation_date");
 					} else if (errorDuplicate) {
-						errorDuplicate = false;
-						err = $.t("error.validation_duplicate");
+                      errorDuplicate = false;
+                      err = $.t("error.validation_duplicate");
                     } else {
                       err = $.t("error.validation");
                     }
@@ -1481,7 +1469,11 @@ jQuery.fn.extend({
                             $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">' + err + '</label>').insertAfter($rgfg.last().parent());
                         }
                         else {
-                            $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">' + err + '</label>').insertAfter($(this).parent());
+                            $('.validate_error_taskname').remove();
+                            if (taskNameDuplicated == '')
+                                $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">' + err + '</label>').insertAfter($(this).parent());
+                            else                                
+                                $('<label id="' + $(this).attr('id') + '_validate" class="validate_error validate_error_taskname">' + err + '</label>').insertAfter($('#'+taskNameDuplicated).parent());
                         }
                     }
                     else if ($(this).is("textarea")) {
