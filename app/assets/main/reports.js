@@ -440,7 +440,7 @@ function reportsView(data) {
         Page.redirect('reports_task.html?report=' + get.id + '&task_id=' + $(this).data('id'));
     });
 
-    if (isNative() || isLinkData(data.report_number)) {
+    if (isNative()) {
 		$('.fa-file-pdf-o').addClass('fa-envelope-o');
     	$('.fa-envelope-o').removeClass('fa-file-pdf-o');
 	} else {
@@ -721,7 +721,7 @@ function documentsCall(data) {
             return false;
         });
 
-		if (isNative() || isLinkData(data.report_number)) {
+		if (isNative()) {
 			$('.fa-file-pdf-o').addClass('fa-envelope-o');
 	    	$('.fa-envelope-o').removeClass('fa-file-pdf-o');
 		} else {

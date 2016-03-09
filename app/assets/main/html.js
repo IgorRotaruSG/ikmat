@@ -108,7 +108,7 @@ HTML.prototype.formGenerate = function(form_data, s, d) {
                     html += this.radioList(i, form_data[i].label, form_data[i].list, form_data[i].value, form_data[i].validation);
                     break;
                 case 'date':
-                    html += this.inputDate(i, form_data[i].label, form_data[i].placeholder, form_data[i].value, d);
+                    html += this.inputDate(i, form_data[i].label, form_data[i].placeholder, form_data[i].value, d, 'valid_date');
                     break;
                 case 'multiple_text_fridges':
                     html += this.inputFridge(i, form_data[i].label, form_data[i].placeholder, form_data[i].fields, form_data[i].value);
@@ -765,7 +765,7 @@ HTML.prototype.inputDate = function(name, label, placeholder, value, dv, validat
 			v = yyyy+'-'+mm+'-'+ dd;
  	}
 
-    html += '<input name="' + name + '" placeholder="' + placeholder + '" id="frm_label_' + md5(name+label) + '" type="date" value="' + v + '" ' + this.generateValidation(validation) + ' />';
+    html += '<input name="' + name + '" placeholder="' + placeholder + '" id="frm_label_' + md5(name+label) + '" type="date" value="' + v + '" data-original="'+ v +'" data-validation="' + validation + '"/>';
 
     return html;
 };
@@ -1104,8 +1104,17 @@ HTML.prototype.inputText = function(type, name, label, placeholder, validation, 
     }
     if(type == 'number') {type ='tel'};
 
+	var dataValidate = '';
+	if (name.indexOf('fridges') > -1 || name.indexOf('dishwasher') > -1) {
+		dataValidate = 'data-validation="valid_duplicate"';
+	}
 
-    html += '<input tabindex="-1" type="' + type + '" ' +
+	var classInput = '';
+	if (name.indexOf('fridges') > -1 || name.indexOf('dishwasher') > -1) {
+		classInput = 'class="check-duplicate"';
+	}
+
+	html += '<input tabindex="-1" type="' + type + '" ' + classInput + dataValidate + 
         'name="' + name + '" ' +
         'value="' + value + '" ' +
         'placeholder="' + placeholder + '" ' +
@@ -1252,6 +1261,34 @@ function validateEmail(email) {
     return re.test(email);
 }
 
+function validDate(dtObj) {
+    var now = new Date();
+    var day = now.getDate() < 10 ? '0'+now.getDate() : now.getDate();
+    var month = now.getMonth() < 9 ? '0'+ ( now.getMonth() + 1)  : now.getMonth() + 1;
+
+    var curDate = now.getFullYear() + '-' +month + '-' + day;
+    var originalDate = dtObj.attr("data-original");
+    var newDate = dtObj.val();
+
+    if (newDate != originalDate && newDate < curDate)
+        return false;
+    return true;
+}
+
+function validateUnique(arr) {
+	var map = {}, i, size;
+
+	for (i = 0, size = arr.length; i < size; i++) {
+		if (map[arr[i]]) {
+			return false;
+		}
+
+		map[arr[i]] = true;
+	}
+
+	return true;
+}
+
 jQuery.fn.extend({
     matchValidateRules: function(ex) {
         var valid = true;
@@ -1261,6 +1298,8 @@ jQuery.fn.extend({
         var errorNumber = false;
         var errorChar = false;
         var errorName = false;
+        var errorDate = false;
+        var errorDuplicate = false;
         var err;
 
         this.each(function() {
@@ -1384,6 +1423,29 @@ jQuery.fn.extend({
                             }
                         }
                         break;
+						case 'valid_duplicate' :
+							var formStep = $('.swiper-slide-active .registration-step-form');
+
+							if(formStep.find('input.check-duplicate').length) {
+								var inputValue = [];
+								formStep.find('input.check-duplicate').each(function(i) {
+									if($(this).val) {
+										inputValue[i] = $(this).val().trim();
+									}
+								});
+
+								if(!validateUnique(inputValue)) {
+									stepValid = false;
+									errorDuplicate = true;
+								}
+							}
+							break;
+                    case 'valid_date':
+                        if (!validDate($(this))) {
+                            stepValid = false;
+                            errorDate = true;
+                        }
+                        break;
                 }
             }
             if (typeof ex === "undefined") {
@@ -1402,6 +1464,12 @@ jQuery.fn.extend({
                     } else if (errorName) {
                       errorName = false;
                       err = $.t("Dette navnet er allerede i bruk. Alle navn må være unike.");
+                    } else if (errorDate) {
+                      errorDate = false;
+                      err = $.t("error.validation_date");
+					} else if (errorDuplicate) {
+						errorDuplicate = false;
+						err = $.t("error.validation_duplicate");
                     } else {
                       err = $.t("error.validation");
                     }
@@ -1411,13 +1479,15 @@ jQuery.fn.extend({
                     else if ($(this).is("input")) {
                         if ($(this).attr('type') == 'radio') {
                             $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">' + err + '</label>').insertAfter($rgfg.last().parent());
-                        } else {
+                        }
+                        else {
                             $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">' + err + '</label>').insertAfter($(this).parent());
                         }
                     }
                     else if ($(this).is("textarea")) {
                         $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">' + err + '</label>').insertAfter($(this));
-                    } else {
+                    }
+                    else {
                         $(this).css('border', '1px solid red;');
                     }
                 }

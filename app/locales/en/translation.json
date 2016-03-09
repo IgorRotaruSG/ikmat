@@ -51,6 +51,8 @@
     "error": {
         "validation": "Dette feltet er påkrevet.",
         "validation_number": "Sett inn numerisk verdi.",
+        "validation_date": "Du kan bare velge i dag eller fremtidige datoer som startdato. Datoer som allerede har vært kan ikke velges.",
+		"validation_duplicate": "This data address already exists",
         "validation_email": "Vennligst skriv inn en gyldig epostaddresse.",
         "duplicate_email": "Denne epostaddressen er allerede registrert.",
         "no_internet_for_sync": "Ingen internettforbindelse. Vennligst koble til internett for å synkronisere.",

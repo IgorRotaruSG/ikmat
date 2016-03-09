@@ -115,6 +115,14 @@ function showFlowchart(data) {
             Page.apiCall('resetFlowchart', data, 'get', 'resetFlowchart');
         });
 
+        // Set envelope icon for app, pdf icon for web
+        if (isNative()) {
+            $('.fa-file-pdf-o').addClass('fa-envelope-o');
+            $('.fa-envelope-o').removeClass('fa-file-pdf-o');
+        } else {
+            $('.fa-envelope-o').addClass('fa-file-pdf-o');
+            $('.fa-file-pdf-o').removeClass('fa-envelope-o');
+        }
     }
 }
 
