@@ -1104,8 +1104,17 @@ HTML.prototype.inputText = function(type, name, label, placeholder, validation, 
     }
     if(type == 'number') {type ='tel'};
 
+	var dataValidate = '';
+	if (name.indexOf('fridges') > -1 || name.indexOf('dishwasher') > -1) {
+		dataValidate = 'data-validation="valid_duplicate"';
+	}
 
-    html += '<input tabindex="-1" type="' + type + '" ' +
+	var classInput = '';
+	if (name.indexOf('fridges') > -1 || name.indexOf('dishwasher') > -1) {
+		classInput = 'class="check-duplicate"';
+	}
+
+	html += '<input tabindex="-1" type="' + type + '" ' + classInput + dataValidate + 
         'name="' + name + '" ' +
         'value="' + value + '" ' +
         'placeholder="' + placeholder + '" ' +
@@ -1266,6 +1275,20 @@ function validDate(dtObj) {
     return true;
 }
 
+function validateUnique(arr) {
+	var map = {}, i, size;
+
+	for (i = 0, size = arr.length; i < size; i++) {
+		if (map[arr[i]]) {
+			return false;
+		}
+
+		map[arr[i]] = true;
+	}
+
+	return true;
+}
+
 jQuery.fn.extend({
     matchValidateRules: function(ex) {
         var valid = true;
@@ -1276,6 +1299,7 @@ jQuery.fn.extend({
         var errorChar = false;
         var errorName = false;
         var errorDate = false;
+        var errorDuplicate = false;
         var err;
 
         this.each(function() {
@@ -1399,6 +1423,23 @@ jQuery.fn.extend({
                             }
                         }
                         break;
+						case 'valid_duplicate' :
+							var formStep = $('.swiper-slide-active .registration-step-form');
+
+							if(formStep.find('input.check-duplicate').length) {
+								var inputValue = [];
+								formStep.find('input.check-duplicate').each(function(i) {
+									if($(this).val) {
+										inputValue[i] = $(this).val().trim();
+									}
+								});
+
+								if(!validateUnique(inputValue)) {
+									stepValid = false;
+									errorDuplicate = true;
+								}
+							}
+							break;
                     case 'valid_date':
                         if (!validDate($(this))) {
                             stepValid = false;
@@ -1426,6 +1467,9 @@ jQuery.fn.extend({
                     } else if (errorDate) {
                       errorDate = false;
                       err = $.t("error.validation_date");
+					} else if (errorDuplicate) {
+						errorDuplicate = false;
+						err = $.t("error.validation_duplicate");
                     } else {
                       err = $.t("error.validation");
                     }

@@ -116,7 +116,7 @@ function showFlowchart(data) {
         });
 
         // Set envelope icon for app, pdf icon for web
-        if (isNative()) {
+        if (isNative() || isLinkData(data.report_number)) {
             $('.fa-file-pdf-o').addClass('fa-envelope-o');
             $('.fa-envelope-o').removeClass('fa-file-pdf-o');
         } else {

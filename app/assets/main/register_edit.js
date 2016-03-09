@@ -392,7 +392,7 @@ function newCompanyRegistration(data, params) {
 					if (i != 'aux' && i != 'steps_no') {
 						if (t_counter == 1 || loaded_steps.indexOf(t_counter) == -1) {
 							loaded_steps.push(t_counter);
-							html = '<div style="padding:0 10px;overflow:auto;height: ' + zh + 'px;"><form onsubmit="return false;">';
+							html = '<div style="padding:0 10px;overflow:auto;height: ' + zh + 'px;"><form class="registration-step-form" onsubmit="return false;">';
 							if (i == 'form8' || i == 'form9' || i == 'form10' || i == 'form11') {
 								console.warn('generate will');
 								html += HTML.formGenerateWill(data.registration_steps[i]);
