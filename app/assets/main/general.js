@@ -255,7 +255,7 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 						// request to /send-report-by-email
 						Page.apiCall('send-report-by-email', parameters, 'get', 'sendEmail');
 						// TODO: show message about sending report using email
-						
+						showNotificationMessage();
 						return ;
 					}
 					
@@ -2474,3 +2474,13 @@ $(document).ajaxStop(function() {
 	//     $('.loader-swapper').remove();
 	// }
 });
+
+function showNotificationMessage() {
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	$('#page-wrap').prepend('<label class="report_generation_message">' + $.t("success.report_send_via_email") + '</label>');
+	setTimeout(function(){ removeNotificationMessage(); }, 5000);
+}
+
+function removeNotificationMessage() {
+	$('.report_generation_message').remove();
+}
