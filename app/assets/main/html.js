@@ -712,8 +712,8 @@ HTML.prototype.inputFridge = function(name, label, placeholder, fields, value) {
 HTML.prototype.inputDate = function(name, label, placeholder, value, dv, validation) {
     var html = '';
     var v = '',d;
-    if (placeholder == undefined) {
-        placeholder = '';
+    if (placeholder == undefined || placeholder == '') {
+        placeholder = 'yyyy-mm-dd';
     }
     if (value != null && !isEmpty(value) ) {
         d = new Date(value);
@@ -765,7 +765,7 @@ HTML.prototype.inputDate = function(name, label, placeholder, value, dv, validat
 			v = yyyy+'-'+mm+'-'+ dd;
  	}
 
-    html += '<input name="' + name + '" placeholder="' + placeholder + '" id="frm_label_' + md5(name+label) + '" type="date" value="' + v + '" data-original="'+ v +'" data-validation="' + validation + '"/>';
+    html += '<input name="' + name + '" placeholder="' + placeholder + '" id="frm_label_' + md5(name+label) + '" type="date" value="' + v + '" data-original="'+ v +'" data-validation="' + validation + '" class="datepicker" />';
 
     return html;
 };
@@ -964,10 +964,13 @@ HTML.prototype.multipleInputAdd = function(el) {
     var html = '';
     var t = name.match(/(.*)?\[(.*?)\]/);
     var n = md5(new Date().getTime()) + '_added';
+    var validation = "string";
+    if(t[1].indexOf('internal_audit_participant')==0)
+        validation = "valid_task_name";
 
     html += '<fieldset class="ui-grid-a new-added">';
     html += '    <div class="ui-block-a" style="width:80%;">';
-    html += '        <input name="' + t[1] + '[' + n + ']"  type="text" data-validation="string" value="" placeholder="' + placeholder + '"/>';
+    html += '        <input id="' + t[1] + '_' + n + '" name="' + t[1] + '[' + n + ']"  type="text" data-validation="' + validation + '" class="register-name" value="" placeholder="' + placeholder + '"/>';
     html += '    </div>';
     html += '    <div class="ui-block-b" style="width:20%;">';
     html += '        <a href="#" data-role="button" onclick="HTML.multipleInputDel(this);"><i class="fa fa-minus"></i></a>';
@@ -995,17 +998,25 @@ HTML.prototype.multipleInput = function(name, label, placeholder, validation, va
         value[n] = '';
     }
 
+    validation_participant_name = '';
+    if(name.indexOf('internal_audit_participant')==0) {
+        validation_participant_name = ' data-validation="valid_task_name" ';
+    }
+
     for (var i in value) {
         if (value.hasOwnProperty(i)) {
             value[i] = value[i].replace(/\+/g,' ');
             html += '<fieldset class="ui-grid-a">';
             html += '    <div class="ui-block-a" style="width:80%;">';
-            html += '        <input tabindex="-1" name="' + name + '[' + i + ']" ' +
+            html += '        <input tabindex="-1" id="' + name + '_' + i + '" name="' + name + '[' + i + ']" ' +
                 'value="' + value[i] + '" ' +
                 'type="text" ' +
                 'placeholder="' + placeholder + '"';
 //            if (p) {
+            if(validation_participant_name=='')
                 html += this.generateValidation(validation) + '/>';
+            else
+                html += validation_participant_name + ' class="register-name" />';
 //            } else {
 //                html += '/>';
 //            }
@@ -1107,10 +1118,10 @@ HTML.prototype.inputText = function(type, name, label, placeholder, validation, 
     //Check duplicate tasks name for Fridges, Dishwashers
     taskNameClass = '';
     taskNameValidation = '';
-    if(name.startsWith('fridges[name]') || name.startsWith('dishwasher[name]')) {
+    if(name.indexOf('fridges[name]')==0 || name.indexOf('dishwasher[name]')==0) {
         taskNameClass = ' class="register-name" ';
         taskNameValidation = ' data-validation="valid_task_name" ';
-    }    
+    }
 
 	html += '<input tabindex="-1" type="' + type + '" ' +
         'name="' + name + '" ' +
@@ -1262,23 +1273,34 @@ function validateEmail(email) {
 }
 
 function validDate(dtObj) {
-    var now = new Date();
-    var day = now.getDate() < 10 ? '0'+now.getDate() : now.getDate();
-    var month = now.getMonth() < 9 ? '0'+ ( now.getMonth() + 1)  : now.getMonth() + 1;
+    //console.log('date: ', dtObj.val());
+    if($.trim(dtObj.val())=='')
+        return 'invalid';
+    
+    var date_regex = /^((19|20)\d\d+)-(0[1-9]|1[012]+)-(0[1-9]|[12][0-9]|3[01])$/;    
+    if(date_regex.test(dtObj.val())) {
+        var now = new Date();
+        var day = now.getDate() < 10 ? '0'+now.getDate() : now.getDate();
+        var month = now.getMonth() < 9 ? '0'+ ( now.getMonth() + 1)  : now.getMonth() + 1;
 
-    var curDate = now.getFullYear() + '-' +month + '-' + day;
-    var originalDate = dtObj.attr("data-original");
-    var newDate = dtObj.val();
+        var curDate = now.getFullYear() + '-' +month + '-' + day;
+        var originalDate = dtObj.attr("data-original");
+        var newDate = dtObj.val();
 
-    if (newDate != originalDate && newDate < curDate)
-        return false;
-    return true;
+        if (newDate != originalDate && newDate < curDate)
+            return 'invalid';
+        return 'valid';
+    }
+    return 'wrong_format';
 }
 
-function validateUnique(txtObj) {
+function validateUnique(txtObj) {    
     var taskNameTextsObj = txtObj.parents('.swiper-slide').find('.register-name');
+    //console.log('taskNameTextsObj: ', taskNameTextsObj);
     for(i=0;i<taskNameTextsObj.length;i++) {
+        //console.log('taskNameTextsObj i=' + i, taskNameTextsObj[i].value);
         for(j=i+1;j<taskNameTextsObj.length;j++) {
+            //console.log('taskNameTextsObj j=' + j, taskNameTextsObj[j].value);
             if($.trim(taskNameTextsObj[i].value) == $.trim(taskNameTextsObj[j].value))
                 return taskNameTextsObj[j].id;
             if(j==taskNameTextsObj.length-1) break;
@@ -1296,7 +1318,7 @@ jQuery.fn.extend({
         var errorNumber = false;
         var errorChar = false;
         var errorName = false;
-        var errorDate = false;
+        var errorDate = 'valid';
         var errorDuplicate = false;
         var err;
         var taskNameDuplicated = '';
@@ -1422,17 +1444,20 @@ jQuery.fn.extend({
                             }
                         }
                         break;
-					case 'valid_task_name':                        
+					case 'valid_task_name':
+                        //console.log('valid_task_name');
                         taskNameDuplicated = validateUnique($(this));
+                        //console.log('taskNameDuplicated=',taskNameDuplicated);
                         if (taskNameDuplicated!='') {
                             stepValid = false;
                             errorDuplicate = true;
                         }
 						break;
                     case 'valid_date':
-                        if (!validDate($(this))) {
-                            stepValid = false;
-                            errorDate = true;
+                        errorDate = validDate($(this));
+                        //console.log('errorDate: ', errorDate);
+                        if (errorDate!='valid') {
+                            stepValid = false;                            
                         }
                         break;
                 }
@@ -1453,9 +1478,11 @@ jQuery.fn.extend({
                     } else if (errorName) {
                       errorName = false;
                       err = $.t("Dette navnet er allerede i bruk. Alle navn må være unike.");
-                    } else if (errorDate) {
-                      errorDate = false;
-                      err = $.t("error.validation_date");
+                    } else if (errorDate!='valid') {
+                      if(errorDate=='invalid')
+                        err = $.t("error.validation_date");
+                      if(errorDate=='wrong_format')
+                        err = $.t("error.validation_date_format");
 					} else if (errorDuplicate) {
                       errorDuplicate = false;
                       err = $.t("error.validation_duplicate");
@@ -1474,7 +1501,11 @@ jQuery.fn.extend({
                             if (taskNameDuplicated == '')
                                 $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">' + err + '</label>').insertAfter($(this).parent());
                             else                                
+                            {
+                                //console.log('name id=',taskNameDuplicated);
+                                //console.log('err id=',$(this).attr('id')+ '_validate');
                                 $('<label id="' + $(this).attr('id') + '_validate" class="validate_error validate_error_taskname">' + err + '</label>').insertAfter($('#'+taskNameDuplicated).parent());
+                            }
                         }
                     }
                     else if ($(this).is("textarea")) {

@@ -52,6 +52,7 @@
         "validation": "Dette feltet er påkrevet.",
         "validation_number": "Sett inn numerisk verdi.",
         "validation_date": "Du kan bare velge i dag eller fremtidige datoer som startdato. Datoer som allerede har vært kan ikke velges.",
+        "validation_date_format": "Datoen er feil format. Det må være 'yyyy-mm-dd' format.",
 		"validation_duplicate": "Dette navnet er allerede i bruk. Alle navn må være unike.",
         "validation_email": "Vennligst skriv inn en gyldig epostaddresse.",
         "duplicate_email": "Denne epostaddressen er allerede registrert.",

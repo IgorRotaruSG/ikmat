@@ -48,7 +48,8 @@
     "error": {
         "validation": "This field is required.",
         "validation_number": "Please insert numeric value.",
-        "validation_date": "Du kan bare velge i dag eller fremtidige datoer som startdato. Datoer som allerede har vært kan ikke velges.",
+        "validation_date": "You can only choose the day or dates in the future as the start date.",
+        "validation_date_format": "Date is wrong format. It must be 'yyyy-mm-dd' format.",
 		"validation_duplicate": "Dette navnet er allerede i bruk. Alle navn må være unike.",
         "validation_email": "Please insert valid email address",
         "duplicate_email": "This email address already exists",
