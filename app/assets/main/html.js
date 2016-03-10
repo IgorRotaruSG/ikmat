@@ -182,7 +182,7 @@ HTML.prototype.signature = function(name, label) {
     /*var id = md5(new Date().getTime());
     var html = '<legend style="margin-bottom: 10px;">' + label + '</legend>';
 
-    html += '<input type="text" name="' + name + '" value="" disabled="disabled" id="' + id + '">';
+    html += '<input type="text" maxlength="300" name="' + name + '" value="" disabled="disabled" id="' + id + '">';
 
     html += '<button onclick="signMe(\'' + id + '\');return false;" data-theme="a">Sign</button>';
 
@@ -191,7 +191,7 @@ HTML.prototype.signature = function(name, label) {
     var html = '<label>'+ $.t("haccp.signature") +'</label>' +
         '<div class="ui-grid-a">' +
             '<div class="ui-block-a">' +
-                '<input type="text" name="name" id="sign_name" placeholder="" class="ui-input-text ui-body-a"/>' +
+                '<input type="text" maxlength="300" name="name" id="sign_name" placeholder="" class="ui-input-text ui-body-a"/>' +
             '</div>' +
             '<div class="ui-block-b">' +
                 '<input type="button" value="'+ $.t('general.sign_button') +'" id="signature-trigger" data-position-to="window" />' +
@@ -975,7 +975,7 @@ HTML.prototype.multipleInputAdd = function(el) {
 
     html += '<fieldset class="ui-grid-a new-added">';
     html += '    <div class="ui-block-a" style="width:80%;">';
-    html += '        <input id="' + t[1] + '_' + n + '" name="' + t[1] + '[' + n + ']"  type="text" data-validation="' + validation + '" class="register-name" value="" placeholder="' + placeholder + '"/>';
+    html += '        <input id="' + t[1] + '_' + n + '" name="' + t[1] + '[' + n + ']"  type="text" maxlength="300" data-validation="' + validation + '" class="register-name" value="" placeholder="' + placeholder + '"/>';
     html += '    </div>';
     html += '    <div class="ui-block-b" style="width:20%;">';
     html += '        <a href="#" data-role="button" onclick="HTML.multipleInputDel(this);"><i class="fa fa-minus"></i></a>';
@@ -1015,7 +1015,7 @@ HTML.prototype.multipleInput = function(name, label, placeholder, validation, va
             html += '    <div class="ui-block-a" style="width:80%;">';
             html += '        <input tabindex="-1" id="' + name + '_' + i + '" name="' + name + '[' + i + ']" ' +
                 'value="' + value[i] + '" ' +
-                'type="text" ' +
+                'type="text" maxlength="300" ' +
                 'placeholder="' + placeholder + '"';
 //            if (p) {
             if(validation_participant_name=='')
@@ -1082,7 +1082,7 @@ HTML.prototype.textareaField = function(name, label, placeholder, validation, va
 
     var html = '<label for="frm_label_' + md5(name+label) + '">' + label + '</label>';
 
-    html += '<textarea tabindex="-1" name="' + name + '" ' +
+    html += '<textarea tabindex="-1" maxlength="3000" name="' + name + '" ' +
         'placeholder="' + placeholder + '" ' +
         'id="frm_label_' + md5(name+label) + '" ' + 'onblur="textEndEdit()"'  +
         this.generateValidation(validation) + '>' +
@@ -1128,7 +1128,10 @@ HTML.prototype.inputText = function(type, name, label, placeholder, validation, 
         taskNameValidation = ' data-validation="valid_task_name" ';
     }
 
-	html += '<input tabindex="-1" type="' + type + '" ' +
+    var maxlength = ' maxlength="300" ';
+    if(type!='text') maxlength = '';
+
+	html += '<input tabindex="-1" type="' + type + '" ' + maxlength +
         'name="' + name + '" ' +
         'value="' + value + '" ' +
         'placeholder="' + placeholder + '" ' +
