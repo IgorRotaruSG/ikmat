@@ -2398,7 +2398,6 @@ function executeSyncQuery() {
 }
 
 function printPage() {
-
 	var style = $('#page-wrap').find('style');
 	if (style.length == 0) {
 		$.get('assets/document/style.css', function(resp) {
@@ -2410,7 +2409,7 @@ function printPage() {
 				var page = document.getElementById('page-wrap');
 				cordova.plugins.printer.print(page, {
 					name : 'Document.html',
-					landscape : true
+					landscape : false
 				}, function() {
 					//alert('printing finished or canceled')
 				});
@@ -2427,7 +2426,7 @@ function printPage() {
 			var page = document.getElementById('page-wrap');
 			cordova.plugins.printer.print(page, {
 				name : 'Document.html',
-				landscape : true
+				landscape : false
 			}, function() {
 				//alert('printing finished or canceled')
 			});

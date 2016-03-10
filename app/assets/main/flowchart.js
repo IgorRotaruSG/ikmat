@@ -182,7 +182,8 @@ function deleteFlowchart(flowchartId){
 
 function printFlowchart(flowchartSrc, flowchartTitle){
     if(isNative() && cordova.plugins && cordova.plugins.email) {
-        cordova.plugins.printer.print(encodeURIComponent(flowchartSrc), {name: 'Document.html', landscape: true}, function () {
+    	var urlDocument =  encodeURI(flowchartSrc);
+        cordova.plugins.printer.print(urlDocument, {name: 'Document.html', landscape: false}, function () {
         //alert('printing finished or canceled')
         });
     }
