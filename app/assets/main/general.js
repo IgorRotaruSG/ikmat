@@ -2476,9 +2476,9 @@ $(document).ajaxStop(function() {
 });
 
 function showNotificationMessage() {
-	//console.log('showNotificationMessage');
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 	$('#page-wrap').prepend('<label class="report_generation_message">' + $.t("success.report_send_via_email") + '</label>');
-	setInterval(function(){ removeNotificationMessage(); }, 5000);
+	setTimeout(function(){ removeNotificationMessage(); }, 5000);
 }
 
 function removeNotificationMessage() {

@@ -1128,8 +1128,9 @@ HTML.prototype.inputText = function(type, name, label, placeholder, validation, 
         taskNameValidation = ' data-validation="valid_task_name" ';
     }
 
-    var maxlength = ' maxlength="300" ';
-    if(type!='text') maxlength = '';
+    var maxlength = ' maxlength="254" ';
+    if(type=='date')maxlength = ' maxlength="10" ';
+    if(type=='tel')maxlength = ' maxlength="20" ';
 
 	html += '<input tabindex="-1" type="' + type + '" ' + maxlength +
         'name="' + name + '" ' +
