@@ -329,7 +329,12 @@ HTML.prototype.formSwitchChange = function(el) {
             $(this).removeAttr('checked').checkboxradio("refresh");
         });
         $('#' + $el.attr('name')).find('input[name="frequency_id"]').attr('checked', false).checkboxradio("refresh");
-        $('#' + $el.attr('name')).find('input[type="date"]').val('');
+        
+        var now = new Date();
+        var day = now.getDate() < 10 ? '0'+now.getDate() : now.getDate();
+        var month = now.getMonth() < 9 ? '0'+ ( now.getMonth() + 1)  : now.getMonth() + 1;        
+        $('#' + $el.attr('name')).find('input[type="date"]').val(now.getFullYear()+'-'+month+'-'+day);
+
         $('#' + $el.attr('name')).find('input[type="radio"][value="#ffffff"]').each(function(){
             $(this).attr('checked',true).checkboxradio("refresh");
         });
@@ -337,7 +342,7 @@ HTML.prototype.formSwitchChange = function(el) {
     //realignSlideHeight('max-height-involved');
 };
 
-HTML.prototype.formSwitch = function(label, id, hide) {
+HTML.prototype.formSwitch = function(label, id, hide) {    
     var html = '<label>' + label + '</label>';
     html += '<label for="' + md5(label + id) + '">' + $.t('booleans.yes') + '</label>';
     html += '<input type="radio" name="'+ id +'" value="on" onchange="HTML.formSwitchChange(this);" id="'+ md5(label + id) +'" '+(!hide ? 'checked' : '')+' />';
