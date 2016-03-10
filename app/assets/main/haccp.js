@@ -385,7 +385,7 @@ function haccpInit() {
 				} else {
 					$('#footer').show();
 				}
-				if (f_i == 0 || f_i == haccp_total || (isStart && mySwiper.activeIndex == 1)) {
+				if (f_i == 0 || f_i == (haccp_total - 1) || isStart) {
 					setTimeout(function() {
 						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 					}, 500);
@@ -808,37 +808,15 @@ function haccpDeviationSave(data) {
 /***************************************************************************/
 
 function check_haccp() {
-	var checked = $('.haccp_color_table').find("i");
-	var cons = 0;
-	var poss = 0;
-	cons = checked.parent().index() + 1;
-	poss = checked.parent().parent().index();
-	poss = 3 - poss + 2;
-	/* because the possibility table is reversed */
-	if (cons != 1) {
-		cons = 2;
-	}
-	if (poss != 1) {
-		poss = 4;
-	}
 	$('input[type="radio"]').change(function() {
-		var isSelected = false;
-		if ($(this).attr("name") == 'possibility') {
-			isSelected = true;
-			poss = $(this).parent().index() + 1;
-			/* selected possibility */
-			poss = 3 - poss + 2;
-			/* because the possibility table is reversed */
-		} else if ($(this).attr("name") == 'consequence') {
-			isSelected = true;
-			cons = $(this).parent().index() + 2;
-			/* selected consequence */
-		}
-
-		if (isSelected) {
+		if ($(this).attr("name") == 'possibility' || $(this).attr("name") == 'consequence') {
+			var cons = parseInt($('input[name=consequence]:checked').val());
+			var poss = parseInt($('input[name=possibility]:checked').val());
+			cons = cons?(cons + 2): 2;
+			poss = poss?(4 - poss): 4;
 			$('.swiper-slide-active .haccp_color_table').find("i").remove();
 			$('.swiper-slide-active .haccp_color_table tr:nth-child(' + poss + ') td:nth-child(' + cons + ')').html('<i class="fa fa-check" style="color:#000;"></i>');
-		}
+		} 
 	});
 }
 
