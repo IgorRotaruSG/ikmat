@@ -385,7 +385,7 @@ function haccpInit() {
 				} else {
 					$('#footer').show();
 				}
-				if (f_i == 0 || f_i == (haccp_total - 1) || isStart) {
+				if (f_i == 0 || f_i == haccp_total || isStart) {
 					setTimeout(function() {
 						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 					}, 500);
@@ -555,6 +555,7 @@ function haccpComplete(data) {
 					if(!isStart || (isStart && mySwiper.activeIndex == 2)){
 						if (f_i == 0) {
 							f_i = parseInt(f_i) + lazy_total - 1;
+							isStart = true;
 						}else{
 							f_i = parseInt(f_i) + 1;
 							getHaccpWithLimit();
