@@ -28,6 +28,11 @@ var lazy_total = 3;
 var isValid = false;
 var oneClickDone;
 
+var deletedObject = {};
+var deletedObjectArray = [];
+var prevAns;
+var resetToDefault;
+
 //navigator.connection.type = Connection.NONE;
 
 function getHaccpCall(err, results) {
@@ -1076,6 +1081,18 @@ function decisionTree(swiper, step) {
 
 function openConfirmDialog(message, confirm, cancel, step) {
 	console.log('openConfirmDialog', message);
+
+	    if (resetToDefault) {
+            $('#deviation_yes').prop('checked', true);
+            $('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+            $('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+            resetToDefault = false;
+        } 
+
+    // console.log('openConfirmDialog', message);
+    // console.log('openConfirmDialog step: ', step);
+    // console.log("deviationAnswers:",deviationAnswers);
+
 	var confirm_this;
 
 	$("input[name='critical_point']").val('');
@@ -1102,11 +1119,39 @@ function openConfirmDialog(message, confirm, cancel, step) {
 		if (confirm_this !== undefined && !confirm_this) {
 			return deviationTreeBackStep();
 		} else if (confirm_this) {
-			if ($('#deviation_yes').is(":checked")) {
-				return confirm();
-			} else {
-				return cancel();
-			}
+                    var currentCheckedRadio = $('#deviation_yes').is(":checked");
+
+                    // console.log("currentCheckedRadio xx: ", currentCheckedRadio);
+                    // console.log("deviationAnswers next:",deviationAnswers);
+                    // console.log("deletedObjectArray next:",deletedObjectArray);
+
+                    if (deletedObjectArray.length>0) {
+                            var theFinalElement = deletedObjectArray[deletedObjectArray.length-1].answer;
+
+                            // console.log("theFinalElement: ", theFinalElement);
+                            // console.log("currentCheckedRadio: ", currentCheckedRadio);
+
+                            if (((currentCheckedRadio)&&(theFinalElement==1))||((!currentCheckedRadio)&&(theFinalElement==0))) {
+
+                                 if (deletedObjectArray.length>1){                                   
+                                        console.log('vienvt current step: ',step);
+                                        return deviationTreeNextStep(step);                                    
+                                  }                             
+                            }else{
+
+                                deletedObjectArray = [];
+                                resetToDefault = true;
+                                //console.log('Reset deletedObjectArray')                                
+                            }
+                    }
+
+            if ($('#deviation_yes').is(":checked")) {                 
+                 resetToDefault = false;
+                return confirm();
+            } else {                
+                resetToDefault = true;
+                return cancel();
+            }
 		}
 	});
 	$('#confirmDevPopup').popup("open", {
@@ -1159,31 +1204,160 @@ function goNextWithCriticalControl(swiper, message) {
 }
 
 function deviationTreeBackStep() {
-	console.log(deviationAnswers);
-	$("input[name='critical_point']").val('');
-	if (!isEmpty(deviationAnswers)) {
-		var prevStepKeys = Object.keys(deviationAnswers);
-		var prevStep = prevStepKeys[prevStepKeys.length - 1];
-		var prevAns = deviationAnswers[prevStep];
-		console.log(prevStep, prevAns);
-		var prevStepFunc = eval('{' + prevStep + '}');
-		openConfirmDialog(prevStepFunc.message, prevStepFunc.confirm, prevStepFunc.cancel, 0);
-		if (prevAns == 1) {
-			$('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
-			$('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-			$('#deviation_yes').prop('checked', true);
-		} else {
-			$('#deviation_yes').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
-			$('#deviation_no').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-			$('#deviation_no').prop('checked', true);
-		}
-		delete deviationAnswers[prevStep];
-	} else {
-		$('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
-		$('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-		$('#deviation_yes').prop('checked', true);
-		mySwiper.swipePrev();
-	}
+    console.log("deviationTreeBackStep deviationAnswers: ", deviationAnswers);
+    $("input[name='critical_point']").val('');
+    if (!isEmpty(deviationAnswers)) {
+        var prevStepKeys = Object.keys(deviationAnswers);
+        var prevStep = prevStepKeys[prevStepKeys.length - 1];
+        prevAns = deviationAnswers[prevStep];
+        console.log(prevStep, prevAns);
+
+        deletedObject = {};
+        deletedObject.step = prevStep;
+        deletedObject.answer = prevAns;
+        deletedObjectArray.push(deletedObject);
+
+        // console.log('deviationTreeBackStep -- deletedObjectArray: ', deletedObjectArray);
+        // console.log('deviationAnswers[prevStep]: ',deviationAnswers[prevStep]);
+
+        var prevStepFunc = eval('{' + prevStep + '}');
+
+        // console.log("vien prevStepFunc: ",prevStepFunc);
+        // console.log("prevStep: ",prevStep);
+
+        openConfirmDialog(prevStepFunc.message, prevStepFunc.confirm, prevStepFunc.cancel, prevStep);
+
+        if (prevAns == 1) {
+            $('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+            $('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+            $('#deviation_yes').prop('checked', true);
+        } else {
+            $('#deviation_yes').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+            $('#deviation_no').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+            $('#deviation_no').prop('checked', true);
+        }
+        delete deviationAnswers[prevStep];
+    } else {
+        $('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+        $('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+        $('#deviation_yes').prop('checked', true);
+        mySwiper.swipePrev();
+    }
+}
+
+function setDeviationAnswer(step){
+    console.log("setDeviationAnswer step: ", step);
+    if (step == "step1")
+    {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            //console.log("setDeviationAnswer step 2: ", step);
+            deviationAnswers.step1 = 1;
+        }else{
+            //console.log("setDeviationAnswer step 2: ", step);
+            deviationAnswers.step1 = 0;
+        }
+    }else if (step == "step2") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            deviationAnswers.step2 = 1;
+        }else{
+            deviationAnswers.step2 = 0;
+        }
+    }else if (step == "step3") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            deviationAnswers.step3 = 1;
+        }else{
+            deviationAnswers.step3 = 0;
+        }
+    }else if (step == "step4") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            //console.log("setDeviationAnswer step 3: ", step);
+            deviationAnswers.step4 = 1;
+        }else{
+            //console.log("setDeviationAnswer step 3: ", step);
+            deviationAnswers.step4 = 0;
+        }
+    }else if (step == "step5") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            deviationAnswers.step5 = 1;
+        }else{
+            deviationAnswers.step5 = 0;
+        }
+    }else if (step == "step6") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            //console.log("setDeviationAnswer step 4: ", step);
+            deviationAnswers.step6 = 1;
+        }else{
+            //console.log("setDeviationAnswer step 4: ", step);
+            deviationAnswers.step6 = 0;
+        }
+    }else if (step == "step7") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            deviationAnswers.step7 = 1;
+        }else{
+            deviationAnswers.step7 = 0;
+        }
+    }else if (step == "step8") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            deviationAnswers.step8 = 1;
+        }else{
+            deviationAnswers.step8 = 0;
+        }
+    };
+}
+
+
+function deviationTreeNextStep(step) {
+    console.log("deviationTreeNextStep Array:");
+    console.log(deletedObjectArray);
+
+    $("input[name='critical_point']").val('');
+    if (!isEmpty(deletedObjectArray)) {
+
+        var nextStepObject = deletedObjectArray[deletedObjectArray.length-1-1];
+        if((nextStepObject == undefined) &&(deletedObjectArray.length==1))
+        {
+            deletedObjectArray = [];
+            return;
+        }
+        //console.log ('nextStepObject:', nextStepObject);
+
+        var nextStepName = nextStepObject.step;
+
+        // console.log ('nextStepName:', nextStepName);
+        // console.log ('nextStepName argument:', step);
+
+        if (nextStepName == step) {
+            console.log ('== nextStepObject:', nextStepObject);
+        }
+
+        //get all key to an array keys
+        var nextStepFunc = eval('{' + nextStepName + '}');
+        //console.log("vienvt nextStepFunc: ", nextStepFunc);
+        var nextAns = nextStepObject.answer;
+        //console.log("deviationAnswers Array:", deviationAnswers);
+
+        setDeviationAnswer(step);
+        openConfirmDialog(nextStepFunc.message, nextStepFunc.confirm, nextStepFunc.cancel, nextStepName);
+
+        if (nextAns == 1) {
+            $('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+            $('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+            $('#deviation_yes').prop('checked', true);
+        } else {
+            $('#deviation_yes').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+            $('#deviation_no').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+            $('#deviation_no').prop('checked', true);
+        }
+        deletedObjectArray.pop();
+    } 
 }
 
 
