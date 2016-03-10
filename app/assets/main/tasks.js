@@ -74,9 +74,9 @@ function getTasksCall(err, results) {
 			    role = '';
 			if (setting && setting.rows.length > 0) {
 				for (var i = 0; i < setting.rows.length; i++) {
-					if (setting.rows[i].key == 'register_edit' && setting.rows[i].doc.value)
+					if (!results.rows[i].error && setting.rows[i].key == 'register_edit' && setting.rows[i].doc.value)
 						register_edit = false;
-					if (setting.rows[i].key == 'haccp' && setting.rows[i].doc.value)
+					if (!results.rows[i].error && setting.rows[i].key == 'haccp' && setting.rows[i].doc.value)
 						haccp = false;
 				}
 			}
@@ -188,12 +188,35 @@ function updateTasks(data) {
 }
 
 function getTasks() {
-	var offset = (tasks_page - 1 ) * per_page;
-	db.getDbInstance('tasks').query('tasks_uncompleted', {
-		'include_docs' : true,
-		'skip' : offset,
-		'limit' : per_page
-	}, getTasksCall);
+	db.getDbInstance("settings").allDocs({
+		keys : ['register_edit', 'haccp'],
+		include_docs : true
+	}, function(error, results) {
+		var isValid = true;
+		if(error){
+			isValid = false;
+		}else{
+			for(var i = 0; i < results.rows.length; i++){
+				if(results.rows[i].error){
+					isValid = false;
+					break;
+				}
+			}
+		}
+		if(isValid){
+			var offset = (tasks_page - 1 ) * per_page;
+			db.getDbInstance('tasks').query('tasks_uncompleted', {
+				'include_docs' : true,
+				'skip' : offset,
+				'limit' : per_page
+			}, getTasksCall);
+		}else{
+			setTimeout(function() {
+				getTasks();
+			}, 500);
+		}
+	});
+	
 }
 
 function tasksInit() {
@@ -737,11 +760,11 @@ function checkIsHaccp(data, callback) {
 		    role = '';
 		if (results && results.rows.length > 0) {
 			for (var i = 0; i < results.rows.length; i++) {
-				if (results.rows[i].key == 'register_edit' && results.rows[i].doc.value)
+				if (!results.rows[i].error && results.rows[i].key == 'register_edit' && results.rows[i].doc.value)
 					register_edit = false;
-				if (results.rows[i].key == 'haccp' && results.rows[i].doc.value)
+				if (!results.rows[i].error && results.rows[i].key == 'haccp' && results.rows[i].doc.value)
 					haccp = false;
-				if (results.rows[i].key == 'role')
+				if (!results.rows[i].error && results.rows[i].key == 'role')
 					role = results.rows[i].doc.value;
 			}
 		}
