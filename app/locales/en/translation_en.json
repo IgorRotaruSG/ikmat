@@ -68,7 +68,8 @@
         "password_recover_email": "An email was sent. Please check the email and follow the steps to change your password.",
         "register_edit": "Thank you for completing the registration of your company. You can now proceed with the HACCP part of the registration.",
         "added_employee": "Employee added successfully.",
-        "added_supplier": "Supplier has been successfully added."
+        "added_supplier": "Supplier has been successfully added.",
+        "report_send_via_email": "Report will be sent to your mailbox."
     },
 
     "page_title": {

@@ -63,7 +63,8 @@
         "password_recover_email": "En epost er sendt deg. Vennligst sjekk eposten og følg instruksjonene for å endre passord.",
         "register_edit": "Takk for at du har registrert ditt selskap. Du kan nå fortsette med fareanalysen.",
         "added_employee": "Ny ansatt er lagt til.",
-        "added_supplier": "Ny leverandør er lagt til."
+        "added_supplier": "Ny leverandør er lagt til.",
+        "report_send_via_email": "Rapporten vil bli sendt til din postkasse."
     },
 
     "page_title": {
