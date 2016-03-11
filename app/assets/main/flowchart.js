@@ -89,11 +89,28 @@ function showFlowchart(data) {
                 hideBarsDelay : 17000, // delay before hiding bars on desktop
                 videoMaxWidth : 1140, // videos max width
                 beforeOpen: function() {
+                	 // Set envelope icon for app, pdf icon for web
+        			if (isNative()) {
+           				 $('.fa-file-pdf-o').addClass('fa-envelope-o');
+           				 $('.fa-envelope-o').removeClass('fa-file-pdf-o');
+        			} else {
+           				 $('.fa-envelope-o').addClass('fa-file-pdf-o');
+           				 $('.fa-file-pdf-o').removeClass('fa-envelope-o');
+        			}
                 }, // called before opening
                 afterOpen: function(){
+                	 // Set envelope icon for app, pdf icon for web
+        			if (isNative()) {
+           				 $('.fa-file-pdf-o').addClass('fa-envelope-o');
+           				 $('.fa-envelope-o').removeClass('fa-file-pdf-o');
+        			} else {
+           				 $('.fa-envelope-o').addClass('fa-file-pdf-o');
+           				 $('.fa-file-pdf-o').removeClass('fa-envelope-o');
+        			}
                 	// new RTP.PinchZoom($('div .current'), {});
                 }, // called after opening
-                afterClose: function() {}, // called after closing
+                afterClose: function() {      
+                }, // called after closing
                 loopAtEnd: true // true will return to the first image after the last image is reached
             });
             $('a[data-id="'+data.flowcharts[0]['id']+'"]').trigger("click");
@@ -114,15 +131,6 @@ function showFlowchart(data) {
             };
             Page.apiCall('resetFlowchart', data, 'get', 'resetFlowchart');
         });
-
-        // Set envelope icon for app, pdf icon for web
-        if (isNative()) {
-            $('.fa-file-pdf-o').addClass('fa-envelope-o');
-            $('.fa-envelope-o').removeClass('fa-file-pdf-o');
-        } else {
-            $('.fa-envelope-o').addClass('fa-file-pdf-o');
-            $('.fa-file-pdf-o').removeClass('fa-envelope-o');
-        }
     }
 }
 
