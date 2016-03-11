@@ -169,12 +169,11 @@ db.prototype.createTables = function(isReload) {
 						skip_setup : true
 					});
 				}
-				that.createView(that.tables[i], 'sort_index', function(doc) {
-					emit(doc.timestamp);
-				});
-			}else{
-				console.log('exsiting', that.collections[that.tables[i]]);
+				
 			}
+			that.createView(that.tables[i], 'sort_index', function(doc) {
+				emit(doc.timestamp);
+			});
 
 		})(index);
 
@@ -236,9 +235,7 @@ db.prototype.InitDB = function() {
 		isCreateDB = true;
 	}
 	if (isCreateDB) {
-		console.log('isCreateDB');
 		this.dbDropTables().then(function(results) {
-			console.log('results isCreateDB', results);
 			that.createTables(true);
 		});
 	} else {

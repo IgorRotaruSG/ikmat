@@ -411,18 +411,17 @@ function haccpInit() {
 }
 
 function insertHaccpItem() {
-	db.lazyQuery('haccp_items', castToListObject(["id", "cat", "content", "form", "response"], fq), function(err, results) {
-		db.getDbInstance('haccp_items').query('sort_index', {
-			'include_docs' : true,
-			'limit' : lazy_total
-		}, getHaccpCall);
+	db.lazyQuery('haccp_items', castToListObject(["id", "cat", "content", "form", "response"], fq), function(results) {
+		if(results){
+			db.getDbInstance('haccp_items').query('sort_index', {
+				'include_docs' : true,
+				'limit' : lazy_total
+			}, getHaccpCall);
+		}
 	});
 }
 
 function haccp(data) {
-
-	//debugger;
-
 	if (data.success) {
 		if (data.haccp_category.length > 0) {
 			//var c = data.haccp_category;
@@ -551,9 +550,6 @@ function haccpComplete(data) {
 					'token' : User.lastToken,
 					'task_id' : data.haccp_response.task_id
 				};
-				console.log('aici 2');
-				//console.log(data);
-
 				Page.apiCall('deviation', data, 'get', 'haccpDeviation_s');
 			} else {
 				if (onNextClick) {
@@ -578,7 +574,6 @@ function haccpComplete(data) {
 }
 
 function showLocalDevPopup() {
-	//console.log('showLocalDevPopup');
 	db.getDbInstance('settings').get('deviation_form', function(err, results) {
 		if (results) {
 			var f = JSON.parse(results.value);
@@ -597,9 +592,6 @@ function showLocalDevPopup() {
 };
 
 function haccpDeviation_s(data) {
-	console.log('aici 3');
-	//console.log(data);
-	//get.id = data.task_id;
 	if (isOffline() && data.form_deviation) {
 		//            var html = '<legend>Deviation registration form</legend>';
 		html = HTML.formGenerate(data.form_deviation, 'Lagre');
@@ -607,24 +599,6 @@ function haccpDeviation_s(data) {
 		console.log('no way it gets here');
 		$('#form_haccp_deviation').html(html);
 		var qresults = null;
-		//d.transaction(function(tx){
-		//    tx.executeSql('SELECT "data","id" FROM "sync_query" WHERE "q_type"=? AND "executed"=? ORDER BY "id" DESC', ['haccp_deviation','0'], function(tx, results){
-		//        if (results.rows.length > 0) {
-		//            qresults = results;
-		//            var haccp_id = JSON.parse(JSON.parse(results.rows.item(0).data).response).subcategory; // get haccp_data from haccp_items
-		//            //console.log('haccp_id',haccp_id);
-		//            tx.executeSql('SELECT "content" FROM "haccp_items" WHERE "id"=? ', [haccp_id], function (tx, results) {
-		//                //console.info('here');
-		//                if (results.rows.length > 0) {
-		//                    //console.log(results.rows.item(0).content);
-		//                    $('#form_haccp_deviation').find('textarea[name="deviation_description"]').text(results.rows.item(0).content);
-		//                }
-		//            });
-		//
-		//        }
-		//
-		//    });
-		//});
 		$('#' + $.mobile.activePage.attr('id')).trigger('create');
 		$('#signature-reset').off('click').on('click', function(e) {
 			e.preventDefault();
@@ -643,16 +617,13 @@ function haccpDeviation_s(data) {
 				var form_values = HTML.getFormValues($(this).parent());
 
 				if (qresults != null) {
-					//console.log(qresults.rows.item(0).id);
 					var task = qresults.rows.item(0).data;
 					task = JSON.parse(task);
 					var response = JSON.parse(task.response);
 					response.deviation_data = form_values;
 					response.deviation_data.signature = offline_signature;
 					task.response = JSON.stringify(response);
-					//console.log('task',task);
 					var new_task = JSON.stringify(task);
-					//console.log('newtask',new_task);
 					db.lazyQuery('sync_query', [{
 						'_id' : qresults.rows.item(0).id,
 						'data' : new_task
@@ -837,7 +808,6 @@ function continueHaccp(swiper) {
 	if (_t == 'save' && !universal_cango) {
 		// $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 		var dd = {};
-		//console.log('swiper.previousIndex',swiper.previousIndex);
 		if (isNaN(swiper.previousIndex)) {
 			var $f = $(swiper.getSlide(swiper.activeIndex));
 		} else {
@@ -872,8 +842,6 @@ function continueHaccp(swiper) {
 				}
 				if (i == 'subcategory') {
 					last_id = $f.find('input[name="' + i + '"]').val();
-					//console.log('i = ',i,',k:',last_id);
-					//console.log('Last id,  ..... k:'+last_id);
 				}
 			}
 		}
@@ -914,17 +882,7 @@ function continueHaccp(swiper) {
 			if (!isOffline()) {
 				console.log('haccp 244');
 				Page.apiCall('haccp', data, 'get', 'haccpComplete');
-
-				/*if ( mySwiper.slides.length >= 4 && mySwiper.activeIndex >= lazy_total) { //if we have at least 5 slides
-				 //Remove fist slide:
-				 mySwiper.removeSlide(0);
-				 //And fix position
-				 // mySwiper.swipeTo( mySwiper.activeIndex - 1, 0, false );
-				 mySwiper.swipePrev();
-				 }*/
 			} else {
-				//                                alert('238 no internet');
-				console.log('942 no internet');
 				var sum = parseInt(dd.possibility) + parseInt(dd.consequence);
 				if (sum >= lazy_total) {
 					db.lazyQuery('sync_query', [{
@@ -1080,18 +1038,12 @@ function decisionTree(swiper, step) {
 }
 
 function openConfirmDialog(message, confirm, cancel, step) {
-	console.log('openConfirmDialog', message);
-
 	    if (resetToDefault) {
             $('#deviation_yes').prop('checked', true);
             $('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
             $('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
             resetToDefault = false;
         } 
-
-    // console.log('openConfirmDialog', message);
-    // console.log('openConfirmDialog step: ', step);
-    // console.log("deviationAnswers:",deviationAnswers);
 
 	var confirm_this;
 
