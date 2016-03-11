@@ -247,11 +247,16 @@ function emailFlowchart(flowchartId){
 
 function openNativeEmail(pdf, email_data){
     var subject = "Flytskjema " + email_data.flowchart_name;
-    subject += localStorage.getItem('company_name') ? " av " + localStorage.getItem('company_name'): "";
+    var companyName = localStorage.getItem('company_name');
+    subject += companyName ? (" av " + companyName) : "";
+  
     var mailObject = {
         subject: subject,
         cc: localStorage.getItem("user_email") ? localStorage.getItem("user_email"): "",
     };
+    
+    console.log ("email object flow chart: ", mailObject);
+    
     if(pdf){
         mailObject.attachments = "base64:" + pdf.name + "//" + pdf.data;
     }
