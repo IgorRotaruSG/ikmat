@@ -15,7 +15,7 @@ function db() {
 	this.collections = [];
 	this.tables = ['settings', 'tasks', 'haccp_items', 'forms', 'registration', 'form_item', 'sync_query', 'reports'];
 	PouchDB.plugin(Erase);
-	PouchDB.debug.enable('*');
+	// PouchDB.debug.enable('*');
 }
 
 db.prototype.asyncExecute = function(data, step, callback) {
