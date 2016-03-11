@@ -5,6 +5,7 @@
  * @param results
  */
 function getUserHandle(error, results) {
+	console.log('getUserHandle', results);
 	var token,
 	    client,
 	    user_name,
@@ -14,7 +15,7 @@ function getUserHandle(error, results) {
 		isValid = false;
 	} else {
 		for (var i = 0; i < results.rows.length; i++) {
-			if (results.rows[i].error) {
+			if (results.rows[i].error || !results.rows[i].doc) {
 				isValid = false;
 				break;
 			}

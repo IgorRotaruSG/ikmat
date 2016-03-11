@@ -816,8 +816,8 @@ function haccpDeviationSave(data) {
 function check_haccp() {
 	$('input[type="radio"]').change(function() {
 		if ($(this).attr("name") == 'possibility' || $(this).attr("name") == 'consequence') {
-			var cons = parseInt($('input[name=consequence]:checked').val());
-			var poss = parseInt($('input[name=possibility]:checked').val());
+			var cons = parseInt($(mySwiper.getSlide(mySwiper.activeIndex)).find('input[name=consequence]:checked').val());
+			var poss = parseInt($(mySwiper.getSlide(mySwiper.activeIndex)).find('input[name=possibility]:checked').val());
 			cons = cons?(cons + 2): 2;
 			poss = poss?(4 - poss): 4;
 			$('.swiper-slide-active .haccp_color_table').find("i").remove();

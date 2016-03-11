@@ -48,7 +48,8 @@
     "error": {
         "validation": "This field is required.",
         "validation_number": "Please insert numeric value.",
-        "validation_date": "Du kan bare velge i dag eller fremtidige datoer som startdato. Datoer som allerede har vært kan ikke velges.",
+        "validation_date": "You can only choose the day or dates in the future as the start date.",
+        "validation_date_format": "Date is wrong format. It must be 'yyyy-mm-dd' format.",
 		"validation_duplicate": "Dette navnet er allerede i bruk. Alle navn må være unike.",
         "validation_email": "Please insert valid email address",
         "duplicate_email": "This email address already exists",
@@ -67,7 +68,8 @@
         "password_recover_email": "An email was sent. Please check the email and follow the steps to change your password.",
         "register_edit": "Thank you for completing the registration of your company. You can now proceed with the HACCP part of the registration.",
         "added_employee": "Employee added successfully.",
-        "added_supplier": "Supplier has been successfully added."
+        "added_supplier": "Supplier has been successfully added.",
+        "report_send_via_email": "Report will be sent to your mailbox."
     },
 
     "page_title": {
