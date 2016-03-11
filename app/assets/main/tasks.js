@@ -878,6 +878,7 @@ function getTasksUncompleted(data) {
 			if (tasks_page == 1) {
 				local_tasks_total = tasksNr;
 				db.clearCollection('tasks', function() {
+					console.log('aaaa');
 					displayTasks(tasksNr, db_data, add);
 				});
 			} else {

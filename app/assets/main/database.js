@@ -67,7 +67,8 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 						docs[i] = jQuery.extend(doc, docs[i]);
 						docs[i]._id = String(docs[i]._id);
 						if (params && params._deleted) {
-							docs[i]._deleted = true;
+							console.log('deleted');
+							that.collections[collection].remove(doc);
 						}
 						resolve(true);
 					} else {
@@ -79,6 +80,14 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 		})(that, index);
 	}
 	Promise.all(promises).then(function() {
+		if (params && params._deleted) {
+			if ( typeof callback != 'function' && window[callback] != undefined) {
+				window[callback]();
+			} else if (callback && typeof callback == 'function') {
+				callback();
+			}
+			return;
+		}
 		that.collections[collection].bulkDocs(docs, function(error, results) {
 			if ( typeof callback != 'function' && window[callback] != undefined) {
 				if (params) {
@@ -162,7 +171,8 @@ db.prototype.createTables = function(isReload) {
 			if (!that.collections[that.tables[i]]) {
 				that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
 					skip_setup : true,
-					adapter : 'websql'
+					adapter : 'websql',
+					size: this.db_size
 				});
 				if (!that.collections[that.tables[i]].adapter) {// websql not supported by this browser
 					that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
@@ -197,6 +207,7 @@ db.prototype.dropDb = function() {
 
 db.prototype.dbDropTables = function() {
 	this.database = false;
+	var that = this;
 	for (var i = 0; i < localStorage.length; i++) {
 		if (localStorage.key(i) != "user_email") {
 			localStorage.removeItem(localStorage.key(i));
@@ -211,7 +222,7 @@ db.prototype.dbDropTables = function() {
 			});
 		}
 		promises[i] = new Promise(function(resolve, reject) {
-			collection.erase({}, function() {
+			collection.destroy(function(){
 				resolve(true);
 			});
 		});
@@ -241,8 +252,6 @@ db.prototype.InitDB = function() {
 	} else {
 		this.createTables();
 	}
-	// this.createTables();
-
 };
 
 db.prototype.dbCreateTables = function(tx) {
@@ -277,5 +286,15 @@ db.prototype.getDbInstance = function(name) {
 
 db.prototype.clearCollection = function(name, callback) {
 	var that = this;
-	this.collections[name].erase({}, callback);
+	if(this.collections[name]){
+		this.collections[name].erase({}, function(){
+			that.collections[name].compact().then(function (result) {
+				callback({deleted: true});
+			}).catch(function (err) {
+			  console.log(err);
+			});
+		});
+	}else{
+		callback({deleted: true});
+	}
 };
