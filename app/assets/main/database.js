@@ -242,15 +242,20 @@ db.prototype.dbDropTables = function() {
 	}
 	var promises = [];
 	for (var i = 0; i < this.tables.length; i++) {
-		//var collection = this.collections[this.tables[i]];
-		//if (!collection) {
-		//	collection = new PouchDB(this.db_name + "_" + this.tables[i], {
-		//		skip_setup : true
-		//	});
-		//}
+		var collection = this.collections[this.tables[i]];
+		if (!collection) {
+			collection = new PouchDB(this.db_name + "_" + this.tables[i], {
+				skip_setup : true
+			});
+		}
 		promises[i] = new Promise(function(resolve, reject) {
-			that.clearCollection(that.tables[i], function() {
-				resolve(true);
+			collection.destroy(function (err, response) {
+				if (err) {
+					return console.log(err);
+				} else {
+					resolve(true);
+					// success
+				}
 			});
 		});
 	}
