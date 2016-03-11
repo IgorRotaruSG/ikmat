@@ -13,8 +13,9 @@ function db() {
 	this.data = [];
 	this.query = false;
 	this.collections = [];
-	this.tables = ['settings', 'tasks', 'haccp_category', 'haccp_items', 'forms', 'registration', 'form_item', 'sync_query', 'reports', 'flowchart'];
+	this.tables = ['settings', 'tasks', 'haccp_items', 'forms', 'registration', 'form_item', 'sync_query', 'reports'];
 	PouchDB.plugin(Erase);
+	PouchDB.debug.enable('*');
 }
 
 db.prototype.asyncExecute = function(data, step, callback) {
@@ -67,7 +68,6 @@ db.prototype.bulkDocs = function(collection, docs, callback, params) {
 						docs[i] = jQuery.extend(doc, docs[i]);
 						docs[i]._id = String(docs[i]._id);
 						if (params && params._deleted) {
-							console.log('deleted');
 							that.collections[collection].remove(doc);
 						}
 						resolve(true);
@@ -172,14 +172,15 @@ db.prototype.createTables = function(isReload) {
 				that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
 					skip_setup : true,
 					adapter : 'websql',
-					size: this.db_size
+					size : this.db_size
 				});
 				if (!that.collections[that.tables[i]].adapter) {// websql not supported by this browser
 					that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
 						skip_setup : true
 					});
 				}
-				
+				that.collections[that.tables[i]].compact();
+
 			}
 			that.createView(that.tables[i], 'sort_index', function(doc) {
 				emit(doc.timestamp);
@@ -222,7 +223,7 @@ db.prototype.dbDropTables = function() {
 			});
 		}
 		promises[i] = new Promise(function(resolve, reject) {
-			collection.destroy(function(){
+			that.clearCollection(that.tables[i], function() {
 				resolve(true);
 			});
 		});
@@ -286,15 +287,28 @@ db.prototype.getDbInstance = function(name) {
 
 db.prototype.clearCollection = function(name, callback) {
 	var that = this;
-	if(this.collections[name]){
-		this.collections[name].erase({}, function(){
-			that.collections[name].compact().then(function (result) {
-				callback({deleted: true});
-			}).catch(function (err) {
-			  console.log(err);
+	if (this.collections[name]) {
+		this.collections[name].erase({}, function() {
+			that.collections[name].compact().then(function(result) {
+				if (callback) {
+					callback({
+						deleted : true
+					});
+				}
+			}).catch(function(err) {
+				console.log(err);
+				if (callback) {
+					callback({
+						deleted : true
+					});
+				}
 			});
 		});
-	}else{
-		callback({deleted: true});
+	} else {
+		if (callback) {
+			callback({
+				deleted : true
+			});
+		}
 	}
 };
