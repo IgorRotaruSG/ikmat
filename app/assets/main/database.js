@@ -189,7 +189,9 @@ db.prototype.createCollection = function(i, callback){
 			}
 			return result;
 
-		});
+		}).catch(function (err) {
+					console.log(err);
+				});
 	}else{
 		this.createCollection(i + 1, callback);
 	}
