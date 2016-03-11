@@ -853,14 +853,14 @@ function getTasksUncompleted(data) {
 					if (arr[j].type == 'deviation') {
 						add_data = '<a href="#" data-id="' + arr[j].id + '" class="generate_deviation_fix">' + arr[j].taskName + '</a>';
 					} else if (arr[j].type == 'maintenance') {
-						add_data = '<a href="maintenance.html?id=' + arr[j].id + '" data-id="' + arr[j].id + '"  data-transition="slide"><i class="fa fa-key"></i> ' + arr[j].taskName + '</a>';
+						add_data = '<a href="#" data-id="' + arr[j].id + '"  class="generate_maintenance_fix"><i class="fa fa-key"></i> ' + arr[j].taskName + '</a>';
 					} else if (arr[j].type == 'food_poision') {
 						add_data = '<a href="food_poison.html?id=' + arr[j].id + '" data-id="' + arr[j].id + '" data-transition="slide"><i class="fa fa-flask"></i> ' + arr[j].taskName + '</a>';
 					} else {
 						add_data = '<a href="#" data-id="' + arr[j].id + '" class="generate_task_form">' + arr[j].taskName + '</a>';
 					}
 
-					if (arr[j].overdue && arr[j].type == 'deviation') {
+					if (arr[j].overdue && (arr[j].type == 'deviation' ||  arr[j].type == 'maintenance')) {
 						add.push({
 							'id' : i,
 							'data' : add_data,
@@ -878,7 +878,6 @@ function getTasksUncompleted(data) {
 			if (tasks_page == 1) {
 				local_tasks_total = tasksNr;
 				db.clearCollection('tasks', function() {
-					console.log('aaaa');
 					displayTasks(tasksNr, db_data, add);
 				});
 			} else {
@@ -1039,7 +1038,7 @@ function getTasksFromLocal(results) {
 			//add_data = '<a href="haccp_deviation_fix.html?id=' + results.rows[i].doc.id + '" data-transition="slide">' + results.rows[i].doc.title + '</a>'
 			add_data = '<a href="#" data-id="' + results.rows[i].doc.id + '" class="generate_deviation_fix">' + results.rows[i].doc.title + '</a>';
 		} else if (results.rows[i].doc.type == 'maintenance') {
-			add_data = '<a href="maintenance.html?id=' + results.rows[i].doc.id + '" data-id="' + results.rows[i].doc.id + '" data-transition="slide"><i class="fa fa-key"></i> ' + results.rows[i].doc.title + '</a>';
+			add_data = '<a href="#" data-id="' + results.rows[i].doc.id + '" class="generate_maintenance_fix"><i class="fa fa-key"></i> ' + results.rows[i].doc.title + '</a>';
 		} else if (results.rows[i].doc.type == 'food_poision') {
 			add_data = '<a href="food_poison.html?id=' + results.rows[i].doc.id + '" data-id="' + results.rows[i].doc.id + '"  data-transition="slide"><i class="fa fa-flask"></i>' + results.rows[i].doc.title + '</a>';
 		} else {
@@ -1132,7 +1131,7 @@ function checkTasksList() {
 	return true;
 }
 
-/********* START HACCP DEVIATION **********/
+/********* START HACCP DEVIATION/MAINTENANCE **********/
 
 function haccpDeviationFix(data) {
 	if (data.form_fix_deviation) {//FIX deviation
@@ -1271,12 +1270,229 @@ function haccpDeviationFix(data) {
 	 }*/
 }
 
+function maintenanceFix(data) {
+	if (data.form_fix_deviation) {//FIX deviation
+		var taskId = devId;
+		//var d = new Date(data.form_fix_deviation.deviation_date.date);
+		var d = new Date(data.form_fix_deviation.deviation_date.date.replace(' ', 'T'));
+
+		var html = '<div style="padding:10px;">' + '<h3>' + $.t('tasks.maintenance_fix') + '</h3>';
+		html += '<form id="form_haccp_deviation_fix">';
+
+		if (data.form_fix_deviation.deviation_photos !== undefined && (data.form_fix_deviation.deviation_photos).length > 0) {
+			var p = [];
+			if ( typeof data.form_fix_deviation.deviation_photos == 'string') {
+				p = $.parseJSON(data.form_fix_deviation.deviation_photos);
+			} else {
+				p = data.form_fix_deviation.deviation_photos;
+			}
+			for (var i in p) {
+				if (p.hasOwnProperty(i)) {
+					html += '<img width="100%" height="auto" style="margin:0 auto;" src="' + p[i] + '" />';
+				}
+			}
+		}
+
+		html += '<fieldset data-role="controlgroup">' + $.t("general.maintenance_need") + ': ' + data.form_fix_deviation.deviation.replace(/\+/g, ' ') + '</fieldset>';
+
+		html += '<fieldset data-role="controlgroup">' + $.t("general.planned_measures") + ': ' + data.form_fix_deviation.initial_action.replace(/\+/g, ' ') + '</fieldset>';
+
+		html += '<fieldset data-role="controlgroup">' + $.t("general.maintenance_date") + ': ' + d.getDate() + '.' + (parseInt(d.getMonth()) + 1) + '.' + d.getFullYear() + '</fieldset>';
+
+		html += '<fieldset data-role="controlgroup">' + $.t("general.maintenance_responsible") + ': ' + (data.form_fix_deviation.form.responsible_fix_deviation.value + '').replace(/\+/g, ' ') + '</fieldset>';
+
+		html += '<hr />';
+
+		data.form_fix_deviation.form['signature'] = {
+			'type' : 'signature',
+			'label' : 'Signature'
+		};
+
+		html += HTML.formGenerate(data.form_fix_deviation.form, $.t("general.save_button"));
+		html += '<div data-role="popup" data-history="false" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.sign_button") + '</button>' + '</div>';
+		html += '</form>' + '</div>';
+		mySwiper.appendSlide(html, 'swiper-slide');
+		$('#' + $.mobile.activePage.attr('id')).trigger('create');
+
+		$('.ui-slider-handle').on('click', function() {
+			return false;
+		});
+		mySwiper.swipeTo(1, 300, true);
+		mySwiper.resizeFix();
+		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+		realignSlideHeight('max-height-task');
+
+		$('#' + $.mobile.activePage.attr('id')).trigger('create');
+		$('#signature-reset').on('click', function(e) {
+			e.preventDefault();
+
+			$('input[name="signature"]').val('user name');
+
+			return false;
+		});
+		$('#signature-trigger').off('click').on('click', function(e) {
+			e.preventDefault();
+
+			openSignaturePopup();
+
+			$(document).off('click', '#deviation-signature-close').on('click', '#deviation-signature-close', function() {
+				$('#signature_pop').popup('close');
+				$('#sign_name').attr('disabled', true);
+				$('#signature-trigger').attr('disabled', true);
+				$('#signature-trigger').val('Signed').button('refresh');
+			});
+
+			return false;
+		});
+
+		$('#form_haccp_deviation_fix').off('submit').on('submit', function(e) {
+			isReload = true;
+			e.preventDefault();
+
+			var go = HTML.validate($(this).parent());
+
+			if (go) {
+				var dd = Form.getValues($(this));
+
+				if (!isOffline()) {
+
+					var data = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'task_id' : devId,
+						'form' : JSON.stringify(dd)
+					};
+
+					Page.apiCall('deviation', data, 'get', 'taskDeviationFixSave');
+
+					db.lazyQuery('tasks', [{
+						'_id' : String(devId),
+						'completed' : true
+					}]);
+				} else {
+					var data_off = {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'task_id' : document.task_id,
+						'form' : JSON.stringify(dd)
+					};
+					db.lazyQuery('sync_query', [{
+						"api" : "deviation",
+						"data" : JSON.stringify(data_off),
+						"extra" : devId,
+						"q_type" : 'deviation_saved'
+					}], function(data) {
+						if (data) {
+							db.lazyQuery('tasks', [{
+								'_id' : String(devId),
+								'completed' : true
+							}], function() {
+								taskDeviationFixSave(devId);
+							});
+						}
+					});
+				}
+
+			}
+			return false;
+		});
+	} else if (data.form_deviation) {//create deviation
+		getDeviationForm(data, true);
+	}
+	/*{
+	 console.log('deviation first form');
+	 var task_id = data.form_deviation.task_id.value;
+	 //console.log('task_id',devId);return;
+	 Page.redirect('haccp_deviation.html?id='+task_id);
+	 }*/
+}
+
+function foodpoisionFix(data) {
+	if (data.form_fix_deviation) {
+		// var d = new Date(data.form_fix_deviation.form.deviation_date_fix.date);
+
+		var html = '<h3>' + $.t('tasks.poison_fix') + '</h3>';
+
+		var p = data.form_fix_deviation;
+		for (var i in p) {
+			if (p.hasOwnProperty(i) && i != 'form') {
+				if (p[i] != null) {
+					html += '<fieldset data-role="controlgroup">' + i + ': ' + p[i].replace(/\+/g, ' ') + '</fieldset>';
+				}
+			}
+		}
+
+		html += '<hr />';
+		html += HTML.formGenerate(data.form_fix_deviation.form, $.t("general.save_button"));
+
+		html += '<div data-role="popup" data-history="false" id="signature_pop" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.sign_button") + '</button>' + '</div>' + '</div>';
+
+		$('#form_food_poison').html(html).off('submit').on('submit', function(e) {
+			e.preventDefault();
+			var go = Form.validate($(this));
+			if (go) {
+				$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+				var dd = Form.getValues($(this));
+				var data = {
+					'client' : User.client,
+					'token' : User.lastToken,
+					'task_id' : get.id,
+					'results' : JSON.stringify(dd)
+				};
+				if (!isOffline()) {
+					Page.apiCall('foodPoison', data, 'get', 'maintenanceDone');
+				} else {
+					db.lazyQuery('sync_query', [{
+						'api' : 'foodPoison',
+						'data' : JSON.stringify(data),
+						'extra' : get.id,
+						'q_type' : 'maintenanceDone'
+					}], function(result) {
+						if(result && result.rows[0]._id){
+							var insertId = result.rows[0]._id;
+							checkTaskId(get.id, function(isExist) {
+								if (!isExist) {
+									insertId = get.id;
+								}
+								if ($.isNumeric(insertId)) {
+									$('input[name="task_id"]').val(insertId);
+								}
+								maintenanceDone(insertId);
+							}); 	
+						}
+					});
+				}
+			}
+			return false;
+		});
+
+		$('#signature-trigger').off('click').on('click', function(e) {
+			e.preventDefault();
+			openSignaturePopup();
+
+			$(document).off('click', '#deviation-signature-close').on('click', '#deviation-signature-close', function() {
+				$('#signature_pop').popup('close');
+				$('#sign_name').attr('disabled', true);
+				$('#signature-trigger').attr('disabled', true);
+				$('#signature-trigger').val('Signed').button('refresh');
+			});
+
+			return false;
+		});
+		$('#' + $.mobile.activePage.attr('id')).trigger('create');
+		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+		$('#form_back_btn i').removeClass('hided');
+	} else {
+		alert('incomplete');
+	}
+}
+
 function haccpDeviationFixSave(data) {
 	//Page.redirect('tasks.html');
 	redirectToTasks();
 }
 
-/********* END HACCP DEVIATION **********/
+/********* END HACCP DEVIATION/MAINTENANCE **********/
 
 function closeButtonDisplay(callback, params) {
 	$('#form_back_btn i').removeClass('hided');
@@ -1341,6 +1557,37 @@ function bindOpenTask() {
 			db.getDbInstance('tasks').get(String(devId), function(err, doc) {
 				if (doc && doc.taskData) {
 					haccpDeviationFix(JSON.parse(doc.taskData));
+				} else {
+					setTimeout(function() {
+						noInternetError($.t("error.no_internet_for_sync"));
+					}, 1500);
+					return;
+				}
+			});
+
+		}
+
+	});
+
+	//Vedlikehold
+	$('.generate_maintenance_fix').off('click').on('click', function(e) {
+		closeButtonDisplay();
+		$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+		e.preventDefault();
+		$('h1.ui-title').html($(this).html());
+		devId = $(this).data('id');
+
+		var data = {
+			'client' : User.client,
+			'token' : User.lastToken,
+			'task_id' : devId
+		};
+		if (!isOffline()) {
+			Page.apiCall('maintenance', data, 'get', 'maintenanceFix');
+		} else {
+			db.getDbInstance('tasks').get(String(devId), function(err, doc) {
+				if (doc && doc.taskData) {
+					maintenanceFix(JSON.parse(doc.taskData));
 				} else {
 					setTimeout(function() {
 						noInternetError($.t("error.no_internet_for_sync"));
