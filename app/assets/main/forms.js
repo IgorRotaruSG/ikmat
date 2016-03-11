@@ -693,7 +693,7 @@ function formItemData(data) {
 				form = HTML.formGenerate(step, '');
 				html += form;
 				html += '</form></div>' + '<div data-role="popup" id="signature_pop"  data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.sign_button") + '</button>' + '</div>' + '</div>';
-				var footer = '<div id="footer" data-role="footer" data-position="fixed" data-tap-toggle="false" data-theme="none" style="border:0 !important;">' + '<div data-role="navbar"><ul>' + '<li><a href="#" onclick="mySwiper.swipePrev();" data-theme="e" class="must-be-big"><i class="fa fa-angle-left fa-2x pull-left" style="color: #4c7600;"></i> Forrige</a></li>' + '<li><a href="#" onclick="mySwiper.swipeNext();" data-theme="e" class="must-be-big">Neste <i class="fa fa-angle-right fa-2x pull-right" style="color: #4c7600;"></i></a></li>' + '</ul></div></div>';
+				var footer = '<div id="footer" data-role="footer" data-position="fixed" data-tap-toggle="false" data-theme="none" style="border:0 !important;">' + '<div data-role="navbar"><ul>' + '<li><a href="#" onclick="mySwiper.swipePrev();" data-theme="e" class="must-be-big"><i class="fa fa-angle-left fa-2x pull-left" style="color: #4c7600;"></i> Forrige</a></li>' + '<li><a href="#" onclick="mySwiper.swipeNext();" data-theme="e" class="must-be-big"><i class="fa fa-angle-right fa-2x pull-right" style="color: #4c7600;"></i>Neste </a></li>' + '</ul></div></div>';
 				$(footer).insertBefore('#forms #menu_panel');
 				mySwiper.appendSlide(html, 'swiper-slide');
 				/* Last step for redirect*/
@@ -885,7 +885,7 @@ function formItemData(data) {
 				return false;
 			});
 			// mySwiper.resizeFix();
-			mySwiper.swipeTo(mySwiper.activeIndex + 1, 300, true);
+			mySwiper.swipeTo(mySwiper.activeIndex, 300, true);
 			console.log("mySwiper.activeIndex", mySwiper.activeIndex);
 		} else {
 			console.log('forms.js 482', f);
@@ -954,7 +954,6 @@ function maintenance(data) {
 				//console.log(JSON.stringify(data));
 
 				console.log('documentSignature forms.js 592');
-				//                Page.apiCall('documentSignature', data, 'get', 'documentSignature');
 				Page.apiCall('documentSignature', data, 'post', 'documentSignature');
 			});
 
@@ -1065,18 +1064,25 @@ function maintenanceSignDone(data) {
 		$('input[name="task_id"]').val(data);
 	}
 	if ( typeof $sigdiv != 'undefined') {
+		var svgData = null;
+		try {
+			svgData = $sigdiv.jSignature("getData", "svgbase64")[1];
+		}
+		catch (e) {
+			// do nothing
+		}
 		var data1 = {
 			'client' : User.client,
 			'token' : User.lastToken,
 			'signature' : JSON.stringify({
 				"name" : $('#sign_name').val(),
-				"svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
+				"svg" : svgData,
 				"parameter" : "task",
 				"task_id" : data
 			})
 		};
 		if (!isOffline()) {
-			Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+			Page.apiCall('documentSignature', data1, 'post', 'documentSignature');
 		} else {
 			db.lazyQuery('sync_query', [{
 				'api' : 'documentSignature',
@@ -1092,7 +1098,9 @@ function showCloseButton(callback, params) {
 	if ($('#form_back_btn i').hasClass('hided')) {
 		$('#form_back_btn i').removeClass('hided');
 	}
-	$('#form_back_btn').on('click', function(e) {
+	$(document).off('click', '#form_back_btn').on('click', '#form_back_btn', function(e) {
+		e.preventDefault();
+		console.log('form list');
 		if (callback) {
 			callback.apply(this, [params]);
 		}
@@ -1354,7 +1362,7 @@ function form2_save_dev_start(data) {
 	console.log(data);
 
 	var html = '<div style="padding:10px;"><form id="form_deviation_save">';
-	html += HTML.formGenerate(data.form_deviation, $.t("general.save_button"));
+	html += HTML.formGenerate(data.form_deviation, $.t("general.save_button"), '+1 month');
 	html += '</form>' + '<div data-role="popup" id="signature_pop"   data-history="false" data-overlay-theme="d" data-theme="a" style="padding:20px;border: 0;" data-corners="false" data-tolerance="15,15">' + '<div id="signature-holder">' + '<div id="signature" data-role="none"></div>' + '</div>' + '<button id="deviation-signature-close">' + $.t("general.save_button") + '</button>' + '</div>' + '</div>';
 
 	sss_temp = data.form_deviation.task_id.value;
@@ -1390,8 +1398,7 @@ function form2_save_dev_start(data) {
 			};
 			//console.log(JSON.stringify(data));
 			console.log('forms.js 1256 document sign');
-			Page.apiCall('documentSignature', data, 'get', 'documentSignature');
-			//            Page.apiCall('documentSignature', data, 'post', 'documentSignature');
+			Page.apiCall('documentSignature', data, 'post', 'documentSignature');
 		});
 
 		return false;
@@ -1476,14 +1483,8 @@ $(window).on("orientationchange", function(event) {
 });
 
 function form2_save_dev_start_save() {
-	console.log('am ajuns pe save');
-	getForms();
-
-	mySwiper.swipeTo(0, 300, false);
-	mySwiper.removeSlide(1);
-	mySwiper.removeSlide(1);
-	mySwiper.removeSlide(1);
 	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	Page.redirect('tasks.html');
 }
 
 function takeHACCPPicture(id) {

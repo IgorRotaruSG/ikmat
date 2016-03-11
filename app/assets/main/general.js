@@ -1,9 +1,9 @@
 var settings = {
 	//'apiDomain':        'http://haccpy11.bywmds.us/api/',
-	 'apiDomain' : 'http://ikmatapp.no/api/',
-	 'apiPath' : 'http://ikmatapp.no',
-	//'apiDomain':        'https://automagi.fsoft.com.vn/api/',
-	//'apiPath':        'https://automagi.fsoft.com.vn',
+	// 'apiDomain' : 'http://ikmatapp.no/api/',
+	// 'apiPath' : 'http://ikmatapp.no',
+	'apiDomain':        'https://automagi.fsoft.com.vn/api/',
+	'apiPath':        'https://automagi.fsoft.com.vn',
 	'apiUploadPath' : 'uploadPhotos',
 	'testImage' : 'apple-touch-icon.png',
 	'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
@@ -15,8 +15,8 @@ var settings = {
 	},
 	'requestTimeout' : 25000,
 	'excludeOffline' : ["haccp.html", "flowchart.html"],
-	'version' : "2.0.74",
-	'rebuild' : "2.0.74"
+	'version' : "2.0.79",
+	'rebuild' : "2.0.79"
 };
 
 var performance = window.performance;
@@ -127,24 +127,28 @@ Page.prototype.isReady = function() {
 	});
 	var fn = window[this.currentPage + 'Init'];
 	if ( typeof fn === 'function') {
-		db.InitDB();
-		fn();
-		var afn = window[this.currentPage + 'Async'];
-		if ( typeof afn === 'function') {
-			afn();
-		}
+		db.InitDB().then(function(){
+			fn();
+			var afn = window[this.currentPage + 'Async'];
+			if ( typeof afn === 'function') {
+				afn();
+			}
+		});
+
 	} else {
 		var currentPage = this.currentPage;
 		var page_obj = this;
 		$.getScript("assets/main/" + this.currentPage + '.js').done(function() {
 			var fn = window[currentPage + 'Init'];
 			if ( typeof fn === 'function') {
-				db.InitDB();
-				fn();
-				var afn = window[currentPage + 'Async'];
-				if ( typeof afn === 'function') {
-					afn();
-				}
+				db.InitDB().then(function(){
+					fn();
+					var afn = window[currentPage + 'Async'];
+					if ( typeof afn === 'function') {
+						afn();
+					}
+				});
+
 			} else {
 				//alert('Undefined method ' + currentPage);
 				$('#alertPopup .alert-text').html('Undefined method ' + currentPage);
@@ -221,15 +225,23 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 				'url' : this.settings.apiDomain + api_method,
 				'dataType' : 'jsonp',
 				'success' : function(data) {
-					var fn = window[callback];
-					if ( typeof fn === "function") {
+					if(callback && typeof callback == 'function'){
 						if (parameters) {
-							fn.apply(this, [data, parameters]);
+							callback(data, parameters);
 						} else {
-							fn.apply(this, [data]);
+							callback(data);
 						}
-
+					}else{
+						var fn = window[callback];
+						if ( typeof fn === "function") {
+							if (parameters) {
+								fn.apply(this, [data, parameters]);
+							} else {
+								fn.apply(this, [data]);
+							}
+						}
 					}
+					
 					if (api_method === 'reportTables' || (api_method === 'reports' && callback == 'documentsCall')) {
 						var requestData = parseQuery(this.url);
 						if (requestData.hasOwnProperty("token") && requestData.hasOwnProperty("report_number")) {
@@ -241,6 +253,18 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 				'timeout' : this.settings.requestTimeout
 			});
 			req.error(function(jqXHR, textStatus, errorThrown) {
+				if (textStatus == 'timeout') {
+					// check if generating report
+					if (api_method == 'exportReportPdfForDownload') {
+						// request to /send-report-by-email
+						Page.apiCall('send-report-by-email', parameters, 'get', 'sendEmail');
+						// TODO: show message about sending report using email
+						showNotificationMessage();
+						return ;
+					}
+					
+				}
+				
 				$('#alertPopup .alert-text').html($.t("error.unexpected"));
 
 				$('#alertPopup').off("popupafterclose").on("popupafterclose", function() {
@@ -457,6 +481,17 @@ Page.prototype.uploadImage = function() {
 
 };
 
+function dateFromString(datetime) {
+	function validate(number){
+		if(number){
+			return parseInt(number);
+		}
+		return 0;
+	}
+	var a = datetime.split(/[^0-9]/);
+	return new Date(validate(a[0]), validate(a[1]) - 1, validate(a[2]), validate(a[3]), validate(a[4]), validate(a[5]));
+}
+
 function cacheImage(request, callback) {
 	if (request && request.imageURI && request.task_id) {
 		if (isNative()) {
@@ -644,7 +679,8 @@ User.prototype.logout = function() {
 
 function logout() {
 	logout_flag = true;
-	db.dbDropTables().then(function() {
+	localStorage.setItem('user_name', '');
+	db.dbDropTables().then(function(results) {
 		User.database = false;
 		User.client = false;
 		User.lastToken = false;
@@ -2366,30 +2402,45 @@ function executeSyncQuery() {
 }
 
 function printPage() {
-
 	var style = $('#page-wrap').find('style');
 	if (style.length == 0) {
 		$.get('assets/document/style.css', function(resp) {
 			// resp now should contain your CSS file content.
 			var css = '<style>' + resp + '</style>';
 			$('#page-wrap').prepend(css);
-			var page = document.getElementById('page-wrap');
 
+			if(isNative() && cordova.plugins && cordova.plugins.printer) {
+				var page = document.getElementById('page-wrap');
+				cordova.plugins.printer.print(page, {
+					name : 'Document.html',
+					landscape : false
+				}, function() {
+					//alert('printing finished or canceled')
+				});
+			} else {
+				var page = $('#page-wrap').html();
+				w=window.open();
+				w.document.write(page);
+				w.print();
+				w.close();
+			}
+		});
+	} else {
+		if(isNative() && cordova.plugins && cordova.plugins.printer) {
+			var page = document.getElementById('page-wrap');
 			cordova.plugins.printer.print(page, {
 				name : 'Document.html',
-				landscape : true
+				landscape : false
 			}, function() {
 				//alert('printing finished or canceled')
 			});
-		});
-	} else {
-		var page = document.getElementById('page-wrap');
-		cordova.plugins.printer.print(page, {
-			name : 'Document.html',
-			landscape : true
-		}, function() {
-			//alert('printing finished or canceled')
-		});
+		} else {
+			var page = $('#page-wrap').html();
+			w=window.open();
+			w.document.write(page);
+			w.print();
+			w.close();
+		}
 	}
 	return;
 }
@@ -2427,3 +2478,13 @@ $(document).ajaxStop(function() {
 	//     $('.loader-swapper').remove();
 	// }
 });
+
+function showNotificationMessage() {
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	$('#page-wrap').prepend('<label class="report_generation_message">' + $.t("success.report_send_via_email") + '</label>');
+	setTimeout(function(){ removeNotificationMessage(); }, 5000);
+}
+
+function removeNotificationMessage() {
+	$('.report_generation_message').remove();
+}

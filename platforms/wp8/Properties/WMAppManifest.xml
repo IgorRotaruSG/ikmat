@@ -4,7 +4,7 @@
     <Languages xmlns="">
         <Language code="en-US" />
     </Languages>
-    <App Author="FSOFT Team" BitsPerPixel="32" Description="IK-mat - internkontroll for restauranter." Genre="apps.normal" ProductID="{c2ff8490-970e-11e5-bfdc-851f573aefb3}" Publisher="FSOFT Team" PublisherID="{db093ed5-53b1-45f7-af72-751e8f36ab80}" RuntimeType="Silverlight" Title="IK-Mat" Version="2.0.74" xmlns="">
+    <App Author="FSOFT Team" BitsPerPixel="32" Description="IK-mat - internkontroll for restauranter." Genre="apps.normal" ProductID="{c2ff8490-970e-11e5-bfdc-851f573aefb3}" Publisher="FSOFT Team" PublisherID="{db093ed5-53b1-45f7-af72-751e8f36ab80}" RuntimeType="Silverlight" Title="IK-Mat" Version="2.0.77" xmlns="">
         <IconPath IsRelative="true" IsResource="false">ApplicationIcon.png</IconPath>
         <Capabilities>
             <Capability Name="ID_CAP_WEBBROWSERCOMPONENT" />

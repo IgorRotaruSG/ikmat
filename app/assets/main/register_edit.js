@@ -125,9 +125,12 @@ function register_editInit() {
 						'value': true
 					}]);
 					if (!isOffline()) {
-						Page.apiCall('companyEdit', data, 'post', 'newCompanyRegistration');
+						
 						//truncate table haccp_items so if there are any changes, it will take them again online
-						db.clearCollection('haccp_items');
+						db.clearCollection('haccp_items', function(){
+							console.log('clear');
+							Page.apiCall('companyEdit', data, 'post', 'newCompanyRegistration');
+						});
 					} else {
 						//console.log('connection 153 lazy query');
 						db.lazyQuery('sync_query', [{

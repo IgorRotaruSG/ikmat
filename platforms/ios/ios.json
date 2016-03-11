@@ -427,6 +427,6 @@
         "cordova-plugin-file-transfer": "1.4.0",
         "cordova-plugin-file": "3.0.0",
         "cordova-plugin-email": "1.0.0",
-        "cordova-sqlite-storage": "0.8.2"
+        "cordova-sqlite-storage": "0.8.4-dev"
     }
 }

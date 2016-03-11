@@ -68,7 +68,6 @@ function SyncMaster(data) {
 }
 
 function _syncGetAll(data){
-	console.log("_syncGetAll data", data);
     $('#login_done').removeClass('hide');
     //$('.overflow-wrapper').addClass('overflow-wrapper-hide');
     //$('#clean-overflow-wrapper').removeClass('overflow-wrapper-hide');
@@ -104,7 +103,6 @@ function _syncDone(i) {
         if ( fromLandingPage ) {
             userLoginCallback = 'landingUserLogin';
         }
-
         db.lazyQuery('settings', [
             {_id: 'register_edit', type:'register_edit', value: _data.first_edit},
             {_id: 'haccp', type:'haccp', value: _data.first_haccp},

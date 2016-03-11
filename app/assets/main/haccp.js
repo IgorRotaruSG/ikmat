@@ -26,18 +26,23 @@ var haccp_total = 0;
 var isStart = true;
 var lazy_total = 3;
 var isValid = false;
+var oneClickDone;
+
+var deletedObject = {};
+var deletedObjectArray = [];
+var prevAns;
+var resetToDefault;
 
 //navigator.connection.type = Connection.NONE;
 
 function getHaccpCall(err, results) {
-	console.log('getHaccpCall', results);
 	if (results) {
 		haccp_total = results.total_rows;
 	}
 	if (results && results.offset > results.total_rows) {
-		setTimeout(function() {
-			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-		}, 500);
+		// setTimeout(function() {
+			// $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+		// }, 500);
 		return;
 	}
 	if (results && results.rows.length == lazy_total) {
@@ -47,11 +52,12 @@ function getHaccpCall(err, results) {
 	}
 	if ((!results || results.rows.length == 0) && isOffline() && !he_have_something) {
 		$('#haccp_list_no_results').text($.t('haccp.no_haccp_yet'));
+		// $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+		$('[data-role="footer"]').hide();
 		setTimeout(function() {
 			Page.redirect('index.html');
 		}, 3500);
 	} else if ((!results || results.rows.length == 0) && !isOffline() && !he_have_something && get.continue == undefined) {
-		console.log('getHaccpCall from API');
 		var data = {
 			'client' : User.client,
 			'token' : User.lastToken
@@ -64,54 +70,83 @@ function getHaccpCall(err, results) {
 
 		var html = '';
 		var response;
+		var promises = [];
 		for (var i = 0; i < results.rows.length; i++) {
-			html = getHaccpForm(results.rows[i].doc.content, results.rows[i].doc.id, results.rows[i].doc.cat, results.rows[i].doc.response);
-			if (!onNextClick && results.rows.length == 1) {
-				mySwiper.prependSlide(html, 'swiper-slide');
-			} else {
-				mySwiper.appendSlide(html, 'swiper-slide');
-			}
-			if (results.rows[i].doc.response != 0) {
-				try {
-					response = JSON.parse(results.rows[i].doc.response);
-					var response_possibility = response.possibility;
-					var response_consequence = response.consequence;
-				} catch(err) {
-					var response_possibility = -1;
-					var response_consequence = -1;
-					response = false;
+			var index = i;
+			(function(i) {
+				promises[i] = new Promise(function(resolve, reject) {
+					Page.apiCall('getSavedHaccp', {
+						'client' : User.client,
+						'token' : User.lastToken,
+						'sub_id' : results.rows[i].id
+					}, 'get', function(result) {
+						if (result && result.success && result.data && results.rows[i].doc) {
+							results.rows[i].doc.response = JSON.stringify(result.data);
+						}
+						resolve(true);
+					});
+				});
+			})(index);
+
+			Promise.all(promises).then(function(result) {
+				if (result.length == results.rows.length) {
+
+					for (var i = 0; i < results.rows.length; i++) {
+						html = getHaccpForm(results.rows[i].doc.content, results.rows[i].doc.id, results.rows[i].doc.cat, results.rows[i].doc.response);
+						if (!onNextClick && results.rows.length == 1) {
+							mySwiper.prependSlide(html, 'swiper-slide');
+						} else {
+							mySwiper.appendSlide(html, 'swiper-slide');
+						}
+						if (results.rows[i].doc.response != 0) {
+							try {
+								response = JSON.parse(results.rows[i].doc.response);
+								var response_possibility = response.possibility;
+								var response_consequence = response.consequence;
+							} catch(err) {
+								var response_possibility = -1;
+								var response_consequence = -1;
+								response = false;
+							}
+						} else {
+							var response_possibility = -1;
+							var response_consequence = -1;
+							response = false;
+						}
+
+						// $('#haccp_radio_possibility_' + results.rows[i].doc.id + '_' + response_possibility).trigger('click');
+						// $('#haccp_radio_consequence_' + results.rows[i].doc.id + '_' + response_consequence).trigger('click');
+					}
+					if (results && results.rows.length == 1) {
+						if (onNextClick && f_i > 2) {
+							mySwiper.removeSlide(0);
+							mySwiper.swipeTo(1, 0, false);
+						} else if (!onNextClick) {
+							mySwiper.removeSlide(parseInt(mySwiper.slides.length - 1));
+							mySwiper.swipeTo(1, 0, false);
+						}
+
+						// mySwiper.reInit();
+						// mySwiper.resizeFix();
+					}
+
+					if (results.rows.length > 1) {
+						mySwiper.removeSlide(0);
+						mySwiper.reInit();
+						mySwiper.resizeFix();
+					} else {
+						candelete = true;
+					}
+					$('#' + $.mobile.activePage.attr('id')).trigger('create');
+					setTimeout(function() {
+						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+					}, 500);
 				}
-			} else {
-				var response_possibility = -1;
-				var response_consequence = -1;
-				response = false;
-			}
-			// $('#haccp_radio_possibility_' + results.rows[i].doc.id + '_' + response_possibility).trigger('click');
-			// $('#haccp_radio_consequence_' + results.rows[i].doc.id + '_' + response_consequence).trigger('click');
-		}
-		
-		if (results && results.rows.length == 1) {
-			if (onNextClick && f_i > 2) {
-				mySwiper.removeSlide(0);
-				mySwiper.swipeTo(1, 0, false);
-			} else if (!onNextClick) {
-				mySwiper.removeSlide(parseInt(mySwiper.slides.length - 1));
-				mySwiper.swipeTo(1, 0, false);
-			}
 
-			mySwiper.reInit();
-			mySwiper.resizeFix();
+			});
+
 		}
 
-		if (results.rows.length > 1) {
-			mySwiper.removeSlide(0);
-			mySwiper.reInit();
-			mySwiper.resizeFix();
-		} else {
-			candelete = true;
-		}
-		//console.log($.mobile.activePage.attr('id'));
-		$('#' + $.mobile.activePage.attr('id')).trigger('create');
 		//setTimeout(function(){
 		//}, 1000);
 	} else if (he_have_something) {
@@ -136,7 +171,7 @@ function getHaccpCall(err, results) {
 			Page.redirect('index.html');
 		}, 3500);
 	}
-	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	
 }
 
 function getHaccpCallPrev(tx, results) {
@@ -152,7 +187,7 @@ function getHaccpCallPrev(tx, results) {
 		var data = {
 			'client' : User.client,
 			'token' : User.lastToken
-		}
+		};
 		console.log('112 haccp.js');
 		Page.apiCall('haccp', data, 'post', 'haccp');
 	} else if (results.rows.length > 0) {
@@ -286,27 +321,22 @@ function haccpInit() {
 						}
 					}
 				});
-				if (deviation >= lazy_total && _t == 'save') {
+				if (deviation >= 3 && _t == 'save') {
 					decisionTree(swiper);
 				} else {
-					//continueHaccp(swiper);
+					// continueHaccp(swiper);
 				}
 				check_haccp();
 			},
 
 			onSlideNext : function(swiper) {
 				_t = 'save';
-				if (!onNextClick && !isStart) {
-					f_i = parseInt(f_i) + lazy_total - 1;
-				}
 				onNextClick = true;
+				oneClickDone = false;
 			},
-
 			onSlidePrev : function(swiper) {
 				_t = 'edit';
-				console.log('isValid', isValid);
 				if (onNextClick && !isValid) {
-					isValid = true;
 					return;
 				}
 				if (!isStart) {
@@ -327,6 +357,7 @@ function haccpInit() {
 					}
 				}
 				onNextClick = false;
+				oneClickDone = false;
 			},
 
 			onSlideChangeEnd : function(swiper) {
@@ -345,19 +376,29 @@ function haccpInit() {
 				if (deviation >= 3 && _t == 'save') {
 					//decisionTree(swiper);
 				} else {
-					continueHaccp(swiper);
+					if(!oneClickDone){
+						oneClickDone = true;
+						continueHaccp(swiper);
+					}
+					
 				}
 				swiper.resizeFix();
 				var $n = $(swiper.getSlide(swiper.activeIndex));
 
 				if ($n.find('div.no_results').length > 0) {
 					$('#footer').hide();
-					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-					return;
 				} else {
 					$('#footer').show();
 				}
-				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+				if (f_i == 0 || f_i == haccp_total || isStart) {
+					setTimeout(function() {
+						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+					}, 500);
+				}
+				if (onNextClick && !isValid) {
+					isValid = true;
+					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+				}
 			}
 		});
 
@@ -370,11 +411,13 @@ function haccpInit() {
 }
 
 function insertHaccpItem() {
-	db.lazyQuery('haccp_items', castToListObject(["id", "cat", "content", "form", "response"], fq), function(err, results) {
-		db.getDbInstance('haccp_items').query('sort_index', {
-			'include_docs' : true,
-			'limit' : lazy_total
-		}, getHaccpCall);
+	db.lazyQuery('haccp_items', castToListObject(["id", "cat", "content", "form", "response"], fq), function(results) {
+		if(results){
+			db.getDbInstance('haccp_items').query('sort_index', {
+				'include_docs' : true,
+				'limit' : lazy_total
+			}, getHaccpCall);
+		}
 	});
 }
 
@@ -404,7 +447,9 @@ function haccp(data) {
 			insertHaccpItem();
 		} else {
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-			$('#haccp_list_no_results').html($.t('error.no_haccps'));
+			$('.swiper-slide').css('min-height', 'inherit');
+			$('#haccp_list_no_results').html($.t('error.no_haccps')); //-- hoadd1
+
 			$('[data-role="footer"]').hide();
 		}
 	}
@@ -505,19 +550,18 @@ function haccpComplete(data) {
 					'token' : User.lastToken,
 					'task_id' : data.haccp_response.task_id
 				};
-				console.log('aici 2');
-				//console.log(data);
-
 				Page.apiCall('deviation', data, 'get', 'haccpDeviation_s');
 			} else {
-				if (onNextClick && mySwiper.activeIndex == 2 || f_i > lazy_total - 1) {
-					if (f_i == 0) {
-						f_i = lazy_total - 1;
+				if (onNextClick) {
+					if(!isStart || (isStart && mySwiper.activeIndex == 2)){
+						if (f_i == 0) {
+							f_i = parseInt(f_i) + lazy_total - 1;
+							isStart = true;
+						}else{
+							f_i = parseInt(f_i) + 1;
+							getHaccpWithLimit();
+						}
 					}
-					f_i = parseInt(f_i) + 1;
-					getHaccpWithLimit();
-				} else {
-					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 				}
 			}
 		} else {
@@ -530,7 +574,6 @@ function haccpComplete(data) {
 }
 
 function showLocalDevPopup() {
-	//console.log('showLocalDevPopup');
 	db.getDbInstance('settings').get('deviation_form', function(err, results) {
 		if (results) {
 			var f = JSON.parse(results.value);
@@ -549,9 +592,6 @@ function showLocalDevPopup() {
 };
 
 function haccpDeviation_s(data) {
-	console.log('aici 3');
-	//console.log(data);
-	//get.id = data.task_id;
 	if (isOffline() && data.form_deviation) {
 		//            var html = '<legend>Deviation registration form</legend>';
 		html = HTML.formGenerate(data.form_deviation, 'Lagre');
@@ -559,24 +599,6 @@ function haccpDeviation_s(data) {
 		console.log('no way it gets here');
 		$('#form_haccp_deviation').html(html);
 		var qresults = null;
-		//d.transaction(function(tx){
-		//    tx.executeSql('SELECT "data","id" FROM "sync_query" WHERE "q_type"=? AND "executed"=? ORDER BY "id" DESC', ['haccp_deviation','0'], function(tx, results){
-		//        if (results.rows.length > 0) {
-		//            qresults = results;
-		//            var haccp_id = JSON.parse(JSON.parse(results.rows.item(0).data).response).subcategory; // get haccp_data from haccp_items
-		//            //console.log('haccp_id',haccp_id);
-		//            tx.executeSql('SELECT "content" FROM "haccp_items" WHERE "id"=? ', [haccp_id], function (tx, results) {
-		//                //console.info('here');
-		//                if (results.rows.length > 0) {
-		//                    //console.log(results.rows.item(0).content);
-		//                    $('#form_haccp_deviation').find('textarea[name="deviation_description"]').text(results.rows.item(0).content);
-		//                }
-		//            });
-		//
-		//        }
-		//
-		//    });
-		//});
 		$('#' + $.mobile.activePage.attr('id')).trigger('create');
 		$('#signature-reset').off('click').on('click', function(e) {
 			e.preventDefault();
@@ -595,16 +617,13 @@ function haccpDeviation_s(data) {
 				var form_values = HTML.getFormValues($(this).parent());
 
 				if (qresults != null) {
-					//console.log(qresults.rows.item(0).id);
 					var task = qresults.rows.item(0).data;
 					task = JSON.parse(task);
 					var response = JSON.parse(task.response);
 					response.deviation_data = form_values;
 					response.deviation_data.signature = offline_signature;
 					task.response = JSON.stringify(response);
-					//console.log('task',task);
 					var new_task = JSON.stringify(task);
-					//console.log('newtask',new_task);
 					db.lazyQuery('sync_query', [{
 						'_id' : qresults.rows.item(0).id,
 						'data' : new_task
@@ -766,38 +785,15 @@ function haccpDeviationSave(data) {
 /***************************************************************************/
 
 function check_haccp() {
-	var checked = $('.haccp_color_table').find("i");
-	var cons = 0;
-	var poss = 0;
-	cons = checked.parent().index() + 1;
-	poss = checked.parent().parent().index();
-	poss = 3 - poss + 2;
-	/* because the possibility table is reversed */
-	if (cons != 1) {
-		cons = 2;
-	}
-	if (poss != 1) {
-		poss = 4;
-	}
-	console.log('check_haccp', poss, cons);
 	$('input[type="radio"]').change(function() {
-		var isSelected = false;
-		if ($(this).attr("name") == 'possibility') {
-			isSelected = true;
-			poss = $(this).parent().index() + 1;
-			/* selected possibility */
-			poss = 3 - poss + 2;
-			/* because the possibility table is reversed */
-		} else if ($(this).attr("name") == 'consequence') {
-			isSelected = true;
-			cons = $(this).parent().index() + 2;
-			/* selected consequence */
-		}
-
-		if (isSelected) {
+		if ($(this).attr("name") == 'possibility' || $(this).attr("name") == 'consequence') {
+			var cons = parseInt($(mySwiper.getSlide(mySwiper.activeIndex)).find('input[name=consequence]:checked').val());
+			var poss = parseInt($(mySwiper.getSlide(mySwiper.activeIndex)).find('input[name=possibility]:checked').val());
+			cons = cons?(cons + 2): 2;
+			poss = poss?(4 - poss): 4;
 			$('.swiper-slide-active .haccp_color_table').find("i").remove();
 			$('.swiper-slide-active .haccp_color_table tr:nth-child(' + poss + ') td:nth-child(' + cons + ')').html('<i class="fa fa-check" style="color:#000;"></i>');
-		}
+		} 
 	});
 }
 
@@ -812,7 +808,6 @@ function continueHaccp(swiper) {
 	if (_t == 'save' && !universal_cango) {
 		// $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 		var dd = {};
-		//console.log('swiper.previousIndex',swiper.previousIndex);
 		if (isNaN(swiper.previousIndex)) {
 			var $f = $(swiper.getSlide(swiper.activeIndex));
 		} else {
@@ -847,8 +842,6 @@ function continueHaccp(swiper) {
 				}
 				if (i == 'subcategory') {
 					last_id = $f.find('input[name="' + i + '"]').val();
-					//console.log('i = ',i,',k:',last_id);
-					//console.log('Last id,  ..... k:'+last_id);
 				}
 			}
 		}
@@ -867,7 +860,6 @@ function continueHaccp(swiper) {
 			var $n = $(swiper.getSlide(swiper.activeIndex));
 			//console.log($n.find('div.no_results').length);
 			if ($n.find('div.no_results').length > 0) {
-				console.log("2");
 				$('[data-role="footer"]').hide();
 			}
 
@@ -890,17 +882,7 @@ function continueHaccp(swiper) {
 			if (!isOffline()) {
 				console.log('haccp 244');
 				Page.apiCall('haccp', data, 'get', 'haccpComplete');
-
-				/*if ( mySwiper.slides.length >= 4 && mySwiper.activeIndex >= lazy_total) { //if we have at least 5 slides
-				 //Remove fist slide:
-				 mySwiper.removeSlide(0);
-				 //And fix position
-				 // mySwiper.swipeTo( mySwiper.activeIndex - 1, 0, false );
-				 mySwiper.swipePrev();
-				 }*/
 			} else {
-				//                                alert('238 no internet');
-				console.log('942 no internet');
 				var sum = parseInt(dd.possibility) + parseInt(dd.consequence);
 				if (sum >= lazy_total) {
 					db.lazyQuery('sync_query', [{
@@ -918,12 +900,8 @@ function continueHaccp(swiper) {
 
 					f_i = parseInt(f_i) + 1;
 					getHaccpWithLimit();
-					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-					//swiper.destroy();
 				}
 			}
-
-			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 		} else {
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 			mySwiper.swipePrev();
@@ -1047,8 +1025,7 @@ step1 = {
 };
 
 function decisionTree(swiper, step) {
-	console.log('step', step);
-	console.log('decisionTree');
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 	move_on = false;
 	//reset accept variable to go to next step
 
@@ -1061,7 +1038,13 @@ function decisionTree(swiper, step) {
 }
 
 function openConfirmDialog(message, confirm, cancel, step) {
-	console.log('openConfirmDialog', message);
+	    if (resetToDefault) {
+            $('#deviation_yes').prop('checked', true);
+            $('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+            $('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+            resetToDefault = false;
+        } 
+
 	var confirm_this;
 
 	$("input[name='critical_point']").val('');
@@ -1088,11 +1071,39 @@ function openConfirmDialog(message, confirm, cancel, step) {
 		if (confirm_this !== undefined && !confirm_this) {
 			return deviationTreeBackStep();
 		} else if (confirm_this) {
-			if ($('#deviation_yes').is(":checked")) {
-				return confirm();
-			} else {
-				return cancel();
-			}
+                    var currentCheckedRadio = $('#deviation_yes').is(":checked");
+
+                    // console.log("currentCheckedRadio xx: ", currentCheckedRadio);
+                    // console.log("deviationAnswers next:",deviationAnswers);
+                    // console.log("deletedObjectArray next:",deletedObjectArray);
+
+                    if (deletedObjectArray.length>0) {
+                            var theFinalElement = deletedObjectArray[deletedObjectArray.length-1].answer;
+
+                            // console.log("theFinalElement: ", theFinalElement);
+                            // console.log("currentCheckedRadio: ", currentCheckedRadio);
+
+                            if (((currentCheckedRadio)&&(theFinalElement==1))||((!currentCheckedRadio)&&(theFinalElement==0))) {
+
+                                 if (deletedObjectArray.length>1){                                   
+                                        console.log('vienvt current step: ',step);
+                                        return deviationTreeNextStep(step);                                    
+                                  }                             
+                            }else{
+
+                                deletedObjectArray = [];
+                                resetToDefault = true;
+                                //console.log('Reset deletedObjectArray')                                
+                            }
+                    }
+
+            if ($('#deviation_yes').is(":checked")) {                 
+                 resetToDefault = false;
+                return confirm();
+            } else {                
+                resetToDefault = true;
+                return cancel();
+            }
 		}
 	});
 	$('#confirmDevPopup').popup("open", {
@@ -1131,6 +1142,7 @@ function goNext(swiper) {
 	nextSlide = true;
 	createDeviation = false;
 	$("input[name='critical_point']").val('');
+	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	continueHaccp(swiper);
 }
 
@@ -1144,32 +1156,160 @@ function goNextWithCriticalControl(swiper, message) {
 }
 
 function deviationTreeBackStep() {
-	console.log("deviationTreeBackStep");
-	console.log(deviationAnswers);
-	$("input[name='critical_point']").val('');
-	if (!isEmpty(deviationAnswers)) {
-		var prevStepKeys = Object.keys(deviationAnswers);
-		var prevStep = prevStepKeys[prevStepKeys.length - 1];
-		var prevAns = deviationAnswers[prevStep];
-		console.log(prevStep, prevAns);
-		var prevStepFunc = eval('{' + prevStep + '}');
-		openConfirmDialog(prevStepFunc.message, prevStepFunc.confirm, prevStepFunc.cancel, 0);
-		if (prevAns == 1) {
-			$('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
-			$('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-			$('#deviation_yes').trigger('click');
-		} else {
-			$('#deviation_yes').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
-			$('#deviation_no').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-			$('#deviation_no').trigger('click');
-		}
-		delete deviationAnswers[prevStep];
-	} else {
-		$('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
-		$('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-		$('#deviation_yes').trigger('click');
-		mySwiper.swipePrev();
-	}
+    console.log("deviationTreeBackStep deviationAnswers: ", deviationAnswers);
+    $("input[name='critical_point']").val('');
+    if (!isEmpty(deviationAnswers)) {
+        var prevStepKeys = Object.keys(deviationAnswers);
+        var prevStep = prevStepKeys[prevStepKeys.length - 1];
+        prevAns = deviationAnswers[prevStep];
+        console.log(prevStep, prevAns);
+
+        deletedObject = {};
+        deletedObject.step = prevStep;
+        deletedObject.answer = prevAns;
+        deletedObjectArray.push(deletedObject);
+
+        // console.log('deviationTreeBackStep -- deletedObjectArray: ', deletedObjectArray);
+        // console.log('deviationAnswers[prevStep]: ',deviationAnswers[prevStep]);
+
+        var prevStepFunc = eval('{' + prevStep + '}');
+
+        // console.log("vien prevStepFunc: ",prevStepFunc);
+        // console.log("prevStep: ",prevStep);
+
+        openConfirmDialog(prevStepFunc.message, prevStepFunc.confirm, prevStepFunc.cancel, prevStep);
+
+        if (prevAns == 1) {
+            $('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+            $('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+            $('#deviation_yes').prop('checked', true);
+        } else {
+            $('#deviation_yes').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+            $('#deviation_no').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+            $('#deviation_no').prop('checked', true);
+        }
+        delete deviationAnswers[prevStep];
+    } else {
+        $('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+        $('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+        $('#deviation_yes').prop('checked', true);
+        mySwiper.swipePrev();
+    }
+}
+
+function setDeviationAnswer(step){
+    console.log("setDeviationAnswer step: ", step);
+    if (step == "step1")
+    {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            //console.log("setDeviationAnswer step 2: ", step);
+            deviationAnswers.step1 = 1;
+        }else{
+            //console.log("setDeviationAnswer step 2: ", step);
+            deviationAnswers.step1 = 0;
+        }
+    }else if (step == "step2") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            deviationAnswers.step2 = 1;
+        }else{
+            deviationAnswers.step2 = 0;
+        }
+    }else if (step == "step3") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            deviationAnswers.step3 = 1;
+        }else{
+            deviationAnswers.step3 = 0;
+        }
+    }else if (step == "step4") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            //console.log("setDeviationAnswer step 3: ", step);
+            deviationAnswers.step4 = 1;
+        }else{
+            //console.log("setDeviationAnswer step 3: ", step);
+            deviationAnswers.step4 = 0;
+        }
+    }else if (step == "step5") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            deviationAnswers.step5 = 1;
+        }else{
+            deviationAnswers.step5 = 0;
+        }
+    }else if (step == "step6") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            //console.log("setDeviationAnswer step 4: ", step);
+            deviationAnswers.step6 = 1;
+        }else{
+            //console.log("setDeviationAnswer step 4: ", step);
+            deviationAnswers.step6 = 0;
+        }
+    }else if (step == "step7") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            deviationAnswers.step7 = 1;
+        }else{
+            deviationAnswers.step7 = 0;
+        }
+    }else if (step == "step8") {
+        if ($('#deviation_yes').is(":checked"))
+        {
+            deviationAnswers.step8 = 1;
+        }else{
+            deviationAnswers.step8 = 0;
+        }
+    };
+}
+
+
+function deviationTreeNextStep(step) {
+    console.log("deviationTreeNextStep Array:");
+    console.log(deletedObjectArray);
+
+    $("input[name='critical_point']").val('');
+    if (!isEmpty(deletedObjectArray)) {
+
+        var nextStepObject = deletedObjectArray[deletedObjectArray.length-1-1];
+        if((nextStepObject == undefined) &&(deletedObjectArray.length==1))
+        {
+            deletedObjectArray = [];
+            return;
+        }
+        //console.log ('nextStepObject:', nextStepObject);
+
+        var nextStepName = nextStepObject.step;
+
+        // console.log ('nextStepName:', nextStepName);
+        // console.log ('nextStepName argument:', step);
+
+        if (nextStepName == step) {
+            console.log ('== nextStepObject:', nextStepObject);
+        }
+
+        //get all key to an array keys
+        var nextStepFunc = eval('{' + nextStepName + '}');
+        //console.log("vienvt nextStepFunc: ", nextStepFunc);
+        var nextAns = nextStepObject.answer;
+        //console.log("deviationAnswers Array:", deviationAnswers);
+
+        setDeviationAnswer(step);
+        openConfirmDialog(nextStepFunc.message, nextStepFunc.confirm, nextStepFunc.cancel, nextStepName);
+
+        if (nextAns == 1) {
+            $('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+            $('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+            $('#deviation_yes').prop('checked', true);
+        } else {
+            $('#deviation_yes').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+            $('#deviation_no').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+            $('#deviation_no').prop('checked', true);
+        }
+        deletedObjectArray.pop();
+    } 
 }
 
 

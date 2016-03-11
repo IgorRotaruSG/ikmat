@@ -45,7 +45,7 @@
                             <div id="swipebox-title"></div>\
                             </div>\
 							<div id="swipebox-arrows">\
-								<a id="flowchart-email" style="" title="Email Flowchart"><i class="fa fa-envelope-o"></i></a>\
+								<a id="flowchart-email" style="" title="PDF Download"><i class="fa fa-file-pdf-o"></i></a>\
 								<a id="flowchart-print" style="" title="Print Flowchart"><i class="fa fa-print"></i></a>\
 							</div>\
 						</div>\

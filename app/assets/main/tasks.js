@@ -9,7 +9,7 @@ var offline_signature;
 
 var emptytaskdata = [];
 
-var last_update = new Date();
+var last_update;
 
 var res;
 var updated = 0;
@@ -24,6 +24,9 @@ var per_page = 20;
 //navigator.connection.type = Connection.NONE;
 
 var devId = 0;
+var tasks_total_nr = 0;
+var local_tasks_total = 0;
+var isSync = false;
 //for deviation completed
 
 function getTasksCall(err, results) {
@@ -46,9 +49,11 @@ function getTasksCall(err, results) {
 		$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 		var data = {
 			'client' : User.client,
-			'token' : User.lastToken,
-			'last_update' : last_update.getTime()
+			'token' : User.lastToken
 		};
+		if (last_update) {
+			data.last_update = last_update.getTime();
+		}
 		res = results;
 		Page.apiCall('getTasksUpdated', data, 'get', 'updateTasks');
 
@@ -60,8 +65,29 @@ function getTasksCall(err, results) {
 	} else if (results && results.rows.length > 0) {
 		getTasksFromLocal(results);
 	} else {
-		$('#load_more_tasks').parent().hide();
-		checkTasksList();
+		db.getDbInstance("settings").allDocs({
+			keys : ['register_edit', 'haccp', 'role'],
+			include_docs : true
+		}, function(error, setting) {
+			var register_edit = true,
+			    haccp = true,
+			    role = '';
+			if (setting && setting.rows.length > 0) {
+				for (var i = 0; i < setting.rows.length; i++) {
+					if (!results.rows[i].error && setting.rows[i].key == 'register_edit' && setting.rows[i].doc.value)
+						register_edit = false;
+					if (!results.rows[i].error && setting.rows[i].key == 'haccp' && setting.rows[i].doc.value)
+						haccp = false;
+				}
+			}
+			if (haccp || register_edit) {
+				getTasksFromLocal(results);
+			} else {
+				$('#load_more_tasks').parent().hide();
+				checkTasksList();
+			}
+
+		});
 	}
 }
 
@@ -100,7 +126,7 @@ function getFormsList(data) {
 
 		/* INSERT SECTION */
 		if (db_data.length > 0) {
-			db.lazyQuery('forms', castToListObject(["type","label","alias"], db_data));
+			db.lazyQuery('forms', castToListObject(["type", "label", "alias"], db_data));
 		}
 	}
 }
@@ -124,19 +150,30 @@ function getReportsList(data) {
 		});
 
 		if (tuples.length > 0) {
-			db.lazyQuery('reports', castToListObject(["id","name"], tuples));
+			db.lazyQuery('reports', castToListObject(["id", "name"], tuples));
 		}
 	}
 }
 
 function updateTasks(data) {
 	if (data.success) {
-		last_update = new Date(data.currentTime.date);
+		if ( typeof last_update === 'object') {
+			var lastUpdate = last_update;
+			lastUpdate = lastUpdate.setHours(0, 0, 0, 0);
+			var dateNow = new Date(dateFromString(data.currentTime.date)).setHours(0, 0, 0, 0);
+			var diff = Math.abs(dateNow - lastUpdate);
+			if (diff > 0) {
+				isSync = true;
+				tasks_page = 1;
+			}
+		}
 	} else if (data.error != '') {
 		User.logout();
 	}
-	if ((data.success && data.tasks_nr > 0 ) || (data.success && updated == 0 )) {//todo not sure about that
-		last_update = new Date((data.currentTime.date));
+	last_update = new Date(dateFromString(data.currentTime.date));
+
+	//remove data.tasks_nr > 0 because it always = 0 with Vedlikehold
+	if ((data.success) || (data.success && updated == 0 ) || isSync) {//todo not sure about that
 		updated = 1;
 		var data = {
 			'client' : User.client,
@@ -151,12 +188,35 @@ function updateTasks(data) {
 }
 
 function getTasks() {
-	var offset = (tasks_page - 1 ) * per_page;
-	db.getDbInstance('tasks').query('tasks_uncompleted', {
-		'include_docs' : true,
-		'skip' : offset,
-		'limit' : per_page
-	}, getTasksCall);
+	db.getDbInstance("settings").allDocs({
+		keys : ['register_edit', 'haccp'],
+		include_docs : true
+	}, function(error, results) {
+		var isValid = true;
+		if(error){
+			isValid = false;
+		}else{
+			for(var i = 0; i < results.rows.length; i++){
+				if(results.rows[i].error){
+					isValid = false;
+					break;
+				}
+			}
+		}
+		if(isValid){
+			var offset = (tasks_page - 1 ) * per_page;
+			db.getDbInstance('tasks').query('tasks_uncompleted', {
+				'include_docs' : true,
+				'skip' : offset,
+				'limit' : per_page
+			}, getTasksCall);
+		}else{
+			setTimeout(function() {
+				getTasks();
+			}, 500);
+		}
+	});
+	
 }
 
 function tasksInit() {
@@ -164,8 +224,8 @@ function tasksInit() {
 	testInternetConnection();
 
 	if (User.isLogged()) {
-		db.createView('tasks', 'tasks_uncompleted', function(doc){
-			if(!doc.completed){
+		db.createView('tasks', 'tasks_uncompleted', function(doc) {
+			if (!doc.completed) {
 				emit(JSON.parse(doc.dueDate).date);
 			}
 		});
@@ -305,7 +365,7 @@ function getTaskData(data) {
 									'completed' : true
 								}]);
 							} else {
-								
+
 								db.lazyQuery('sync_query', [{
 									'api' : 'formDeviationStart',
 									'data' : JSON.stringify(dev_data),
@@ -317,7 +377,7 @@ function getTaskData(data) {
 											'_id' : String(devId),
 											'completed' : true
 										}], function(results) {
-											if(results && results.length > 0){
+											if (results && results.length > 0) {
 												var insertId = results[0].id;
 												db.lazyQuery('tasks', [{
 													'_id' : String(document.task_id),
@@ -340,11 +400,10 @@ function getTaskData(data) {
 													});
 												});
 											}
-											
 
 										});
 									}
-								}); 
+								});
 
 							}
 						}
@@ -361,7 +420,7 @@ function getTaskData(data) {
 							'completed' : true
 						}]);
 					} else {
-						
+
 						db.lazyQuery('tasks', [{
 							'_id' : String(document.task_id),
 							'completed' : true
@@ -533,7 +592,7 @@ function getDeviationForm(data, devStep) {
 				if (document.task_id > 0) {
 					api = 'deviation';
 				}
-				
+
 				db.lazyQuery('sync_query', [{
 					'api' : api,
 					'data' : JSON.stringify(offline_data),
@@ -553,7 +612,7 @@ function getDeviationForm(data, devStep) {
 							id : insertId
 						});
 					}
-				}); 
+				});
 			}
 		}
 
@@ -584,7 +643,7 @@ function taskDeviationSave(data) {
 	if ($.isNumeric(data)) {
 		$('input[name="task_id"]').val(data);
 	}
-	if ( typeof $sigdiv != 'undefined') {
+	if (window['$sigdiv'] && typeof window['$sigdiv'] != 'undefined') {
 		var data1 = {
 			'client' : User.client,
 			'token' : User.lastToken,
@@ -596,19 +655,69 @@ function taskDeviationSave(data) {
 			})
 		};
 		if (!isOffline()) {
-			Page.apiCall('documentSignature', data1, 'get', 'documentSignature');
+			Page.apiCall('documentSignature', data1, 'post', 'documentSignature');
 		} else {
-			
+
 			db.lazyQuery('sync_query', [{
 				'api' : 'documentSignature',
 				'data' : JSON.stringify(data1),
 				'extra' : data,
 				'q_type' : 'documentSignature'
-			}]); 
+			}]);
 		}
 	}
 	uploadHACCPPicture({
 		task_id : data
+	});
+	mySwiper.swipeTo(0, 300, false);
+	mySwiper.removeSlide(1);
+	mySwiper.removeSlide(1);
+	mySwiper.resizeFix();
+	realignSlideHeight('max-height-task');
+	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+	redirectToTasks();
+}
+
+function taskDeviationFixSave(data) {
+	$('#taskList').empty();
+	tasks_page = 1;
+	// reset page
+	if ($.isNumeric(data)) {
+		$('input[name="task_id"]').val(data);
+	}
+	if (window['$sigdiv'] && typeof window['$sigdiv'] != 'undefined') {
+		var svgData = null;
+		try {
+			svgData = $sigdiv.jSignature("getData", "svgbase64")[1];
+		}
+		catch (e) {
+			// do nothing
+		}
+		var data1 = {
+			'client' : User.client,
+			'token' : User.lastToken,
+			'signature' : JSON.stringify({
+				"name" : $('#sign_name').val(),
+				"svg" : svgData,
+				"parameter" : "task",
+				"task_id" : data
+			})
+		};
+		if (!isOffline()) {
+			Page.apiCall('documentSignature', data1, 'post', 'documentSignature');
+		} else {
+
+			db.lazyQuery('sync_query', [{
+				'api' : 'documentSignature',
+				'data' : JSON.stringify(data1),
+				'extra' : data,
+				'q_type' : 'documentSignature'
+			}]);
+		}
+	}
+	uploadHACCPPicture({
+		task_id : data,
+		role : "fixed"
 	});
 	mySwiper.swipeTo(0, 300, false);
 	mySwiper.removeSlide(1);
@@ -641,18 +750,75 @@ function uploadHACCPPicture(obj) {
 	});
 }
 
+function checkIsHaccp(data, callback) {
+	db.getDbInstance("settings").allDocs({
+		keys : ['register_edit', 'haccp', 'role'],
+		include_docs : true
+	}, function(error, results) {
+		var register_edit = true,
+		    haccp = true,
+		    role = '';
+		if (results && results.rows.length > 0) {
+			for (var i = 0; i < results.rows.length; i++) {
+				if (!results.rows[i].error && results.rows[i].key == 'register_edit' && results.rows[i].doc.value)
+					register_edit = false;
+				if (!results.rows[i].error && results.rows[i].key == 'haccp' && results.rows[i].doc.value)
+					haccp = false;
+				if (!results.rows[i].error && results.rows[i].key == 'role')
+					role = results.rows[i].doc.value;
+			}
+		}
+
+		if (tasks_page == 1) {
+			if ((register_edit || haccp) && role != 'ROLE_EMPLOYEE' && !$('#taskList').find("li[data-id='" + 9999 + "']")[0]) {
+				data.push({
+					'id' : 9999,
+					'data' : $.t('tasks.registration_steps'),
+					'extra' : 'data-role="list-divider"'
+				});
+			}
+
+			if (register_edit && role != 'ROLE_EMPLOYEE' && !$('#taskList').find("li[data-id='" + 9998 + "']")[0]) {
+				data.push({
+					'id' : 9998,
+					'data' : '<a href="register_edit.html" data-transition="slide">' + $.t('tasks.complete_profile') + '</a>',
+					'extra' : 'data-icon="false"'
+				});
+			}
+			if (haccp && role != 'ROLE_EMPLOYEE' && !$('#taskList').find("li[data-id='" + 9997 + "']")[0]) {
+				data.push({
+					'id' : 9997,
+					'data' : '<a href="haccp.html" data-transition="slide">' + $.t('tasks.complete_haccp') + '</a>',
+					'extra' : 'data-icon="false"'
+				});
+			}
+		}
+
+		if (callback) {
+			var isAdded = false;
+			if (haccp || register_edit || data.length > 0) {
+				isAdded = true;
+			}
+			callback(isAdded);
+		}
+	});
+}
+
 function getTasksUncompleted(data) {
+	isSync = false;
 	$('#load_more_tasks').attr('disabled', 'disabled');
 	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.loading"));
 	//disable LoadMore button until tastdata gets updated
+	var tasksNr = 0;
 	if (data.success) {
+		last_update = new Date(dateFromString(data.currentTime.date));
+		tasks_total_nr = data.tasks_total_nr;
 		if (data.tasks) {
 			var add = [];
 			var date = new Date();
 
 			var add_data = '';
 			var db_data = [];
-			var tasksNr = 0;
 			for (var i in data.tasks) {
 				date = new Date(i);
 
@@ -710,60 +876,20 @@ function getTasksUncompleted(data) {
 				}
 			}
 			if (tasks_page == 1) {
-				db.clearCollection('tasks', function(){
-					db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data), function(results){						
-					});
+				local_tasks_total = tasksNr;
+				db.clearCollection('tasks', function() {
+					console.log('aaaa');
+					displayTasks(tasksNr, db_data, add);
 				});
-			}else{
-				db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data));
+			} else {
+				local_tasks_total += tasksNr;
+				displayTasks(tasksNr, db_data, add);
 			}
-			checkTaskData();
-			//$('#taskList').html('');
 
-			db.getDbInstance("settings").allDocs({
-				keys:['register_edit', 'haccp', 'role'],
-				include_docs: true
-			}, function(error, results) {
-				console.log('error', error, results);
-				var register_edit = true,
-				    haccp = true,
-				    role = '';
-				if (results && results.rows.length > 0) {
-					for (var i = 0; i < results.rows.length; i++) {
-						if (results.rows[i].key == 'register_edit' && results.rows[i].doc.value)
-							register_edit = false;
-						if (results.rows[i].key == 'haccp' && results.rows[i].doc.value)
-							haccp = false;
-						if (results.rows[i].key == 'role')
-							role = results.rows[i].doc.value;
-					}
-				}
-
-				if (tasks_page == 1) {
-					if ((register_edit || haccp) && role != 'ROLE_EMPLOYEE') {
-						add.push({
-							'id' : 9999,
-							'data' : $.t('tasks.registration_steps'),
-							'extra' : 'data-role="list-divider"'
-						});
-					}
-
-					if (register_edit && role != 'ROLE_EMPLOYEE') {
-						add.push({
-							'id' : 9998,
-							'data' : '<a href="register_edit.html" data-transition="slide">' + $.t('tasks.complete_profile') + '</a>',
-							'extra' : 'data-icon="false"'
-						});
-					}
-					if (haccp && role != 'ROLE_EMPLOYEE') {
-						add.push({
-							'id' : 9997,
-							'data' : '<a href="haccp.html" data-transition="slide">' + $.t('tasks.complete_haccp') + '</a>',
-							'extra' : 'data-icon="false"'
-						});
-					}
-				}
-				// moved all the login here
+		} else {
+			var date = new Date();
+			var add = [];
+			checkIsHaccp(add, function(isAdd) {
 				_append('#taskList', add);
 
 				mySwiper.reInit();
@@ -775,88 +901,63 @@ function getTasksUncompleted(data) {
 
 				mySwiper.reInit();
 				mySwiper.resizeFix();
-			});
-			
-			if (tasksNr < per_page) {
-				console.log('1');
-				$('#load_more_tasks').attr('disabled', true);
-				$('#load_more_tasks').parent().hide();
-			} else {
-				if (data.tasks_total_nr <= per_page) {
-					console.log('2');
+				if (tasksNr < per_page) {
 					$('#load_more_tasks').attr('disabled', true);
 					$('#load_more_tasks').parent().hide();
 				} else {
-					console.log('3');
+					if (data.tasks_total_nr <= per_page) {
+						$('#load_more_tasks').attr('disabled', true);
+						$('#load_more_tasks').parent().hide();
+					} else {
+						$('#load_more_tasks').removeAttr('disabled');
+						$('#load_more_tasks').parent().show();
+						$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
+					}
+				}
+				if (!isAdd) {
+					checkTasksList();
+				}
+			});
+		}
+		mySwiper.resizeFix();
+		realignSlideHeight('max-height-task');
+	}
+}
+
+function displayTasks(tasksNr, db_data, add) {
+	db.lazyQuery('tasks', castToListObject(["id", "title", "type", "overdue", "dueDate", "completed", "check", "date_start", "taskData"], db_data), function(results) {
+		checkTaskData();
+
+		checkIsHaccp(add, function(isAdd) {
+			_append('#taskList', add);
+
+			mySwiper.reInit();
+			mySwiper.resizeFix();
+			realignSlideHeight('max-height-task');
+			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+
+			bindOpenTask();
+
+			mySwiper.reInit();
+			mySwiper.resizeFix();
+			if (tasksNr < per_page) {
+				$('#load_more_tasks').attr('disabled', true);
+				$('#load_more_tasks').parent().hide();
+			} else {
+				if (tasks_total_nr <= per_page) {
+					$('#load_more_tasks').attr('disabled', true);
+					$('#load_more_tasks').parent().hide();
+				} else {
 					$('#load_more_tasks').removeAttr('disabled');
 					$('#load_more_tasks').parent().show();
 					$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
 				}
 			}
-		} else {
-			var date = new Date();
-			var add = [];
-			db.getDbInstance("settings").allDocs({
-				keys:['register_edit', 'haccp', 'role'],
-				include_docs: true
-			}, function(error, results) {
-				var register_edit = true,
-				    haccp = true,
-				    role = '';
-				if (results && results.rows.length > 0) {
-					for (var i = 0; i < results.rows.length; i++) {
-						if (results.rows[i].key == 'register_edit' && results.rows[i].doc.value)
-							register_edit = false;
-						if (results.rows[i].key == 'haccp' && results.rows[i].doc.value)
-							haccp = false;
-						if (results.rows[i].key == 'role')
-							role = results.rows[i].doc.value;
-					}
-				}
-
-				if (tasks_page == 1) {
-					//db.execute('DELETE FROM "tasks"');
-					//truncate TASKS table
-					if ((register_edit || haccp) && role != 'ROLE_EMPLOYEE') {
-						add.push({
-							'id' : 9999,
-							'data' : $.t('tasks.registration_steps'),
-							'extra' : 'data-role="list-divider"'
-						});
-					} else {
-						//$('#taskList').parent().html('<div class="no_results">' + $.t('error.no_tasks') + '</div>');
-						//$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-						$('#load_more_tasks').attr('disabled', 'disabled');
-						//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
-						$('#load_more_tasks').parent().hide();
-					}
-
-					if (register_edit && role != 'ROLE_EMPLOYEE') {
-						add.push({
-							'id' : 9998,
-							'data' : '<a href="register_edit.html" data-transition="slide">' + $.t('tasks.complete_profile') + '</a>',
-							'extra' : 'data-icon="false"'
-						});
-					}
-					if (haccp && role != 'ROLE_EMPLOYEE') {
-						add.push({
-							'id' : 9997,
-							'data' : '<a href="haccp.html" data-transition="slide">' + $.t('tasks.complete_haccp') + '</a>',
-							'extra' : 'data-icon="false"'
-						});
-					}
-				}
-				_append('#taskList', add);
-				mySwiper.reInit();
-				mySwiper.resizeFix();
-				realignSlideHeight('max-height-task');
-				$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-			});
-		}
-		mySwiper.resizeFix();
-		realignSlideHeight('max-height-task');
-		// checkTasksList();
-	}
+			if (!isAdd) {
+				checkTasksList();
+			}
+		});
+	});
 }
 
 function takeHACCPPicture(id) {
@@ -895,9 +996,9 @@ function updateTaskData(data, task_id) {
 				taskData : JSON.stringify(data)
 			}], function() {
 				// if (emptytaskdata.length == 0) {
-					// $('#load_more_tasks').removeAttr('disabled');
-					// $('#load_more_tasks').parent().show();
-					// $('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
+				// $('#load_more_tasks').removeAttr('disabled');
+				// $('#load_more_tasks').parent().show();
+				// $('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
 				// }
 			});
 		}
@@ -909,25 +1010,10 @@ function getTasksFromLocal(results) {
 	var groups = [];
 	var c;
 	var add_data;
-	console.log('show', results);
-	$('#load_more_tasks').removeAttr('disabled');
-	$('#load_more_tasks').parent().show();
-	$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
-
-	if (!results) {
-		//$('#taskList').parent().html('<div class="no_results">' + $.t('error.no_tasks') + '</div>');
-		//$('#load_more_tasks').removeAttr('disabled');
-		//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
-		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-		$('#load_more_tasks').parent().hide();
-		checkTasksList();
-		return;
-	} else if (results.total_rows <= per_page) {
-		$('#load_more_tasks').attr('disabled', true);
-		//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
-		$('#load_more_tasks').parent().hide();
+	if (local_tasks_total != 0 && local_tasks_total > results.total_rows) {
+		tasks_total_nr = tasks_total_nr - (local_tasks_total - results.total_rows);
 	}
-
+	local_tasks_total = results.total_rows;
 	for (var i = 0; i < results.rows.length; i++) {
 		var isExist = $('#taskList').find("a[data-id='" + results.rows[i].doc.id + "']")[0];
 		if (isExist) {
@@ -973,15 +1059,31 @@ function getTasksFromLocal(results) {
 			});
 		}
 	}
-	_append('#taskList', data);
+	checkIsHaccp(data, function(isAdd) {
+		_append('#taskList', data);
 
-	mySwiper.reInit();
-	mySwiper.resizeFix();
-	realignSlideHeight('max-height-task');
+		mySwiper.reInit();
+		mySwiper.resizeFix();
+		realignSlideHeight('max-height-task');
+		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
-	bindOpenTask();
+		bindOpenTask();
 
-	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+		mySwiper.reInit();
+		mySwiper.resizeFix();
+
+		$('#load_more_tasks').removeAttr('disabled');
+		$('#load_more_tasks').parent().show();
+		$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.load_more"));
+		if (tasks_total_nr <= per_page) {
+			$('#load_more_tasks').attr('disabled', true);
+			//$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("error.no_more_tasks"));
+			$('#load_more_tasks').parent().hide();
+		}
+		if (!isAdd) {
+			checkTasksList();
+		}
+	});
 }
 
 function bindLoadMoreFunction() {
@@ -1024,9 +1126,9 @@ function checkTasksList() {
 	setTimeout(function() {
 		var content = $('#taskList').html();
 		if (content == "") {
-			$('#taskList').parent().html('<div class="no_results" style="width: ' + ($(window).width() - 80) + 'px">' + $.t('error.no_tasks') + '</div>');
+			$('#taskList').parent().html('<div class="no_results" style="width: 90%; margin:auto; text-align:center">' + $.t('error.no_tasks') + '</div>');
 		}
-	}, 2000);
+	}, 1000);
 	return true;
 }
 
@@ -1125,11 +1227,11 @@ function haccpDeviationFix(data) {
 						'form' : JSON.stringify(dd)
 					};
 
-					Page.apiCall('deviation', data, 'get', 'taskDeviationSave');
+					Page.apiCall('deviation', data, 'get', 'taskDeviationFixSave');
 
-					db.lazyQuery('tasks',[{
-						'_id': String(devId),
-						'completed': true
+					db.lazyQuery('tasks', [{
+						'_id' : String(devId),
+						'completed' : true
 					}]);
 				} else {
 					var data_off = {
@@ -1139,17 +1241,17 @@ function haccpDeviationFix(data) {
 						'form' : JSON.stringify(dd)
 					};
 					db.lazyQuery('sync_query', [{
-						"api": "deviation",
-						"data": JSON.stringify(data_off),
-						"extra": devId,
-						"q_type": 'deviation_saved'
+						"api" : "deviation",
+						"data" : JSON.stringify(data_off),
+						"extra" : devId,
+						"q_type" : 'deviation_saved'
 					}], function(data) {
 						if (data) {
-							db.lazyQuery('tasks',[{
-								'_id': String(devId),
-								'completed': true
+							db.lazyQuery('tasks', [{
+								'_id' : String(devId),
+								'completed' : true
 							}], function() {
-								taskDeviationSave(devId);
+								taskDeviationFixSave(devId);
 							});
 						}
 					});
@@ -1178,12 +1280,12 @@ function haccpDeviationFixSave(data) {
 
 function closeButtonDisplay(callback, params) {
 	$('#form_back_btn i').removeClass('hided');
-	$('#form_back_btn').on('click', function(e) {
+	$(document).off('click', '#form_back_btn').on('click', '#form_back_btn', function(e) {
+		console.log('task list');
 		if (callback) {
 			callback.apply(this, [params]);
 		}
 		redirectToTasks();
-
 	});
 }
 

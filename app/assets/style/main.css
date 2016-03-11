@@ -253,12 +253,23 @@ div.ui-input-text textarea.ui-input-text,
     position: inherit !important;
 }
 
+.report_generation_message {    
+    color: Green;
+    display: block;
+    margin: 15px 0 0px!important;
+    font-weight: bold !important;
+    height: auto !important;
+    width: auto !important;
+    position: inherit !important;
+}
+
 .swiper-container {
     width: 100%;
     height: 100%;
 }
 .swiper-slide {
     height: 100% !important;
+    -ms-overflow-style: none !important;
 }
 .swiper-wrapper {
     height: 100% !important;

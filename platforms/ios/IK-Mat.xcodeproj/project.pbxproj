@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		0614DC799D414F4F9D061CD0 /* CDVConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F6D631785584F29B3F3A487 /* CDVConnection.m */; };
 		11ED6F06ECA84452843F54EA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1516F25B7A64D8799E8DB87 /* CoreLocation.framework */; };
@@ -34,7 +33,6 @@
 		37C6D272DA6C4FA5A246FCFF /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BFC72CA4CBC8429F99862BDE /* libsqlite3.dylib */; };
 		4A869D8086EF4B51B6CE7FED /* CDVReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 032332E4A85D43F2A847EAC7 /* CDVReachability.m */; };
 		4AD89E7388B94C5AB0A8C923 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB73C3CEB0064F97842C87E6 /* ImageIO.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		52766A843DB845C3B98F4194 /* SQLitePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = F3E943063735484CB3CF195D /* SQLitePlugin.m */; };
 		5B1594DD16A7569C00FEF299 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */; };
 		600E5D7811A24AB0BF50486D /* CDVDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = A9AC091908034E189AA3E9B4 /* CDVDevice.m */; };
 		6FF27982BC3F419FADBCA951 /* AppDelegate+notification.m in Sources */ = {isa = PBXBuildFile; fileRef = 2EEF4721FEE1447D950E48B0 /* AppDelegate+notification.m */; };
@@ -51,6 +49,7 @@
 		7E7966E71810823500FA85AD /* icon-small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966DD1810823500FA85AD /* icon-small@2x.png */; };
 		8941489D93D546F78D6896DF /* CDVCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 66F5956706D14DE3931B082B /* CDVCamera.m */; };
 		9181958C07A147E992799AEB /* APPEmailComposer.m in Sources */ = {isa = PBXBuildFile; fileRef = 138264F20B5043F4AD171C67 /* APPEmailComposer.m */; };
+		9728AAB2E7DB4B06903AC09B /* SQLitePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B855D7ABF9BB4871BE22E106 /* SQLitePlugin.m */; };
 		9B3AA1CC2BD142B485C1E4B2 /* CDVFileTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = F0460D9AD53842ECBFA182F6 /* CDVFileTransfer.m */; };
 		A4607D8DEC4C44B3A49C2E79 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B2CD11A44674E12B2DE7A11 /* SystemConfiguration.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A71348A727144C189EA97D3D /* CDVLocalFilesystem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E2598BF3D7941AF86C6D63B /* CDVLocalFilesystem.m */; };
@@ -143,9 +142,9 @@
 		9F4DD0362CC64EF09F77A82D /* CDVStatusBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CDVStatusBar.h; path = "cordova-plugin-statusbar/CDVStatusBar.h"; sourceTree = "<group>"; };
 		9F6D631785584F29B3F3A487 /* CDVConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDVConnection.m; path = "org.apache.cordova.network-information/CDVConnection.m"; sourceTree = "<group>"; };
 		A45D34EB167742E0B81B9A86 /* CDVJpegHeaderWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDVJpegHeaderWriter.m; path = org.apache.cordova.camera/CDVJpegHeaderWriter.m; sourceTree = "<group>"; };
-		A4ABF20E364D404BADBEA613 /* SQLitePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SQLitePlugin.h; path = "cordova-sqlite-storage/SQLitePlugin.h"; sourceTree = "<group>"; };
 		A9AC091908034E189AA3E9B4 /* CDVDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDVDevice.m; path = "cordova-plugin-device/CDVDevice.m"; sourceTree = "<group>"; };
 		AE5A37B6D55A4F5E849D6DA9 /* CDVFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CDVFile.h; path = "cordova-plugin-file/CDVFile.h"; sourceTree = "<group>"; };
+		B855D7ABF9BB4871BE22E106 /* SQLitePlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SQLitePlugin.m; path = "cordova-sqlite-storage/SQLitePlugin.m"; sourceTree = "<group>"; };
 		BDE65E918FD54CC8B04331A8 /* CDVAssetLibraryFilesystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CDVAssetLibraryFilesystem.h; path = "cordova-plugin-file/CDVAssetLibraryFilesystem.h"; sourceTree = "<group>"; };
 		BFC72CA4CBC8429F99862BDE /* libsqlite3.dylib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		C1516F25B7A64D8799E8DB87 /* CoreLocation.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
@@ -160,8 +159,8 @@
 		EB87FDF41871DAF40020F90C /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ../../config.xml; sourceTree = "<group>"; };
 		EFE92D9AB824474CA1A3C8D0 /* CDVStatusBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDVStatusBar.m; path = "cordova-plugin-statusbar/CDVStatusBar.m"; sourceTree = "<group>"; };
 		F0460D9AD53842ECBFA182F6 /* CDVFileTransfer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDVFileTransfer.m; path = "cordova-plugin-file-transfer/CDVFileTransfer.m"; sourceTree = "<group>"; };
-		F3E943063735484CB3CF195D /* SQLitePlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SQLitePlugin.m; path = "cordova-sqlite-storage/SQLitePlugin.m"; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = "IK-Mat/config.xml"; sourceTree = "<group>"; };
+		FE54C2F4C6004423960EDBD4 /* SQLitePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SQLitePlugin.h; path = "cordova-sqlite-storage/SQLitePlugin.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -301,8 +300,8 @@
 				BDE65E918FD54CC8B04331A8 /* CDVAssetLibraryFilesystem.h */,
 				138264F20B5043F4AD171C67 /* APPEmailComposer.m */,
 				1E1025406F924015AF48C835 /* APPEmailComposer.h */,
-				F3E943063735484CB3CF195D /* SQLitePlugin.m */,
-				A4ABF20E364D404BADBEA613 /* SQLitePlugin.h */,
+				B855D7ABF9BB4871BE22E106 /* SQLitePlugin.m */,
+				FE54C2F4C6004423960EDBD4 /* SQLitePlugin.h */,
 			);
 			name = Plugins;
 			path = "IK-Mat/Plugins";
@@ -480,6 +479,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "NODEJS_PATH=/usr/local/bin; NVM_NODE_PATH=~/.nvm/versions/node/`nvm version 2>/dev/null`/bin; N_NODE_PATH=`find /usr/local/n/versions/node/* -maxdepth 0 -type d 2>/dev/null | tail -1`/bin; XCODE_NODE_PATH=`xcode-select --print-path`/usr/share/xcs/Node/bin; PATH=$NODEJS_PATH:$NVM_NODE_PATH:$N_NODE_PATH:$XCODE_NODE_PATH:$PATH && node cordova/lib/copy-www-build-step.js";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -506,7 +506,7 @@
 				A71348A727144C189EA97D3D /* CDVLocalFilesystem.m in Sources */,
 				C1D96F8771BA490C878DEB1B /* CDVAssetLibraryFilesystem.m in Sources */,
 				9181958C07A147E992799AEB /* APPEmailComposer.m in Sources */,
-				52766A843DB845C3B98F4194 /* SQLitePlugin.m in Sources */,
+				9728AAB2E7DB4B06903AC09B /* SQLitePlugin.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -527,7 +527,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Dieu Vu (94BA8AF3QL)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -551,7 +551,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = hygiene.app.automagi;
 				PRODUCT_NAME = "IK-Mat";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "cedb78ea-bda6-481a-b8db-f30d6034d9e5";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -561,8 +561,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: AutoMagi Ltd (2ZDPCXEHU3)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: AutoMagi Ltd (2ZDPCXEHU3)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "IK-Mat/IK-Mat-Prefix.pch";
@@ -584,7 +584,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = hygiene.app.automagi;
 				PRODUCT_NAME = "IK-Mat";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "c147485d-06c8-40a5-aa7f-ab79639baf2a";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -599,7 +599,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Dieu Vu (94BA8AF3QL)";
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_THUMB_SUPPORT = NO;
@@ -628,6 +628,7 @@
 					"-weak-lSystem",
 					"-ObjC",
 				);
+				PROVISIONING_PROFILE = "6ef2cc36-a45b-45fa-b2d6-437281830c5b";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -644,7 +645,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: AutoMagi Ltd (2ZDPCXEHU3)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
@@ -672,6 +673,7 @@
 					"-weak-lSystem",
 					"-ObjC",
 				);
+				PROVISIONING_PROFILE = "bda114b8-41b0-4e2c-a2cf-afdb594130b8";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				USER_HEADER_SEARCH_PATHS = "";
