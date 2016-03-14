@@ -171,11 +171,16 @@ db.prototype.createCollection = function(i, callback){
 	}
 	var that = this;
 	if (!that.collections[that.tables[i]]) {
-		new PouchDB(that.db_name + "_" + that.tables[i], {
-			adapter : 'websql',
+		
+		
+		var db_option = {
 			auto_compaction: true,
 			skip_setup: true
-		}).then(function(result){
+		};
+		if(window.openDatabase){
+			db_option.adapter = 'websql';
+		}
+		new PouchDB(that.db_name + "_" + that.tables[i], db_option).then(function(result){
 			that.collections[that.tables[i]] = result;
 			if (!that.collections[that.tables[i]].adapter) {// websql not supported by this browser
 				that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
