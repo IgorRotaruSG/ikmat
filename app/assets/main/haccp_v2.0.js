@@ -482,7 +482,7 @@ function haccpComplete(data) {
                 f_i = parseInt(f_i) + 1;
                 d.transaction(getHaccpWithLimit, db.dbErrorHandle);                
             }
-            $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+            //$('.overflow-wrapper').addClass('overflow-wrapper-hide');
         } else {
             noInternetError($.t("error.no_internet_for_sync"));
         }        
@@ -874,6 +874,7 @@ function continueHaccp(swiper){
 
             if ( !isOffline() ) {
                 console.log('haccp 244');
+                $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
                 Page.apiCall('haccp', data, 'get', 'haccpComplete');
                 /*if ( mySwiper.slides.length >= 4 && mySwiper.activeIndex >= 3) { //if we have at least 5 slides
                  //Remove fist slide:
@@ -915,10 +916,10 @@ function continueHaccp(swiper){
                 }
             }
 
-            $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+            $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
         }
         else {
-            $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+            //$('.overflow-wrapper').addClass('overflow-wrapper-hide');
             mySwiper.swipePrev();
         }
     }
