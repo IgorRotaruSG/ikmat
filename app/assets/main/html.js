@@ -1129,8 +1129,9 @@ HTML.prototype.inputText = function(type, name, label, placeholder, validation, 
     }
 
     var maxlength = ' maxlength="254" ';
-    if(type=='date')maxlength = ' maxlength="10" ';
-    if(type=='tel')maxlength = ' maxlength="20" ';
+    if(type=='date') maxlength = ' maxlength="10" ';
+    if(type=='tel') maxlength = ' maxlength="20" ';
+    if(name=='company_name') maxlength = ' maxlength="127" ';
 
 	html += '<input tabindex="-1" type="' + type + '" ' + maxlength +
         'name="' + name + '" ' +
