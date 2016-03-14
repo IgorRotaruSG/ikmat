@@ -171,8 +171,6 @@ db.prototype.createCollection = function(i, callback){
 	}
 	var that = this;
 	if (!that.collections[that.tables[i]]) {
-		
-		
 		var db_option = {
 			auto_compaction: true,
 			skip_setup: true
