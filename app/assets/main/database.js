@@ -196,7 +196,7 @@ db.prototype.createCollection = function(i, callback){
 		this.createCollection(i + 1, callback);
 	}
 
-}
+};
 
 db.prototype.createTables = function(isReload) {
 	localStorage.setItem('database', true);
