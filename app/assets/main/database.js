@@ -161,10 +161,10 @@ db.prototype.createView = function(collection, name, mapFunction) {
 	this.collections[collection].putIfNotExists(designDoc);
 };
 
-db.prototype.createCollection = function(i, callback){
+db.prototype.createCollection = function(i, callback) {
 
-	if(i == this.tables.length){
-		if(callback){
+	if (i == this.tables.length) {
+		if (callback) {
 			callback();
 		}
 		return;
@@ -172,30 +172,30 @@ db.prototype.createCollection = function(i, callback){
 	var that = this;
 	if (!that.collections[that.tables[i]]) {
 		var db_option = {
-			auto_compaction: true,
-			skip_setup: true
+			auto_compaction : true,
+			skip_setup : true
 		};
-		if(window.openDatabase){
+		if (window.openDatabase) {
 			db_option.adapter = 'websql';
 		}
-		new PouchDB(that.db_name + "_" + that.tables[i], db_option).then(function(result){
+		new PouchDB(that.db_name + "_" + that.tables[i], db_option).then(function(result) {
 			that.collections[that.tables[i]] = result;
 			if (!that.collections[that.tables[i]].adapter) {// websql not supported by this browser
 				that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
-					skip_setup: true
-				}).then(function(result){
+					skip_setup : true
+				}).then(function(result) {
 					that.collections[that.tables[i]] = result;
 					that.createCollection(i + 1, callback);
 				});
-			}else{
+			} else {
 				that.createCollection(i + 1, callback);
 			}
 			return result;
 
-		}).catch(function (err) {
-					console.log(err);
-				});
-	}else{
+		}).catch(function(err) {
+			console.log(err);
+		});
+	} else {
 		this.createCollection(i + 1, callback);
 	}
 
@@ -209,14 +209,14 @@ db.prototype.createTables = function(isReload) {
 	var that = this;
 	var index = 0;
 	var promise = new Promise(function(resolve, reject) {
-		that.createCollection(index, function(){
+		that.createCollection(index, function() {
 			for (var i = 0; i < that.tables.length; i++) {
-				that.createView(that.tables[i], 'sort_index', function (doc) {
+				that.createView(that.tables[i], 'sort_index', function(doc) {
 					emit(doc.timestamp);
 				});
 
 			}
-			that.createView('sync_query', 'get_sync', function (doc) {
+			that.createView('sync_query', 'get_sync', function(doc) {
 				if (!doc.executed) {
 					emit(doc.timestamp);
 				}
@@ -246,26 +246,31 @@ db.prototype.dbDropTables = function() {
 		}
 	}
 	var promises = [];
+	console.log('dbDropTables', this.tables);
 	for (var i = 0; i < this.tables.length; i++) {
+		console.log('dbDropTables for', this.tables[i]);
 		var index = i;
-		(function(i){
+		(function(i) {
 			promises[i] = new Promise(function(resolve, reject) {
-				var collection = this.collections[this.tables[i]];
-				if (!collection) {
-					collection = new PouchDB(this.db_name + "_" + this.tables[i], {
-						skip_setup : true
+				var collection = that.collections[that.tables[i]];
+				console.log('collection', collection);
+				if (collection) {
+
+					collection.destroy(function(err, response) {
+						if (err) {
+							return console.log(err);
+						} else {
+							console.log('test');
+							resolve(true);
+							// success
+						}
 					});
+				}else{
+					resolve(false);
 				}
-				collection.destroy(function (err, response) {
-					if (err) {
-						return console.log(err);
-					} else {
-						resolve(true);
-						// success
-					}
-				});
+
 			});
-		})(index)
+		})(index);
 	}
 	return Promise.all(promises).then(function(result) {
 		if (result.length == promises.length) {
@@ -286,13 +291,11 @@ db.prototype.InitDB = function() {
 		isCreateDB = true;
 	}
 	if (isCreateDB) {
-		console.log('init 1');
 		this.dbDropTables().then(function(results) {
 			console.log('init 1');
 			return that.createTables(true);
 		});
 	} else {
-		console.log('init 2');
 		return this.createTables();
 	}
 };
