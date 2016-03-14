@@ -1,3 +1,4 @@
+"use strict";
 var query = false;
 // used internally by class -- FUCK SQLITE ... --
 var db_data = [];
@@ -16,8 +17,6 @@ function db() {
 	this.tables = ['tasks', 'haccp_items', 'forms', 'registration', 'form_item', 'sync_query', 'reports', 'flowchart', 'settings'];
 	this.localStore = ['app-version', 'company_join_date', 'company_name', 'contact_name', 'database', 'role', 'user_data', 'user_name'];
 	PouchDB.plugin(Erase);
-	//PouchDB.debug.enable('*');
-
 }
 
 db.prototype.asyncExecute = function(data, step, callback) {
@@ -225,7 +224,7 @@ db.prototype.createTables = function(isReload) {
 				window.location.reload();
 			}
 			resolve(true);
-		})
+		});
 	});
 	return promise;
 

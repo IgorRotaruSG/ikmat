@@ -1381,24 +1381,11 @@ function form2_save_dev_start(data) {
 	$('#signature-trigger').off('click').on('click', function(e) {
 		e.preventDefault();
 		openSignaturePopup();
-
-		//$('#deviation-signature-close').off('click').on('click',function(){
 		$(document).off('click', '#deviation-signature-close').on('click', '#deviation-signature-close', function() {
 			$('#signature_pop').popup('close');
-			console.log("deviation-signature-close8");
-			var data = {
-				'client' : User.client,
-				'token' : User.lastToken,
-				'signature' : JSON.stringify({
-					"name" : $('#sign_name').val(),
-					"svg" : $sigdiv.jSignature("getData", "svgbase64")[1],
-					"parameter" : "task",
-					"task_id" : sss_temp
-				})
-			};
-			//console.log(JSON.stringify(data));
-			console.log('forms.js 1256 document sign');
-			Page.apiCall('documentSignature', data, 'post', 'documentSignature');
+			$('#sign_name').attr('disabled', true);
+			$('#signature-trigger').attr('disabled', true);
+			$('#signature-trigger').val('Signed').button('refresh');
 		});
 
 		return false;
@@ -1425,8 +1412,6 @@ function form2_save_dev_start(data) {
 			console.log(data);
 
 			Page.apiCall('deviation', data, 'get', 'form2_save_dev_start_save');
-
-			uploadHACCPPictureForms();
 		}
 
 		return false;
@@ -1482,7 +1467,9 @@ $(window).on("orientationchange", function(event) {
 	}, 500);
 });
 
-function form2_save_dev_start_save() {
+function form2_save_dev_start_save(data) {
+	uploadHACCPPictureForms();
+	maintenanceSignDone(data);
 	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 	Page.redirect('tasks.html');
 }
