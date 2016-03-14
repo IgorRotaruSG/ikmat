@@ -1082,7 +1082,7 @@ HTML.prototype.textareaField = function(name, label, placeholder, validation, va
 
     var html = '<label for="frm_label_' + md5(name+label) + '">' + label + '</label>';
 
-    html += '<textarea tabindex="-1" maxlength="3000" name="' + name + '" ' +
+    html += '<textarea tabindex="-1" maxlength="1000" name="' + name + '" ' +
         'placeholder="' + placeholder + '" ' +
         'id="frm_label_' + md5(name+label) + '" ' + 'onblur="textEndEdit()"'  +
         this.generateValidation(validation) + '>' +
