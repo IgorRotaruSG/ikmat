@@ -253,17 +253,15 @@ db.prototype.dbDropTables = function() {
 		(function(i) {
 			promises[i] = new Promise(function(resolve, reject) {
 				var collection = that.collections[that.tables[i]];
-				console.log('collection', collection);
+				if(!collection){
+					collection = new PouchDB(that.db_name + "_" + that.tables[i], {skip_setup: true});
+				}
 				if (collection) {
-
 					collection.destroy(function(err, response) {
 						if (err) {
-							return console.log(err);
-						} else {
-							console.log('test');
-							resolve(true);
-							// success
+							console.log(err);
 						}
+						resolve(true);
 					});
 				}else{
 					resolve(false);
@@ -282,18 +280,14 @@ db.prototype.dbDropTables = function() {
 db.prototype.InitDB = function() {
 	var isCreateDB = false;
 	var that = this;
-	if (this.database && this.database !== undefined && this.database !== null) {
-		isCreateDB = false;
-	} else {
-		isCreateDB = true;
-	}
 	if (!this.appVersion || (this.appVersion && settings.rebuild && this.appVersion.replace(/\./g, "") < settings.rebuild.replace(/\./g, ""))) {
 		isCreateDB = true;
 	}
+	console.log('isCreateDB', isCreateDB);
 	if (isCreateDB) {
 		this.dbDropTables().then(function(results) {
-			console.log('init 1');
-			return that.createTables(true);
+			localStorage.setItem("app-version", settings.version);
+			window.location.reload();
 		});
 	} else {
 		return this.createTables();
