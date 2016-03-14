@@ -14,7 +14,7 @@ function db() {
 	this.query = false;
 	this.collections = [];
 	this.tables = ['tasks', 'haccp_items', 'forms', 'registration', 'form_item', 'sync_query', 'reports', 'flowchart', 'settings'];
-	this.localStore = ['app-version', 'company_join_date', 'company_name', 'contact_name', 'database', 'role', 'user_data', 'user_name']
+	this.localStore = ['app-version', 'company_join_date', 'company_name', 'contact_name', 'database', 'role', 'user_data', 'user_name'];
 	PouchDB.plugin(Erase);
 	//PouchDB.debug.enable('*');
 
