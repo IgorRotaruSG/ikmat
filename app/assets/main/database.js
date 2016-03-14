@@ -241,28 +241,31 @@ db.prototype.dbDropTables = function() {
 	this.database = false;
 	var that = this;
 	for (var i = 0; i < localStorage.length; i++) {
-		if (this.localStore.indexOf(localStorage.key(i)) > 0) {
+		if (this.localStore.indexOf(localStorage.key(i)) > -1) {
 			localStorage.removeItem(localStorage.key(i));
 		}
 	}
 	var promises = [];
 	for (var i = 0; i < this.tables.length; i++) {
-		var collection = this.collections[this.tables[i]];
-		if (!collection) {
-			collection = new PouchDB(this.db_name + "_" + this.tables[i], {
-				skip_setup : true
-			});
-		}
-		promises[i] = new Promise(function(resolve, reject) {
-			collection.destroy(function (err, response) {
-				if (err) {
-					return console.log(err);
-				} else {
-					resolve(true);
-					// success
+		var index = i;
+		(function(i){
+			promises[i] = new Promise(function(resolve, reject) {
+				var collection = this.collections[this.tables[i]];
+				if (!collection) {
+					collection = new PouchDB(this.db_name + "_" + this.tables[i], {
+						skip_setup : true
+					});
 				}
+				collection.destroy(function (err, response) {
+					if (err) {
+						return console.log(err);
+					} else {
+						resolve(true);
+						// success
+					}
+				});
 			});
-		});
+		})(index)
 	}
 	return Promise.all(promises).then(function(result) {
 		if (result.length == promises.length) {
@@ -283,10 +286,13 @@ db.prototype.InitDB = function() {
 		isCreateDB = true;
 	}
 	if (isCreateDB) {
+		console.log('init 1');
 		this.dbDropTables().then(function(results) {
+			console.log('init 1');
 			return that.createTables(true);
 		});
 	} else {
+		console.log('init 2');
 		return this.createTables();
 	}
 };
