@@ -480,13 +480,12 @@ function haccpComplete(data) {
                 Page.apiCall('deviation', data, 'get', 'haccpDeviation_s');
             } else {
                 f_i = parseInt(f_i) + 1;
-                d.transaction(getHaccpWithLimit, db.dbErrorHandle);
-                $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+                d.transaction(getHaccpWithLimit, db.dbErrorHandle);                
             }
+            $('.overflow-wrapper').addClass('overflow-wrapper-hide');
         } else {
-
             noInternetError($.t("error.no_internet_for_sync"));
-        }
+        }        
     } else {
         noInternetError($.t("error.no_internet_for_sync"));
     }
