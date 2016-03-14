@@ -902,10 +902,11 @@ function continueHaccp(swiper) {
 					getHaccpWithLimit();
 				}
 			}
-		} else {
-			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+		} else {			
 			mySwiper.swipePrev();
 		}
+		console.log('continueHaccp line 908');
+		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 	} else {
 		universal_cango = false;
 		//console.info('1266'+activeQuestion);
