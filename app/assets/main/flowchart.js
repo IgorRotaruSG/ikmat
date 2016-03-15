@@ -227,7 +227,7 @@ function printFlowchart(flowchartSrc, flowchartTitle){
 
         w.document.write(flowchartHtml);
         w.print();
-        w.close();
+        //w.close();
     }
     return;
 }
