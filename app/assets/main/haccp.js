@@ -36,7 +36,6 @@ var resetToDefault;
 //navigator.connection.type = Connection.NONE;
 
 function getHaccpCall(err, results) {
-	console.log('results', results, mySwiper.slides);
 	if (!results || results.total_rows == 0) {
 		if(!he_have_something){
 			var data = {
