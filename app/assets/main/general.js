@@ -15,8 +15,8 @@ var settings = {
 	},
 	'requestTimeout' : 25000,
 	'excludeOffline' : ["haccp.html", "flowchart.html"],
-	'version' : "2.0.81",
-	'rebuild' : "2.0.81"
+	'version' : "2.0.82",
+	'rebuild' : "2.0.82"
 };
 
 var performance = window.performance;
