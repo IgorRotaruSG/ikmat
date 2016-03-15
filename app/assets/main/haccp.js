@@ -105,7 +105,9 @@ function getHaccpCall(err, results) {
 							$('#haccp_index_' + parseInt(mySwiper.activeIndex)).html(content);
 						}
 						$(document).ready(function() {
+							check_haccp();
 							mySwiper.allowSwipeToNext = true;
+							mySwiper.allowSwipeToPrev = true;
 							$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 						});
 						if (results.rows[i].doc.response != 0) {
@@ -304,6 +306,7 @@ function haccpInit() {
 				if (onNextClick && !isValid) {
 					return;
 				}
+				swiper.allowSwipeToPrev = false;
 				getHaccpWithLimitPrev();
 				onNextClick = false;
 				oneClickDone = false;
