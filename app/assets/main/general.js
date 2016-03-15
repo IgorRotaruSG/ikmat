@@ -2421,7 +2421,7 @@ function printPage() {
 				w=window.open();
 				w.document.write(page);
 				w.print();
-				w.close();
+				//w.close();
 			}
 		});
 	} else {
@@ -2438,7 +2438,7 @@ function printPage() {
 			w=window.open();
 			w.document.write(page);
 			w.print();
-			w.close();
+			//w.close();
 		}
 	}
 	return;
