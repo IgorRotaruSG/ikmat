@@ -40,11 +40,9 @@ function getHaccpCall(err, results) {
 		haccp_total = results.total_rows;
 	}
 	if (results && results.offset > results.total_rows) {
-		// setTimeout(function() {
-			// $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-		// }, 500);
 		return;
 	}
+	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	if (results && results.rows.length == lazy_total) {
 		isStart = true;
 	} else {
@@ -141,7 +139,7 @@ function getHaccpCall(err, results) {
 					setTimeout(function() {
 						console.log('haccp call dismiss');
 						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-					}, 1000);
+					}, 500);
 				}
 
 			});
@@ -156,7 +154,10 @@ function getHaccpCall(err, results) {
 		var html = '<div class="no_results" style="color:#00cde7;font-size:34px;">';
 		html += $.t('haccp.no_haccp') + '<br /><br />';
 		html += '</div>';
-
+		setTimeout(function() {
+			console.log('haccp call dismiss');
+			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+		}, 500);
 		mySwiper.appendSlide(html, 'swiper-slide');
 		mySwiper.removeSlide(0);
 		mySwiper.swipeTo(1, 0, false);
@@ -172,7 +173,7 @@ function getHaccpCall(err, results) {
 			Page.redirect('index.html');
 		}, 3500);
 	}
-	
+
 }
 
 function getHaccpCallPrev(tx, results) {
@@ -261,7 +262,6 @@ function getHaccp() {
 }
 
 function getHaccpWithLimit() {
-	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
 		'skip' : f_i,
@@ -270,7 +270,6 @@ function getHaccpWithLimit() {
 }
 
 function getHaccpWithLimitPrev() {
-	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
 		'skip' : f_i,
@@ -379,11 +378,11 @@ function haccpInit() {
 				if (deviation >= 3 && _t == 'save') {
 					//decisionTree(swiper);
 				} else {
-					if(!oneClickDone){
+					if (!oneClickDone) {
 						oneClickDone = true;
 						continueHaccp(swiper);
 					}
-					
+
 				}
 				swiper.resizeFix();
 				var $n = $(swiper.getSlide(swiper.activeIndex));
@@ -393,11 +392,12 @@ function haccpInit() {
 				} else {
 					$('#footer').show();
 				}
+				console.log('f_i:', f_i, '- haccp_total:', haccp_total);
 				if (f_i == 0 || f_i == haccp_total || isStart) {
 					setTimeout(function() {
 						console.log('haccp init dismiss');
 						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-					}, 1000);
+					}, 500);
 				}
 				if (onNextClick && !isValid) {
 					isValid = true;
@@ -416,7 +416,7 @@ function haccpInit() {
 
 function insertHaccpItem() {
 	db.lazyQuery('haccp_items', castToListObject(["id", "cat", "content", "form", "response"], fq), function(results) {
-		if(results){
+		if (results) {
 			db.getDbInstance('haccp_items').query('sort_index', {
 				'include_docs' : true,
 				'limit' : lazy_total
@@ -452,7 +452,8 @@ function haccp(data) {
 		} else {
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 			$('.swiper-slide').css('min-height', 'inherit');
-			$('#haccp_list_no_results').html($.t('error.no_haccps')); //-- hoadd1
+			$('#haccp_list_no_results').html($.t('error.no_haccps'));
+			//-- hoadd1
 
 			$('[data-role="footer"]').hide();
 		}
@@ -557,11 +558,11 @@ function haccpComplete(data) {
 				Page.apiCall('deviation', data, 'get', 'haccpDeviation_s');
 			} else {
 				if (onNextClick) {
-					if(!isStart || (isStart && mySwiper.activeIndex == 2)){
+					if (!isStart || (isStart && mySwiper.activeIndex == 2)) {
 						if (f_i == 0) {
 							f_i = parseInt(f_i) + lazy_total - 1;
 							isStart = true;
-						}else{
+						} else {
 							f_i = parseInt(f_i) + 1;
 							getHaccpWithLimit();
 						}
@@ -794,11 +795,11 @@ function check_haccp() {
 		if ($(this).attr("name") == 'possibility' || $(this).attr("name") == 'consequence') {
 			var cons = parseInt($(mySwiper.getSlide(mySwiper.activeIndex)).find('input[name=consequence]:checked').val());
 			var poss = parseInt($(mySwiper.getSlide(mySwiper.activeIndex)).find('input[name=possibility]:checked').val());
-			cons = cons?(cons + 2): 2;
-			poss = poss?(4 - poss): 4;
+			cons = cons ? (cons + 2) : 2;
+			poss = poss ? (4 - poss) : 4;
 			$('.swiper-slide-active .haccp_color_table').find("i").remove();
 			$('.swiper-slide-active .haccp_color_table tr:nth-child(' + poss + ') td:nth-child(' + cons + ')').html('<i class="fa fa-check" style="color:#000;"></i>');
-		} 
+		}
 	});
 }
 
@@ -811,7 +812,6 @@ function continueHaccp(swiper) {
 	//unbind popup function so it won't call twice
 	$('#confirmDevPopup').popup('close');
 	if (_t == 'save' && !universal_cango) {
-		// $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 		var dd = {};
 		if (isNaN(swiper.previousIndex)) {
 			var $f = $(swiper.getSlide(swiper.activeIndex));
@@ -907,7 +907,7 @@ function continueHaccp(swiper) {
 					getHaccpWithLimit();
 				}
 			}
-		} else {			
+		} else {
 			mySwiper.swipePrev();
 		}
 		console.log('continueHaccp line 908');
@@ -1044,12 +1044,12 @@ function decisionTree(swiper, step) {
 }
 
 function openConfirmDialog(message, confirm, cancel, step) {
-	    if (resetToDefault) {
-            $('#deviation_yes').prop('checked', true);
-            $('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
-            $('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-            resetToDefault = false;
-        } 
+	if (resetToDefault) {
+		$('#deviation_yes').prop('checked', true);
+		$('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+		$('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+		resetToDefault = false;
+	}
 
 	var confirm_this;
 
@@ -1078,39 +1078,39 @@ function openConfirmDialog(message, confirm, cancel, step) {
 		if (confirm_this !== undefined && !confirm_this) {
 			return deviationTreeBackStep();
 		} else if (confirm_this) {
-                    var currentCheckedRadio = $('#deviation_yes').is(":checked");
+			var currentCheckedRadio = $('#deviation_yes').is(":checked");
 
-                    // console.log("currentCheckedRadio xx: ", currentCheckedRadio);
-                    // console.log("deviationAnswers next:",deviationAnswers);
-                    // console.log("deletedObjectArray next:",deletedObjectArray);
+			// console.log("currentCheckedRadio xx: ", currentCheckedRadio);
+			// console.log("deviationAnswers next:",deviationAnswers);
+			// console.log("deletedObjectArray next:",deletedObjectArray);
 
-                    if (deletedObjectArray.length>0) {
-                            var theFinalElement = deletedObjectArray[deletedObjectArray.length-1].answer;
+			if (deletedObjectArray.length > 0) {
+				var theFinalElement = deletedObjectArray[deletedObjectArray.length - 1].answer;
 
-                            // console.log("theFinalElement: ", theFinalElement);
-                            // console.log("currentCheckedRadio: ", currentCheckedRadio);
+				// console.log("theFinalElement: ", theFinalElement);
+				// console.log("currentCheckedRadio: ", currentCheckedRadio);
 
-                            if (((currentCheckedRadio)&&(theFinalElement==1))||((!currentCheckedRadio)&&(theFinalElement==0))) {
+				if (((currentCheckedRadio) && (theFinalElement == 1)) || ((!currentCheckedRadio) && (theFinalElement == 0))) {
 
-                                 if (deletedObjectArray.length>1){                                   
-                                        console.log('vienvt current step: ',step);
-                                        return deviationTreeNextStep(step);                                    
-                                  }                             
-                            }else{
+					if (deletedObjectArray.length > 1) {
+						console.log('vienvt current step: ', step);
+						return deviationTreeNextStep(step);
+					}
+				} else {
 
-                                deletedObjectArray = [];
-                                resetToDefault = true;
-                                //console.log('Reset deletedObjectArray')                                
-                            }
-                    }
+					deletedObjectArray = [];
+					resetToDefault = true;
+					//console.log('Reset deletedObjectArray')
+				}
+			}
 
-            if ($('#deviation_yes').is(":checked")) {                 
-                 resetToDefault = false;
-                return confirm();
-            } else {                
-                resetToDefault = true;
-                return cancel();
-            }
+			if ($('#deviation_yes').is(":checked")) {
+				resetToDefault = false;
+				return confirm();
+			} else {
+				resetToDefault = true;
+				return cancel();
+			}
 		}
 	});
 	$('#confirmDevPopup').popup("open", {
@@ -1135,7 +1135,6 @@ function openConfirmDialog(message, confirm, cancel, step) {
 
 function goCreateDeviation(swiper) {
 	console.log('goCreateDeviation');
-	// $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	confirm_action = true;
 	createDeviation = true;
 	universal_cango = false;
@@ -1149,7 +1148,6 @@ function goNext(swiper) {
 	nextSlide = true;
 	createDeviation = false;
 	$("input[name='critical_point']").val('');
-	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	continueHaccp(swiper);
 }
 
@@ -1163,160 +1161,150 @@ function goNextWithCriticalControl(swiper, message) {
 }
 
 function deviationTreeBackStep() {
-    console.log("deviationTreeBackStep deviationAnswers: ", deviationAnswers);
-    $("input[name='critical_point']").val('');
-    if (!isEmpty(deviationAnswers)) {
-        var prevStepKeys = Object.keys(deviationAnswers);
-        var prevStep = prevStepKeys[prevStepKeys.length - 1];
-        prevAns = deviationAnswers[prevStep];
-        console.log(prevStep, prevAns);
+	console.log("deviationTreeBackStep deviationAnswers: ", deviationAnswers);
+	$("input[name='critical_point']").val('');
+	if (!isEmpty(deviationAnswers)) {
+		var prevStepKeys = Object.keys(deviationAnswers);
+		var prevStep = prevStepKeys[prevStepKeys.length - 1];
+		prevAns = deviationAnswers[prevStep];
+		console.log(prevStep, prevAns);
 
-        deletedObject = {};
-        deletedObject.step = prevStep;
-        deletedObject.answer = prevAns;
-        deletedObjectArray.push(deletedObject);
+		deletedObject = {};
+		deletedObject.step = prevStep;
+		deletedObject.answer = prevAns;
+		deletedObjectArray.push(deletedObject);
 
-        // console.log('deviationTreeBackStep -- deletedObjectArray: ', deletedObjectArray);
-        // console.log('deviationAnswers[prevStep]: ',deviationAnswers[prevStep]);
+		// console.log('deviationTreeBackStep -- deletedObjectArray: ', deletedObjectArray);
+		// console.log('deviationAnswers[prevStep]: ',deviationAnswers[prevStep]);
 
-        var prevStepFunc = eval('{' + prevStep + '}');
+		var prevStepFunc = eval('{' + prevStep + '}');
 
-        // console.log("vien prevStepFunc: ",prevStepFunc);
-        // console.log("prevStep: ",prevStep);
+		// console.log("vien prevStepFunc: ",prevStepFunc);
+		// console.log("prevStep: ",prevStep);
 
-        openConfirmDialog(prevStepFunc.message, prevStepFunc.confirm, prevStepFunc.cancel, prevStep);
+		openConfirmDialog(prevStepFunc.message, prevStepFunc.confirm, prevStepFunc.cancel, prevStep);
 
-        if (prevAns == 1) {
-            $('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
-            $('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-            $('#deviation_yes').prop('checked', true);
-        } else {
-            $('#deviation_yes').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
-            $('#deviation_no').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-            $('#deviation_no').prop('checked', true);
-        }
-        delete deviationAnswers[prevStep];
-    } else {
-        $('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
-        $('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-        $('#deviation_yes').prop('checked', true);
-        mySwiper.swipePrev();
-    }
+		if (prevAns == 1) {
+			$('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+			$('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+			$('#deviation_yes').prop('checked', true);
+		} else {
+			$('#deviation_yes').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+			$('#deviation_no').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+			$('#deviation_no').prop('checked', true);
+		}
+		delete deviationAnswers[prevStep];
+	} else {
+		$('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+		$('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+		$('#deviation_yes').prop('checked', true);
+		mySwiper.swipePrev();
+	}
 }
 
-function setDeviationAnswer(step){
-    console.log("setDeviationAnswer step: ", step);
-    if (step == "step1")
-    {
-        if ($('#deviation_yes').is(":checked"))
-        {
-            //console.log("setDeviationAnswer step 2: ", step);
-            deviationAnswers.step1 = 1;
-        }else{
-            //console.log("setDeviationAnswer step 2: ", step);
-            deviationAnswers.step1 = 0;
-        }
-    }else if (step == "step2") {
-        if ($('#deviation_yes').is(":checked"))
-        {
-            deviationAnswers.step2 = 1;
-        }else{
-            deviationAnswers.step2 = 0;
-        }
-    }else if (step == "step3") {
-        if ($('#deviation_yes').is(":checked"))
-        {
-            deviationAnswers.step3 = 1;
-        }else{
-            deviationAnswers.step3 = 0;
-        }
-    }else if (step == "step4") {
-        if ($('#deviation_yes').is(":checked"))
-        {
-            //console.log("setDeviationAnswer step 3: ", step);
-            deviationAnswers.step4 = 1;
-        }else{
-            //console.log("setDeviationAnswer step 3: ", step);
-            deviationAnswers.step4 = 0;
-        }
-    }else if (step == "step5") {
-        if ($('#deviation_yes').is(":checked"))
-        {
-            deviationAnswers.step5 = 1;
-        }else{
-            deviationAnswers.step5 = 0;
-        }
-    }else if (step == "step6") {
-        if ($('#deviation_yes').is(":checked"))
-        {
-            //console.log("setDeviationAnswer step 4: ", step);
-            deviationAnswers.step6 = 1;
-        }else{
-            //console.log("setDeviationAnswer step 4: ", step);
-            deviationAnswers.step6 = 0;
-        }
-    }else if (step == "step7") {
-        if ($('#deviation_yes').is(":checked"))
-        {
-            deviationAnswers.step7 = 1;
-        }else{
-            deviationAnswers.step7 = 0;
-        }
-    }else if (step == "step8") {
-        if ($('#deviation_yes').is(":checked"))
-        {
-            deviationAnswers.step8 = 1;
-        }else{
-            deviationAnswers.step8 = 0;
-        }
-    };
+function setDeviationAnswer(step) {
+	console.log("setDeviationAnswer step: ", step);
+	if (step == "step1") {
+		if ($('#deviation_yes').is(":checked")) {
+			//console.log("setDeviationAnswer step 2: ", step);
+			deviationAnswers.step1 = 1;
+		} else {
+			//console.log("setDeviationAnswer step 2: ", step);
+			deviationAnswers.step1 = 0;
+		}
+	} else if (step == "step2") {
+		if ($('#deviation_yes').is(":checked")) {
+			deviationAnswers.step2 = 1;
+		} else {
+			deviationAnswers.step2 = 0;
+		}
+	} else if (step == "step3") {
+		if ($('#deviation_yes').is(":checked")) {
+			deviationAnswers.step3 = 1;
+		} else {
+			deviationAnswers.step3 = 0;
+		}
+	} else if (step == "step4") {
+		if ($('#deviation_yes').is(":checked")) {
+			//console.log("setDeviationAnswer step 3: ", step);
+			deviationAnswers.step4 = 1;
+		} else {
+			//console.log("setDeviationAnswer step 3: ", step);
+			deviationAnswers.step4 = 0;
+		}
+	} else if (step == "step5") {
+		if ($('#deviation_yes').is(":checked")) {
+			deviationAnswers.step5 = 1;
+		} else {
+			deviationAnswers.step5 = 0;
+		}
+	} else if (step == "step6") {
+		if ($('#deviation_yes').is(":checked")) {
+			//console.log("setDeviationAnswer step 4: ", step);
+			deviationAnswers.step6 = 1;
+		} else {
+			//console.log("setDeviationAnswer step 4: ", step);
+			deviationAnswers.step6 = 0;
+		}
+	} else if (step == "step7") {
+		if ($('#deviation_yes').is(":checked")) {
+			deviationAnswers.step7 = 1;
+		} else {
+			deviationAnswers.step7 = 0;
+		}
+	} else if (step == "step8") {
+		if ($('#deviation_yes').is(":checked")) {
+			deviationAnswers.step8 = 1;
+		} else {
+			deviationAnswers.step8 = 0;
+		}
+	}
+	;
 }
-
 
 function deviationTreeNextStep(step) {
-    console.log("deviationTreeNextStep Array:");
-    console.log(deletedObjectArray);
+	console.log("deviationTreeNextStep Array:");
+	console.log(deletedObjectArray);
 
-    $("input[name='critical_point']").val('');
-    if (!isEmpty(deletedObjectArray)) {
+	$("input[name='critical_point']").val('');
+	if (!isEmpty(deletedObjectArray)) {
 
-        var nextStepObject = deletedObjectArray[deletedObjectArray.length-1-1];
-        if((nextStepObject == undefined) &&(deletedObjectArray.length==1))
-        {
-            deletedObjectArray = [];
-            return;
-        }
-        //console.log ('nextStepObject:', nextStepObject);
+		var nextStepObject = deletedObjectArray[deletedObjectArray.length - 1 - 1];
+		if ((nextStepObject == undefined) && (deletedObjectArray.length == 1)) {
+			deletedObjectArray = [];
+			return;
+		}
+		//console.log ('nextStepObject:', nextStepObject);
 
-        var nextStepName = nextStepObject.step;
+		var nextStepName = nextStepObject.step;
 
-        // console.log ('nextStepName:', nextStepName);
-        // console.log ('nextStepName argument:', step);
+		// console.log ('nextStepName:', nextStepName);
+		// console.log ('nextStepName argument:', step);
 
-        if (nextStepName == step) {
-            console.log ('== nextStepObject:', nextStepObject);
-        }
+		if (nextStepName == step) {
+			console.log('== nextStepObject:', nextStepObject);
+		}
 
-        //get all key to an array keys
-        var nextStepFunc = eval('{' + nextStepName + '}');
-        //console.log("vienvt nextStepFunc: ", nextStepFunc);
-        var nextAns = nextStepObject.answer;
-        //console.log("deviationAnswers Array:", deviationAnswers);
+		//get all key to an array keys
+		var nextStepFunc = eval('{' + nextStepName + '}');
+		//console.log("vienvt nextStepFunc: ", nextStepFunc);
+		var nextAns = nextStepObject.answer;
+		//console.log("deviationAnswers Array:", deviationAnswers);
 
-        setDeviationAnswer(step);
-        openConfirmDialog(nextStepFunc.message, nextStepFunc.confirm, nextStepFunc.cancel, nextStepName);
+		setDeviationAnswer(step);
+		openConfirmDialog(nextStepFunc.message, nextStepFunc.confirm, nextStepFunc.cancel, nextStepName);
 
-        if (nextAns == 1) {
-            $('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
-            $('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-            $('#deviation_yes').prop('checked', true);
-        } else {
-            $('#deviation_yes').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
-            $('#deviation_no').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
-            $('#deviation_no').prop('checked', true);
-        }
-        deletedObjectArray.pop();
-    } 
+		if (nextAns == 1) {
+			$('#deviation_no').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+			$('#deviation_yes').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+			$('#deviation_yes').prop('checked', true);
+		} else {
+			$('#deviation_yes').siblings('label').data('icon', 'radio-off').removeClass('ui-radio-on').addClass('ui-radio-off');
+			$('#deviation_no').siblings('label').data('icon', 'radio-on').removeClass('ui-radio-off').addClass('ui-radio-on');
+			$('#deviation_no').prop('checked', true);
+		}
+		deletedObjectArray.pop();
+	}
 }
 
 
