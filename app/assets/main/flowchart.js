@@ -225,6 +225,7 @@ function printFlowchart(flowchartSrc, flowchartTitle){
             '<a class="ui-link"><img src="' + flowchartSrc + '" /></a>' +
         '</div>';
 
+        w.document.write('<title>HACCP</title>');
         w.document.write(flowchartHtml);
         w.print();
         //w.close();
