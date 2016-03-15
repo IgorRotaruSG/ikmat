@@ -2419,8 +2419,9 @@ function printPage() {
 			} else {
 				var page = $('#page-wrap').html();
 				w=window.open();
+				w.document.write('<title>HACCP</title>');
 				w.document.write(page);
-				w.print();
+				w.print();				
 				//w.close();
 			}
 		});
@@ -2436,6 +2437,7 @@ function printPage() {
 		} else {
 			var page = $('#page-wrap').html();
 			w=window.open();
+			w.document.write('<title>HACCP</title>');
 			w.document.write(page);
 			w.print();
 			//w.close();
