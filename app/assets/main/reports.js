@@ -324,6 +324,11 @@ function reportTables(data) {
 			return a < b ? -1 : (a > b ? 1 : 0);
 		});
 
+        reports_date_start = new Date().getFullYear() + '-' + (new Date().getMonth() + 1).toString().replace(/\d{0,2}/, function(m) {
+                return '0'.slice(m.length - 1) + m;
+            }) + '-01';
+        reports_date_end = reportsGetCurrentDate();
+
 		//Fix [Bug] Employee users should have access to reports
 		//if (localStorage.getItem('role') != 'ROLE_EMPLOYEE') {
 		for (var i = 0; i < tuples.length; i++) {
@@ -458,10 +463,10 @@ function reportsView(data) {
             'filter_date_to': reports_date_end
         };
         // Open app on mobile or report sent by link
-       
+
         console.log("Before call api, email data at report on line 465", email_data);
         console.log("At Page: ", Page);
-        
+
 		if (isNative() || isLinkData(email_data.report_id)) {
 			if (isLinkData(email_data.report_id)) {
 				Page.apiCall('exportReportPdfLink', email_data, 'get', 'openNativeEmailAtReportPage', email_data);
@@ -567,7 +572,7 @@ function isLinkData(reportId){
 }
 
 function openNativeEmailAtReportPage(pdf, email_data){
-	
+
     var subject = report_name ? report_name: "Rapporter";
     var companyName = localStorage.getItem('company_name');
     subject +=  companyName ? (" fra " + companyName) : "";
@@ -575,10 +580,10 @@ function openNativeEmailAtReportPage(pdf, email_data){
         subject: subject,
         cc: localStorage.getItem("user_email") ? localStorage.getItem("user_email"): "",
     };
-    
+
     console.log("email object report: ", mailObject);
     console.log("Page report: ", Page);
-    
+
 	if(pdf && !isLinkData(email_data.report_id)){
 		mailObject.attachments = "base64:" + pdf.name + "//" + pdf.data;
 	}else {
@@ -749,10 +754,10 @@ function documentsCall(data) {
                 'filter_date_from' : reports_date_start,
                 'filter_date_to' : reports_date_end
             };
-            
+
             console.log("email data at report on line 758", email_data);
             console.log("At Page: ", Page);
-            
+
             // Open app on mobile or report sent by link
 			if (isNative() || isLinkData(email_data.report_id)) {
 				if (isLinkData(email_data.report_id)) {
