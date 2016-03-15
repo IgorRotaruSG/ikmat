@@ -139,8 +139,9 @@ function getHaccpCall(err, results) {
 					}
 					$('#' + $.mobile.activePage.attr('id')).trigger('create');
 					setTimeout(function() {
+						console.log('haccp call dismiss');
 						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-					}, 500);
+					}, 1000);
 				}
 
 			});
@@ -260,6 +261,7 @@ function getHaccp() {
 }
 
 function getHaccpWithLimit() {
+	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
 		'skip' : f_i,
@@ -268,6 +270,7 @@ function getHaccpWithLimit() {
 }
 
 function getHaccpWithLimitPrev() {
+	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
 		'skip' : f_i,
@@ -392,8 +395,9 @@ function haccpInit() {
 				}
 				if (f_i == 0 || f_i == haccp_total || isStart) {
 					setTimeout(function() {
+						console.log('haccp init dismiss');
 						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-					}, 500);
+					}, 1000);
 				}
 				if (onNextClick && !isValid) {
 					isValid = true;
@@ -650,6 +654,7 @@ function haccpDeviation_s(data) {
 		});
 		$('#popupDeviation').css('height', '100%');
 		$("#popupDeviation").on("popupafterclose", function(event, ui) {
+			console.log('deviation s');
 			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 			if (signature_open == true) {
 				$("#signature_pop").popup("open", {
@@ -906,7 +911,7 @@ function continueHaccp(swiper) {
 			mySwiper.swipePrev();
 		}
 		console.log('continueHaccp line 908');
-		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+		// $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 	} else {
 		universal_cango = false;
 		//console.info('1266'+activeQuestion);
@@ -1067,6 +1072,7 @@ function openConfirmDialog(message, confirm, cancel, step) {
 	});
 
 	$('#confirmDevPopup').off("popupafterclose").on("popupafterclose", function(event, ui) {
+		console.log('popupafterclose');
 		$('#confirmDevPopup').unbind("popupafteropen");
 		$('#confirmDevButton').unbind("click");
 		if (confirm_this !== undefined && !confirm_this) {
