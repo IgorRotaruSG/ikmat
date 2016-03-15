@@ -36,37 +36,44 @@ var resetToDefault;
 //navigator.connection.type = Connection.NONE;
 
 function getHaccpCall(err, results) {
-	if (results) {
-		haccp_total = results.total_rows;
-	}
-	if (results && results.offset > results.total_rows) {
-		return;
-	}
-	$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
-	if (results && results.rows.length == lazy_total) {
-		isStart = true;
-	} else {
-		isStart = false;
-	}
-	if ((!results || results.rows.length == 0) && isOffline() && !he_have_something) {
+	console.log('results', results, mySwiper.slides);
+	if (!results || results.total_rows == 0) {
+		if(!he_have_something){
+			var data = {
+				'client' : User.client,
+				'token' : User.lastToken
+			};
+			console.log('112 haccp.js');
+			Page.apiCall('haccp', data, 'post', 'haccp');
+			return;
+		}
 		$('#haccp_list_no_results').text($.t('haccp.no_haccp_yet'));
 		// $('.overflow-wrapper').addClass('overflow-wrapper-hide');
 		$('[data-role="footer"]').hide();
 		setTimeout(function() {
 			Page.redirect('index.html');
 		}, 3500);
-	} else if ((!results || results.rows.length == 0) && !isOffline() && !he_have_something && get.continue == undefined) {
-		var data = {
-			'client' : User.client,
-			'token' : User.lastToken
-		};
-		console.log('26 haccp.js');
-		Page.apiCall('haccp', data, 'post', 'haccp');
-	} else if (results.rows.length > 0) {
-		he_have_something = true;
-		//        $('#haccp_list_no_results').show();
+	} else {
+		if (mySwiper.slides.length == 1) {
+			mySwiper.removeSlide(0);
 
-		var html = '';
+			for (var index = 0; index <= results.total_rows; index++) {
+				var html;
+				if (index < results.total_rows) {
+					html = '<div id="haccp_index_' + index + '"></div>';
+					mySwiper.appendSlide(html, 'swiper-slide');
+				} else {
+					html = '<div id="haccp_index_' + index + '"  class="no_results" style="color:#00cde7;font-size:34px;"></div>';
+					mySwiper.appendSlide(html, 'swiper-slide');
+				}
+			}
+			mySwiper.reInit();
+			mySwiper.resizeFix();
+		}
+		if(mySwiper.activeIndex == results.total_rows){
+			console.log('test');
+			$('#haccp_index_' + results.total_rows).html($.t('haccp.no_haccp') + '<br /><br />');
+		}
 		var response;
 		var promises = [];
 		for (var i = 0; i < results.rows.length; i++) {
@@ -88,14 +95,20 @@ function getHaccpCall(err, results) {
 
 			Promise.all(promises).then(function(result) {
 				if (result.length == results.rows.length) {
-
 					for (var i = 0; i < results.rows.length; i++) {
-						html = getHaccpForm(results.rows[i].doc.content, results.rows[i].doc.id, results.rows[i].doc.cat, results.rows[i].doc.response);
-						if (!onNextClick && results.rows.length == 1) {
-							mySwiper.prependSlide(html, 'swiper-slide');
+						var content = getHaccpForm(results.rows[i].doc.content, results.rows[i].doc.id, results.rows[i].doc.cat, results.rows[i].doc.response);
+						if (mySwiper.activeIndex <= 0) {
+							$('#haccp_index_0').html(content);
 						} else {
-							mySwiper.appendSlide(html, 'swiper-slide');
+							console.log('call2 mySwiper.activeIndex', mySwiper.activeIndex);
+							$('#haccp_index_' + parseInt(mySwiper.activeIndex - 1)).html('');
+							$('#haccp_index_' + parseInt(mySwiper.activeIndex + 1)).html('');
+							$('#haccp_index_' + parseInt(mySwiper.activeIndex)).html(content);
 						}
+						$(document).ready(function() {
+							mySwiper.allowSwipeToNext = true;
+							$('.overflow-wrapper').addClass('overflow-wrapper-hide');
+						});
 						if (results.rows[i].doc.response != 0) {
 							try {
 								response = JSON.parse(results.rows[i].doc.response);
@@ -115,63 +128,13 @@ function getHaccpCall(err, results) {
 						// $('#haccp_radio_possibility_' + results.rows[i].doc.id + '_' + response_possibility).trigger('click');
 						// $('#haccp_radio_consequence_' + results.rows[i].doc.id + '_' + response_consequence).trigger('click');
 					}
-					if (results && results.rows.length == 1) {
-						if (onNextClick && f_i > 2) {
-							mySwiper.removeSlide(0);
-							mySwiper.swipeTo(1, 0, false);
-						} else if (!onNextClick) {
-							mySwiper.removeSlide(parseInt(mySwiper.slides.length - 1));
-							mySwiper.swipeTo(1, 0, false);
-						}
-
-						// mySwiper.reInit();
-						// mySwiper.resizeFix();
-					}
-
-					if (results.rows.length > 1) {
-						mySwiper.removeSlide(0);
-						mySwiper.reInit();
-						mySwiper.resizeFix();
-					} else {
-						candelete = true;
-					}
 					$('#' + $.mobile.activePage.attr('id')).trigger('create');
-					setTimeout(function() {
-						console.log('haccp call dismiss');
-						$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-					}, 500);
+
 				}
 
 			});
 
 		}
-
-		//setTimeout(function(){
-		//}, 1000);
-	} else if (he_have_something) {
-		//    else if ( !he_have_something) {
-		console.log('haccp 77 he_have_something');
-		var html = '<div class="no_results" style="color:#00cde7;font-size:34px;">';
-		html += $.t('haccp.no_haccp') + '<br /><br />';
-		html += '</div>';
-		setTimeout(function() {
-			console.log('haccp call dismiss');
-			$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-		}, 500);
-		mySwiper.appendSlide(html, 'swiper-slide');
-		mySwiper.removeSlide(0);
-		mySwiper.swipeTo(1, 0, false);
-		check_haccp();
-
-		//        $('[data-role="footer"]').hide();
-	} else {
-		$('.overflow-wrapper').addClass('overflow-wrapper-hide');
-		$('#haccp_list_no_results').html($.t('haccp.no_haccp'));
-		$('[data-role="footer"]').hide();
-		//alert('100');return;
-		setTimeout(function() {
-			Page.redirect('index.html');
-		}, 3500);
 	}
 
 }
@@ -251,12 +214,12 @@ function getHaccp() {
 		db.getDbInstance('haccp_items').query('sort_index', {
 			'include_docs' : true,
 			'skip' : get.continue,
-			'limit' : lazy_total
+			'limit' : 1
 		}, getHaccpCall);
 	} else {
 		db.getDbInstance('haccp_items').query('sort_index', {
 			'include_docs' : true,
-			'limit' : lazy_total
+			'limit' : 1
 		}, getHaccpCall);
 	}
 }
@@ -264,7 +227,7 @@ function getHaccp() {
 function getHaccpWithLimit() {
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
-		'skip' : f_i,
+		'skip' : mySwiper.activeIndex,
 		'limit' : 1
 	}, getHaccpCall);
 }
@@ -272,7 +235,7 @@ function getHaccpWithLimit() {
 function getHaccpWithLimitPrev() {
 	db.getDbInstance('haccp_items').query('sort_index', {
 		'include_docs' : true,
-		'skip' : f_i,
+		'skip' : mySwiper.activeIndex,
 		'limit' : 1
 	}, getHaccpCall);
 }
@@ -332,6 +295,7 @@ function haccpInit() {
 			},
 
 			onSlideNext : function(swiper) {
+				swiper.allowSwipeToNext = false;
 				_t = 'save';
 				onNextClick = true;
 				oneClickDone = false;
@@ -341,23 +305,7 @@ function haccpInit() {
 				if (onNextClick && !isValid) {
 					return;
 				}
-				if (!isStart) {
-					if (f_i > haccp_total) {
-						f_i = haccp_total;
-						return;
-					}
-					if (onNextClick) {
-						f_i = parseInt(f_i) - lazy_total;
-					} else {
-						f_i = parseInt(f_i) - 1;
-					}
-
-					if (f_i >= 0) {
-						getHaccpWithLimitPrev();
-					} else {
-						f_i = 0;
-					}
-				}
+				getHaccpWithLimitPrev();
 				onNextClick = false;
 				oneClickDone = false;
 			},
@@ -427,6 +375,7 @@ function insertHaccpItem() {
 
 function haccp(data) {
 	if (data.success) {
+		he_have_something = true;
 		if (data.haccp_category.length > 0) {
 			//var c = data.haccp_category;
 			var s,
@@ -557,16 +506,18 @@ function haccpComplete(data) {
 				};
 				Page.apiCall('deviation', data, 'get', 'haccpDeviation_s');
 			} else {
+				getHaccpWithLimit();
 				if (onNextClick) {
-					if (!isStart || (isStart && mySwiper.activeIndex == 2)) {
-						if (f_i == 0) {
-							f_i = parseInt(f_i) + lazy_total - 1;
-							isStart = true;
-						} else {
-							f_i = parseInt(f_i) + 1;
-							getHaccpWithLimit();
-						}
-					}
+
+					// if (!isStart || (isStart && mySwiper.activeIndex == 2)) {
+					// if (f_i == 0) {
+					// f_i = parseInt(f_i) + lazy_total - 1;
+					// isStart = true;
+					// } else {
+					// f_i = parseInt(f_i) + 1;
+					// getHaccpWithLimit();
+					// }
+					// }
 				}
 			}
 		} else {
