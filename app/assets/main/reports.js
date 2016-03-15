@@ -580,7 +580,12 @@ function openNativeEmailAtReportPage(pdf, email_data){
     console.log("Page report: ", Page);
     
 	if(pdf && !isLinkData(email_data.report_id)){
-		mailObject.attachments = "base64:" + pdf.name + "//" + pdf.data;
+		if(pdf.url && pdf.url!='') { // If file too large (> 10M) will send link instead of attachment
+			mailObject.isHtml = true;
+            mailObject.body = '<div>Trykk på lenken nedenfor for å se rapporter: <a href="' + pdf.url + '">' + pdf.name + '</a></div>';
+		} else {
+			mailObject.attachments = "base64:" + pdf.name + "//" + pdf.data;
+		}
 	}else {
     	if(isNative()){
             mailObject.isHtml = true;

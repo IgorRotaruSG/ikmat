@@ -255,14 +255,13 @@ Page.prototype.apiCall = function(api_method, data, method, callback, parameters
 			req.error(function(jqXHR, textStatus, errorThrown) {
 				if (textStatus == 'timeout') {
 					// check if generating report
-					if (api_method == 'exportReportPdfForDownload') {
+					if (api_method == 'exportReportPdfForDownload' || api_method == 'exportBase64ReportPdf') {
 						// request to /send-report-by-email
 						Page.apiCall('send-report-by-email', parameters, 'get', 'sendEmail');
 						// TODO: show message about sending report using email
 						showNotificationMessage();
 						return ;
 					}
-					
 				}
 				
 				$('#alertPopup .alert-text').html($.t("error.unexpected"));
