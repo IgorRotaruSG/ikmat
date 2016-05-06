@@ -3,7 +3,7 @@ var email = "";
 function loginInit() {
     $('.overflow-wrapper').addClass('overflow-wrapper-hide');
     if(localStorage.getItem("user_email")){
-    	$('#input_email').val(localStorage.getItem("user_email"));
+        $('#input_email').val(localStorage.getItem("user_email"));
     }
     if (isOffline()) {
         setTimeout(function () {
@@ -26,6 +26,7 @@ function loginAction(){
     var data = {
         'email': email,
         'password': $('#input_password').val(),
+        'lang': $('#input-lang').val(),
         'deviceid': window.device ? window.device.uuid : "web-id",
         'devicetoken': window.deviceToken ? window.deviceToken : ""
         // TODO: uncommend the below line and comment the above line
@@ -35,6 +36,11 @@ function loginAction(){
     Page.apiCall('getAccess', data, 'post', 'getAccess');
 
     return false;
+}
+
+function changeLanguage(locate, textArr) {
+    "use strict";
+    Page.changeLanguage(locate, textArr, 'changeLanguage');
 }
 
 function getAccess(data) {
