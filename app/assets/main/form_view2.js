@@ -74,7 +74,7 @@ function getForm2ItemCall(tx, results) {
                                     var f = JSON.parse(results.rows.item(0).value);
                                     getDeviationForm(f);
                                 } else {
-                                    alert('We have an internal error. Please contact administrator.');
+                                    alert($.t('error.internal_error'));
                                     window.location.href = 'index.html';
                                 }
                             });

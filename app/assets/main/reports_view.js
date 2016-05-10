@@ -42,7 +42,7 @@ function reports_viewInit() {
 
 function reportsView(data) {
     var html = data.report_returned;
-    html += "<button onclick=\"window.open('" + data.link + "', '_system');\">Download</button>";
+    html += "<button onclick=\"window.open('" + data.link + "', '_system');\">" + $.t('reports.download') + "</button>";
     $('#raportItem').html(html);
     $('#' + $.mobile.activePage.attr('id')).trigger('create');
     $('.overflow-wrapper').addClass('overflow-wrapper-hide');

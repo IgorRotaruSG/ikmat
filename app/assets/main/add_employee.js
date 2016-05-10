@@ -2,7 +2,7 @@ function add_employeeInit() {
 //    if (navigator.connection.type == Connection.NONE) {
     if (!isOffline() ) {
 //        $('#add_employee_container_error').text('No form to show. Please connect to internet to sync.');
-        $('#add_employee_container_error').text('Ingen skjema for å vise. Vennligst koble til internett for å synkronisere.');
+        $('#add_employee_container_error').text($.t('error.employee_internet_connect_error'));
     }
     else {
         $('#add_employee_container_error').hide();

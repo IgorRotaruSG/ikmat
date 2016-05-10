@@ -908,7 +908,7 @@ var step1,
     step8;
 
 step8 = {
-	'message' : 'Gjennomfør etterfølgende trinn for å fjerne eller redusere faren til akseptabelt nivå.',
+	'message' : $.t('haccp.step8_msg'),
 	'confirm' : function() {
 		deviationAnswers.step8 = 1;
 		goNextWithCriticalControl(mySwiper, step8.message);
@@ -919,7 +919,7 @@ step8 = {
 	}
 };
 step7 = {
-	'message' : 'Vil etterfølgende trinn fjerne eller redusere faren til akseptabelt nivå?',
+	'message' : $.t('haccp.step7_msg'),
 	'confirm' : function() {
 		deviationAnswers.step7 = 1;
 		goNext(mySwiper);
@@ -930,7 +930,7 @@ step7 = {
 	}
 };
 step6 = {
-	'message' : 'Kan forurensing øke til uakseptabelt nivå?',
+	'message' : $.t('haccp.step6_msg'),
 	'confirm' : function() {
 		deviationAnswers.step6 = 1;
 		openConfirmDialog(step7.message, step7.confirm, step7.cancel, 7);
@@ -941,7 +941,7 @@ step6 = {
 	}
 };
 step5 = {
-	'message' : 'Fjern eller reduser faren til et akseptabelt nivå.',
+	'message' : $.t('haccp.step5_msg'),
 	'confirm' : function() {
 		deviationAnswers.step5 = 1;
 		goNextWithCriticalControl(mySwiper, step5.message);
@@ -952,7 +952,7 @@ step5 = {
 	}
 };
 step4 = {
-	'message' : 'Er hensikten med dette trinnet å fjerne eller redusere faren til et akseptabelt nivå?',
+	'message' : $.t('haccp.step4_msg'),
 	'confirm' : function() {
 		deviationAnswers.step4 = 1;
 		openConfirmDialog(step5.message, step5.confirm, step5.cancel, 5);
@@ -963,7 +963,7 @@ step4 = {
 	}
 };
 step3 = {
-	'message' : 'Modifiser trinn, prosess eller produkt.',
+	'message' : $.t('haccp.step3_msg'),
 	'confirm' : function() {
 		deviationAnswers.step3 = 1;
 		goNextWithCriticalControl(mySwiper, step3.message);
@@ -974,7 +974,7 @@ step3 = {
 	}
 };
 step2 = {
-	'message' : 'Er styring på dette trinnet nødvendig for sikkerheten?',
+	'message' : $.t('haccp.step2_msg'),
 	'confirm' : function() {
 		deviationAnswers.step2 = 1;
 		openConfirmDialog(step3.message, step3.confirm, step3.cancel, 3);
@@ -986,7 +986,7 @@ step2 = {
 	}
 };
 step1 = {
-	'message' : 'Finnes det forebyggende kontroll eller styringstiltak for den påviste faren?',
+	'message' : $.t('haccp.step1_msg'),
 	'confirm' : function() {
 		deviationAnswers.step1 = 1;
 		openConfirmDialog(step4.message, step4.confirm, step4.cancel, 4);

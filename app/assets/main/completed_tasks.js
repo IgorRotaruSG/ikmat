@@ -5,11 +5,11 @@ var ct_settings_type = 'completedTaskUpdated';
 function getTasksCompletedCall(tx, results) {
     if (results.rows.length == 0 && isOffline()) {
 //        $('#no_results_taskList_complete').text('No task to show. Please connect to internet to sync.');
-        $('#no_results_taskList_complete').text('Ingen oppgave å vise. Vennligst koble til internett for å synkronisere.');
+        $('#no_results_taskList_complete').text($.t('error.completed_tasks_internet_connect_error'));
     }
     else if (results.rows.length == 0 && !isOffline()) {
 //        $('#no_results_taskList_complete').text('No task to show, yet.');
-        $('#no_results_taskList_complete').text('Ingen oppgave å vise, ennå.');
+        $('#no_results_taskList_complete').text($.t('error.completed_tasks_no_result'));
 
         var data = {
             'client': User.client,

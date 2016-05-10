@@ -134,15 +134,16 @@ function newCompanyRegistration(data) {
             }
 
             var $c = $(mySwiper.activeSlide());
+            var invalidEmailMsg = $.t('registering.invalid_email_exist');
 
             if (as.indexOf("company_email") != -1) {
                 var $o = $c.find('input[name="email"]');
-                $('<label id="' + $o.attr('id') + '_validate" class="validate_error">This email address already exists.</label>').insertAfter($o.parent());
+                $('<label id="' + $o.attr('id') + '_validate" class="validate_error">' + invalidEmailMsg + '</label>').insertAfter($o.parent());
             }
 
             if (as.indexOf("haccp_resonsible") != -1) {
                 var $o = $c.find('input[name="responsible_for_haccp"]');
-                $('<label id="' + $o.attr('id') + '_validate" class="validate_error">This email address already exists.</label>').insertAfter($o.parent());
+                $('<label id="' + $o.attr('id') + '_validate" class="validate_error">' + invalidEmailMsg + '</label>').insertAfter($o.parent());
             }
 
             if (fields.audit_participants != undefined) {
@@ -152,7 +153,7 @@ function newCompanyRegistration(data) {
                     if (audt.hasOwnProperty(i)) {
                         $k.each(function(){
                             if ($(this).val() == audt[i]) {
-                                $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">This email address already exists.</label>').insertAfter($(this).parent());
+                                $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">' + invalidEmailMsg + '</label>').insertAfter($(this).parent());
                                 return false;
                             }
                         });

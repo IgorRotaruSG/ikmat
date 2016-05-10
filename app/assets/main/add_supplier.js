@@ -1,7 +1,7 @@
 function add_supplierInit() {
 //    if (navigator.connection.type == Connection.NONE) {
     if (!isOffline() ) {
-        $('#add_supplier_container_error').text('No form to show. Please connect to internet to sync.');
+        $('#add_supplier_container_error').text($.t('error.supplier_internet_connect_error'));
     }
     else {
         $('#add_supplier_container_error').hide();

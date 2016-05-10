@@ -2,7 +2,7 @@ function FormCache() {
 	var that = this;
 	this.templates = {
 		"deviation" : {
-			"title" : "Avmeld avvik",
+			"title" : $.t('tasks.deviation_fix'),
 			"form_fix_deviation" : {
 				"deviation" : function(obj) {
 					return obj.deviation_description;
@@ -36,19 +36,19 @@ function FormCache() {
 						}
 					},
 					"correctional_measure" : {
-						"label" : "Korrigerende tiltak",
+						"label" : $.t('form_cache.correctional_measure_label'),
 						"type" : "textarea",
-						"placeholder" : "Beskriv hvilke korrigerende tiltak du har tatt for \u00e5 rette avviket.",
+						"placeholder" : $.t('form_cache.correctional_measure_placeholder'),
 						"validation" : ["required", "string"],
 						"value" : ""
 					},
 					"upload_photo" : {
-						"label" : "Ta eller last opp bilde",
+						"label" : $.t('form_cache.upload_photo_label'),
 						"type" : "file"
 					},
 					"date_deviation_fix" : {
 						"type" : "date",
-						"label" : "Dato for retting av avvik"
+						"label" : $.t('form_cache.date_deviation_fix')
 					}
 				},
 				"deviation_photos" : function(obj) {
@@ -62,17 +62,17 @@ function FormCache() {
 				},
 				"deviation_description" : {
 					"type" : "textarea",
-					"label" : "Avviksbeskrivelse",
+					"label" : $.t('form_cache.deviation_description'),
 					"validation" : ["required", "string"],
 					"value" : ""
 				},
 				"initial_action" : {
 					"type" : "textarea",
-					"label" : "Strakstiltak",
+					"label" : $.t('form_cache.initial_action'),
 					"validation" : ["required", "string"]
 				},
 				"upload_photo" : {
-					"label" : "Ta eller last opp bilde",
+					"label" : $.t('form_cache.upload_photo_label'),
 					"type" : "file"
 				},
 				"employee_id" : {
@@ -80,16 +80,16 @@ function FormCache() {
 					"list" : function(obj) {
 						return obj.deviation_description;
 					},
-					"label" : "Ansvarlig for tiltak",
+					"label" : $.t('form_cache.employee_id_label'),
 					"validation" : ["required", "string"]
 				},
 				"deviation_deadline" : {
 					"type" : "date",
-					"label" : "Tidsfrist for tiltak",
+					"label" : $.t('form_cache.deviation_deadline_label'),
 					"validation" : ["required", "string"]
 				},
 				"signature" : {
-					"label" : "Signatur",
+					"label" : $.t('form_cache.signature_label'),
 					"type" : "signature",
 					"validation" : ["required", "string"]
 				}
@@ -97,7 +97,7 @@ function FormCache() {
 
 		},
 		"maintenance" : {
-			"title" : "Vedlikehold",
+			"title" : $.t('form_cache.maintenance_title'),
 			"form_fix_deviation" : {
 				"deviation" : function(obj) {
 					return obj.deviation_description;
@@ -131,19 +131,19 @@ function FormCache() {
 						}
 					},
 					"correctional_measure" : {
-						"label" : "Korrigerende tiltak",
+						"label" : $.t('form_cache.correctional_measure_label'),
 						"type" : "textarea",
-						"placeholder" : "Beskriv hvilke korrigerende tiltak du har tatt for \u00e5 rette avviket.",
+						"placeholder" : $.t('form_cache.deviation_correctional_measure_placeholder'),
 						"validation" : ["required", "string"],
 						"value" : ""
 					},
 					"upload_photo" : {
-						"label" : "Ta eller last opp bilde",
+						"label" : $.t('form_cache.upload_photo_label'),
 						"type" : "file"
 					},
 					"date_deviation_fix" : {
 						"type" : "date",
-						"label" : "Dato for retting av avvik"
+						"label" : $.t('form_cache.date_deviation_fix')
 					}
 				},
 				"deviation_photos" : function(obj) {
@@ -153,7 +153,7 @@ function FormCache() {
 
 		},
 		'food_poision' : {
-			"title" : "Matforgiftning",
+			"title" : $.t('page_title.food_poison'),
 			"form_fix_deviation" : {
 				"Symptomer" : function(obj) {
 					var result = "";
@@ -169,13 +169,13 @@ function FormCache() {
 					return obj.symptomsDateTime;
 				},
 				"Hvor lenge har symptomene vart" : function(obj) {
-					return obj.symptom_days + ' Dager, ' + obj.symptom_hours + ' Timer';
+					return obj.symptom_days + ' ' + $.t('general.days') + ', ' + obj.symptom_hours + ' ' + $.t('report_html.report13_text8');
 				},
 				"Tid og dato for tilberedning av maten" : function(obj) {
 					return obj.makingFoodDateTime;
 				},
 				"Hvem deltok i m\u00e5ltidet" : function(obj) {
-					return obj.makingFoodTotalGuests + ' Totalt antall gjester, ' + obj.makingFoodSickGuests + ' Syke gjester';
+					return obj.makingFoodTotalGuests + ' ' + $.t('form_cache.food_poision_total_visiter') + ', ' + obj.makingFoodSickGuests + ' ' + $.t('form_cache.food_poision_sick_guests');
 				},
 				"Hvilken mat ble laget" : function(obj) {
 					return obj.makingFoodWhatFood;
@@ -184,22 +184,22 @@ function FormCache() {
 					return obj.makingFoodEarlierEaten;
 				},
 				"Har gjesten kontaktet lege?" : function(obj) {
-					return obj.guestTalkedDoctor ? "Ja" : "Nei";
+					return obj.guestTalkedDoctor ? $.t('booleans.yes') : $.t('booleans.no');
 				},
 				"Ingredienser" : function(obj) {
 					return obj.ingredients;
 				},
 				"Nedkj\u00f8lt?" : function(obj) {
-					return obj.cooledDown ? "Ja" : "Nei";
+					return obj.cooledDown ? $.t('booleans.yes') : $.t('booleans.no');
 				},
 				"Oppvarmet igjen?" : function(obj) {
-					return obj.reheated ? "Ja" : "Nei";
+					return obj.reheated ? $.t('booleans.yes') : $.t('booleans.no');
 				},
 				"Holdt varmt?" : function(obj) {
-					return obj.keptWarm ? "Ja" : "Nei";
+					return obj.keptWarm ? $.t('booleans.yes') : $.t('booleans.no');
 				},
 				"Er det rester igjen for analyse?" : function(obj) {
-					return obj.restLeftAnalysis ? "Ja" : "Nei";
+					return obj.restLeftAnalysis ? $.t('booleans.yes') : $.t('booleans.no');
 				},
 				"Umiddelbare tiltak" : function(obj) {
 					return obj.immediateMeasures;
@@ -238,17 +238,17 @@ function FormCache() {
 					},
 					"correctionalMeasures" : {
 						"type" : "textarea",
-						"label" : "Korrigerende tiltak",
+						"label" : $.t('form_cache.correctional_measure_label'),
 						"validation" : ["string"]
 					},
 					"signature" : {
-						"label" : "Tidsfrist for tiltak",
+						"label" : $.t('form_cache.deviation_deadline_label'),
 						"type" : "signature",
 						"validation" : ["required", "string"]
 					},
 					"date_deviation_fix" : {
 						"type" : "date",
-						"label" : "Dato for retting av avvik",
+						"label" : $.t('form_cache.date_deviation_fix'),
 						"value" : function(obj) {
 							return {
 								"date" : new Date().toISOString().substring(0, 10),
@@ -256,7 +256,7 @@ function FormCache() {
 								"timezone" : "Asia\/Bangkok"
 							};
 						},
-						"placeholder" : "Dato for retting av avvik"
+						"placeholder" : $.t('form_cache.date_deviation_fix')
 					}
 				}
 			}

@@ -14,7 +14,7 @@ function documentsCall(data) {
         var form_data = {
             'signature': {
                 'type': 'signature',
-                'label': 'Sign this document'
+                'label': $.t('documents.signature')
             }
         };
 

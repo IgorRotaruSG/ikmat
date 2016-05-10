@@ -833,7 +833,7 @@ function formItemData(data) {
 														form : {
 															form_deviation : {
 																deviation_description : {
-																	value : dd.temperature + " grader rapportert på " + results.rows.item(0).label
+																	value : dd.temperature + " " + $.t('form.deviation_description') + " " + results.rows.item(0).label
 																}
 															}
 														}

@@ -4,7 +4,7 @@ var mp_settings_type = 'myPaperUpdated';
 
 function getMyPapersCall(tx, results) {
     if (results.rows.length == 0 && isOffline()) {
-        $('#my_papers_list_no_results').text('No papers to show. Please connect to internet to sync.');
+        $('#my_papers_list_no_results').text($.t('error.no_papers_to_show'));
     }
     else if (results.rows.length == 0 && !isOffline()) {
         $('#my_papers_list_no_results').text('No papers to show, yet.');

@@ -5,10 +5,10 @@ var hpc_settings_type = 'haccpSubUpdated';
 
 function getHaccpCatCall(tx, results) {
     if (results.rows.length == 0 && isOffline()) {
-        $('#haccp_cat_list_no_results').text('No HACCP to show. Please connect to internet to sync.');
+        $('#haccp_cat_list_no_results').text($.t('haccp.no_haccp_offline'));
     }
     else if (results.rows.length == 0 && !isOffline()) {
-        $('#haccp_cat_list_no_results').text('No HACCP to show, yet.');
+        $('#haccp_cat_list_no_results').text($.t('haccp.no_haccp_online'));
 
         var data = {
             'client': User.client,

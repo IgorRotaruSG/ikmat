@@ -1,9 +1,9 @@
 function getEmployeesCall(error, results) {
     if (results.rows.length == 0 && isOffline()) {
-        $('#employee_no_results').text('No employees to show. Please connect to internet to sync.');
+        $('#employee_no_results').text($.t('error.employee_no_result'));
     }
     else if (results.rows.length == 0 && !isOffline()) {
-        $('#employee_no_results').text('No employees to show, yet.');
+        $('#employee_no_results').text($.t('error.employee_no_result_online'));
 
         var data = {
             'client': User.client,
