@@ -136,6 +136,13 @@ function getHaccpCall(err, results) {
 			});
 
 		}
+
+		//Replace by translated text
+		var eTargets = $('*[data-id^="parameters.translate"]');
+		$.each(eTargets, function (k, v){
+			var tKey = $(v).attr('data-text');
+			$(v).text($.t(tKey));
+		});
 	}
 
 }
@@ -353,6 +360,13 @@ function haccpInit() {
 					isValid = true;
 					$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 				}
+
+				//Replace by translated text
+				var eTargets = $('*[data-id^="parameters.translate"]');
+				$.each(eTargets, function (k, v){
+					var tKey = $(v).attr('data-text');
+					$(v).text($.t(tKey));
+				});
 			}
 		});
 

@@ -270,7 +270,7 @@ HTML.prototype.formGenerateWill = function(form) {
             if(form_data[i].label_tmp == '' || form_data[i].label_tmp == null)
                 form_data[i].label_tmp = form_data[i].label;
             html += HTML.formSwitch(form_data[i].label_tmp, id, as);
-            form_data[i].label = 'Hvor ofte ' + form_data[i].label_tmp.toLowerCase();
+            form_data[i].label = $.t('general.how_often') + ' ' + form_data[i].label_tmp.toLowerCase();
             if (as) {
                 html += '<div class="hide" id="' + id + '">';
             } else {
@@ -952,7 +952,7 @@ HTML.prototype.checkboxListLabelFree = function(name, label, list) {
         var html = '<label>' + label + '</label>';
     }
     //var html = '<legend><a href="#" id="tos">Ved å registrere deg  bekrefter du å ha lest og akseptert brukervilkårene.</a></legend>';
-    var html = '<label><a href="#tos" id="tos">Ved å registrere deg  bekrefter du å ha lest og akseptert brukervilkårene.</a></label>';
+    var html = '<label><a href="#tos" id="tos">'+ $.t('general.terms_of_use') +'</a></label>';
     return html;
 };
 
@@ -1484,10 +1484,10 @@ jQuery.fn.extend({
                         err = $.t("error.validation_number");
                     } else if (errorChar) {
                       errorChar = false;
-                      err = $.t("Spesialtegn og siffer kan ikke skrives i dette feltet");
+                      err = $.t('general.special_characters_not_print');
                     } else if (errorName) {
                       errorName = false;
-                      err = $.t("Dette navnet er allerede i bruk. Alle navn må være unike.");
+                      err = $.t('general.duplicated_name');
                     } else if (errorDate!='valid') {
                       if(errorDate=='invalid')
                         err = $.t("error.validation_date");

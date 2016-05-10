@@ -12,7 +12,7 @@ function getTaskCall(error, results) {
     } else {
         if (results.taskData == '' || results.taskData == null || (results.taskData).length == 0) {
             if (isOffline()) {
-                alert('This task has not fetched information. Please connect to internet.');
+                alert($.t('error.task_not_fetched'));
                 Page.redirect('tasks.html');
             } else {
                 var data = {

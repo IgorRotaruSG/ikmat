@@ -183,7 +183,7 @@ function reportsInit() {
 
 				if ($.mobile.activePage.attr('id') == 'reports') {
 					if (swiper.activeIndex == 0) {
-						$('h1.ui-title').html('Rapporter');
+						$('h1.ui-title').html($.t('page_title.reports'));
 						$('div#global_footer').hide();
 					} else {
 						$('div#global_footer').show();
@@ -575,7 +575,8 @@ function openNativeEmailAtReportPage(pdf, email_data){
 
     var subject = report_name ? report_name: "Rapporter";
     var companyName = localStorage.getItem('company_name');
-    subject +=  companyName ? (" fra " + companyName) : "";
+	var clickToSeeReport = $.t('reports.click_to_see_report');
+    subject +=  companyName ? (" " + $.t('general.from') + " " + companyName) : "";
     var mailObject = {
         subject: subject,
         cc: localStorage.getItem("user_email") ? localStorage.getItem("user_email"): "",
@@ -587,16 +588,16 @@ function openNativeEmailAtReportPage(pdf, email_data){
 	if(pdf && !isLinkData(email_data.report_id)){
 		if(pdf.url && pdf.url!='') { // If file too large (> 10M) will send link instead of attachment
 			mailObject.isHtml = true;
-            mailObject.body = '<div>Trykk på lenken nedenfor for å se rapporter: <a href="' + pdf.url + '">' + pdf.name + '</a></div>';
+            mailObject.body = '<div>' + clickToSeeReport + ': <a href="' + pdf.url + '">' + pdf.name + '</a></div>';
 		} else {
 			mailObject.attachments = "base64:" + pdf.name + "//" + pdf.data;
 		}
 	}else {
     	if(isNative()){
             mailObject.isHtml = true;
-            mailObject.body = '<div>Trykk på lenken nedenfor for å se rapporter: <a href="' + encodeURI(pdf.data) + '">' + pdf.data + '</a></div>';
+            mailObject.body = '<div>' + clickToSeeReport + ': <a href="' + encodeURI(pdf.data) + '">' + pdf.data + '</a></div>';
     	}else{
-    		mailObject.body = "Trykk på lenken nedenfor for å se rapporter: " + pdf.data;
+    		mailObject.body = "' + clickToSeeReport + ': " + pdf.data;
     	}
 
     }
@@ -652,13 +653,13 @@ function documentsCall(data) {
         var form_data = {
             'signature': {
                 'type': 'signature',
-                'label': 'Sign this document'
+                'label': $.t('documents.signature')
             }
         };
         // Anchor for documents
         displayDocumnetList(true);
 
-        $('h1.ui-title').html('Selskapsdokument');
+        $('h1.ui-title').html($.t('nav.documents'));
 		$('#document-list .ui-panel-inner').css({
 			"overflow-y" : "scroll",
 			"height" : $(window).height()

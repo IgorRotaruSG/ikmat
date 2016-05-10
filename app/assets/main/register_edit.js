@@ -164,6 +164,13 @@ function register_editInit() {
 	} else {
 		newCompanyRegistrationOff(true);
 	}
+
+	//Replace by translated text
+	var eTargets = $('*[data-id^="parameters.translate"]');
+	$.each(eTargets, function (k, v){
+		var tKey = $(v).attr('data-text');
+		$(v).text($.t(tKey));
+	});
 }
 
 function showStepFromDB(error, results) {

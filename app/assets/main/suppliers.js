@@ -1,9 +1,9 @@
 function getSuppliersCall(tx, results) {
     if (results.rows.length == 0 && isOffline()) {
-        $('#suppliers_no_results').text('No suppliers to show. Please connect to internet to sync.');
+        $('#suppliers_no_results').text($.t('error.no_supplier_to_show_offline'));
     }
     else if (results.rows.length == 0 && !isOffline()) {
-        $('#suppliers_no_results').text('No suppliers to show, yet.');
+        $('#suppliers_no_results').text($.t('error.no_supplier_to_show_online'));
 
         var data = {
             'client': User.client,

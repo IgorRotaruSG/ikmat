@@ -390,7 +390,7 @@ function getTaskData(data) {
 															value : JSON.parse(dev_data.results).task_id
 														},
 														deviation_description : {
-															value : dd.temperature + " grader rapportert på " + data.form.label.value
+															value : dd.temperature + " " + $.t('form.deviation_description') + " " + data.form.label.value
 														}
 													}
 												}, function(response) {

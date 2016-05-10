@@ -593,28 +593,28 @@ function parseQuery(qstr) {
 Page.prototype.formatTaskDate = function(date) {
     var d = new Array();
 
-    d[0] = 'Søndag';
-    d[1] = 'Mandag';
-    d[2] = 'Tirsdag';
-    d[3] = 'Onsdag';
-    d[4] = 'Torsdag';
-    d[5] = 'Fredag';
-    d[6] = 'Lørdag';
+    d[0] = $.t('general.sunday');
+    d[1] = $.t('general.monday');
+    d[2] = $.t('general.tuesday');
+    d[3] = $.t('general.wednesday');
+    d[4] = $.t('general.thursday');
+    d[5] = $.t('general.friday');
+    d[6] = $.t('general.saturday');
 
     var m = new Array();
 
-    m[0] = 'januar';
-    m[1] = 'februar';
-    m[2] = 'mars';
-    m[3] = 'april';
-    m[4] = 'mai';
-    m[5] = 'juni';
-    m[6] = 'juli';
-    m[7] = 'august';
-    m[8] = 'september';
-    m[9] = 'oktober';
-    m[10] = 'november';
-    m[11] = 'desember';
+    m[0] = $.t('general.january');
+    m[1] = $.t('general.february');
+    m[2] = $.t('general.march');
+    m[3] = $.t('general.april');
+    m[4] = $.t('general.may');
+    m[5] = $.t('general.june');
+    m[6] = $.t('general.july');
+    m[7] = $.t('general.august');
+    m[8] = $.t('general.september');
+    m[9] = $.t('general.october');
+    m[10] = $.t('general.november.');
+    m[11] = $.t('general.december.');
 
     return d[date.getDay()] + ' ' + date.getDate() + '. ' + m[date.getMonth()];
 };
