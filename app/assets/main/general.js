@@ -186,6 +186,17 @@ Page.prototype.isReady = function() {
                 }
             }
         });
+
+        $.each($('*[data-lang]'), function (k, v){
+            var tKey = $(v).attr('data-lang');
+            var tTrans = $.t(tKey);
+            if (tTrans != '') {
+                $(v).val(tTrans).text(tTrans);
+                if($(v).is("button")) {
+                    $(v).button('refresh');
+                }
+            }
+        });
     }
 };
 

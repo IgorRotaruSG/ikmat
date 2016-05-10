@@ -48,18 +48,18 @@
                 <img src="assets/style/images/logo_text_big_new.png" class="logo" alt="logo"/>
 
                 <div class="form-group">
-                    <label data-id="parameters.translate.email" name="text" for="username" class="control-label" style="width:10px">Epost</label>
+                    <label data-id="parameters.translate.email" data-lang="login.text.email" name="text" for="username" class="control-label" style="width:10px">Epost</label>
                     <input type="email" data-i18n="[placeholder]login.input.email_placeholder;" id="input_email"  value="" />
                 </div>
 
                 <div class="form-group">
-                    <label data-id="parameters.translate.password" name="text for="password" class="control-label">Passord</label>
+                    <label data-id="parameters.translate.password" data-lang="login.input.password_placeholder" name="text for="password" class="control-label">Passord</label>
                     <input type="password" data-i18n="[placeholder]login.input.password_placeholder;" autocomplete="off" id="input_password" class="" value="" />
-                    <a data-id="parameters.translate.forgot_password" href="forgot.html" data-i18n="login.text.forgot" data-transition="slide" class="btn btn-link pull-right">Glemt passord?</a>
+                    <a data-id="parameters.translate.forgot_password" data-lang="login.text.forgot" href="forgot.html" data-i18n="login.text.forgot" data-transition="slide" class="btn btn-link pull-right">Glemt passord?</a>
                 </div>
 
                 <div class="form-group">
-                    <label data-id="parameters.translate.language" for="language" class="control-label">språk</label>
+                    <label data-id="parameters.translate.language" data-lang="login.text.language" for="language" class="control-label">språk</label>
                     <select id="input-lang" class="form-control input-lg" onchange="changeLanguage($('#input-lang').val(), $('*[data-id^=\'parameters.translate\']'))">
                         <option value="no">Norwegian</option>
                         <option value="en">English</option>
@@ -67,12 +67,12 @@
                 </div>
 
             </div>
-            <button data-id="parameters.translate.login" id='loginSubmit' type="submit" data-i18n="login.input.button" data-theme="d" class="btn btn-success btn-block" onclick="loginAction()">Logg inn</button>
+            <button data-id="parameters.translate.login" data-lang="login.input.button" id='loginSubmit' type="submit" data-i18n="login.input.button" data-theme="d" class="btn btn-success btn-block" onclick="loginAction()">Logg inn</button>
 
             <div class="clearfix"></div>
 
             <!-- build:remove:ios -->
-            <p id='goto-signup' class="text-muted" onclick="Page.redirect('register_company.html');" ><span data-id="parameters.translate.do_you_have_an_accout">Har du ikke en konto?</span> <a data-id="parameters.translate.try_14day_free" href="#"> PRØV GRATIS I 14 DAGER</a></p>
+            <p id='goto-signup' class="text-muted" onclick="Page.redirect('register_company.html');" ><span data-id="parameters.translate.do_you_have_an_accout" data-lang="login.text.have_an_account">Har du ikke en konto?</span> <a data-id="parameters.translate.try_14day_free" data-lang="login.text.try_in_14day" href="#"> PRØV GRATIS I 14 DAGER</a></p>
             <!-- /build -->
 
         </div>

@@ -68,6 +68,7 @@ function SyncMaster(data) {
 }
 
 function _syncGetAll(data){
+    $('#login_done').text($.t('login.text.login_done'));
     $('#login_done').removeClass('hide');
     //$('.overflow-wrapper').addClass('overflow-wrapper-hide');
     //$('#clean-overflow-wrapper').removeClass('overflow-wrapper-hide');

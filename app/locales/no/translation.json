@@ -98,7 +98,7 @@
         "validation_number": "Sett inn numerisk verdi.",
         "validation_date": "Du kan bare velge i dag eller fremtidige datoer som startdato. Datoer som allerede har vært kan ikke velges.",
         "validation_date_format": "Datoen er feil format. Det må være 'yyyy-mm-dd' format.",
-		"validation_duplicate": "Dette navnet er allerede i bruk. Alle navn må være unike.",
+        "validation_duplicate": "Dette navnet er allerede i bruk. Alle navn må være unike.",
         "validation_email": "Vennligst skriv inn en gyldig epostaddresse.",
         "duplicate_email": "Denne epostaddressen er allerede registrert.",
         "no_internet_for_sync": "Ingen internettforbindelse. Vennligst koble til internett for å synkronisere.",
@@ -210,7 +210,9 @@
             "register": "Registrer",
             "login_done": "Logget inn. Synkroniserer",
             "have_an_account": "Har du ikke en konto?",
-            "try_in_14day": "PRØV GRATIS I 14 DAGER"
+            "try_in_14day": "PRØV GRATIS I 14 DAGER",
+            "email": "Epost",
+            "language": "språk"
         }
     },
 
