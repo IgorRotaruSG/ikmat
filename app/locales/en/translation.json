@@ -46,6 +46,7 @@
         "duplicated_name": "EN_Dette navnet er allerede i bruk. Alle navn må være unike.",
         "from": "EN_fra",
         "cancel": "EN_Avbryt",
+        "ok": "EN_OK",
         "previous": "EN_Forrige",
         "next": "EN_Neste",
         "syn_tasks": "EN_Synkroniserer oppgaver",
@@ -210,7 +211,9 @@
             "register": "EN_Registrer",
             "login_done": "EN_Logget inn. Synkroniserer",
             "have_an_account": "EN_Har du ikke en konto?",
-            "try_in_14day": "EN_PRØV GRATIS I 14 DAGER"
+            "try_in_14day": "EN_PRØV GRATIS I 14 DAGER",
+            "email": "EN_Epost",
+            "language": "EN_språk"
         }
     },
 

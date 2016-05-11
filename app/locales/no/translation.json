@@ -46,6 +46,7 @@
         "duplicated_name": "Dette navnet er allerede i bruk. Alle navn må være unike.",
         "from": "fra",
         "cancel": "Avbryt",
+        "ok": "OK",
         "previous": "Forrige",
         "next": "Neste",
         "syn_tasks": "Synkroniserer oppgaver",
