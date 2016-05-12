@@ -165,6 +165,10 @@ function deleteFlowchart(flowchartId){
                 confirm_action = true;
                 $('#confirmPopup').popup('close');
             });
+            $.each( $('*[data-lang]'), function( k, v ) {
+                var tKey = $(v).attr('data-lang');
+                $(v).find("span.ui-btn-text").text($.t(tKey));
+            });
         });
     $('#confirmPopup').off("popupafterclose").on(
         "popupafterclose", function( event, ui ) {

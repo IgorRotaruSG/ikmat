@@ -849,6 +849,10 @@ function formItemData(data) {
 										});
 									}
 								});
+								$.each( $('*[data-lang]'), function( k, v ) {
+									var tKey = $(v).attr('data-lang');
+									$(v).find("span.ui-btn-text").text($.t(tKey));
+								});
 							});
 							$('#confirmPopup').on("popupafterclose", function(event, ui) {
 								//var a = false;
