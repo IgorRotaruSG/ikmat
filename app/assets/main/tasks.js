@@ -46,6 +46,7 @@ function getTasksCall(err, results) {
 			$('#load_more_tasks').parent().hide();
 		}
 	} else if (!isOffline()) {
+		$('#load_more_tasks').parent().find('.ui-btn-text').html($.t("general.loading"));
 		$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
 		var data = {
 			'client' : User.client,
@@ -390,7 +391,7 @@ function getTaskData(data) {
 															value : JSON.parse(dev_data.results).task_id
 														},
 														deviation_description : {
-															value : dd.temperature + " " + $.t('form.deviation_description') + " " + data.form.label.value
+															value : dd.temperature + " grader rapportert på " + data.form.label.value
 														}
 													}
 												}, function(response) {

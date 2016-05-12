@@ -427,7 +427,7 @@ function reportsView(data) {
 	//$('#' + $.mobile.activePage.attr('id')).trigger('create');
 	$('.overflow-wrapper').addClass('overflow-wrapper-hide');
 
-	$('h1.ui-title').html('Rapporter');
+	$('h1.ui-title').html($.t('page_title.reports'));
 
 	$('.svgString').each(function() {
 		if ($(this).val() != '') {
