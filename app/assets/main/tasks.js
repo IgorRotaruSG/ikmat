@@ -350,6 +350,8 @@ function getTaskData(data) {
 						$('#confirmPopup .alert-text').html($.t('general.deviation_accept_message'));
 					}
 					$('#confirmPopup').on("popupafteropen", function(event, ui) {
+						$('#cancelButton').find('span.ui-btn-text').html($.t('general.cancel'));
+						$('#confirmButton').find('span.ui-btn-text').html($.t('general.ok'));
 						$('#confirmButton').off('click').on('click', function() {
 							confirm_action = true;
 						});
