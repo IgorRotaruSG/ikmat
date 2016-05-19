@@ -75,14 +75,6 @@ module.exports = [
         ]
     },
     {
-        "file": "plugins/phonegap-plugin-push/www/push.js",
-        "id": "phonegap-plugin-push.PushNotification",
-        "pluginId": "phonegap-plugin-push",
-        "clobbers": [
-            "PushNotification"
-        ]
-    },
-    {
         "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
         "id": "cordova-plugin-inappbrowser.inappbrowser",
         "pluginId": "cordova-plugin-inappbrowser",
@@ -283,6 +275,14 @@ module.exports = [
         "clobbers": [
             "SQLitePlugin"
         ]
+    },
+    {
+        "file": "plugins/phonegap-plugin-push/www/push.js",
+        "id": "phonegap-plugin-push.PushNotification",
+        "pluginId": "phonegap-plugin-push",
+        "clobbers": [
+            "PushNotification"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -292,7 +292,8 @@ module.exports.metadata =
     "cordova-plugin-file-transfer": "1.4.0",
     "cordova-plugin-file": "3.0.0",
     "cordova-plugin-email": "1.0.0",
-    "cordova-sqlite-storage": "0.8.4-dev"
+    "cordova-sqlite-storage": "0.8.4-dev",
+    "phonegap-plugin-push": "1.6.3"
 }
 // BOTTOM OF METADATA
 });

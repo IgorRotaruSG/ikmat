@@ -51,6 +51,9 @@
     "error": {
         "validation": "Dette feltet er påkrevet.",
         "validation_number": "Sett inn numerisk verdi.",
+        "validation_date": "Du kan bare velge i dag eller fremtidige datoer som startdato. Datoer som allerede har vært kan ikke velges.",
+        "validation_date_format": "Datoen er feil format. Det må være 'yyyy-mm-dd' format.",
+		"validation_duplicate": "Dette navnet er allerede i bruk. Alle navn må være unike.",
         "validation_email": "Vennligst skriv inn en gyldig epostaddresse.",
         "duplicate_email": "Denne epostaddressen er allerede registrert.",
         "no_internet_for_sync": "Ingen internettforbindelse. Vennligst koble til internett for å synkronisere.",
@@ -70,7 +73,8 @@
         "password_recover_email": "En epost er sendt deg. Vennligst sjekk eposten og følg instruksjonene for å endre passord.",
         "register_edit": "Takk for at du har registrert ditt selskap. Du kan nå fortsette med fareanalysen.",
         "added_employee": "Ny ansatt er lagt til.",
-        "added_supplier": "Ny leverandør er lagt til."
+        "added_supplier": "Ny leverandør er lagt til.",
+        "report_send_via_email": "Rapporten vil bli sendt til din postkasse."
     },
 
     "page_title": {

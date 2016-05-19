@@ -22,9 +22,6 @@
         "org.apache.cordova.network-information": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
-        "phonegap-plugin-push": {
-            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
-        },
         "cordova-plugin-inappbrowser": {
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
@@ -41,6 +38,10 @@
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         },
         "cordova-sqlite-storage": {
+            "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
+        },
+        "phonegap-plugin-push": {
+            "SENDER_ID": "1082286274916",
             "PACKAGE_NAME": "{c2ff8490-970e-11e5-bfdc-851f573aefb3}"
         }
     },
