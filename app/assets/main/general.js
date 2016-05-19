@@ -2459,15 +2459,15 @@ function executeSyncQuery() {
 }
 
 function printPage() {
-    var style = $('#page-wrap').find('style');
+    var style = $('.page-wrap').find('style');
     if (style.length == 0) {
         $.get('assets/document/style.css', function(resp) {
             // resp now should contain your CSS file content.
             var css = '<style>' + resp + '</style>';
-            $('#page-wrap').prepend(css);
+            $('.page-wrap').prepend(css);
 
             if(isNative() && cordova.plugins && cordova.plugins.printer) {
-                var page = document.getElementById('page-wrap');
+                var page = $('.page-wrap').html();
                 cordova.plugins.printer.print(page, {
                     name : 'Document.html',
                     landscape : false
@@ -2475,7 +2475,7 @@ function printPage() {
                     //alert('printing finished or canceled')
                 });
             } else {
-                var page = $('#page-wrap').html();
+                var page = $('.page-wrap').html();
                 w=window.open();
                 w.document.write('<title>HACCP</title>');
                 w.document.write(page);
@@ -2485,7 +2485,7 @@ function printPage() {
         });
     } else {
         if(isNative() && cordova.plugins && cordova.plugins.printer) {
-            var page = document.getElementById('page-wrap');
+            var page = $('.page-wrap').html();
             cordova.plugins.printer.print(page, {
                 name : 'Document.html',
                 landscape : false
@@ -2493,7 +2493,7 @@ function printPage() {
                 //alert('printing finished or canceled')
             });
         } else {
-            var page = $('#page-wrap').html();
+            var page = $('.page-wrap').html();
             w=window.open();
             w.document.write('<title>HACCP</title>');
             w.document.write(page);
