@@ -2,50 +2,6 @@
   "name": "ik-mat",
   "version": "2.0.48",
   "dependencies": {
-    "angular": "^*",
-    "bootstrap": "^3.2.0" ,
-    "angular-animate": "^*",
-    "angular-cookies": "^*",
-    "angular-resource": "^*",
-    "angular-sanitize": "^*",
-    "angular-touch": "^*",
-    "angular-ui-router": "^*",
-    "angular-bindonce": "^*",
-    "angular-strap": "^*",
-    "angular-bootstrap": "*",
-    "angular-carousel": "*",
-    "jquery": "^*",
-    "requirejs": "^*",
-    "lodash": "*",
-    "modernizr": "^*",
-    "lesshat": "^*",
-    "moment": "^*",
-    "html5shiv": "^*",
-    "underscore": "^*",
-    "modernizr": "^*",
-    "please-wait": "^*",
-    "underscore": "^*",
-    "vegas": "*",
-    "ngCart": "https://github.com/snapjay/ngCart.git",
-    "toastr": "*",
-    "wow": "https://github.com/matthieua/WOW.git",
-    "jquery-validation": "*",
-    "slimScroll": "https://github.com/rochal/jQuery-slimScroll.git",
-    "ngmap": "*"
 
-  },
-  "devDependencies": {
-    "angular-mocks": "^*"
-  },
-  "appPath": "app",
-  "moduleName": "huongduongPts",
-  "overrides": {
-    "bootstrap": {
-      "main": [
-        "less/bootstrap.less",
-        "dist/css/bootstrap.css",
-        "dist/js/bootstrap.js"
-      ]
-    }
   }
 }
