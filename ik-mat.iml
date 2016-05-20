@@ -3,8 +3,12 @@
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/bin" />
     <exclude-output />
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/platforms" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/cordova-sqlite-storage/spec/platforms" />
+    </content>
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="ik-mat node_modules" level="project" />
     <orderEntry type="library" name="ik-mat node_modules" level="project" />
     <orderEntry type="library" name="ik-mat node_modules" level="project" />
   </component>

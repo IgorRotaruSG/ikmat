@@ -21,10 +21,6 @@
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"PushNotification\"><param name=\"ios-package\" value=\"PushPlugin\" /></feature>",
-                            "count": 1
-                        },
-                        {
                             "xml": "<feature name=\"Device\"><param name=\"ios-package\" value=\"CDVDevice\" /></feature>",
                             "count": 1
                         },
@@ -69,12 +65,7 @@
             },
             "*-Info.plist": {
                 "parents": {
-                    "UIBackgroundModes": [
-                        {
-                            "xml": "<array><string>remote-notification</string></array>",
-                            "count": 1
-                        }
-                    ]
+                    "UIBackgroundModes": []
                 }
             }
         }
@@ -93,9 +84,6 @@
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "org.apache.cordova.network-information": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
-        "phonegap-plugin-push": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
         "cordova-plugin-device": {
@@ -186,14 +174,6 @@
             "pluginId": "org.apache.cordova.network-information",
             "clobbers": [
                 "Connection"
-            ]
-        },
-        {
-            "file": "plugins/phonegap-plugin-push/www/push.js",
-            "id": "phonegap-plugin-push.PushNotification",
-            "pluginId": "phonegap-plugin-push",
-            "clobbers": [
-                "PushNotification"
             ]
         },
         {

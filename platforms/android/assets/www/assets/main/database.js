@@ -1,1 +1,343 @@
-function db(){this.db_name="haccp",this.db_version="1.0",this.db_size=5242880,this.database=localStorage.getItem("database"),this.appVersion=localStorage.getItem("app-version"),this.data=[],this.query=!1,this.collections=[],this.tables=["settings","tasks","haccp_category","haccp_items","forms","registration","form_item","sync_query","reports","flowchart"]}function _fetchResults(a,b){db_data=b.rows}function createDesignDoc(a,b){var c={_id:"_design/"+a,views:{}};return c.views[a]={map:b.toString()},c}var query=!1,db_data=[];db.prototype.asyncExecute=function(a,b,c){void 0!=a.sql&&b<a.data.length&&this.asyncExecute(a,parseInt(b)+1)},db.prototype.lazyQuery=function(a,b,c,d){if(1==logout_flag)return!1;a&&void 0!=b&&b.length>0?this.bulkDocs(a,b,c,d):"function"!=typeof c&&void 0!=window[c]?d?window[c](d):window[c]():c&&"function"==typeof c&&(d?c(d):c())},db.prototype.bulkDocs=function(a,b,c,d){if(!a)return null;for(var e=[],f=this,g=0;g<b.length;g++){var h=g;!function(c,f){e[f]=new Promise(function(e,g){c.collections[a].get(String(b[f]._id||b[f].id),function(a,c){a&&(b[f].timestamp=(new Date).toJSON(),e(!1)),!a&&c&&c._rev?(b[f]=jQuery.extend(c,b[f]),b[f]._id=String(b[f]._id),d&&d._deleted&&(console.log("deleted"),b[f]._deleted=!0),e(!0)):e(!1)})})}(f,h)}Promise.all(e).then(function(){f.collections[a].bulkDocs(b,function(a,b){"function"!=typeof c&&void 0!=window[c]?d?window[c](d,b):window[c](b):c&&"function"==typeof c&&(d?c(d,b):c(b))})})},db.prototype.lazyQuerySync=function(a,b,c,d){if(1==logout_flag)return!1;void 0!=a&&void 0!=b&&b.length>0?this.bulkDocs(a,b,c,d):void 0!=window[c]&&(void 0!=d?window[c](d):window[c]())},db.prototype.clean=function(){query=!1,db_data=[]},db.prototype._execQuery=function(a){return query?void a.executeSql(query,[],_fetchResults,this.dbErrorHandle):!1},db.prototype.createView=function(a,b,c){var d=createDesignDoc(b,c);this.collections[a].put(d)},db.prototype.createTables=function(a){localStorage.setItem("database",!0),this.database=!0,localStorage.setItem("app-version",settings.version),this.appVersion=settings.version;for(var b=this,c=0;c<this.tables.length;c++){var d=c;!function(a){b.collections[b.tables[a]]=new PouchDB(b.db_name+"_"+b.tables[a],{skip_setup:!0});var c=createDesignDoc("sort_index",function(a){emit(a.timestamp)});b.collections[b.tables[a]].put(c)}(d)}this.createView("sync_query","get_sync",function(a){a.executed||emit(a.timestamp)}),a&&window.location.reload()},db.prototype.dropDb=function(){this.db.transaction(this.dbDropTables,this.dbErrorHandle,function(){return!0})},db.prototype.dbDropTables=function(){this.database=!1;for(var a=0;a<localStorage.length;a++)"user_email"!=localStorage.key(a)&&localStorage.removeItem(localStorage.key(a));for(var b=[],a=0;a<this.tables.length;a++){var c=this.collections[this.tables[a]];c||(c=new PouchDB(this.db_name+"_"+this.tables[a],{skip_setup:!0})),b[a]=new Promise(function(a,b){c?c.destroy(a):c.destroy(a)})}return Promise.all(b)},db.prototype.InitDB=function(){var a=!1,b=this;a=this.database&&void 0!==this.database&&null!==this.database?!1:!0,(!this.appVersion||this.appVersion&&settings.rebuild&&this.appVersion.replace(/\./g,"")<settings.rebuild.replace(/\./g,""))&&(a=!0),a?(console.log("isCreateDB"),this.dbDropTables().then(function(a){console.log("results isCreateDB",a),b.createTables(!0)})):this.createTables()},db.prototype.dbCreateTables=function(a){this.dbDropTables(a),localStorage.setItem("database",!0),this.database=!0,localStorage.setItem("app-version",settings.version),this.appVersion=settings.version},db.prototype.dbErrorHandle=function(a){console.log("Error processing SQL: ",a),console.log("query: ",query);var b=this;this.dbDropTables().then(function(){b.createTables(),window.location.reload()})},db.prototype.dbSuccessHandle=function(){return!0},db.prototype.getDbInstance=function(a){return a?this.collections[a]:!1},db.prototype.clearCollection=function(a,b){var c=this;this.collections[a].query("sort_index",function(d,e){c.bulkDocs(a,e.rows,function(){b&&b()},{_deleted:!0})})};
+"use strict";
+var query = false;
+// used internally by class -- FUCK SQLITE ... --
+var db_data = [];
+// used internally by class -- FUCK SQLITE ... --
+//var thisdatabase;
+
+function db() {
+	this.db_name = 'haccp';
+	this.db_version = '1.0';
+	this.db_size = 50;
+	this.database = localStorage.getItem('database');
+	this.appVersion = localStorage.getItem('app-version');
+	this.data = [];
+	this.query = false;
+	this.collections = [];
+	this.tables = ['tasks', 'haccp_items', 'forms', 'registration', 'form_item', 'sync_query', 'reports', 'flowchart', 'settings'];
+	this.localStore = ['app-version', 'company_join_date', 'company_name', 'contact_name', 'database', 'role', 'user_data', 'user_name'];
+	PouchDB.plugin(Erase);
+}
+
+db.prototype.asyncExecute = function(data, step, callback) {
+	if (data.sql != undefined && step < data.data.length) {
+		this.asyncExecute(data, parseInt(step) + 1);
+	}
+};
+
+db.prototype.lazyQuery = function(collection, data, callback, params) {
+	if (logout_flag == true) {
+		return false;
+	}
+	var thisClass = this;
+	if (collection && data != undefined && data.length > 0) {
+		this.bulkDocs(collection, data, callback, params);
+	} else {
+		if ( typeof callback != 'function' && window[callback] != undefined) {
+			if (params) {
+				window[callback](params);
+			} else {
+				window[callback]();
+			}
+		} else if (callback && typeof callback == 'function') {
+			if (params) {
+				callback(params);
+			} else {
+				callback();
+			}
+
+		}
+	}
+};
+
+db.prototype.bulkDocs = function(collection, docs, callback, params) {
+	if (!collection) {
+		return null;
+	}
+	var promises = [];
+	var that = this;
+	for (var i = 0; i < docs.length; i++) {
+		var index = i;
+		(function(that, i) {
+			promises[i] = new Promise(function(resolve, reject) {
+				that.collections[collection].get(String(docs[i]._id || docs[i].id), function(err, doc) {
+					if (err) {
+						docs[i].timestamp = new Date().toJSON();
+						resolve(false);
+					}
+					if (!err && doc && doc._rev) {
+						docs[i] = jQuery.extend(doc, docs[i]);
+						docs[i]._id = String(docs[i]._id);
+						if (params && params._deleted) {
+							that.collections[collection].remove(doc);
+						}
+						resolve(true);
+					} else {
+						resolve(false);
+					}
+
+				});
+			});
+		})(that, index);
+	}
+	Promise.all(promises).then(function() {
+		if (params && params._deleted) {
+			if ( typeof callback != 'function' && window[callback] != undefined) {
+				window[callback]();
+			} else if (callback && typeof callback == 'function') {
+				callback();
+			}
+			return;
+		}
+		that.collections[collection].bulkDocs(docs, function(error, results) {
+			if ( typeof callback != 'function' && window[callback] != undefined) {
+				if (params) {
+					window[callback](params, results);
+				} else {
+					window[callback](results);
+				}
+			} else if (callback && typeof callback == 'function') {
+				if (params) {
+					callback(params, results);
+				} else {
+					callback(results);
+				}
+			}
+		});
+	});
+};
+
+db.prototype.lazyQuerySync = function(collection, data, callback, callback_params) {
+	if (logout_flag == true) {
+		return false;
+	}
+	var thisClass = this;
+	if (collection != undefined && data != undefined && data.length > 0) {
+		this.bulkDocs(collection, data, callback, callback_params);
+	} else {
+		if (window[callback] != undefined) {
+			if (callback_params != undefined) {
+				window[callback](callback_params);
+			} else {
+				window[callback]();
+			}
+		}
+	}
+};
+
+db.prototype.clean = function() {
+	query = false;
+	db_data = [];
+};
+
+db.prototype._execQuery = function(tx) {
+	//alert('query:' + query);
+	if (query) {
+		tx.executeSql(query, [], _fetchResults, this.dbErrorHandle);
+	} else {
+		return false;
+	}
+};
+
+function _fetchResults(tx, results) {
+	db_data = results.rows;
+}
+
+function createDesignDoc(name, mapFunction) {
+	var ddoc = {
+		_id : '_design/' + name,
+		views : {
+		}
+	};
+	ddoc.views[name] = {
+		map : mapFunction.toString()
+	};
+	return ddoc;
+}
+
+db.prototype.createView = function(collection, name, mapFunction) {
+	var designDoc = createDesignDoc(name, mapFunction);
+	this.collections[collection].putIfNotExists(designDoc);
+};
+
+db.prototype.createCollection = function(i, callback) {
+
+	if (i == this.tables.length) {
+		if (callback) {
+			callback();
+		}
+		return;
+	}
+	var that = this;
+	if (!that.collections[that.tables[i]]) {
+		var db_option = {
+			auto_compaction : true,
+			skip_setup : true
+		};
+		if (window.openDatabase) {
+			db_option.adapter = 'websql';
+		}
+		new PouchDB(that.db_name + "_" + that.tables[i], db_option).then(function(result) {
+			that.collections[that.tables[i]] = result;
+			if (!that.collections[that.tables[i]].adapter) {// websql not supported by this browser
+				that.collections[that.tables[i]] = new PouchDB(that.db_name + "_" + that.tables[i], {
+					skip_setup : true
+				}).then(function(result) {
+					that.collections[that.tables[i]] = result;
+					that.createCollection(i + 1, callback);
+				});
+			} else {
+				that.createCollection(i + 1, callback);
+			}
+			return result;
+
+		}).catch(function(err) {
+			console.log(err);
+		});
+	} else {
+		this.createCollection(i + 1, callback);
+	}
+
+};
+
+db.prototype.createTables = function(isReload) {
+	localStorage.setItem('database', true);
+	this.database = true;
+	localStorage.setItem("app-version", settings.version);
+	this.appVersion = settings.version;
+	var that = this;
+	var index = 0;
+	var promise = new Promise(function(resolve, reject) {
+		that.createCollection(index, function() {
+			for (var i = 0; i < that.tables.length; i++) {
+				that.createView(that.tables[i], 'sort_index', function(doc) {
+					emit(doc.timestamp);
+				});
+
+			}
+			that.createView('sync_query', 'get_sync', function(doc) {
+				if (!doc.executed) {
+					emit(doc.timestamp);
+				}
+			});
+			if (isReload) {
+				window.location.reload();
+			}
+			resolve(true);
+		});
+	});
+	return promise;
+
+};
+
+db.prototype.dropDb = function() {
+	this.db.transaction(this.dbDropTables, this.dbErrorHandle, function() {
+		return true;
+	});
+};
+
+db.prototype.dbDropTables = function() {
+	this.database = false;
+	var that = this;
+	for (var i = 0; i < localStorage.length; i++) {
+		if (this.localStore.indexOf(localStorage.key(i)) > -1) {
+			localStorage.removeItem(localStorage.key(i));
+		}
+	}
+	var promises = [];
+	console.log('dbDropTables', this.tables);
+	for (var i = 0; i < this.tables.length; i++) {
+		console.log('dbDropTables for', this.tables[i]);
+		var index = i;
+		(function(i) {
+			promises[i] = new Promise(function(resolve, reject) {
+				var collection = that.collections[that.tables[i]];
+				if(!collection){
+					collection = new PouchDB(that.db_name + "_" + that.tables[i], {skip_setup: true});
+				}
+				if (collection) {
+					collection.destroy(function(err, response) {
+						if (err) {
+							console.log(err);
+						}
+						resolve(true);
+					});
+				}else{
+					resolve(false);
+				}
+
+			});
+		})(index);
+	}
+	return Promise.all(promises).then(function(result) {
+		if (result.length == promises.length) {
+			return result;
+		}
+	});
+};
+
+db.prototype.InitDB = function() {
+	var isCreateDB = false;
+	var that = this;
+	if (!this.appVersion || (this.appVersion && settings.rebuild && this.appVersion.replace(/\./g, "") < settings.rebuild.replace(/\./g, ""))) {
+		isCreateDB = true;
+	}
+	console.log('isCreateDB', isCreateDB);
+	if (isCreateDB) {
+		this.dbDropTables().then(function(results) {
+			localStorage.setItem("app-version", settings.version);
+			window.location.reload();
+		});
+	} else {
+		return this.createTables();
+	}
+};
+
+db.prototype.dbCreateTables = function(tx) {
+	this.dbDropTables(tx);
+	localStorage.setItem('database', true);
+	this.database = true;
+	localStorage.setItem("app-version", settings.version);
+	this.appVersion = settings.version;
+};
+
+db.prototype.dbErrorHandle = function(err) {
+	console.log("Error processing SQL: ", err);
+	console.log('query: ', query);
+	var that = this;
+	this.dbDropTables().then(function() {
+		// that.createTables();
+		window.location.reload();
+	});
+};
+
+db.prototype.dbSuccessHandle = function() {
+	//alert("success!");
+	return true;
+};
+
+db.prototype.getDbInstance = function(name) {
+	if (name && this.collections[name]) {
+		return this.collections[name];
+	}
+	return false;
+};
+
+db.prototype.clearCollection = function(name, callback) {
+	var that = this;
+	if (this.collections[name]) {
+		this.collections[name].erase({}, function() {
+			if (callback) {
+				callback({
+					deleted : true
+				});
+			}
+		});
+	} else {
+		if (callback) {
+			callback({
+				deleted : true
+			});
+		}
+	}
+};

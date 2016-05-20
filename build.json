@@ -1,0 +1,21 @@
+{
+    "ios": {
+        "debug": {
+            "codeSignIdentitiy": "iPhone Developer",
+            "provisioningProfile": "439692a3-31b8-4811-a33c-affa331de023"
+        },
+        "release": {
+            "codeSignIdentitiy": "iPhone Distribution",
+            "provisioningProfile": "a3f1c8d2-5e60-4221-b2d4-2abe399f3284"
+        }
+    },
+    "android": {
+        "release": {
+            "keystore": "./certs/android/keystore.jks",
+            "storePassword": "Automagi",
+            "alias": "IKMAT",
+            "password": "Automagi2015",
+            "keystoreType": "jks"
+        }
+    }
+}

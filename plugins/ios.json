@@ -25,9 +25,6 @@
         "org.apache.cordova.network-information": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
-        "phonegap-plugin-push": {
-            "PACKAGE_NAME": "hygiene.app.automagi"
-        },
         "cordova-plugin-statusbar": {
             "PACKAGE_NAME": "hygiene.app.automagi"
         },
