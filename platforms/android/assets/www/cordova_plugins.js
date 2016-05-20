@@ -296,6 +296,23 @@ module.exports = [
         "clobbers": [
             "PushNotification"
         ]
+    },
+    {
+        "file": "plugins/de.appplant.cordova.plugin.email-composer/www/email_composer.js",
+        "id": "de.appplant.cordova.plugin.email-composer.EmailComposer",
+        "pluginId": "de.appplant.cordova.plugin.email-composer",
+        "clobbers": [
+            "cordova.plugins.email",
+            "plugin.email"
+        ]
+    },
+    {
+        "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
+        "id": "cordova-plugin-splashscreen.SplashScreen",
+        "pluginId": "cordova-plugin-splashscreen",
+        "clobbers": [
+            "navigator.splashscreen"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -312,7 +329,9 @@ module.exports.metadata =
     "de.appplant.cordova.plugin.printer": "0.7.1",
     "org.apache.cordova.camera": "0.2.4",
     "org.apache.cordova.network-information": "0.2.4",
-    "phonegap-plugin-push": "1.6.3"
+    "phonegap-plugin-push": "1.6.3",
+    "de.appplant.cordova.plugin.email-composer": "0.8.2",
+    "cordova-plugin-splashscreen": "3.2.2"
 }
 // BOTTOM OF METADATA
 });

@@ -58,6 +58,9 @@
 		E53201683B30485DA416EBEC /* CDVFile.m in Sources */ = {isa = PBXBuildFile; fileRef = E6483A882BC945D9BC0AE93A /* CDVFile.m */; };
 		EA14840A84814B59B41CD59E /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E8E648DE13F48AEA0AA5012 /* MessageUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		FB8B4F01B05044F2841050F7 /* APPPrinter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8ABDA7A50F2E4A29857A47D9 /* APPPrinter.m */; };
+		E5151A6DF79D46E4B148B9D6 /* APPEmailComposer.m in Sources */ = {isa = PBXBuildFile; fileRef = 227E2C9BEDF344F2A185FF69 /* APPEmailComposer.m */; };
+		460B7F53B51E46F08D3B1BA2 /* CDVSplashScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7DA9B38B2D4ABC8E016109 /* CDVSplashScreen.m */; };
+		1312B0CC383D44839ED442E0 /* CDVViewController+SplashScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = CA396BD7718146E58115E378 /* CDVViewController+SplashScreen.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -155,6 +158,12 @@
 		F0460D9AD53842ECBFA182F6 /* CDVFileTransfer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDVFileTransfer.m; path = "cordova-plugin-file-transfer/CDVFileTransfer.m"; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = "IK-Mat/config.xml"; sourceTree = "<group>"; };
 		FE54C2F4C6004423960EDBD4 /* SQLitePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SQLitePlugin.h; path = "cordova-sqlite-storage/SQLitePlugin.h"; sourceTree = "<group>"; };
+		227E2C9BEDF344F2A185FF69 /* APPEmailComposer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "APPEmailComposer.m"; path = "de.appplant.cordova.plugin.email-composer/APPEmailComposer.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		EC335B83D4EE4A50B8456D11 /* APPEmailComposer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "APPEmailComposer.h"; path = "de.appplant.cordova.plugin.email-composer/APPEmailComposer.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		1A7DA9B38B2D4ABC8E016109 /* CDVSplashScreen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVSplashScreen.m"; path = "cordova-plugin-splashscreen/CDVSplashScreen.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		CA396BD7718146E58115E378 /* CDVViewController+SplashScreen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVViewController+SplashScreen.m"; path = "cordova-plugin-splashscreen/CDVViewController+SplashScreen.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		D771BB0F51614C73B08E4E7C /* CDVSplashScreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVSplashScreen.h"; path = "cordova-plugin-splashscreen/CDVSplashScreen.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		201A7E4A777542A7ABD4459A /* CDVViewController+SplashScreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVViewController+SplashScreen.h"; path = "cordova-plugin-splashscreen/CDVViewController+SplashScreen.h"; sourceTree = "<group>"; fileEncoding = 4; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -292,6 +301,12 @@
 				1E1025406F924015AF48C835 /* APPEmailComposer.h */,
 				B855D7ABF9BB4871BE22E106 /* SQLitePlugin.m */,
 				FE54C2F4C6004423960EDBD4 /* SQLitePlugin.h */,
+				227E2C9BEDF344F2A185FF69 /* APPEmailComposer.m */,
+				EC335B83D4EE4A50B8456D11 /* APPEmailComposer.h */,
+				1A7DA9B38B2D4ABC8E016109 /* CDVSplashScreen.m */,
+				CA396BD7718146E58115E378 /* CDVViewController+SplashScreen.m */,
+				D771BB0F51614C73B08E4E7C /* CDVSplashScreen.h */,
+				201A7E4A777542A7ABD4459A /* CDVViewController+SplashScreen.h */,
 			);
 			name = Plugins;
 			path = "IK-Mat/Plugins";
@@ -495,6 +510,9 @@
 				C1D96F8771BA490C878DEB1B /* CDVAssetLibraryFilesystem.m in Sources */,
 				9181958C07A147E992799AEB /* APPEmailComposer.m in Sources */,
 				9728AAB2E7DB4B06903AC09B /* SQLitePlugin.m in Sources */,
+				E5151A6DF79D46E4B148B9D6 /* APPEmailComposer.m in Sources */,
+				460B7F53B51E46F08D3B1BA2 /* CDVSplashScreen.m in Sources */,
+				1312B0CC383D44839ED442E0 /* CDVViewController+SplashScreen.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

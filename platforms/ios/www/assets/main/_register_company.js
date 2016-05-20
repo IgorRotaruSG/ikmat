@@ -1,1 +1,285 @@
-function close_help(){closed_help=!0,$(".swipe_help").css("display","none")}function object_merge(a,b){var c={};for(var d in a)a.hasOwnProperty(d)&&(c[d]=a[d]);for(var d in b)b.hasOwnProperty(d)&&(c[d]=b[d]);return c}function register_companyInit(){$("#no_results").text("Loading ..."),mySwiper=new Swiper(".swiper-container",{calculateHeight:!0,releaseFormElements:!0,preventLinks:!1,simulateTouch:!1,onInit:function(){setSwiperMinHeight()},onSlideChangeStart:function(a){},onSlideNext:function(a){_t="save"},onSlidePrev:function(a){_t="edit"},onSlideChangeEnd:function(a){if(mySwiper.resizeFix(),parseInt(a.activeIndex)==parseInt(a.previousIndex)&&a.previousIndex--,18==t_counter&&setTimeout(function(){window.location.href="index.html"},3e3),$("html, body").animate({scrollTop:0},500),"save"==_t){$(".overflow-wrapper").removeClass("overflow-wrapper-hide");var b=Form.validate(a.getSlide(a.previousIndex));if(b){var c=Form.getValues(a.getSlide(a.previousIndex));company_data&&(c=object_merge(company_data,c)),currentStep=a.activeIndex+1;var d={step:t_counter,parameters:JSON.stringify(c)};t_counter=parseInt(t_counter)+1,loadedSteps.push(a.activeIndex),Page.apiCall("newCompanyRegistration",d,"post","newCompanyRegistration"),cleanup=a.previousIndex}else a.swipePrev(),$(".overflow-wrapper").addClass("overflow-wrapper-hide")}}}),data={step:1},Page.apiCall("newCompanyRegistration",data,"post","newCompanyRegistration")}function newCompanyRegistration(a){if(console.log("---------------------------------------------------------------------------"),console.log("trigger step received"),$(".overflow-wrapper").addClass("overflow-wrapper-hide"),a.success)if(a.registration_steps.error){t_counter=parseInt(t_counter)-1,mySwiper.swipePrev();var b=a.registration_steps[0],c=[];for(var d in b)b.hasOwnProperty(d)&&"audit_participants"!=d&&c.push(b[d]);var e=$(mySwiper.activeSlide());if(-1!=c.indexOf("company_email")){var f=e.find('input[name="email"]');$('<label id="'+f.attr("id")+'_validate" class="validate_error">This email address already exists.</label>').insertAfter(f.parent())}if(-1!=c.indexOf("haccp_resonsible")){var f=e.find('input[name="responsible_for_haccp"]');$('<label id="'+f.attr("id")+'_validate" class="validate_error">This email address already exists.</label>').insertAfter(f.parent())}if(void 0!=b.audit_participants){var g=b.audit_participants,h=e.find('input[name="internal_audit_participant[]"]');for(var d in g)g.hasOwnProperty(d)&&h.each(function(){return $(this).val()==g[d]?($('<label id="'+$(this).attr("id")+'_validate" class="validate_error">This email address already exists.</label>').insertAfter($(this).parent()),!1):void 0})}}else{if(cleanup!==!1&&(mySwiper.removeSlide(cleanup),mySwiper.reInit(),mySwiper.resizeFix()),18==t_counter){var i='<div class="no_results" style="color:#00cde7;font-size:34px;">'+$.t("register.success_message")+"</div>";mySwiper.appendSlide(i,"swiper-slide")}var j,i="";for(var d in a.registration_steps)if(a.registration_steps.hasOwnProperty(d))if("aux"!=d){i='<div style="padding:0 10px;"><form onsubmit="return false;">';for(var k in a.registration_steps[d])if(a.registration_steps[d].hasOwnProperty(k)&&(j=a.registration_steps[d][k],void 0!=j.input))switch(j.input.type){case"text":i+=Form.inputText(k,j.label,j.input.placeholder,j.validation,j.name,j.value);break;case"multiple_text":i+="form12"==d||"form13"==d||"form14"==d||"form15"==d||"form16"==d?Form.multipleInputTextFridge(k,j.label,j.input.placeholder,j.validation,j.input.fields):"form17"==d?Form.multipleInputTextDishWasher(k,j.label,j.input.placeholder,j.validation,j.input.fields):Form.multipleInputText(k,j.label,j.input.placeholder,j.validation);break;case"textarea":i+=Form.textarea(k,j.label,j.input.placeholder,j.validation);break;case"select":i+=Form.selectBox(k,j.label,j.input.data,j.input.placeholder,j.validation);break;case"checkbox_list":i+=Form.checkboxList(k,j.label,j.input.value,j.answers,j.name);break;case"multiple_text_color":i+=Form.multipleTextColor(k,j.label,j.answers);break;case"radio_list":i+="form7"==d||"form9"==d||"form8"==d||"form11"==d?Form.radioList(k,j.label,j.input.value,j.answers,j.name,!0):Form.radioList(k,j.label,j.input.value,j.answers,j.name);break;case"date":i+="form7"==d||"form9"==d||"form8"==d||"form11"==d?Form.inputDate(k,j.label,j.input.placeholder,!0):"form12"==d||"form13"==d||"form14"==d||"form15"==d||"form16"==d||"form17"==d?Form.inputDateV(k,j.label,j.input.placeholder,!1,null,!0):Form.inputDate(k,j.label,j.input.placeholder);break;case"custom":i+=Form.customStep10(k,j.label,j.measurement_question_id,j.frequency,j.haccp);break;case"text_clicker":i+=Form.clickIncrement(k,j.label,j.input.data,j.validation)}i+=Form.inputHidden("update","false"),i+=Form.inputCancel("index.html"),i+="</form></div>",mySwiper.appendSlide(i,"swiper-slide")}else company_data=a.registration_steps[d],company_data.currentCompany=company_data.lastCompanyId;$("#"+$.mobile.activePage.attr("id")).trigger("create"),0==loadedSteps.length&&($(".overflow-wrapper").addClass("overflow-wrapper-hide"),mySwiper.reInit(),mySwiper.resizeFix(),mySwiper.removeSlide(0)),colorpicker&&($(".color-pallet-table").find("td").off("click").on("click",function(){sel_colorpicker.css("background-color",$(this).data("color")),sel_colorpicker.find("input").val($(this).data("color")),$("#popupDialog").popup("close")}),$(".colorpicker-bind").off("click").on("click",function(){sel_colorpicker=$(this),$(".color-pallet-table").find("td").each(function(){$(this).data("color")==sel_colorpicker.find("input").val()?$(this).find("img").css("visibility","visible"):$(this).find("img").css("visibility","hidden")}),$("#popupDialog").popup("open")}),colorpicker=!1)}}function function_asd(){var a=Form.getValues(mySwiper.getSlide(0));return console.log(a),!1}var mySwiper,loadedSteps=[],currentStep=0,colorpicker=!1,sel_colorpicker=!1,company_data=!1,closed_help=!1,_t=!1,cleanup=!1,t_counter=1,lid="";
+var mySwiper;
+var loadedSteps = [];
+var currentStep = 0;
+var colorpicker = false;
+var sel_colorpicker = false;
+var company_data = false;
+
+var closed_help = false;
+
+var _t = false;
+var cleanup = false;
+var t_counter = 1;
+
+var lid = '';
+
+function close_help() {
+    closed_help = true;
+    $('.swipe_help').css('display', 'none');
+}
+
+function object_merge(a, b) {
+    var t = {};
+    for (var i in a) {
+        if (a.hasOwnProperty(i)) {
+            t[i] = a[i];
+        }
+    }
+    for (var i in b) {
+        if (b.hasOwnProperty(i)) {
+            t[i] = b[i];
+        }
+    }
+    return t;
+}
+
+function register_companyInit() {
+
+    $('#no_results').text('Loading ...');
+
+    mySwiper = new Swiper('.swiper-container',{
+        calculateHeight:        true,
+        releaseFormElements:    true,
+        preventLinks:           false,
+        simulateTouch:          false,
+        //pagination: '.pagination',
+
+        // TODO: remove mousewheel support on production
+        //mousewheelControl:      true,
+        onInit: function() {
+            setSwiperMinHeight();
+        },
+        onSlideChangeStart:     function(swiper) {
+            //startFade();
+        },
+
+        onSlideNext:            function(swiper) {
+           _t = 'save';
+        },
+
+        onSlidePrev:            function(swiper) {
+            _t = 'edit';
+        },
+
+        onSlideChangeEnd:       function(swiper) {
+            mySwiper.resizeFix();
+            if ( parseInt(swiper.activeIndex) == parseInt(swiper.previousIndex) ) {
+                swiper.previousIndex--;
+            }
+
+            if (t_counter == 18) {
+                setTimeout(function(){
+                    window.location.href = 'index.html';
+                }, 3000);
+            }
+            $('html, body').animate({scrollTop: 0}, 500);
+            if (_t == 'save') {
+                $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+                var go = Form.validate(swiper.getSlide(swiper.previousIndex));
+                /*if (loadedSteps.indexOf(swiper.activeIndex) !== -1) {
+                    $(swiper.getSlide(swiper.previousIndex)).find('input[name="update"]').val('true');
+                } else {
+                    $(swiper.getSlide(swiper.previousIndex)).find('input[name="update"]').val('false');
+                }*/
+                if (go) {
+                    var data_send = Form.getValues(swiper.getSlide(swiper.previousIndex));
+                    if (company_data) {
+                        data_send = object_merge(company_data, data_send);
+                    }
+                    currentStep = swiper.activeIndex + 1;
+
+                    //console.log('t_counter here:' + t_counter);
+                    var data = {
+                        'step': t_counter,
+                        'parameters': JSON.stringify(data_send)
+                    }
+                    t_counter = parseInt(t_counter) + 1;
+//                    console.log('trigger step save');
+                    //console.log(data);
+//                    console.log(JSON.stringify(data));
+                    //$('.overflow-wrapper').removeClass('overflow-wrapper-hide');
+                    loadedSteps.push(swiper.activeIndex);
+                    Page.apiCall('newCompanyRegistration', data, 'post', 'newCompanyRegistration');
+                    cleanup = swiper.previousIndex;
+                } else {
+                    swiper.swipePrev();
+                    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+                }
+            }
+        }
+    });
+
+    data = {
+        'step': 1
+    };
+
+    //newCompanyRegistration();
+    Page.apiCall('newCompanyRegistration', data, 'post', 'newCompanyRegistration');
+}
+
+function newCompanyRegistration(data) {
+    //var data = {"success":true,"currentTime":{"date":"2014-02-12 15:12:10","timezone_type":3,"timezone":"Europe/Helsinki"},"registration_steps":{"form17":{"dishwasher":{"label":"Dish Washer","input":{"type":"multiple_text","fields":{"0":"name","temperature":{"washing":["default_temp","min_temp","max_temp"],"rinse":["default_temp","min_temp","max_temp"]}},"placeholder":"name dishwasher 1"},"validation":["required","string"]},"frequency":{"label":"How frequent will you do the dish washer temperature?","input":{"type":"radio_list"},"answers":{"1":"Every Day","2":"Every other day","3":"Once a week","4":"Every other week","5":"Once a month","6":"Every other month","7":"Every half year","8":"Every year"}},"start_date":{"input":{"type":"date","placeholder":"Choose Date"},"label":"Start Date"}}},"token":"321pz9nl1gow4o0ssss0oc4w8skgw0okokgsk8ck8sk0k8o00o"};
+    console.log('---------------------------------------------------------------------------');
+    console.log('trigger step received');
+    $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+    if (data.success) {
+        if (data.registration_steps.error) {
+            t_counter = parseInt(t_counter) - 1;
+            mySwiper.swipePrev();
+            var fields = data.registration_steps[0];
+            var as = []
+            for (var i in fields) {
+                if (fields.hasOwnProperty(i) && i != 'audit_participants')
+                    as.push(fields[i]);
+            }
+
+            var $c = $(mySwiper.activeSlide());
+
+            if (as.indexOf("company_email") != -1) {
+                var $o = $c.find('input[name="email"]');
+                $('<label id="' + $o.attr('id') + '_validate" class="validate_error">This email address already exists.</label>').insertAfter($o.parent());
+            }
+
+            if (as.indexOf("haccp_resonsible") != -1) {
+                var $o = $c.find('input[name="responsible_for_haccp"]');
+                $('<label id="' + $o.attr('id') + '_validate" class="validate_error">This email address already exists.</label>').insertAfter($o.parent());
+            }
+
+            if (fields.audit_participants != undefined) {
+                var audt = fields.audit_participants;
+                var $k = $c.find('input[name="internal_audit_participant[]"]');
+                for (var i in audt) {
+                    if (audt.hasOwnProperty(i)) {
+                        $k.each(function(){
+                            if ($(this).val() == audt[i]) {
+                                $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">This email address already exists.</label>').insertAfter($(this).parent());
+                                return false;
+                            }
+                        });
+                    }
+                }
+            }
+        } else {
+            if (cleanup !== false) {
+                //console.log('curat pe:'+cleanup);
+                mySwiper.removeSlide(cleanup);
+                mySwiper.reInit();
+                mySwiper.resizeFix();
+            }
+            if (t_counter == 18) {
+                var html = '<div class="no_results" style="color:#00cde7;font-size:34px;">' + $.t('register.success_message') + '</div>';
+                mySwiper.appendSlide(html, 'swiper-slide');
+            }
+            var inp;
+            var html = '';
+            for (var i in data.registration_steps) {
+                if (data.registration_steps.hasOwnProperty(i)) {
+                    if (i != 'aux') {
+                        html = '<div style="padding:0 10px;"><form onsubmit="return false;">';
+                        for (var j in data.registration_steps[i]) {
+                            if ((data.registration_steps[i]).hasOwnProperty(j)) {
+                                inp = data.registration_steps[i][j];
+                                if (inp.input != undefined) {
+                                    switch (inp.input.type) {
+                                        case 'text':
+                                            html += Form.inputText(j, inp.label, inp.input.placeholder, inp.validation, inp.name, inp.value);
+                                            break;
+                                        case 'multiple_text':
+                                            if (i == 'form12' || i == 'form13' || i == 'form14' || i == 'form15' || i == 'form16') {
+                                                html += Form.multipleInputTextFridge(j, inp.label, inp.input.placeholder, inp.validation, inp.input.fields);
+                                            } else if (i == 'form17') {
+                                                html += Form.multipleInputTextDishWasher(j, inp.label, inp.input.placeholder, inp.validation, inp.input.fields);
+                                            } else {
+                                                html += Form.multipleInputText(j, inp.label, inp.input.placeholder, inp.validation);
+                                            }
+                                            break;
+                                        case 'textarea':
+                                            html += Form.textarea(j, inp.label, inp.input.placeholder, inp.validation);
+                                            break;
+                                        case 'select':
+                                            html += Form.selectBox(j, inp.label, inp.input.data, inp.input.placeholder, inp.validation);
+                                            break;
+                                        case 'checkbox_list':
+                                            html += Form.checkboxList(j, inp.label, inp.input.value, inp.answers, inp.name);
+                                            break;
+                                        case 'multiple_text_color':
+                                            html += Form.multipleTextColor(j, inp.label, inp.answers);
+                                            break;
+                                        case 'radio_list':
+                                            if (i == 'form7' || i == 'form9' || i == 'form8' || i == 'form11') {
+                                                html += Form.radioList(j, inp.label, inp.input.value, inp.answers, inp.name, true);
+                                            } else {
+                                                html += Form.radioList(j, inp.label, inp.input.value, inp.answers, inp.name);
+                                            }
+                                            break;
+                                        case 'date':
+                                            if (i == 'form7' || i == 'form9' || i == 'form8' || i == 'form11') {
+                                                html += Form.inputDate(j, inp.label, inp.input.placeholder, true);
+                                            } else if (i == 'form12' || i == 'form13' || i == 'form14' || i == 'form15' || i == 'form16' || i == 'form17') {
+                                                html += Form.inputDateV(j, inp.label, inp.input.placeholder, false, null, true);
+                                            } else {
+                                                html += Form.inputDate(j, inp.label, inp.input.placeholder);
+                                            }
+                                            break;
+                                        case 'custom':
+                                            html += Form.customStep10(j, inp.label, inp.measurement_question_id, inp.frequency, inp.haccp);
+                                            break;
+                                        case 'text_clicker':
+                                            html += Form.clickIncrement(j, inp.label, inp.input.data, inp.validation);
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                        html += Form.inputHidden('update', 'false');
+                        /*if (!closed_help) {
+                            html += '<div class="swipe_help"><a href="#" onclick="close_help();" data-role="none"><span>Swipe right to save and go to the next step.<br /> Swipe left to go back and edit.<br />Click on this help to make it disappear.</span></a></div>';
+                        }*/
+                        html += Form.inputCancel('index.html');
+                        //html += '<a href="#" onclick="function_asd()">ASD</a>'
+                        html += "</form></div>";
+                        mySwiper.appendSlide(html, 'swiper-slide');
+                    } else {
+                        company_data = data.registration_steps[i];
+                        company_data.currentCompany = company_data.lastCompanyId;
+                    }
+                }
+            }
+            $('#' + $.mobile.activePage.attr('id')).trigger('create');
+
+            if (loadedSteps.length == 0) {
+                $('.overflow-wrapper').addClass('overflow-wrapper-hide');
+                mySwiper.reInit();
+                mySwiper.resizeFix();
+                mySwiper.removeSlide(0);
+                /*loadedSteps.push(1);
+                loadedSteps.push(2);*/
+            }
+            if (colorpicker) {
+                $('.color-pallet-table').find('td').off('click').on('click', function(){
+                    sel_colorpicker.css('background-color', $(this).data('color'));
+                    sel_colorpicker.find('input').val($(this).data('color'));
+                    $( "#popupDialog" ).popup( "close" );
+                });
+                $('.colorpicker-bind').off('click').on('click', function(){
+                    sel_colorpicker = $(this);
+                    $('.color-pallet-table').find('td').each(function(){
+                        if ($(this).data('color') == sel_colorpicker.find('input').val()) {
+                            $(this).find('img').css('visibility', 'visible');
+                        } else {
+                            $(this).find('img').css('visibility', 'hidden');
+                        }
+                    });
+                    $( "#popupDialog" ).popup( "open" );
+                });
+                colorpicker = false;
+            }
+        }
+    }
+}
+
+function function_asd() {
+    var data_send = Form.getValues(mySwiper.getSlide(0));
+    console.log(data_send);
+    return false;
+}
