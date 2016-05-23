@@ -17,3 +17,8 @@ $ bower install
 $ phonegap platform add ios
 $ "grunt buildphone --target=www" or "sudo phonegap build ios" —> build app
 ```
+## Deployment script
+```bash
+$ ./build.sh [version]
+```
+The build files are created in builds folder that include android release version and ios distribution version
