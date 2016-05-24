@@ -65,6 +65,11 @@
 				Page.isReady();
 
 				document.addEventListener('deviceready', function() {
+
+					if(navigator.splashscreen){
+						navigator.splashscreen.hide();
+					}
+
 					var push = PushNotification.init({
 						"android" : {
 							"senderID" : "1082286274916"

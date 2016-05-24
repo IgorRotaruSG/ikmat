@@ -6,7 +6,7 @@
         },
         "release": {
             "codeSignIdentitiy": "iPhone Distribution",
-            "provisioningProfile": "a3f1c8d2-5e60-4221-b2d4-2abe399f3284"
+            "provisioningProfile": "3768f709-ec00-45be-aa11-56991bde000b"
         }
     },
     "android": {

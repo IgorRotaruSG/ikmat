@@ -1,1 +1,0 @@
-The MainViewController.m contents will disable the "Next", "Prev" buttons from IOS keyboard. This is needed.
