@@ -1,7 +1,0 @@
-{
-    "libsqlite3.dylib": 2,
-    "ImageIO.framework": 1,
-    "CoreLocation.framework": 1,
-    "SystemConfiguration.framework": 1,
-    "MessageUI.framework": 2
-}
