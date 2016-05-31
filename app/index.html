@@ -2,7 +2,11 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<meta http-equiv="Content-Security-Policy" content="default-src * data: filesystem: 'unsafe-inline' 'unsafe-eval'">
+    <!-- build:template
+        <% if (environment === 'cordova') { %>
+        <meta http-equiv="Content-Security-Policy" content="default-src * data: filesystem: 'unsafe-inline' 'unsafe-eval'">
+        <% } %>
+        /build -->
 	<meta name="viewport" content="width=device-width, user-scalable=no" />
 	<!--<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0" />-->
 	<title>HACCP</title>
@@ -37,8 +41,12 @@
 	<script type="text/javascript" src="assets/3rd_party/jsignature/plugins/jSignature.CompressorSVG.js"></script>
 	<!--<script type="text/javascript" src="assets/3rd_party/jsignature/plugins/signhere/jSignature.SignHere.js"></script>-->
 
-	<script type="text/javascript" src="cordova.js"></script>
-	<script type="text/javascript" src="assets/3rd_party/phonegap/canvas.js"></script>
+    <!-- build:template
+        <% if (environment === 'cordova') { %>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="assets/3rd_party/phonegap/canvas.js"></script>
+        <% } %>
+        /build -->
 
 	<!--<script type="text/javascript" src="assets/3rd_party/datepicker/datepicker.js"></script>-->
 	<!--<script type="text/javascript" src="assets/3rd_party/datepicker/datepicker.mobile.js"></script>-->
