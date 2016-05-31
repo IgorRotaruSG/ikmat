@@ -80,7 +80,7 @@ function showFlowchart(data) {
             add += '<div class="clearfix"></div>';
             $('#no_results_flowchart').hide();
             $('.overflow-wrapper').addClass('overflow-wrapper-hide');
-            $('#flowchart_list').html(add);
+            $('.flowchart_list').html(add);
             $('.swipebox').swipebox({
                 useCSS : true, // false will force the use of jQuery for animations
                 useSVG : true, // false to force the use of png for buttons
@@ -238,8 +238,8 @@ function printFlowchart(flowchartSrc, flowchartTitle){
 }
 
 function emailFlowchart(flowchartId){
-	console.log("flowchartId", $('#flowchart_list').find('a[data-id='+ flowchartId +']'));
-	var flowEle = $('#flowchart_list').find('a[data-id='+ flowchartId +']');
+	console.log("flowchartId", $('.flowchart_list').find('a[data-id='+ flowchartId +']'));
+	var flowEle = $('.flowchart_list').find('a[data-id='+ flowchartId +']');
 
     $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
     var email_data = {
@@ -299,7 +299,7 @@ function removeFlowchart (data){
         $('#swipebox-close').trigger("click");
 
         $('a[data-id="'+ data.flowchart_id +'"]').parent().remove();
-        if ( $('#flowchart_list .image_element').length == 0 ) {
+        if ( $('.flowchart_list .image_element').length == 0 ) {
             $('#no_results_flowchart').text($.t('error.no_data'));
             $('#no_results_flowchart').show();
             $('.overflow-wrapper').addClass('overflow-wrapper-hide');
