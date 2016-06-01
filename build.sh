@@ -26,7 +26,7 @@ function ios_build
         cp "$SOURCE_PATH/certs/ios/IKMATDistribution.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$uuid.mobileprovision"
         rm -rf "$SOURCE_PATH/platforms/ios"
         rm -rf "$SOURCE_PATH/plugins"
-        phonegap platform add ios
+        phonegap platform add ios@3.9.2
         phonegap build ios --device --release
         cp "$SOURCE_PATH/platforms/ios/build/device/$PROJECT_NAME.ipa" "$SOURCE_PATH/builds/ios/$PROJECT_NAME.ipa"
     fi
