@@ -1,4 +1,8 @@
-<!DOCTYPE html> <html> <head> <script type="text/javascript">if (window.Page == undefined) {
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript">
+        if (window.Page == undefined) {
             window.location.href = 'index.html';
         }
 
@@ -12,6 +16,55 @@
 
         function deviceReady() {
             Page.isReady();
-        }</script> </head> <body> <div data-role="page" data-theme="a" id="forgot"> <!-- header --> <div data-role="header" data-position="inline"> </div> <div data-role="popup" data-history="false" id="alertPopup" data-theme="a" data-dismissible="false" style="max-width:500px; min-width: 200px"> <div data-role="header" data-theme=""> <h1 class="page-name"></h1> </div> <div role="main" class="ui-content text-center"> <h3 class="ui-title alert-text"></h3> <a href="#" data-role="button" data-rel="back" data-inline="true" data-transition="flow">OK</a> </div> </div> <!-- content --> <div data-role="content" data-theme="a"> <div class="overflow-wrapper overflow-wrapper-hide"> <div id="clean-overflow-wrapper" class="overflow-wrapper overflow-wrapper-hide"><img src="assets/main/images/loading_tasks5.gif" width="100%" height="4" style="vertical-align: top"></div> </div> <div class="login-page"> <div onclick="Page.redirect('login.html')"> <img src="assets/style/images/back_icon.png" style="width: 22px;
+        }
+    </script>
+</head>
+<body>
+<div data-role="page" data-theme="a" id="forgot">
+
+    <!-- header -->
+    <div data-role="header" data-position="inline">
+
+    </div>
+    <div data-role="popup" data-history="false" id="alertPopup" data-theme="a" data-dismissible="false" style="max-width:500px; min-width: 200px;">
+        <div data-role="header" data-theme="">
+            <h1 class="page-name"></h1>
+        </div>
+        <div role="main" class="ui-content text-center">
+            <h3 class="ui-title alert-text"></h3>
+            <a href="#" data-role="button" data-rel="back" data-inline="true" data-transition="flow">OK</a>
+        </div>
+    </div>
+    <!-- content -->
+    <div data-role="content" data-theme="a">
+        <div class="overflow-wrapper overflow-wrapper-hide">
+            <div id="clean-overflow-wrapper" class="overflow-wrapper overflow-wrapper-hide"><img src="assets/main/images/loading_tasks5.gif" width="100%" height="4" style="vertical-align: top;" /></div>
+        </div>
+        <div class="login-page">
+            <div onclick="Page.redirect('login.html');"> <img src="assets/style/images/back_icon.png" style="width: 22px;
                 height: 22px;
-                display: block"> </div> <div class="center"> <img src="assets/style/images/logo_text_big_new.png" class="logo"> <input type="email" value="" data-i18n="[placeholder]forgot.input.email_placeholder;" id="input_email" class="language"> </div> <div class="center"> <button data-theme="e" onclick="recoverAction()"><span class="language" data-i18n="forgot.input.button"></span></button> </div> <a href="#" onclick="Page.redirect('login.html')" class="forgot" style="display:none"><span class="language" data-i18n="forgot.back"></span></a> </div> </div> <!-- end content --> <!-- footed --> <div data-role="footer" data-theme="c" data-position="fixed" class="footer"> </div> <!-- end footer --> </div> </body> </html>
+                display: block;
+                "> </div>
+            <div class="center">
+                <img src="assets/style/images/logo_text_big_new.png" class="logo">
+
+                <input type="email" value="" data-i18n="[placeholder]forgot.input.email_placeholder;" id="input_email" class="language" />
+            </div>
+
+            <div class="center">
+                <button data-theme="e" onclick="recoverAction();"><span class="language" data-i18n="forgot.input.button"></span></button>
+            </div>
+
+            <a href="#" onclick="Page.redirect('login.html');" class="forgot" style="display:none"><span class="language" data-i18n="forgot.back"></span></a>
+        </div>
+
+    </div>
+    <!-- end content -->
+    <!-- footed -->
+    <div data-role="footer" data-theme="c" data-position="fixed" class="footer">
+
+    </div>
+    <!-- end footer -->
+</div>
+</body>
+</html>

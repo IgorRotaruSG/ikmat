@@ -1,7 +1,7 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    'apiDomain' : 'http://ikmatapp.no/api/',
-    'apiPath' : 'http://ikmatapp.no',
+    'apiDomain' : 'http://staging.ikmatapp.no/api/',
+    'apiPath' : 'http://staging.ikmatapp.no',
     // 'apiDomain':        'https://automagi.fsoft.com.vn/api/',
     // 'apiPath':        'https://automagi.fsoft.com.vn',
     'apiUploadPath' : 'uploadPhotos',
