@@ -47,17 +47,17 @@ while true; do
     case $platform in
         "ios" )
             npm install;
-            grunt build --force --target=$MOBILE_PATH;
+            grunt buildphone --force --target=$MOBILE_PATH;
             ios_build;
             break;;
         "android" )
             npm install;
-            grunt build --force --target=$MOBILE_PATH;
+            grunt buildphone --force --target=$MOBILE_PATH;
             android_build;
             break;;
         "all" )
             npm install;
-            grunt build --force --target=$MOBILE_PATH;
+            grunt buildphone --force --target=$MOBILE_PATH;
             ios_build;
             android_build;
             break;;

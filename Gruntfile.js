@@ -485,7 +485,7 @@ module.exports = function(grunt) {
 	]);
 
 	grunt.registerTask('build', ['dev', 'minfile']);
-	grunt.registerTask('buildphone', ['devios', 'minfile', 'exec:buildios']);
+	grunt.registerTask('buildphone', ['devios', 'minfile']);
 	grunt.registerTask('cordova', ['devcordova', 'minfile']);
 	
 	grunt.registerTask('default', [ 'build']);
