@@ -56,7 +56,7 @@ realignSlideHeight = function(el) {
             }
         }
         h = h + 100;
-        $('#' + el).css('overflow-y', 'hidden');
+        $('#' + el).css('overflow-y', 'auto');
         $('#' + el).css('overflow-x', 'hidden');
         $('#' + el).css('height', document.body.clientHeight - 80 + 'px');
         $('#' + el).css('-webkit-overflow-scrolling', 'touch');
