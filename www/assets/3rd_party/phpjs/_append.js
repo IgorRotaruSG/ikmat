@@ -1,1 +1,23 @@
-function _append(a,b){for(var c=!1,d="",e=0;e<b.length;e++)c=!1,extra="",$(a).find("li").each(function(){$(this).data("id")<=b[e].id&&(c=$(this))}),void 0!=b[e].extra&&(extra=" "+b[e].extra),d='<li data-id="'+b[e].id+'"'+extra+">"+b[e].data+"</li>",c?$(c).after(d):$(a).prepend(d);$(a).listview("refresh")}
+function _append(dest, data) {
+    var w = false;
+    var html = '';
+    for (var i=0; i<data.length; i++) {
+        w = false;
+        extra = '';
+        $(dest).find('li').each(function(){
+            if ($(this).data('id') <= data[i].id) {
+                w = $(this);
+            }
+        });
+        if (data[i].extra != undefined) {
+            extra = ' ' + data[i].extra;
+        }
+        html = '<li data-id="' + data[i].id + '"' + extra + '>' + data[i].data + '</li>';
+        if (w) {
+            $(w).after(html);
+        } else {
+            $(dest).prepend(html);
+        }
+    }
+    $(dest).listview('refresh');
+}

@@ -111,7 +111,7 @@ Page.prototype.reverseApiDate = function(date) {
 };
 
 Page.prototype.isReady = function() {
-    var lc = localStorage.getItem('locate_code') != null ? localStorage.getItem('locate_code') : "no";
+    var lc = localStorage.getItem('locate_code') != null ? localStorage.getItem('locate_code') : "nb";
     $.i18n.init({
         lng : lc
     });
@@ -508,32 +508,17 @@ Page.prototype.uploadImage = function() {
 
 };
 
-Page.prototype.changeLanguage = function(locate, textArr, fnName) {
-    var text = [];
-    $.each(textArr, function (k, v){
-        text.push($(v).attr('data-id'));
-    });
-
+Page.prototype.changeLanguage = function(locate, fnName, callback) {
     $.ajax({
         type : 'POST',
         url : this.settings.apiDomain + fnName,
-        data : {lang: locate, textArr: text},
+        dataType : 'json',
+        data : {lang: locate},
         success : function(data) {
             localStorage.setItem('locate_code', locate);
-
-            //Replace by translated text
-            var eTarget;
-            $.each(data, function (k, v){
-                localStorage.setItem(k, v);
-
-                eTarget = $('*[data-id="'+ k +'"]');
-                if (eTarget) {
-                    eTarget.val(v).text(v);
-                    if(eTarget.is("button")) {
-                        eTarget.button('refresh');
-                    }
-                }
-            });
+            if(callback){
+                callback(true);
+            }
         }
     });
 }
