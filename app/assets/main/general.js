@@ -21,6 +21,7 @@ var settings = {
 
 var performance = window.performance;
 var logout_flag = false;
+var app_locale = "nb";
 //if true, lazyquey stop in order to logout
 
 var db = new db();
@@ -112,6 +113,12 @@ Page.prototype.reverseApiDate = function(date) {
 
 Page.prototype.isReady = function() {
     var lc = localStorage.getItem('locate_code') != null ? localStorage.getItem('locate_code') : "no";
+    app_locale = lc;
+    if(lc == "no"){
+        app_locale = "nb";
+    }
+    
+    moment.locale(app_locale);
     $.i18n.init({
         lng : lc
     });
@@ -602,32 +609,7 @@ function parseQuery(qstr) {
 }
 
 Page.prototype.formatTaskDate = function(date) {
-    var d = new Array();
-
-    d[0] = $.t('general.sunday');
-    d[1] = $.t('general.monday');
-    d[2] = $.t('general.tuesday');
-    d[3] = $.t('general.wednesday');
-    d[4] = $.t('general.thursday');
-    d[5] = $.t('general.friday');
-    d[6] = $.t('general.saturday');
-
-    var m = new Array();
-
-    m[0] = $.t('general.january');
-    m[1] = $.t('general.february');
-    m[2] = $.t('general.march');
-    m[3] = $.t('general.april');
-    m[4] = $.t('general.may');
-    m[5] = $.t('general.june');
-    m[6] = $.t('general.july');
-    m[7] = $.t('general.august');
-    m[8] = $.t('general.september');
-    m[9] = $.t('general.october');
-    m[10] = $.t('general.november.');
-    m[11] = $.t('general.december.');
-
-    return d[date.getDay()] + ' ' + date.getDate() + '. ' + m[date.getMonth()];
+    return moment(date).format("dddd Do MMM");
 };
 
 // Page preloader start
