@@ -68,27 +68,25 @@
 			$.mobile.defaultPageTransition = 'none';
 			$.mobile.defaultDialogTransition = 'none';
 			$.mobile.buttonMarkup.hoverDelay = 0;
-
+                        
+                        var userLang = navigator.language || navigator.userLanguage; 
+                        userLocale = userLang.split("-", 1).toString();
 			var Page = new Page('index');
-			function checkLanguage(callback){
-				if(navigator.globalization){
-					navigator.globalization.getPreferredLanguage(function(language){
-						Page.changeLanguage(language.value.substring(0,2), 'changeLanguage', function(){
-							if(callback){
-								callback();
-							}
-						});
-					}, function () {
-						lockedError("Can't set language, the application will use default language");
-						if(callback){
-							callback();
-						}
-					});
-				}
+			function checkLanguage(language, callback){
+                            Page.changeLanguage(language, 'changeLanguage', function(){
+                                    if(callback){
+                                        callback();
+                                    }
+                            });
+				
 			}
 			function deviceReady() {
 				if(!isNative()){
-					Page.isReady();
+                                    if(userLocale){
+                                        checkLanguage(userLocale, function () {
+                                                Page.isReady();
+                                        });
+                                    }
 				}
 				document.addEventListener('deviceready', function() {
 
@@ -141,9 +139,20 @@
 							//history.back(1);
 						}
 					}, false);
-					checkLanguage(function () {
-						Page.isReady();
-					});
+                                        if(navigator.globalization){
+                                                navigator.globalization.getPreferredLanguage(function(language){
+                                                    checkLanguage(language.value.substring(0,2), function () {
+                                                            Page.isReady();
+                                                    });
+
+                                                }, function () {
+                                                        lockedError("Can't set language, the application will use default language");
+                                                        checkLanguage("nb", function () {
+                                                                Page.isReady();
+                                                        });
+                                                });
+                                        }
+					
 				}, false);
 
 
