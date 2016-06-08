@@ -111,7 +111,8 @@ Page.prototype.reverseApiDate = function(date) {
 };
 
 Page.prototype.isReady = function() {
-    var lc = localStorage.getItem('locate_code') != null ? localStorage.getItem('locate_code') : "no";
+    var lc = localStorage.getItem('locate_code') != null ? localStorage.getItem('locate_code') : "nb";
+    moment.locale(lc);
     $.i18n.init({
         lng : lc
     });
@@ -508,32 +509,17 @@ Page.prototype.uploadImage = function() {
 
 };
 
-Page.prototype.changeLanguage = function(locate, textArr, fnName) {
-    var text = [];
-    $.each(textArr, function (k, v){
-        text.push($(v).attr('data-id'));
-    });
-
+Page.prototype.changeLanguage = function(locate, fnName, callback) {
     $.ajax({
         type : 'POST',
         url : this.settings.apiDomain + fnName,
-        data : {lang: locate, textArr: text},
+        dataType : 'json',
+        data : {lang: locate},
         success : function(data) {
             localStorage.setItem('locate_code', locate);
-
-            //Replace by translated text
-            var eTarget;
-            $.each(data, function (k, v){
-                localStorage.setItem(k, v);
-
-                eTarget = $('*[data-id="'+ k +'"]');
-                if (eTarget) {
-                    eTarget.val(v).text(v);
-                    if(eTarget.is("button")) {
-                        eTarget.button('refresh');
-                    }
-                }
-            });
+            if(callback){
+                callback(true);
+            }
         }
     });
 }
@@ -602,32 +588,7 @@ function parseQuery(qstr) {
 }
 
 Page.prototype.formatTaskDate = function(date) {
-    var d = new Array();
-
-    d[0] = $.t('general.sunday');
-    d[1] = $.t('general.monday');
-    d[2] = $.t('general.tuesday');
-    d[3] = $.t('general.wednesday');
-    d[4] = $.t('general.thursday');
-    d[5] = $.t('general.friday');
-    d[6] = $.t('general.saturday');
-
-    var m = new Array();
-
-    m[0] = $.t('general.january');
-    m[1] = $.t('general.february');
-    m[2] = $.t('general.march');
-    m[3] = $.t('general.april');
-    m[4] = $.t('general.may');
-    m[5] = $.t('general.june');
-    m[6] = $.t('general.july');
-    m[7] = $.t('general.august');
-    m[8] = $.t('general.september');
-    m[9] = $.t('general.october');
-    m[10] = $.t('general.november.');
-    m[11] = $.t('general.december.');
-
-    return d[date.getDay()] + ' ' + date.getDate() + '. ' + m[date.getMonth()];
+    return moment(date).format("dddd Do MMM");
 };
 
 // Page preloader start

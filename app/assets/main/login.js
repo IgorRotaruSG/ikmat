@@ -38,9 +38,15 @@ function loginAction(){
     return false;
 }
 
-function changeLanguage(locate, textArr) {
+function changeLanguage(locate) {
     "use strict";
-    Page.changeLanguage(locate, textArr, 'changeLanguage');
+    Page.changeLanguage(locate, 'changeLanguage', function(){
+        moment.locale(locate);
+        $.i18n.init({
+            lng : locate
+        });
+        $(".language").i18n();
+    });
 }
 
 function getAccess(data) {

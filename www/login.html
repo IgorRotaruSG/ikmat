@@ -1,4 +1,8 @@
-<!DOCTYPE html> <html> <head> <script type="text/javascript">if (window.Page == undefined) {
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript">
+        if (window.Page == undefined) {
             window.location.href = 'index.html';
         }
 
@@ -12,4 +16,71 @@
 
         function deviceReady() {
             Page.isReady();
-        }</script> </head> <body> <div data-role="page" data-theme="a" id="login"> <!-- header --> <div data-role="header" id=""> <!-- data will be added here with ajax --> </div> <div data-role="popup" data-history="false" id="alertPopup" data-theme="a" data-dismissible="false" style="max-width:500px; min-width: 200px"> <div data-role="header" data-theme=""> <h1 class="page-name"></h1> </div> <div role="main" class="ui-content text-center"> <h3 class="ui-title alert-text"></h3> <a href="#" data-role="button" data-rel="back" data-inline="true" data-transition="flow">OK</a> </div> </div> <!-- content --> <div data-role="content" data-theme="a"> <div id="clean-overflow-wrapper" class="overflow-wrapper overflow-wrapper-hide"> <img src="assets/main/images/loading_tasks5.gif" width="100%" height="4" style="vertical-align: top"> <div data-id="parameters.translate.login.text.login_done" id="login_done" class="hide text-center"> Logget inn. Synkroniserer </div> </div> <div class="login-page" id="myApp-wrapper"> <div class="center"> <img src="assets/style/images/logo_text_big_new.png" class="logo" alt="logo"> <div class="form-group"> <label data-id="parameters.translate.email" data-lang="login.text.email" name="text" for="username" class="control-label" style="width:10px">Epost</label> <input type="email" data-i18n="[placeholder]login.input.email_placeholder;" id="input_email" value=""> </div> <div class="form-group"> <label data-id="parameters.translate.password" data-lang="login.input.password_placeholder" name="text for=" password class="control-label">Passord</label> <input type="password" data-i18n="[placeholder]login.input.password_placeholder;" autocomplete="off" id="input_password" class="" value=""> <a data-id="parameters.translate.forgot_password" data-lang="login.text.forgot" href="forgot.html" data-i18n="login.text.forgot" data-transition="slide" class="btn btn-link pull-right">Glemt passord?</a> </div> <div class="form-group laguages-selector"> <label data-id="parameters.translate.language" data-lang="login.text.language" for="language" class="control-label">Språk</label> <select id="input-lang" class="form-control input-lg" onchange="changeLanguage($('#input-lang').val(), $('*[data-id^=\'parameters.translate\']'))"> <option value="no">Norwegian</option> <option value="en">English</option> </select> </div> </div> <button data-id="parameters.translate.login" data-lang="login.input.button" id="loginSubmit" type="submit" data-i18n="login.input.button" data-theme="d" class="btn btn-success btn-block" onclick="loginAction()">Logg inn</button> <div class="clearfix"></div> </div> </div> <!-- end content --> <!-- footed --> <div data-role="footer" data-theme="c" data-position="fixed" class="footer"> </div> <div class="clearfix"></div> <!-- end footer --> </div> </body> </html>
+        }
+    </script>
+</head>
+<body>
+<div data-role="page" data-theme="a" id="login">
+
+    <!-- header -->
+    <div data-role="header" id="">
+        <!-- data will be added here with ajax -->
+    </div>
+    <div data-role="popup" data-history="false" id="alertPopup" data-theme="a" data-dismissible="false" style="max-width:500px; min-width: 200px;">
+        <div data-role="header" data-theme="">
+            <h1 class="page-name"></h1>
+        </div>
+        <div role="main" class="ui-content text-center">
+            <h3 class="ui-title alert-text"></h3>
+            <a href="#" data-role="button" data-rel="back" data-inline="true" data-transition="flow">OK</a>
+        </div>
+    </div>
+    <!-- content -->
+    <div data-role="content" data-theme="a">
+        <div id="clean-overflow-wrapper" class="overflow-wrapper overflow-wrapper-hide">
+            <img src="assets/main/images/loading_tasks5.gif" width="100%" height="4" style="vertical-align: top;" />
+            <div data-id="parameters.translate.login.text.login_done" id="login_done" class="hide text-center">
+                Logget inn. Synkroniserer
+            </div>
+        </div>
+        <div class="login-page" id="myApp-wrapper">
+            <div class="center">
+                <img src="assets/style/images/logo_text_big_new.png" class="logo" alt="logo"/>
+
+                <div class="form-group">
+                    <label data-id="parameters.translate.email" data-lang="login.text.email" name="text" for="username" class="control-label" style="width:10px">Epost</label>
+                    <input type="email" data-i18n="[placeholder]login.input.email_placeholder;" id="input_email"  value="" />
+                </div>
+
+                <div class="form-group">
+                    <label data-id="parameters.translate.password" data-lang="login.input.password_placeholder" name="text for="password" class="control-label">Passord</label>
+                    <input type="password" data-i18n="[placeholder]login.input.password_placeholder;" autocomplete="off" id="input_password" class="" value="" />
+                    <a data-id="parameters.translate.forgot_password" data-lang="login.text.forgot" href="forgot.html" data-i18n="login.text.forgot" data-transition="slide" class="btn btn-link pull-right">Glemt passord?</a>
+                </div>
+
+                <div class="form-group laguages-selector">
+                    <label data-id="parameters.translate.language" data-lang="login.text.language" for="language" class="control-label">Språk</label>
+                    <select id="input-lang" class="form-control input-lg" onchange="changeLanguage($('#input-lang').val(), $('*[data-id^=\'parameters.translate\']'))">
+                        <option value="no">Norwegian</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+
+            </div>
+            <button data-id="parameters.translate.login" data-lang="login.input.button" id='loginSubmit' type="submit" data-i18n="login.input.button" data-theme="d" class="btn btn-success btn-block" onclick="loginAction()">Logg inn</button>
+
+            <div class="clearfix"></div>
+
+        </div>
+
+    </div>
+    <!-- end content -->
+    <!-- footed -->
+    <div data-role="footer" data-theme="c" data-position="fixed" class="footer">
+
+    </div>
+    <div class="clearfix"></div>
+    <!-- end footer -->
+</div>
+</body>
+</html>

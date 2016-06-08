@@ -61,17 +61,33 @@
 	<script type="text/javascript" src="assets/main/sync_query.js"></script>
 	<script type="text/javascript" src="assets/3rd_party/swipebox/js/jquery.swipebox.js"></script>
 	<script type="text/javascript" src="assets/3rd_party/pinchzoom/pinchzoom.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment-with-locales.min.js"></script>
 
 	<!--<script src="http://192.168.1.111:8080/target/target-script-min.js#geny"></script>-->
 	<script type="text/javascript">
 			$.mobile.defaultPageTransition = 'none';
 			$.mobile.defaultDialogTransition = 'none';
 			$.mobile.buttonMarkup.hoverDelay = 0;
-
+                        
+                        var userLang = navigator.language || navigator.userLanguage; 
+                        userLocale = userLang.split("-", 1).toString();
 			var Page = new Page('index');
+			function checkLanguage(language, callback){
+                            Page.changeLanguage(language, 'changeLanguage', function(){
+                                    if(callback){
+                                        callback();
+                                    }
+                            });
+				
+			}
 			function deviceReady() {
-				Page.isReady();
-
+				if(!isNative()){
+                                    if(userLocale){
+                                        checkLanguage(userLocale, function () {
+                                                Page.isReady();
+                                        });
+                                    }
+				}
 				document.addEventListener('deviceready', function() {
 
 					if(navigator.splashscreen){
@@ -123,7 +139,23 @@
 							//history.back(1);
 						}
 					}, false);
+                                        if(navigator.globalization){
+                                                navigator.globalization.getPreferredLanguage(function(language){
+                                                    checkLanguage(language.value.substring(0,2), function () {
+                                                            Page.isReady();
+                                                    });
+
+                                                }, function () {
+                                                        lockedError("Can't set language, the application will use default language");
+                                                        checkLanguage("nb", function () {
+                                                                Page.isReady();
+                                                        });
+                                                });
+                                        }
+					
 				}, false);
+
+
 			}
 
 		</script>

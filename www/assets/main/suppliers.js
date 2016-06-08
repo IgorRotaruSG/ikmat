@@ -1,1 +1,73 @@
-function getSuppliersCall(a,b){if(0==b.rows.length&&isOffline())$("#suppliers_no_results").text($.t("error.no_supplier_to_show_offline"));else if(0!=b.rows.length||isOffline()){if(b.rows.length>0){for(var c="",d=0;d<b.rows.length;d++)c+='<li data-role="list-divider">'+b.rows[d].doc.name+"</li>",c+="<li>Address: "+b.rows[d].doc.address+"</li>",c+="<li>Phone Number:"+b.rows[d].doc.phone_number+"</li>",c+="<li>Id Number: "+b.rows[d].doc.id_number+"</li>";$("#suppliers_list").html(c).listview("refresh"),$("#suppliers_no_results").hide()}}else{$("#suppliers_no_results").text($.t("error.no_supplier_to_show_online"));var e={client:User.client,token:User.lastToken};Page.apiCall("getSuppliers",e,"get","getSuppliers")}}function suppliersInit(){User.isLogged()?db.getDbInstance("suppliers").allDocs({include_docs:!0},getSuppliersCall):Page.redirect("login.html")}function getSuppliers(a){if(a.success&&a.suppliers){var b="",c='INSERT INTO "suppliers"("name","address","phone_number", "id_number")',d=!1;for(var e in a.suppliers)"object"==typeof a.suppliers[e]&&(d?c+=" UNION":d=!0,c+=' SELECT "'+a.suppliers[e].Name+'" as "name", "'+a.suppliers[e].Address+'" as "address", "'+a.suppliers[e]["Phone Number"]+'" as "phone_number", \''+a.suppliers[e]["Id Number"]+'\' as "id_number"',b+='<li data-role="list-divider">'+a.suppliers[e].Name+"</li>",b+="<li>Address: "+a.suppliers[e].Address+"</li>",b+="<li>Phone Number:"+a.suppliers[e]["Phone Number"]+"</li>",b+="<li>Id Number: "+a.suppliers[e]["Id Number"]+"</li>");db.clean(),db.execute(c),$("#suppliers_no_results").hide(),$("#suppliers_list").html(b).listview("refresh")}}
+function getSuppliersCall(tx, results) {
+    if (results.rows.length == 0 && isOffline()) {
+        $('#suppliers_no_results').text($.t('error.no_supplier_to_show_offline'));
+    }
+    else if (results.rows.length == 0 && !isOffline()) {
+        $('#suppliers_no_results').text($.t('error.no_supplier_to_show_online'));
+
+        var data = {
+            'client': User.client,
+            'token': User.lastToken
+        };
+
+        Page.apiCall('getSuppliers', data, 'get', 'getSuppliers');
+    }
+    else if (results.rows.length > 0) {
+        var html = '';
+
+        for (var i=0;i<results.rows.length;i++) {
+
+            html += '<li data-role="list-divider">' + results.rows[i].doc.name + '</li>';
+            html += '<li>Address: ' + results.rows[i].doc.address + '</li>';
+            html += '<li>Phone Number:' + results.rows[i].doc.phone_number + '</li>';
+            html += '<li>Id Number: ' + results.rows[i].doc.id_number + '</li>';
+        }
+
+        $('#suppliers_list').html(html).listview('refresh');
+        $('#suppliers_no_results').hide();
+    }
+}
+
+function suppliersInit() {
+    if (User.isLogged()) {
+        db.getDbInstance('suppliers').allDocs({'include_docs': true}, getSuppliersCall);
+    } else {
+        Page.redirect('login.html');
+    }
+}
+
+function getSuppliers(data) {
+    if (data.success) {
+        //User.setToken(data.token);
+
+        if (data.suppliers) {
+            var html = '';
+            var q = 'INSERT INTO "suppliers"("name","address","phone_number", "id_number")';
+            var h = false;
+            for (var i in data.suppliers) {
+                if (typeof data.suppliers[i] == 'object') {
+                    if (h) {
+                        q += ' UNION';
+                    } else {
+                        h = true;
+                    }
+
+                    q += ' SELECT ' +
+                        '"' + data.suppliers[i]['Name'] + '" as "name", ' +
+                        '"' + data.suppliers[i]['Address'] + '" as "address", ' +
+                        '"' + data.suppliers[i]['Phone Number'] + '" as "phone_number", ' +
+                        "'" + data.suppliers[i]['Id Number'] + "'" + ' as "id_number"';
+
+                    html += '<li data-role="list-divider">' + data.suppliers[i]['Name'] + '</li>';
+                    html += '<li>Address: ' + data.suppliers[i]['Address'] + '</li>';
+                    html += '<li>Phone Number:' + data.suppliers[i]['Phone Number'] + '</li>';
+                    html += '<li>Id Number: ' + data.suppliers[i]['Id Number'] + '</li>';
+                }
+            }
+            db.clean();
+            db.execute(q);
+            $('#suppliers_no_results').hide();
+            $('#suppliers_list').html(html).listview('refresh');
+        }
+    }
+}
