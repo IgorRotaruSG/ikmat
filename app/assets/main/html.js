@@ -1175,7 +1175,7 @@ HTML.prototype.getFormValues = function(data) {
         ttmp[1] = decodeURIComponent(ttmp[1]);
 
         if (ttmp[0].indexOf('[') != -1) {
-            if (ttmp[0].indexOf('fridge') != -1 || ttmp[0].indexOf('dishwasher') != -1) {
+            if (ttmp[0].indexOf('fridge') != -1 || ttmp[0].indexOf('dishwasher') != -1 || ttmp[0].indexOf('cleaning_plan') != -1) {
                 //fridges[name][1]
                 ind = ttmp[0].match(/(.*)?\[(.*?)\]\[(.*?)\]/);
                 if (data_send[ind[1]] == undefined) {
