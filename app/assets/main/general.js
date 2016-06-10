@@ -2131,7 +2131,7 @@ $(document).on("pagechange", function(event, data) {
         $('#' + $.mobile.activePage.attr('id')).find('#menu_panel').load('_panel_employee.html', function() {
             bind_menuClick(this, n);
             $('#menu_panel').find('a[href^="' + data.toPage[0].id + '"]').addClass('active');
-            if(!isNative()){
+            if(jQuery('.switch-language').length){
                 if (lc == 'en') {
                     jQuery('.switch-language .localize[data-code="nb"]').removeClass('hidden');
                 } else {
@@ -2151,7 +2151,7 @@ $(document).on("pagechange", function(event, data) {
             bind_menuClick(this, n);
             $('#menu_panel').find('a[href^="' + data.toPage[0].id + '"]').addClass('active');
             /* Show/hide flag language */
-            if(!isNative()){
+            if(jQuery('.switch-language').length){
                 if (lc == 'en') {
                     jQuery('.switch-language .localize[data-code="nb"]').removeClass('hidden');
                 } else {
