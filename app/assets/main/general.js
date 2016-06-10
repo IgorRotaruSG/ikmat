@@ -1,7 +1,7 @@
 var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
-    'apiDomain' : 'http://staging.ikmatapp.no/api/',
-    'apiPath' : 'http://staging.ikmatapp.no',
+    'apiDomain' : 'http://ikmatapp.local/api/',
+    'apiPath' : 'http://ikmatapp.local',
     // 'apiDomain':        'https://automagi.fsoft.com.vn/api/',
     // 'apiPath':        'https://automagi.fsoft.com.vn',
     'apiUploadPath' : 'uploadPhotos',
@@ -2131,10 +2131,12 @@ $(document).on("pagechange", function(event, data) {
         $('#' + $.mobile.activePage.attr('id')).find('#menu_panel').load('_panel_employee.html', function() {
             bind_menuClick(this, n);
             $('#menu_panel').find('a[href^="' + data.toPage[0].id + '"]').addClass('active');
-            if (lc == 'en') {
-                jQuery('.switch-language .localize[data-code="nb"]').removeClass('hidden');
-            } else {
-                jQuery('.switch-language .localize[data-code="en"]').removeClass('hidden');
+            if(!isNative()){
+                if (lc == 'en') {
+                    jQuery('.switch-language .localize[data-code="nb"]').removeClass('hidden');
+                } else {
+                    jQuery('.switch-language .localize[data-code="en"]').removeClass('hidden');
+                }
             }
         });
 
@@ -2149,10 +2151,12 @@ $(document).on("pagechange", function(event, data) {
             bind_menuClick(this, n);
             $('#menu_panel').find('a[href^="' + data.toPage[0].id + '"]').addClass('active');
             /* Show/hide flag language */
-            if (lc == 'en') {
-                jQuery('.switch-language .localize[data-code="nb"]').removeClass('hidden');
-            } else {
-                jQuery('.switch-language .localize[data-code="en"]').removeClass('hidden');
+            if(!isNative()){
+                if (lc == 'en') {
+                    jQuery('.switch-language .localize[data-code="nb"]').removeClass('hidden');
+                } else {
+                    jQuery('.switch-language .localize[data-code="en"]').removeClass('hidden');
+                }
             }
         });
     }
