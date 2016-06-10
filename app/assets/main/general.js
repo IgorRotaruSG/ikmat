@@ -523,7 +523,11 @@ Page.prototype.changeLanguage = function(locate, fnName, callback) {
         }
     });
 }
-
+function switchLanguage(locale){
+    Page.changeLanguage(locale, 'changeLanguage', function(){
+            location.reload();
+    });
+}
 function dateFromString(datetime) {
     function validate(number){
         if(number){
@@ -2114,6 +2118,8 @@ $(document).delegate('.ui-page', "pagebeforeshow", function(event, data) {
 
 // panel load depending on user role
 $(document).on("pagechange", function(event, data) {
+    var lc = localStorage.getItem('locate_code') != null ? localStorage.getItem('locate_code') : "nb";
+    console.log('locale:',lc);
     // add external files
     if (localStorage.getItem('role') == 'ROLE_EMPLOYEE') {
         var n = localStorage.getItem('user_name');
@@ -2125,6 +2131,11 @@ $(document).on("pagechange", function(event, data) {
         $('#' + $.mobile.activePage.attr('id')).find('#menu_panel').load('_panel_employee.html', function() {
             bind_menuClick(this, n);
             $('#menu_panel').find('a[href^="' + data.toPage[0].id + '"]').addClass('active');
+            if (lc == 'en') {
+                jQuery('.switch-language .localize[data-code="nb"]').removeClass('hidden');
+            } else {
+                jQuery('.switch-language .localize[data-code="en"]').removeClass('hidden');
+            }
         });
 
     } else {
@@ -2137,6 +2148,12 @@ $(document).on("pagechange", function(event, data) {
         $('#' + $.mobile.activePage.attr('id')).find('#menu_panel').load('_panel.html', function() {
             bind_menuClick(this, n);
             $('#menu_panel').find('a[href^="' + data.toPage[0].id + '"]').addClass('active');
+            /* Show/hide flag language */
+            if (lc == 'en') {
+                jQuery('.switch-language .localize[data-code="nb"]').removeClass('hidden');
+            } else {
+                jQuery('.switch-language .localize[data-code="en"]').removeClass('hidden');
+            }
         });
     }
     // end add external files

@@ -111,3 +111,11 @@ input[type=number] {-moz-appearance: textfield;}
 .laguages-selector{
     display: none;
 }
+/* Switch language app */
+dt.switch-language .localize{
+    cursor: pointer;
+}
+dt.switch-language .localize img{
+    height: 16px;
+    padding-right: 10px;
+}
