@@ -110,6 +110,9 @@ function _syncDone(i) {
             {_id: 'name', type:'name', value: _data.company_name},
             {_id: 'role', type:'role', value: _data.role},
             {_id: 'deviation_form', type:'deviation_form', value: JSON.stringify(_data.deviation_form) },
+            {_id: 'contact_email', type:'contact_email', value: _data.contact_email},
+            {_id: 'first_name', type:'first_name', value: _data.first_name},
+            {_id: 'last_name', type:'last_name', value: _data.last_name},
             {_id: 'contact_name', type:'contact_name', value: _data.contact_name}
         ], userLoginCallback);
 
@@ -127,6 +130,9 @@ function _syncDone(i) {
         localStorage.setItem('company_name', _data.company_name);
         localStorage.setItem('role', _data.role);
         localStorage.setItem('company_join_date', company_join_date);
+        localStorage.setItem('contact_email', _data.contact_email);
+        localStorage.setItem('first_name', _data.first_name);
+        localStorage.setItem('last_name', _data.last_name);
         $('.overflow-wrapper').removeClass('overflow-wrapper-hide');
     }
     return false;
