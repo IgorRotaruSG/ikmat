@@ -6,7 +6,9 @@
 			function checkLanguage(callback){
 				if(navigator.globalization){
 					navigator.globalization.getPreferredLanguage(function(language){
-						Page.changeLanguage(language.value.substring(0,2), 'changeLanguage', function(){
+                        var locale = language.value.substring(0,2);
+                            locale = 'nb';
+						Page.changeLanguage(locale, 'changeLanguage', function(){
 							if(callback){
 								callback();
 							}
@@ -21,7 +23,7 @@
 			}
 			function deviceReady() {
 				if(!isNative()){
-                                    Page.isReady();
+                    Page.isReady();
 				}
 				document.addEventListener('deviceready', function() {
 
@@ -74,7 +76,7 @@
 							//history.back(1);
 						}
 					}, false);
-                                        checkLanguage(function () {
+                        checkLanguage(function () {
 						Page.isReady();
 					});
 					
