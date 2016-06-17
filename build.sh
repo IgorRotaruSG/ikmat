@@ -4,7 +4,7 @@ MOBILE_PATH='www'
 PROJECT_NAME='IK-Mat'
 VERSION="$1"
 # Install tools
-#npm install -g grunt-cli@1.2.0  cordova@6.1.1
+npm install -g grunt-cli@1.2.0  cordova@6.1.1
 
 function set_version
 {

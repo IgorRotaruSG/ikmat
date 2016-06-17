@@ -15,8 +15,8 @@ var settings = {
     },
     'requestTimeout' : 25000,
     'excludeOffline' : ["haccp.html", "flowchart.html"],
-    'version' : "2.0.85",
-    'rebuild' : "2.0.85"
+    'version' : "2.0.89",
+    'rebuild' : "2.0.89"
 };
 
 var performance = window.performance;
@@ -2257,7 +2257,7 @@ function bind_menuClick(t, n) {
     } else {
         contactName.html(localStorage.getItem('contact_name'));
     }
-    $(t).find('#app-version').html("IK-mat 2.0.10");
+    $(t).find('#app-version').html("IK-mat 2.0.11");
     displayOnline(isOffline());
 }
 
