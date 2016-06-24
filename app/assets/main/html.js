@@ -53,7 +53,7 @@ HTML.prototype.formGenerate = function(form_data, s, d) {
                                     isRequired = true;
                                 break;
                             }
-                        }                        
+                        }
                         if(isRequired){
                             html += this.inputText(form_data[i].type, i, form_data[i].label + "<i class=\"requiredicon\"> *</i>", form_data[i].placeholder, form_data[i].validation, form_data[i].value);
                         } else {
@@ -329,10 +329,10 @@ HTML.prototype.formSwitchChange = function(el) {
             $(this).removeAttr('checked').checkboxradio("refresh");
         });
         $('#' + $el.attr('name')).find('input[name="frequency_id"]').attr('checked', false).checkboxradio("refresh");
-        
+
         var now = new Date();
         var day = now.getDate() < 10 ? '0'+now.getDate() : now.getDate();
-        var month = now.getMonth() < 9 ? '0'+ ( now.getMonth() + 1)  : now.getMonth() + 1;        
+        var month = now.getMonth() < 9 ? '0'+ ( now.getMonth() + 1)  : now.getMonth() + 1;
         $('#' + $el.attr('name')).find('input[type="date"]').val(now.getFullYear()+'-'+month+'-'+day);
 
         $('#' + $el.attr('name')).find('input[type="radio"][value="#ffffff"]').each(function(){
@@ -342,7 +342,7 @@ HTML.prototype.formSwitchChange = function(el) {
     //realignSlideHeight('max-height-involved');
 };
 
-HTML.prototype.formSwitch = function(label, id, hide) {    
+HTML.prototype.formSwitch = function(label, id, hide) {
     var html = '<label>' + label + '</label>';
     html += '<label for="' + md5(label + id) + '">' + $.t('booleans.yes') + '</label>';
     html += '<input type="radio" name="'+ id +'" value="on" onchange="HTML.formSwitchChange(this);" id="'+ md5(label + id) +'" '+(!hide ? 'checked' : '')+' />';
@@ -371,18 +371,18 @@ HTML.prototype.inputDishWasherAdd = function(el, fields) {
         2: 'c'
     };
 
-    var parent_form = $el.closest('form');
-    var start_date = parent_form.find('input[name="start_date"]').val();
-    if ( start_date != '' ) {
-        start_date = new Date(start_date);
-    }
-    var now = new Date();
-    if ( start_date < now ) {
-        var day = now.getDate() < 10 ? '0'+now.getDate() : now.getDate();
-        var month = now.getMonth() < 9 ? '0'+ ( now.getMonth() + 1)  : now.getMonth() + 1;
-        var new_val = now.getFullYear() + '-' +month + '-' + day;
-        parent_form.find('input[name="start_date"]').val(new_val);
-    }
+    // var parent_form = $el.closest('form');
+    // var start_date = parent_form.find('input[name="start_date"]').val();
+    // if ( start_date != '' ) {
+    //     start_date = new Date(start_date);
+    // }
+    // var now = new Date();
+    // if ( start_date < now ) {
+    //     var day = now.getDate() < 10 ? '0'+now.getDate() : now.getDate();
+    //     var month = now.getMonth() < 9 ? '0'+ ( now.getMonth() + 1)  : now.getMonth() + 1;
+    //     var new_val = now.getFullYear() + '-' +month + '-' + day;
+    //     parent_form.find('input[name="start_date"]').val(new_val);
+    // }
 
     inc = 0;
     ff = true;
@@ -562,18 +562,18 @@ HTML.prototype.inputFridgeAdd = function(el, fields) {
         2: 'c'
     };
 
-    var parent_form = $el.closest('form');
-    var start_date = parent_form.find('input[name="start_date"]').val();
-    if ( start_date != '' ) {
-        start_date = new Date(start_date);
-    }
-    var now = new Date();
-    if ( start_date < now ) {
-        var day = now.getDate() < 10 ? '0'+now.getDate() : now.getDate();
-        var month = now.getMonth() < 9 ? '0'+ ( now.getMonth() + 1)  : now.getMonth() + 1;
-        var new_val = now.getFullYear() + '-' +month + '-' + day;
-        parent_form.find('input[name="start_date"]').val(new_val);
-    }
+    // var parent_form = $el.closest('form');
+    // var start_date = parent_form.find('input[name="start_date"]').val();
+    // if ( start_date != '' ) {
+    //     start_date = new Date(start_date);
+    // }
+    // var now = new Date();
+    // if ( start_date < now ) {
+    //     var day = now.getDate() < 10 ? '0'+now.getDate() : now.getDate();
+    //     var month = now.getMonth() < 9 ? '0'+ ( now.getMonth() + 1)  : now.getMonth() + 1;
+    //     var new_val = now.getFullYear() + '-' +month + '-' + day;
+    //     parent_form.find('input[name="start_date"]').val(new_val);
+    // }
 
     html += '<div>';
     for (var j in fields) {
@@ -1139,7 +1139,7 @@ HTML.prototype.inputText = function(type, name, label, placeholder, validation, 
         'placeholder="' + placeholder + '" ' +
         'id="frm_label_' + md5(name+label) + '" ' +
         this.generateValidation(validation) +
-        taskNameClass + 
+        taskNameClass +
         taskNameValidation + '/>';
 
     return html;
@@ -1286,8 +1286,8 @@ function validDate(dtObj) {
     //console.log('date: ', dtObj.val());
     if($.trim(dtObj.val())=='')
         return 'invalid';
-    
-    var date_regex = /^((19|20)\d\d+)-(0[1-9]|1[012]+)-(0[1-9]|[12][0-9]|3[01])$/;    
+
+    var date_regex = /^((19|20)\d\d+)-(0[1-9]|1[012]+)-(0[1-9]|[12][0-9]|3[01])$/;
     if(date_regex.test(dtObj.val())) {
         var now = new Date();
         var day = now.getDate() < 10 ? '0'+now.getDate() : now.getDate();
@@ -1304,7 +1304,7 @@ function validDate(dtObj) {
     return 'wrong_format';
 }
 
-function validateUnique(txtObj) {    
+function validateUnique(txtObj) {
     var taskNameTextsObj = txtObj.parents('.swiper-slide').find('.register-name');
     //console.log('taskNameTextsObj: ', taskNameTextsObj);
     for(i=0;i<taskNameTextsObj.length;i++) {
@@ -1467,7 +1467,7 @@ jQuery.fn.extend({
                         errorDate = validDate($(this));
                         //console.log('errorDate: ', errorDate);
                         if (errorDate!='valid') {
-                            stepValid = false;                            
+                            stepValid = false;
                         }
                         break;
                 }
@@ -1510,7 +1510,7 @@ jQuery.fn.extend({
                             $('.validate_error_taskname').remove();
                             if (taskNameDuplicated == '')
                                 $('<label id="' + $(this).attr('id') + '_validate" class="validate_error">' + err + '</label>').insertAfter($(this).parent());
-                            else                                
+                            else
                             {
                                 //console.log('name id=',taskNameDuplicated);
                                 //console.log('err id=',$(this).attr('id')+ '_validate');
