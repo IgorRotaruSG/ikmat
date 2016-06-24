@@ -217,7 +217,7 @@ function getTasks() {
 			}, 500);
 		}
 	});
-	
+
 }
 
 function tasksInit() {
@@ -839,8 +839,8 @@ function getTasksUncompleted(data) {
 				});
 
 				arr.sort(function(a, b) {
-					a = a.taskName;
-					b = b.taskName;
+					a = a.taskName.toUpperCase();
+					b = b.taskName.toUpperCase();
 					return a < b ? -1 : (a > b ? 1 : 0);
 				});
 
@@ -1461,7 +1461,7 @@ function foodpoisionFix(data) {
 									$('input[name="task_id"]').val(insertId);
 								}
 								maintenanceDone(insertId);
-							}); 	
+							});
 						}
 					});
 				}
