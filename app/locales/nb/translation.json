@@ -91,7 +91,8 @@
         "employee": "Ansattskjema",
         "supplier": "Leverandørskjema",
         "documents": "Selskapsdokument",
-        "flowcharts": "Flytskjema"
+        "flowcharts": "Flytskjema",
+        "logout": "Logg ut"
     },
 
     "error": {
