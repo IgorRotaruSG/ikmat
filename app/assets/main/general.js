@@ -2248,6 +2248,7 @@ function bind_menuClick(t, n) {
         }
     });
     $(t).find('#panel_user_name').html(n);
+    $(t).find('#company_name').html(localStorage.company_name);
     contactName = $(t).find('#contact_name');
     if (localStorage.getItem('contact_name') == null) {
         Page.apiCall('updateContactName', {
