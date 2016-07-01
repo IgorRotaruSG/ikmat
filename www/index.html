@@ -7,7 +7,7 @@
 				if(navigator.globalization){
 					navigator.globalization.getPreferredLanguage(function(language){
                         var locale = language.value.substring(0,2);
-                            locale = 'nb';
+                            //locale = 'nb';
 						Page.changeLanguage(locale, 'changeLanguage', function(){
 							if(callback){
 								callback();
