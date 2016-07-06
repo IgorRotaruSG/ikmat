@@ -68,7 +68,7 @@ function showFlowchart(data) {
                 if ((data.flowcharts).hasOwnProperty(i)) {
                     //var thumb = settings.apiPath + data.flowcharts[i]['path'] + 'small/' + data.flowcharts[i]['name'];
                     //var big = settings.apiPath + data.flowcharts[i]['path'] + 'large/' + data.flowcharts[i]['name'];
-                    var thumb = settings.apiPath + data.flowcharts[i]['path'] + 'thumbnails/' + data.flowcharts[i]['name'] +'.png';
+                    var thumb = settings.apiPath + data.flowcharts[i]['path'] + 'thumbnails/' + data.flowcharts[i]['thumbnail'];
                     var big = settings.apiPath + data.flowcharts[i]['path'] + 'originals/' + data.flowcharts[i]['name'];
                     add += '<div class="image_element">' +
                                 '<a href="'+ big +'" class="swipebox" title="'+ data.flowcharts[i]['description'] +'" data-id="'+data.flowcharts[i]['id']+'" >' +
