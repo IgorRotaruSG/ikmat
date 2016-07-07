@@ -68,18 +68,16 @@
 			$.mobile.defaultPageTransition = 'none';
 			$.mobile.defaultDialogTransition = 'none';
 			$.mobile.buttonMarkup.hoverDelay = 0;
-                        
+
 			var Page = new Page('index');
 			function checkLanguage(callback){
 				if(navigator.globalization){
 					navigator.globalization.getPreferredLanguage(function(language){
                         var locale = language.value.substring(0,2);
-                            locale = 'nb';
-						Page.changeLanguage(locale, 'changeLanguage', function(){
-							if(callback){
-								callback();
-							}
-						});
+                        localStorage.setItem('locale_code', locale);
+						if (callback) {
+                            callback();
+                        }
 					}, function () {
 						lockedError("Can't set language, the application will use default language");
 						if(callback){
@@ -146,7 +144,7 @@
                         checkLanguage(function () {
 						Page.isReady();
 					});
-					
+
 				}, false);
 
 
