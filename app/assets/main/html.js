@@ -854,7 +854,11 @@ HTML.prototype.checkboxList = function(name, label, list) {
     }
     for (var i in list) {
         if (list.hasOwnProperty(i)) {
-            html += '<input name="' + name + '[' + i + ']" id="' + md5(name+i) + '" type="checkbox" value="' + i + '"';
+            if(list[i].id != undefined){
+                html += '<input name="' + name + '[' + i + ']" id="' + md5(name+i) + '" type="checkbox" value="' + list[i].id + '"';
+            } else{
+                html += '<input name="' + name + '[' + i + ']" id="' + md5(name+i) + '" type="checkbox" value="' + i + '"';
+            }
             if (list[i].checked || list[i].checked == 'true') {
                 html += ' checked="checked"';
             }
