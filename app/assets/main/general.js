@@ -111,7 +111,7 @@ Page.prototype.reverseApiDate = function(date) {
 };
 
 Page.prototype.isReady = function() {
-    var lc = localStorage.getItem('locate_code') != null ? localStorage.getItem('locate_code') : "nb";
+    var lc = localStorage.getItem('locale_code') != null ? localStorage.getItem('locale_code') : "nb";
     moment.locale(lc);
     $.i18n.init({
         lng : lc
@@ -172,8 +172,8 @@ Page.prototype.isReady = function() {
         });
     }
 
-    if((this.currentPage == 'index' || this.currentPage == 'login') && localStorage.getItem('locate_code') != null) {
-        $('select#input-lang').val(localStorage.getItem('locate_code')).selectmenu("refresh");
+    if((this.currentPage == 'index' || this.currentPage == 'login') && localStorage.getItem('locale_code') != null) {
+        $('select#input-lang').val(localStorage.getItem('locale_code')).selectmenu("refresh");
 
         //Replace by translated text
         var eTargets = $('*[data-id^="parameters.translate"]');
@@ -236,6 +236,7 @@ Page.prototype.get = function() {
 };
 
 Page.prototype.apiCall = function(api_method, data, method, callback, parameters) {
+    data['lang'] = localStorage.getItem('locale_code') != null ? localStorage.getItem('locale_code') : "nb";
     var cacheData = null;
     if (data.hasOwnProperty("token") && data.hasOwnProperty("report_number")) {
         cacheData = JSON.parse(localStorage.getItem(encodeURIComponent(data["token"] + data["report_number"])));
@@ -506,27 +507,10 @@ Page.prototype.uploadImage = function() {
             }
         };
     }
-
 };
-
-Page.prototype.changeLanguage = function(locate, fnName, callback) {
-    $.ajax({
-        type : 'POST',
-        url : this.settings.apiDomain + fnName,
-        dataType : 'json',
-        data : {lang: locate},
-        success : function(data) {
-            localStorage.setItem('locate_code', locate);
-            if(callback){
-                callback(true);
-            }
-        }
-    });
-}
 function switchLanguage(locale){
-    Page.changeLanguage(locale, 'changeLanguage', function(){
-            location.reload();
-    });
+    localStorage.setItem('locale_code', locale);
+    location.reload();
 }
 function dateFromString(datetime) {
     function validate(number){
@@ -2118,7 +2102,7 @@ $(document).delegate('.ui-page', "pagebeforeshow", function(event, data) {
 
 // panel load depending on user role
 $(document).on("pagechange", function(event, data) {
-    var lc = localStorage.getItem('locate_code') != null ? localStorage.getItem('locate_code') : "nb";
+    var lc = localStorage.getItem('locale_code') != null ? localStorage.getItem('locale_code') : "nb";
     console.log('locale:',lc);
     // add external files
     if (localStorage.getItem('role') == 'ROLE_EMPLOYEE') {

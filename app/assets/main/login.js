@@ -38,15 +38,13 @@ function loginAction(){
     return false;
 }
 
-function changeLanguage(locate) {
+function changeLanguage(locale) {
     "use strict";
-    Page.changeLanguage(locate, 'changeLanguage', function(){
-        moment.locale(locate);
-        $.i18n.init({
-            lng : locate
-        });
-        $(".language").i18n();
+    moment.locale(locale);
+    $.i18n.init({
+        lng : locale
     });
+    $(".language").i18n();
 }
 
 function getAccess(data) {
