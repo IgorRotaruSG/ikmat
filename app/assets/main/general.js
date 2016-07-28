@@ -15,8 +15,8 @@ var settings = {
     },
     'requestTimeout' : 25000,
     'excludeOffline' : ["haccp.html", "flowchart.html"],
-    'version' : "2.3",
-    'rebuild' : "2.3"
+    'version' : "2.4",
+    'rebuild' : "2.4"
 };
 
 var performance = window.performance;
@@ -237,6 +237,7 @@ Page.prototype.get = function() {
 
 Page.prototype.apiCall = function(api_method, data, method, callback, parameters) {
     data['lang'] = localStorage.getItem('locale_code') != null ? localStorage.getItem('locale_code') : "nb";
+    data['app_version'] = localStorage.getItem('app-version') != null ? localStorage.getItem('app-version') : "2.4";
     var cacheData = null;
     if (data.hasOwnProperty("token") && data.hasOwnProperty("report_number")) {
         cacheData = JSON.parse(localStorage.getItem(encodeURIComponent(data["token"] + data["report_number"])));
@@ -2242,7 +2243,7 @@ function bind_menuClick(t, n) {
     } else {
         contactName.html(localStorage.getItem('contact_name'));
     }
-    $(t).find('#app-version').html("IK-mat 2.3");
+    $(t).find('#app-version').html("IK-mat 2.4");
     displayOnline(isOffline());
 }
 
