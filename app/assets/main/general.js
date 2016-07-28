@@ -237,7 +237,7 @@ Page.prototype.get = function() {
 
 Page.prototype.apiCall = function(api_method, data, method, callback, parameters) {
     data['lang'] = localStorage.getItem('locale_code') != null ? localStorage.getItem('locale_code') : "nb";
-    data['app_version'] = localStorage.getItem('app-version') != null ? localStorage.getItem('app-version') : "2.4";
+    data['app_version'] = settings.version;
     var cacheData = null;
     if (data.hasOwnProperty("token") && data.hasOwnProperty("report_number")) {
         cacheData = JSON.parse(localStorage.getItem(encodeURIComponent(data["token"] + data["report_number"])));
