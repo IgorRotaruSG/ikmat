@@ -74,7 +74,6 @@
 				if(navigator.globalization){
 					navigator.globalization.getPreferredLanguage(function(language){
                         var locale = language.value.substring(0,2);
-                        locale = 'nb';
                         localStorage.setItem('locale_code', locale);
 						if (callback) {
                             callback();
