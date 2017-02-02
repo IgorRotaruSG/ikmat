@@ -141,9 +141,14 @@
 							//history.back(1);
 						}
 					}, false);
-                        checkLanguage(function () {
+
+					if (localStorage.getItem('locale_code')) {
+	                    checkLanguage(function () {
+							Page.isReady();
+						});
+					} else {
 						Page.isReady();
-					});
+					}
 
 				}, false);
 
