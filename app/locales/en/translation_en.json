@@ -90,7 +90,9 @@
         "employee": "EN_Ansattskjema",
         "supplier": "EN_Leverandørskjema",
         "documents": "EN_Selskapsdokument",
-        "flowcharts": "EN_Flytskjema"
+        "flowcharts": "EN_Flytskjema",
+        "logout": "Log out",
+        "support": "Support"
     },
 
     "error": {

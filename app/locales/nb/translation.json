@@ -92,7 +92,8 @@
         "supplier": "Leverandørskjema",
         "documents": "Selskapsdokument",
         "flowcharts": "Flytskjema",
-        "logout": "Logg ut"
+        "logout": "Logg ut",
+        "support": "Support"
     },
 
     "error": {
