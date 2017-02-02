@@ -1037,3 +1037,7 @@ a.ui-slider-handle {
 .online:before{
 	color: #8cc63f;
 }
+.switch-language .localize {
+    color: gray !important;
+    cursor: pointer;
+}

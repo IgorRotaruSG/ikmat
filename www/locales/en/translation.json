@@ -91,7 +91,9 @@
         "employee": "Employee form",
         "supplier": "Supplier form",
         "documents": "Company document",
-        "flowcharts": "Flowchart"
+        "flowcharts": "Flowchart",
+        "logout": "Log out",
+        "support": "Support"
     },
 
     "error": {

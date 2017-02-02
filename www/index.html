@@ -7,7 +7,6 @@
 				if(navigator.globalization){
 					navigator.globalization.getPreferredLanguage(function(language){
                         var locale = language.value.substring(0,2);
-                        locale = 'nb';
                         localStorage.setItem('locale_code', locale);
 						if (callback) {
                             callback();
@@ -75,9 +74,14 @@
 							//history.back(1);
 						}
 					}, false);
-                        checkLanguage(function () {
-						Page.isReady();
-					});
+
+					if (localStorage.getItem('locale_code')) {
+	                    Page.isReady();
+					} else {
+						checkLanguage(function () {
+							Page.isReady();
+						});
+					}
 
 				}, false);
 

@@ -15,8 +15,8 @@ var settings = {
     },
     'requestTimeout' : 25000,
     'excludeOffline' : ["haccp.html", "flowchart.html"],
-    'version' : "2.4",
-    'rebuild' : "2.4"
+    'version' : "2.6",
+    'rebuild' : "2.6"
 };
 
 var performance = window.performance;
@@ -2243,7 +2243,7 @@ function bind_menuClick(t, n) {
     } else {
         contactName.html(localStorage.getItem('contact_name'));
     }
-    $(t).find('#app-version').html("IK-mat 2.4");
+    $(t).find('#app-version').html("IK-mat 2.6");
     displayOnline(isOffline());
 }
 
@@ -2514,4 +2514,17 @@ function showNotificationMessage() {
 
 function removeNotificationMessage() {
     $('.report_generation_message').remove();
+}
+function openChatSupport(){
+    var customer_email = localStorage.getItem('contact_email');
+    var customer_name = localStorage.getItem('contact_name');
+    var url = 'https://secure.livechatinc.com/licence/8515186/open_chat.cgi?name='+customer_name+'&email='+customer_email;
+
+    if (typeof navigator !== "undefined" && navigator.app) {
+        // Mobile device.
+        navigator.app.loadUrl(url, {openExternal: true});
+    } else {
+        // Possible web browser
+        window.open(url, "_blank");
+    }
 }

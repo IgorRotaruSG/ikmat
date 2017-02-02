@@ -143,11 +143,11 @@
 					}, false);
 
 					if (localStorage.getItem('locale_code')) {
-	                    checkLanguage(function () {
+	                    Page.isReady();
+					} else {
+						checkLanguage(function () {
 							Page.isReady();
 						});
-					} else {
-						Page.isReady();
 					}
 
 				}, false);
