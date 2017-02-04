@@ -2520,11 +2520,5 @@ function openChatSupport(){
     var customer_name = localStorage.getItem('contact_name');
     var url = 'https://secure.livechatinc.com/licence/8515186/open_chat.cgi?name='+customer_name+'&email='+customer_email;
 
-    if (typeof navigator !== "undefined" && navigator.app) {
-        // Mobile device.
-        navigator.app.loadUrl(url, {openExternal: true});
-    } else {
-        // Possible web browser
-        window.open(url, "_blank");
-    }
+    window.open(url, "_system");
 }

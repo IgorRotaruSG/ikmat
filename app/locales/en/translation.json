@@ -204,7 +204,7 @@
     "login": {
         "input": {
             "email_placeholder": "Email address",
-            "password_placeholder": "Password updated",
+            "password_placeholder": "Password",
             "button": "Login"
         },
         "text": {

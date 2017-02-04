@@ -30,6 +30,7 @@
     <preference name="ShowSplashScreenSpinner" value="false" />
     <preference name="android-build-tool" value="gradle" />
     <preference name="Orientation" value="fullSensor" />
+    <preference name="android-targetSdkVersion" value="23"/>
     <gap:plugin name="org.apache.cordova.battery-status" />
     <gap:plugin name="org.apache.cordova.console" />
     <gap:plugin name="org.apache.cordova.contacts" />
@@ -118,4 +119,5 @@
         <allow-intent href="itms-apps:*" />
     </platform>
     <engine name="ios" spec="~3.9.2" />
+    <engine name="android" spec="~6.1.0" />
 </widget>
