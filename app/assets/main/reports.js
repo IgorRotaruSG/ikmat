@@ -553,7 +553,7 @@ function reportsView(data) {
         getNewReport(date_start,date_end);
     });
 
-    if ( document.form_cat == '12'|| document.form_cat == '1' || document.form_cat == '3' || document.form_cat == '15' || document.form_cat == '11') {
+    if ( document.form_cat == '12'|| document.form_cat == '1' || document.form_cat == '3' || document.form_cat == '15' || document.form_cat == '11' || document.form_cat == '17') {
         $('.report-date-selector-container').hide();
         $('.semi-title-blue').css('margin-top','10px');
     } else{
