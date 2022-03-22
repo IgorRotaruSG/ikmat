@@ -2,8 +2,6 @@ var settings = {
     //'apiDomain':        'http://haccpy11.bywmds.us/api/',
     'apiDomain' : 'http://ikmatapp.no/api/',
     'apiPath' : 'http://ikmatapp.no',
-    // 'apiDomain':        'https://automagi.fsoft.com.vn/api/',
-    // 'apiPath':        'https://automagi.fsoft.com.vn',
     'apiUploadPath' : 'uploadPhotos',
     'testImage' : 'apple-touch-icon.png',
     'syncIntervals' : {// sync interval in ms (1000 ms = 1 second)
